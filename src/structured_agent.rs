@@ -20,12 +20,11 @@ impl Default for ResponseFormat {
 pub struct StructuredTrainingExample {
     pub input: String,
     pub output: ResponseFormat,
-    // Änderung: Wir können jetzt direkt default_weight verwenden
     #[serde(default = "default_weight")]
     pub weight: f32,
 }
 
-// Konvertierung zwischen TrainingExample und StructuredTrainingExample
+// Conversion between TrainingExample and StructuredTrainingExample
 impl From<TrainingExample> for StructuredTrainingExample {
     fn from(example: TrainingExample) -> Self {
         Self {
@@ -65,11 +64,11 @@ impl StructuredAgent {
         }
     }
 
-    // Zusätzliche Methode, um strukturierte Antwort zu erhalten
+    // Additional method to get structured response
     pub fn predict_structured(&self, input: &str) -> ResponseFormat {
         let plain_answer = self.predict(input);
 
-        // Versuche, die entsprechende strukturierte Antwort zu finden
+        // Try to find the corresponding structured answer
         for example in &self.structured_memory {
             let example_simple: TrainingExample = example.clone().into();
             if example_simple.output == plain_answer {
@@ -77,7 +76,7 @@ impl StructuredAgent {
             }
         }
 
-        // Fallback: Textantwort
+        // Fallback: Text answer
         ResponseFormat::Text(plain_answer)
     }
 }
@@ -86,7 +85,7 @@ impl TrainableAgent for StructuredAgent {
     fn train(&mut self, data: &[TrainingExample]) {
         self.base_agent.train(data);
 
-        // Konvertiere zu strukturierten Beispielen
+        // Convert to structured examples
         self.structured_memory = data
             .iter()
             .map(|ex| StructuredTrainingExample::from(ex.clone()))

@@ -8,8 +8,7 @@ pub struct TrainingExample {
     pub weight: f32,
 }
 
-// Standardgewicht für abwärtskompatibilität
-// Änderung: Funktion als pub markieren
+// Default weight for backward compatibility
 pub fn default_weight() -> f32 {
     1.0
 }

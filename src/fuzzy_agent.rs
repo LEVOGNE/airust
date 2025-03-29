@@ -18,7 +18,7 @@ impl TrainableAgent for FuzzyAgent {
 
     fn predict(&self, input: &str) -> String {
         let mut best_score = usize::MAX;
-        let mut best_output = "Keine Antwort gefunden.".to_string();
+        let mut best_output = "No answer found.".to_string();
 
         for item in &self.memory {
             let score = levenshtein(&item.input.to_lowercase(), &input.to_lowercase());

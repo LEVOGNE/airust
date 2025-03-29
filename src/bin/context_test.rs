@@ -5,10 +5,10 @@ use std::io::{self, Write};
 
 fn main() {
     println!("=== ContextAgent Test ===");
-    println!("Tippen Sie Fragen ein. Der Agent wird versuchen, den Kontext zu nutzen.");
-    println!("Zum Beenden 'exit' eingeben.");
+    println!("Type questions. The agent will try to use the context.");
+    println!("Type 'exit' to quit.");
 
-    let mut ai = ContextAgent::new(3); // Speichere die letzten 3 Interaktionen
+    let mut ai = ContextAgent::new(3); // Store the last 3 interactions
     ai.train(&TRAINING_DATA);
 
     loop {
@@ -23,10 +23,10 @@ fn main() {
             break;
         }
 
-        let antwort = ai.predict(input);
-        println!("Antwort: {}", antwort);
+        let answer = ai.predict(input);
+        println!("Answer: {}", answer);
 
-        // Füge die aktuelle Interaktion zum Kontext hinzu
-        ai.add_to_context(input.to_string(), antwort);
+        // Add the current interaction to the context
+        ai.add_to_context(input.to_string(), answer);
     }
 }

@@ -18,13 +18,12 @@ impl KnowledgeBase {
         }
     }
 
-    // Lade Wissensbasis aus Datei
+    // Load knowledge base from file
     pub fn load(path: PathBuf) -> Result<Self, String> {
-        let data =
-            fs::read_to_string(&path).map_err(|e| format!("Konnte Datei nicht lesen: {}", e))?;
+        let data = fs::read_to_string(&path).map_err(|e| format!("Could not read file: {}", e))?;
 
         let examples: Vec<TrainingExample> = serde_json::from_str(&data)
-            .map_err(|e| format!("Fehler beim Deserialisieren: {}", e))?;
+            .map_err(|e| format!("Error during deserialization: {}", e))?;
 
         Ok(Self {
             examples,
@@ -32,25 +31,24 @@ impl KnowledgeBase {
         })
     }
 
-    // Speichere Wissensbasis in Datei
+    // Save knowledge base to file
     pub fn save(&self, path: Option<PathBuf>) -> Result<(), String> {
         let path = path
             .or(self.file_path.clone())
-            .ok_or_else(|| "Kein Pfad angegeben".to_string())?;
+            .ok_or_else(|| "No path specified".to_string())?;
 
         let json = serde_json::to_string_pretty(&self.examples)
-            .map_err(|e| format!("Fehler beim Serialisieren: {}", e))?;
+            .map_err(|e| format!("Error during serialization: {}", e))?;
 
-        let mut file =
-            File::create(&path).map_err(|e| format!("Konnte Datei nicht erstellen: {}", e))?;
+        let mut file = File::create(&path).map_err(|e| format!("Could not create file: {}", e))?;
 
         file.write_all(json.as_bytes())
-            .map_err(|e| format!("Konnte nicht in Datei schreiben: {}", e))?;
+            .map_err(|e| format!("Could not write to file: {}", e))?;
 
         Ok(())
     }
 
-    // Füge ein neues Trainingsbeispiel hinzu
+    // Add a new training example
     pub fn add_example(&mut self, input: String, output: String, weight: f32) {
         let example = TrainingExample {
             input,
@@ -60,16 +58,16 @@ impl KnowledgeBase {
         self.examples.push(example);
     }
 
-    // Entferne ein Trainingsbeispiel
+    // Remove a training example
     pub fn remove_example(&mut self, index: usize) -> Result<TrainingExample, String> {
         if index < self.examples.len() {
             Ok(self.examples.remove(index))
         } else {
-            Err(format!("Index {} außerhalb des gültigen Bereichs", index))
+            Err(format!("Index {} out of valid range", index))
         }
     }
 
-    // Hole alle Beispiele
+    // Get all examples
     pub fn get_examples(&self) -> &[TrainingExample] {
         &self.examples
     }

@@ -1,35 +1,35 @@
 # airust
 
-🧠 **airust** ist eine modulare, trainierbare KI-Bibliothek in Rust.  
-Sie unterstützt Compile-Zeit-Wissen über JSON-Dateien und erlaubt einfache Vorhersage-Engines für natürliche Spracheingaben.
+🧠 **airust** is a modular, trainable AI library in Rust.  
+It supports compile-time knowledge through JSON files and enables simple prediction engines for natural language inputs.
 
 ## 🚀 Features
 
-- 🧩 Modularer Aufbau mit `TrainableAgent`-Trait
-- 🧠 Mehrere eingebaute Agenten:
-  - `SimpleAgent` (exakte Übereinstimmung)
-  - `FuzzyAgent` (Levenshtein-Ähnlichkeit)
-  - `ContextAgent` (berücksichtigt Gesprächskontext)
-  - `TfidfAgent` (nutzt BM25-Algorithmus für bessere Ähnlichkeitssuche)
-  - `StructuredAgent` (unterstützt strukturierte Antwortformate)
-- 💾 Compile-Zeit-Wissen via `knowledge/train.json`
-- ⚖️ Gewichtete Trainingsdaten für präzisere Antworten
-- 📋 Erweiterbare dynamische Wissensbasis zur Laufzeit
-- 🔍 Erweiterte Texterkennung mit TF-IDF und BM25
-- 🏷️ Unterstützung für strukturierte Antworten (Text, Markdown, JSON)
-- 📦 Leicht in andere Projekte einbindbar
-- 🖥️ CLI-Testprogramm inklusive
+- 🧩 Modular architecture with the `TrainableAgent` trait
+- 🧠 Multiple built-in agents:
+  - `SimpleAgent` (exact matching)
+  - `FuzzyAgent` (Levenshtein similarity)
+  - `ContextAgent` (considers conversation context)
+  - `TfidfAgent` (uses BM25 algorithm for better similarity matching)
+  - `StructuredAgent` (supports structured response formats)
+- 💾 Compile-time knowledge via `knowledge/train.json`
+- ⚖️ Weighted training data for more precise answers
+- 📋 Extensible knowledge base at runtime
+- 🔍 Advanced text recognition with TF-IDF and BM25
+- 🏷️ Support for structured responses (Text, Markdown, JSON)
+- 📦 Easy integration into other projects
+- 🖥️ CLI test program included
 
-## 🔧 Verwendung
+## 🔧 Usage
 
-### In deinem Projekt
+### In your project
 
 ```toml
 [dependencies]
 airust = { path = "../airust" }
 ```
 
-### Beispielcode
+### Example code
 
 ```rust
 use airust::simple_agent::SimpleAgent;
@@ -39,84 +39,84 @@ use airust::agent::TrainableAgent;
 fn main() {
     let mut ai = SimpleAgent::new();
     ai.train(&TRAINING_DATA);
-    let antwort = ai.predict("Was ist airust?");
-    println!("Antwort: {}", antwort);
+    let answer = ai.predict("What is airust?");
+    println!("Answer: {}", answer);
 }
 ```
 
-## 📂 Trainingsdaten
+## 📂 Training Data
 
-Die Datei `knowledge/train.json` unterstützt nun auch Gewichtungen:
+The file `knowledge/train.json` now also supports weights:
 
 ```json
 [
   {
-    "input": "Was ist GEL?",
-    "output": "Ein leichtes Versionskontrollsystem.",
+    "input": "What is GEL?",
+    "output": "A lightweight version control system.",
     "weight": 1.0
   },
   {
-    "input": "Was ist airust?",
-    "output": "Ein modularer KI-Agent in Rust.",
+    "input": "What is airust?",
+    "output": "A modular AI agent in Rust.",
     "weight": 2.0
   }
 ]
 ```
 
-Diese Datei wird automatisch bei Build-Zeit in das Binary eingebunden (`build.rs` kümmert sich darum).
+This file is automatically embedded in the binary at build time (`build.rs` takes care of this).
 
-## 🖥️ CLI-Nutzung
+## 🖥️ CLI Usage
 
 ```bash
-# Verschiedene Agenten testen
-cargo run --bin cli -- simple "Was ist GEL?"
-cargo run --bin cli -- fuzzy "Was ist Gel"
-cargo run --bin cli -- tfidf "Erkläre mir airust"
-cargo run --bin cli -- context "Folge-Frage zum Thema"
+# Testing different agents
+cargo run --bin cli -- simple "What is GEL?"
+cargo run --bin cli -- fuzzy "What is Gel"
+cargo run --bin cli -- tfidf "Explain airust to me"
+cargo run --bin cli -- context "Follow-up question on the topic"
 ```
 
-## 🧪 Testen der erweiterten Funktionen
+## 🧪 Testing the Extended Features
 
-### Kontext-Agent testen
+### Context Agent Testing
 
 ```bash
-# Interaktiven Kontext-Test starten
+# Start the interactive context test
 cargo run --bin context_test
 ```
 
-Der Kontext-Agent speichert vorherige Fragen und Antworten, um bessere Ergebnisse bei zusammenhängenden Gesprächen zu liefern.
+The Context Agent stores previous questions and answers to deliver better results in connected conversations.
 
-### Dynamische Wissensbasis
+### Dynamic Knowledge Base
 
 ```bash
-# Testen der dynamischen Wissensdatenbank
+# Test the dynamic knowledge database
 cargo run --bin knowledge_test
 ```
 
-Mit der dynamischen Wissensbasis können Sie zur Laufzeit:
+With the dynamic knowledge base, you can at runtime:
 
-- Neue Trainingsdaten hinzufügen
-- Die Wissensbasis speichern und laden
-- Änderungen an Trainingsdaten vornehmen
+- Add new training data
+- Save and load the knowledge base
+- Make changes to training data
 
-### Strukturierte Antworten
+### Structured Responses
 
-Der `StructuredAgent` unterstützt verschiedene Antwortformate:
+The `StructuredAgent` supports different response formats:
 
-- Einfacher Text
-- Markdown-formatierter Text
-- JSON-strukturierte Daten
+- Simple text
+- Markdown formatted text
+- JSON structured data
 
 ```bash
-# Testen der strukturierten Antworten
+# Test structured responses
 cargo run --bin structured_test
 ```
 
-## 📊 Fortgeschrittene Verwendung
+## 📊 Advanced Usage
 
-### BM25-Algorithmus für bessere Trefferquoten
+### BM25 Algorithm for Better Match Rates
 
-Der `TfidfAgent` verwendet den BM25-Algorithmus, eine Erweiterung des TF-IDF-Verfahrens, um die semantische Ähnlichkeit zwischen Fragen besser zu erkennen:
+The `TfidfAgent` uses the BM25 algorithm, an extension of the TF-IDF method, to better recognize semantic similarity between questions:
 
 ```rust
 use airust::tfidf_agent::TfidfAgent;
@@ -126,17 +126,17 @@ use airust::agent::TrainableAgent;
 fn main() {
     let mut ai = TfidfAgent::new();
     ai.train(&TRAINING_DATA);
-    // Findet Antworten auch bei anders formulierten Fragen
-    let antwort = ai.predict("Erkläre mir, was airust kann");
-    println!("{}", antwort);
+    // Finds answers even with differently phrased questions
+    let answer = ai.predict("Explain to me what airust can do");
+    println!("{}", answer);
 }
 ```
 
-## 📃 Lizenz
+## 📃 License
 
 MIT
 
 ---
 
-> Entwickelt mit ❤️ in Rust.  
-> Dieses Crate ist offen für Beiträge und Erweiterungen.
+> Developed with ❤️ in Rust.  
+> This crate is open for contributions and extensions.

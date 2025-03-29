@@ -5,42 +5,42 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 
 fn main() {
-    println!("=== Dynamische Wissensbasis Test ===");
-    println!("1. Neue Wissensbasis erstellen");
-    println!("2. Beispiele hinzufügen");
-    println!("3. Speichern und testen");
+    println!("=== Dynamic Knowledge Base Test ===");
+    println!("1. Create new knowledge base");
+    println!("2. Add examples");
+    println!("3. Save and test");
 
-    // 1. Neue Wissensbasis erstellen
+    // 1. Create new knowledge base
     let mut kb = KnowledgeBase::new();
 
-    // 2. Beispiele hinzufügen
+    // 2. Add examples
     kb.add_example(
-        "Wie heißt das Projekt?".to_string(),
-        "Das Projekt heißt airust.".to_string(),
+        "What is the name of the project?".to_string(),
+        "The project is called airust.".to_string(),
         1.0,
     );
     kb.add_example(
-        "Wer hat das entwickelt?".to_string(),
-        "Das wurde als Open-Source-Projekt entwickelt.".to_string(),
+        "Who developed it?".to_string(),
+        "It was developed as an open source project.".to_string(),
         1.0,
     );
     kb.add_example(
-        "Welche Sprache wird verwendet?".to_string(),
-        "Das Projekt ist in Rust geschrieben.".to_string(),
+        "What language is used?".to_string(),
+        "The project is written in Rust.".to_string(),
         1.0,
     );
 
-    // 3. Speichern
+    // 3. Save
     let path = PathBuf::from("knowledge/dynamic_test.json");
     match kb.save(Some(path.clone())) {
-        Ok(_) => println!("Wissensbasis gespeichert in {:?}", path),
-        Err(e) => println!("Fehler beim Speichern: {}", e),
+        Ok(_) => println!("Knowledge base saved in {:?}", path),
+        Err(e) => println!("Error saving: {}", e),
     }
 
-    // 4. Laden und testen
+    // 4. Load and test
     match KnowledgeBase::load(path) {
         Ok(loaded_kb) => {
-            println!("Wissensbasis geladen! Testen Sie mit Fragen oder 'exit' zum Beenden.");
+            println!("Knowledge base loaded! Test with questions or type 'exit' to quit.");
 
             let mut agent = TfidfAgent::new();
             agent.train(loaded_kb.get_examples());
@@ -57,10 +57,10 @@ fn main() {
                     break;
                 }
 
-                let antwort = agent.predict(input);
-                println!("Antwort: {}", antwort);
+                let answer = agent.predict(input);
+                println!("Answer: {}", answer);
             }
         }
-        Err(e) => println!("Fehler beim Laden: {}", e),
+        Err(e) => println!("Error loading: {}", e),
     }
 }

@@ -21,6 +21,6 @@ impl TrainableAgent for SimpleAgent {
                 return item.output.clone();
             }
         }
-        "Keine Antwort gefunden.".to_string()
+        "No answer found.".to_string()
     }
 }
