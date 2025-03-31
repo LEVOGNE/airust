@@ -7,7 +7,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-// Contains both data types for backward compatibility
+/// Supports both legacy and modern training data formats for backward compatibility
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 enum TrainingData {
@@ -15,13 +15,14 @@ enum TrainingData {
     Modern(Vec<TrainingExample>),
 }
 
+/// Represents a flexible knowledge base for storing and managing training examples
 #[derive(Clone)]
 pub struct KnowledgeBase {
     examples: Vec<TrainingExample>,
     file_path: Option<PathBuf>,
 }
 
-// Compile-time data (static)
+/// Compile-time embedded training data
 pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
     let raw = include_str!(concat!(env!("OUT_DIR"), "/train.json"));
 
@@ -39,6 +40,7 @@ pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
 });
 
 impl KnowledgeBase {
+    /// Creates an empty knowledge base
     pub fn new() -> Self {
         Self {
             examples: Vec::new(),
@@ -46,7 +48,7 @@ impl KnowledgeBase {
         }
     }
 
-    // Creates a knowledge base from embedded data
+    /// Creates a knowledge base from embedded data
     pub fn from_embedded() -> Self {
         Self {
             examples: EMBEDDED_DATA.to_vec(),
@@ -54,7 +56,7 @@ impl KnowledgeBase {
         }
     }
 
-    // Loads knowledge base from file
+    /// Loads a knowledge base from a JSON file
     pub fn load(path: PathBuf) -> Result<Self, String> {
         let data = fs::read_to_string(&path).map_err(|e| format!("Failed to read file: {}", e))?;
 
@@ -74,7 +76,7 @@ impl KnowledgeBase {
         }
     }
 
-    // Saves knowledge base to file
+    /// Saves the knowledge base to a JSON file
     pub fn save(&self, path: Option<PathBuf>) -> Result<(), String> {
         let path = path
             .or_else(|| self.file_path.clone())
@@ -91,17 +93,18 @@ impl KnowledgeBase {
         Ok(())
     }
 
-    // Adds a new training example
+    /// Adds a new training example to the knowledge base
     pub fn add_example(&mut self, input: String, output: impl Into<ResponseFormat>, weight: f32) {
         let example = TrainingExample {
             input,
             output: output.into(),
             weight,
+            metadata: None, // Standardmäßig keine Metadaten
         };
         self.examples.push(example);
     }
 
-    // Removes a training example
+    /// Removes a training example by its index
     pub fn remove_example(&mut self, index: usize) -> Result<TrainingExample, String> {
         if index < self.examples.len() {
             Ok(self.examples.remove(index))
@@ -110,18 +113,25 @@ impl KnowledgeBase {
         }
     }
 
-    // Returns all examples
+    /// Returns a reference to all training examples
     pub fn get_examples(&self) -> &[TrainingExample] {
         &self.examples
     }
 
-    // Merges two knowledge bases
+    /// Merges another knowledge base into the current one
     pub fn merge(&mut self, other: &KnowledgeBase) {
         self.examples.extend_from_slice(&other.examples);
     }
 
-    // Merges embedded data into the current knowledge base
+    /// Merges embedded data into the current knowledge base
     pub fn merge_embedded(&mut self) {
         self.examples.extend_from_slice(&EMBEDDED_DATA);
+    }
+}
+
+// Default implementation for creating a new knowledge base
+impl Default for KnowledgeBase {
+    fn default() -> Self {
+        Self::new()
     }
 }

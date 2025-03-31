@@ -2,6 +2,7 @@
 use crate::agent::{Agent, ContextualAgent, ResponseFormat, TrainableAgent, TrainingExample};
 use std::collections::VecDeque;
 
+/// Context agent wraps another agent and provides context-aware responses
 pub struct ContextAgent<A: Agent> {
     base_agent: A,
     context_history: VecDeque<(String, ResponseFormat)>, // (Question, Answer)
@@ -9,15 +10,15 @@ pub struct ContextAgent<A: Agent> {
     context_format: ContextFormat,
 }
 
-// Configurable context formatting
+/// Configurable context formatting strategies
 pub enum ContextFormat {
-    // Format: "Q: question A: answer Q: question A: answer ..."
+    /// Format: "Q: question A: answer Q: question A: answer ..."
     QAPairs,
-    // Format: "[question -> answer, question -> answer, ...]"
+    /// Format: "[question -> answer, question -> answer, ...]"
     List,
-    // Format: "Previous questions and answers: question - answer; question - answer; ..."
+    /// Format: "Previous questions and answers: question - answer; question - answer; ..."
     Sentence,
-    // Custom format with formatting function
+    /// Custom format with formatting function
     Custom(Box<dyn Fn(&[(String, ResponseFormat)]) -> String>),
 }
 
@@ -28,6 +29,7 @@ impl Default for ContextFormat {
 }
 
 impl<A: Agent> ContextAgent<A> {
+    /// Creates a new context agent with a base agent and maximum context items
     pub fn new(base_agent: A, max_context_items: usize) -> Self {
         Self {
             base_agent,
@@ -37,13 +39,13 @@ impl<A: Agent> ContextAgent<A> {
         }
     }
 
-    // Sets the context format
+    /// Sets the context format for generating context strings
     pub fn with_context_format(mut self, format: ContextFormat) -> Self {
         self.context_format = format;
         self
     }
 
-    // Creates a context string from history
+    /// Creates a context string from the conversation history
     fn get_context_string(&self) -> String {
         match &self.context_format {
             ContextFormat::QAPairs => {
@@ -74,7 +76,7 @@ impl<A: Agent> ContextAgent<A> {
                         format!("{} - {}", q, answer_text)
                     })
                     .collect();
-                format!("Vorherige Fragen und Antworten: {}", items.join("; "))
+                format!("Previous questions and answers: {}", items.join("; "))
             }
             ContextFormat::Custom(formatter) => formatter(
                 &self
@@ -88,6 +90,7 @@ impl<A: Agent> ContextAgent<A> {
 }
 
 impl<A: Agent> Agent for ContextAgent<A> {
+    /// Generates a response with context added to the input
     fn predict(&self, input: &str) -> ResponseFormat {
         // Adds context to input
         let context_str = self.get_context_string();
@@ -102,12 +105,14 @@ impl<A: Agent> Agent for ContextAgent<A> {
 }
 
 impl<A: TrainableAgent> TrainableAgent for ContextAgent<A> {
+    /// Trains the base agent with the provided training data
     fn train(&mut self, data: &[TrainingExample]) {
         self.base_agent.train(data);
     }
 }
 
 impl<A: Agent> ContextualAgent for ContextAgent<A> {
+    /// Adds a new context item to the conversation history
     fn add_context(&mut self, question: String, answer: ResponseFormat) {
         self.context_history.push_back((question, answer));
 
@@ -115,5 +120,10 @@ impl<A: Agent> ContextualAgent for ContextAgent<A> {
         while self.context_history.len() > self.max_context_items {
             self.context_history.pop_front();
         }
+    }
+
+    /// Clears the entire context history
+    fn clear_context(&mut self) {
+        self.context_history.clear();
     }
 }

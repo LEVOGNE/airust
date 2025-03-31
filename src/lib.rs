@@ -1,8 +1,10 @@
-// src/lib.rs - Updated module exports
+// AIRust library module exports and version information
+
+// Core modules
 pub mod agent;
 pub mod context_agent;
 pub mod knowledge;
-pub mod match_agent; // New: Replaces simple_agent and fuzzy_agent
+pub mod match_agent;
 pub mod tfidf_agent;
 
 // Re-exports for easier usage
@@ -16,7 +18,12 @@ pub use tfidf_agent::TfidfAgent;
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const NAME: &str = env!("CARGO_PKG_NAME");
 
-/// Returns version information
+/// Returns comprehensive version information for the library
 pub fn version_info() -> String {
     format!("{} v{}", NAME, VERSION)
+}
+
+/// Provides a brief description of the library's purpose
+pub fn library_description() -> String {
+    "AIRust: A modular Rust library for building flexible AI agents with various matching strategies".to_string()
 }
