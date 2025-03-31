@@ -1,27 +1,16 @@
 [
   {
-    "input": "Was ist airust?",
-    "output": "Eine modulare KI-Bibliothek in Rust.",
+    "input": "What is airust?",
+    "output": {
+      "Text": "A modular AI library in Rust."
+    },
     "weight": 2.0
   },
   {
-    "input": "Welche Agenten sind verfügbar?",
-    "output": "SimpleAgent, FuzzyAgent, ContextAgent, TfidfAgent und StructuredAgent.",
-    "weight": 1.5
-  },
-  {
-    "input": "Wie funktioniert der FuzzyAgent?",
-    "output": "Er verwendet den Levenshtein-Abstand, um ähnliche Fragen zu finden.",
-    "weight": 1.0
-  },
-  {
-    "input": "Was ist ein TF-IDF?",
-    "output": "Term Frequency-Inverse Document Frequency ist eine statistische Methode zur Berechnung der Relevanz von Dokumenten.",
-    "weight": 1.0
-  },
-  {
-    "input": "Erkläre BM25",
-    "output": "BM25 ist eine Erweiterung von TF-IDF und ein Ranking-Algorithmus für Dokumente basierend auf Relevanz.",
+    "input": "What agents are available?",
+    "output": {
+      "Markdown": "- **MatchAgent** (exact & fuzzy)\n- **TfidfAgent** (BM25)\n- **ContextAgent** (context-aware)"
+    },
     "weight": 1.0
   }
 ]

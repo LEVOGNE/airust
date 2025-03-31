@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["LEVOGNE"]
 edition = "2021"
 description = "Trainable, modular AI engine in Rust with compile-time knowledge"
@@ -17,18 +17,11 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 once_cell = "1.18"
 strsim = "0.10"
+indexmap = "1.9.1" 
 
 [build-dependencies]
 serde_json = "1.0"
 
 [[bin]]
-name = "context_test"
-path = "src/bin/context_test.rs"
-
-[[bin]]
-name = "knowledge_test"
-path = "src/bin/knowledge_test.rs"
-
-[[bin]]
-name = "structured_test"
-path = "src/bin/structured_test.rs"
+name = "airust"
+path = "src/bin/airust.rs"

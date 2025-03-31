@@ -1,142 +1,253 @@
 # airust
 
-🧠 **airust** is a modular, trainable AI library in Rust.  
-It supports compile-time knowledge through JSON files and enables simple prediction engines for natural language inputs.
+🧠 **airust** is a modular, trainable AI library written in Rust.  
+It supports compile-time knowledge through JSON files and allows for simple prediction engines for natural language input.
+
+---
 
 ## 🚀 Features
 
-- 🧩 Modular architecture with the `TrainableAgent` trait
-- 🧠 Multiple built-in agents:
-  - `SimpleAgent` (exact matching)
-  - `FuzzyAgent` (Levenshtein similarity)
-  - `ContextAgent` (considers conversation context)
-  - `TfidfAgent` (uses BM25 algorithm for better similarity matching)
-  - `StructuredAgent` (supports structured response formats)
-- 💾 Compile-time knowledge via `knowledge/train.json`
-- ⚖️ Weighted training data for more precise answers
-- 📋 Extensible knowledge base at runtime
-- 🔍 Advanced text recognition with TF-IDF and BM25
-- 🏷️ Support for structured responses (Text, Markdown, JSON)
-- 📦 Easy integration into other projects
-- 🖥️ CLI test program included
+- 🧩 **Modular architecture with unified traits:**
+
+  - `Agent` – Base trait for all agents
+  - `TrainableAgent` – For trainable agents
+  - `ContextualAgent` – For context-aware agents
+
+- 🧠 **Advanced agent implementations:**
+
+  - `MatchAgent` – Handles both exact and fuzzy matches (replaces `SimpleAgent` and `FuzzyAgent`)
+  - `TfidfAgent` – Uses the BM25 algorithm for improved similarity detection
+  - `ContextAgent<A>` – Generic wrapper for context-aware conversations
+
+- 📝 **Unified response format:**
+
+  - `ResponseFormat` – Supports responses in plain text, Markdown, and JSON
+
+- 💾 **Enhanced knowledge base:**
+
+  - Compile-time knowledge via `knowledge/train.json`
+  - Runtime knowledge expansion supported
+  - Backward compatibility with older data formats
+
+- 🛠️ **Simplified CLI tool:**
+  - Single CLI tool for all operations
+  - Interactive mode for testing and experimentation
+  - Knowledge base management capabilities
+
+---
 
 ## 🔧 Usage
 
-### In your project
+### Integration in other projects
 
 ```toml
 [dependencies]
-airust = { path = "../airust" }
+airust = "0.1.4"
 ```
 
-### Example code
+### Sample Code (Updated)
 
 ```rust
-use airust::simple_agent::SimpleAgent;
-use airust::knowledge::TRAINING_DATA;
-use airust::agent::TrainableAgent;
+use airust::{Agent, TrainableAgent, MatchAgent, ResponseFormat, KnowledgeBase};
 
 fn main() {
-    let mut ai = SimpleAgent::new();
-    ai.train(&TRAINING_DATA);
-    let answer = ai.predict("What is airust?");
-    println!("Answer: {}", answer);
+    // Load embedded knowledge base
+    let kb = KnowledgeBase::from_embedded();
+
+    // Create and train agent
+    let mut agent = MatchAgent::new_exact();
+    agent.train(kb.get_examples());
+
+    // Ask a question
+    let answer = agent.predict("What is airust?");
+
+    // Print the response (converted from ResponseFormat to String)
+    println!("Answer: {}", String::from(answer));
 }
 ```
 
-## 📂 Training Data
+---
 
-The file `knowledge/train.json` now also supports weights:
+## 📂 Training Data Format
+
+The file format `knowledge/train.json` has been extended to support both the old and new format:
 
 ```json
 [
   {
-    "input": "What is GEL?",
-    "output": "A lightweight version control system.",
-    "weight": 1.0
+    "input": "What is airust?",
+    "output": {
+      "Text": "A modular AI library in Rust."
+    },
+    "weight": 2.0
   },
   {
-    "input": "What is airust?",
-    "output": "A modular AI agent in Rust.",
-    "weight": 2.0
+    "input": "What agents are available?",
+    "output": {
+      "Markdown": "- **MatchAgent** (exact & fuzzy)\n- **TfidfAgent** (BM25)\n- **ContextAgent** (context-aware)"
+    },
+    "weight": 1.0
   }
 ]
 ```
 
-This file is automatically embedded in the binary at build time (`build.rs` takes care of this).
+Legacy format is still supported for backward compatibility.
+
+---
 
 ## 🖥️ CLI Usage
 
 ```bash
-# Testing different agents
-cargo run --bin cli -- simple "What is GEL?"
-cargo run --bin cli -- fuzzy "What is Gel"
-cargo run --bin cli -- tfidf "Explain airust to me"
-cargo run --bin cli -- context "Follow-up question on the topic"
+# Simple query
+airust query simple "What is airust?"
+airust query fuzzy "What is airust?"
+airust query tfidf "Explain airust"
+
+# Interactive mode
+airust interactive
+
+# Knowledge base management
+airust knowledge
 ```
 
-## 🧪 Testing the Extended Features
+---
 
-### Context Agent Testing
-
-```bash
-# Start the interactive context test
-cargo run --bin context_test
-```
-
-The Context Agent stores previous questions and answers to deliver better results in connected conversations.
-
-### Dynamic Knowledge Base
-
-```bash
-# Test the dynamic knowledge database
-cargo run --bin knowledge_test
-```
-
-With the dynamic knowledge base, you can at runtime:
-
-- Add new training data
-- Save and load the knowledge base
-- Make changes to training data
-
-### Structured Responses
-
-The `StructuredAgent` supports different response formats:
-
-- Simple text
-- Markdown formatted text
-- JSON structured data
-
-```bash
-# Test structured responses
-cargo run --bin structured_test
-```
-
-## 📊 Advanced Usage
-
-### BM25 Algorithm for Better Match Rates
-
-The `TfidfAgent` uses the BM25 algorithm, an extension of the TF-IDF method, to better recognize semantic similarity between questions:
+## 📊 Advanced Usage – Context Agent
 
 ```rust
-use airust::tfidf_agent::TfidfAgent;
-use airust::knowledge::TRAINING_DATA;
-use airust::agent::TrainableAgent;
+use airust::{Agent, TrainableAgent, ContextualAgent, TfidfAgent, ContextAgent, KnowledgeBase};
 
 fn main() {
-    let mut ai = TfidfAgent::new();
-    ai.train(&TRAINING_DATA);
-    // Finds answers even with differently phrased questions
-    let answer = ai.predict("Explain to me what airust can do");
-    println!("{}", answer);
+    // Load embedded knowledge base
+    let kb = KnowledgeBase::from_embedded();
+
+    // Create and train base agent
+    let mut base_agent = TfidfAgent::new();
+    base_agent.train(kb.get_examples());
+
+    // Wrap in a context-aware agent (remembering 3 turns)
+    let mut agent = ContextAgent::new(base_agent, 3);
+
+    // First question
+    let answer1 = agent.predict("What is airust?");
+    println!("A1: {}", String::from(answer1.clone()));
+
+    // Add to context history
+    agent.add_context("What is airust?".to_string(), answer1);
+
+    // Follow-up question
+    let answer2 = agent.predict("What features does it provide?");
+    println!("A2: {}", String::from(answer2));
 }
 ```
+
+---
 
 ## 📃 License
 
 MIT
 
+> Built with ❤️ in Rust.  
+> Contributions and extensions are welcome!
+
 ---
 
-> Developed with ❤️ in Rust.  
-> This crate is open for contributions and extensions.
+## 🛠 Migration Guide for airust 0.1.4
+
+This guide helps you migrate from airust 0.1.x to 0.1.4.
+
+### 1. Trait and Type Changes
+
+#### New Trait Hierarchy
+
+```rust
+trait Agent {
+    fn predict(&self, input: &str) -> ResponseFormat;
+}
+
+trait TrainableAgent: Agent {
+    fn train(&mut self, data: &[TrainingExample]);
+}
+
+trait ContextualAgent: Agent {
+    fn add_context(&mut self, question: String, answer: ResponseFormat);
+}
+```
+
+#### New Response Format
+
+```rust
+let answer: ResponseFormat = agent.predict("Question");
+let answer_string: String = String::from(answer);
+```
+
+#### Updated TrainingExample Struct
+
+```rust
+struct TrainingExample {
+    input: String,
+    output: ResponseFormat,
+    weight: f32,
+}
+```
+
+---
+
+### 2. Agent Replacements
+
+#### SimpleAgent and FuzzyAgent → MatchAgent
+
+```rust
+let mut agent = MatchAgent::new_exact();
+let mut agent = MatchAgent::new_fuzzy();
+```
+
+With options:
+
+```rust
+let mut agent = MatchAgent::new(MatchingStrategy::Fuzzy(FuzzyOptions {
+    max_distance: Some(5),
+    threshold_factor: Some(0.2),
+}));
+```
+
+#### ContextAgent is Now Generic
+
+```rust
+let mut base_agent = TfidfAgent::new();
+base_agent.train(&data);
+let mut agent = ContextAgent::new(base_agent, 5);
+```
+
+#### StructuredAgent Removed (use ResponseFormat)
+
+---
+
+### 3. Knowledge Base Changes
+
+```rust
+let kb = KnowledgeBase::from_embedded();
+let data = kb.get_examples();
+
+let mut kb = KnowledgeBase::new();
+kb.add_example("Question".to_string(), "Answer".to_string(), 1.0);
+```
+
+---
+
+### 4. CLI Tool Migration
+
+```bash
+cargo run --bin airust -- query simple "What is airust?"
+cargo run --bin airust -- interactive
+cargo run --bin airust -- knowledge
+```
+
+---
+
+### 5. Recommendations
+
+- Upgrade your dependencies
+- Use new `lib.rs` re-exports
+- Test thoroughly
+- Explore new context formatting
