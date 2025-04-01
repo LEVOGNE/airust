@@ -24,20 +24,29 @@ It supports compile-time knowledge through JSON files and provides sophisticated
 - Weighting and metadata per entry
 - Import legacy data possible
 
-### 🧪 3. **Text Analysis**
+### 📄 3. **PDF Knowledge Extraction**
+
+- Convert PDF documents into structured knowledge bases
+- Intelligent text chunking with configurable parameters
+- Automatic metadata generation for search context
+- Merge multiple PDF sources into unified knowledge
+- Command-line tools for batch processing
+
+### 🧪 4. **Text Analysis**
 
 - Tokenization, stop words, N-grams
 - Similarity measures: Levenshtein, Jaccard
 - Text normalization
 
-### 🧰 4. **Custom CLI Tools**
+### 🧰 5. **Custom CLI Tools**
 
 - Launch `airust` CLI for:
   - Interactive sessions with an agent
   - Knowledge base management
   - Quick data testing
+  - PDF conversion and import
 
-### 🌐 5. **Integration into Other Projects**
+### 🌐 6. **Integration into Other Projects**
 
 - Use `airust` as a Rust library in your own applications (Web, CLI, Desktop, IoT)
 
@@ -49,6 +58,7 @@ It supports compile-time knowledge through JSON files and provides sophisticated
 - 🗣️ Voice assistant with context understanding
 - 🔎 Similarity search for text databases
 - 🛠 Local assistance tool for developer documentation
+- 📑 Smart PDF document analyzer and query system
 
 ---
 
@@ -91,6 +101,18 @@ It supports compile-time knowledge through JSON files and provides sophisticated
   - Weighted training examples
   - Optional metadata support
 
+- 📄 **PDF Processing and Knowledge Extraction:**
+
+  - `PdfLoader` with configurable extraction parameters:
+    - Min/max chunk sizes for optimal text segmentation
+    - Chunk overlap for context preservation
+    - Sentence-aware splitting for natural text boundaries
+  - Intelligent PDF text extraction
+  - Automatic training example generation from PDF content
+  - PDF metadata preservation
+  - Command-line tools for batch processing
+  - Multi-document knowledge base merging
+
 - 🔍 **Advanced Text Processing:**
 
   - Tokenization with Unicode support
@@ -106,6 +128,7 @@ It supports compile-time knowledge through JSON files and provides sophisticated
   - Multiple agent type selection
   - Knowledge base management
   - Flexible querying
+  - PDF import and conversion
 
 ---
 
@@ -183,6 +206,51 @@ airust interactive
 airust knowledge
 ```
 
+## 📄 PDF Conversion and Import
+
+AIRust includes powerful tools for converting PDF documents into structured knowledge bases:
+
+### Using the PDF2KB Tool
+
+```bash
+# Convert a PDF file to a knowledge base with default settings
+cargo run --bin pdf2kb path/to/document.pdf
+
+# Specify custom output location
+cargo run --bin pdf2kb path/to/document.pdf custom/output/path.json
+
+# With custom chunk parameters
+cargo run --bin pdf2kb path/to/document.pdf --min-chunk 100 --max-chunk 2000 --overlap 300
+
+# Additional options
+cargo run --bin pdf2kb path/to/document.pdf --weight 1.5 --no-metadata --no-sentence-split
+```
+
+### Using AIRust's PDF Import Feature
+
+```bash
+# Import PDF directly through AIRust
+cargo run --bin airust -- import-pdf path/to/document.pdf
+```
+
+### Merging Multiple Knowledge Bases
+
+After converting multiple PDFs to knowledge bases, merge them into a unified knowledge source:
+
+```bash
+# Merge all JSON files in the knowledge/ directory
+cargo run --bin merge_kb
+```
+
+### PDF Processing Configuration Options
+
+- `--min-chunk <size>`: Minimum chunk size in characters (default: 50)
+- `--max-chunk <size>`: Maximum chunk size in characters (default: 1000)
+- `--overlap <size>`: Overlap between chunks in characters (default: 200)
+- `--weight <value>`: Weight for generated training examples (default: 1.0)
+- `--no-metadata`: Disable inclusion of metadata in training examples
+- `--no-sentence-split`: Disable sentence boundary detection for chunking
+
 ---
 
 ## 📊 Advanced Usage – Context Agent
@@ -216,6 +284,44 @@ fn main() {
 }
 ```
 
+## 📄 PDF Knowledge Extraction Example
+
+```rust
+use airust::{PdfLoader, PdfLoaderConfig, KnowledgeBase, TfidfAgent, Agent, TrainableAgent};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Create a custom PDF loader configuration
+    let config = PdfLoaderConfig {
+        min_chunk_size: 100,
+        max_chunk_size: 1500,
+        chunk_overlap: 250,
+        default_weight: 1.2,
+        include_metadata: true,
+        split_by_sentence: true,
+    };
+
+    // Initialize the loader with custom configuration
+    let loader = PdfLoader::with_config(config);
+
+    // Convert PDF to a knowledge base
+    let kb = loader.pdf_to_knowledge_base("documents/technical-paper.pdf")?;
+    println!("Extracted {} training examples", kb.get_examples().len());
+
+    // Create and train an agent with the extracted knowledge
+    let mut agent = TfidfAgent::new();
+    agent.train(kb.get_examples());
+
+    // Ask questions about the PDF content
+    let answer = agent.predict("What are the main findings in the paper?");
+    println!("Answer: {}", String::from(answer));
+
+    // Save the knowledge base for future use
+    kb.save(Some("knowledge/technical-paper.json".into()))?;
+
+    Ok(())
+}
+```
+
 ---
 
 ## 🚀 New in Version 0.1.5
@@ -246,6 +352,24 @@ let context_agent = ContextAgent::new(base_agent, 3)
 let tokens = text_utils::tokenize("Hello, world!");
 let unique_terms = text_utils::unique_terms(text);
 let ngrams = text_utils::create_ngrams(text, 2);
+```
+
+### PDF Processing
+
+```rust
+// Advanced PDF configuration
+let config = PdfLoaderConfig {
+    min_chunk_size: 100,
+    max_chunk_size: 1500,
+    chunk_overlap: 250,
+    default_weight: 1.2,
+    include_metadata: true,
+    split_by_sentence: true,
+};
+let loader = PdfLoader::with_config(config);
+
+// Convert PDF to knowledge base
+let kb = loader.pdf_to_knowledge_base("path/to/document.pdf")?;
 ```
 
 ---
@@ -350,11 +474,25 @@ cargo run --bin airust -- interactive
 cargo run --bin airust -- knowledge
 ```
 
+### 5. New PDF Processing Tools
+
+```bash
+# Convert PDFs to knowledge bases
+cargo run --bin pdf2kb document.pdf
+
+# Import PDF directly in AIRust
+cargo run --bin airust -- import-pdf document.pdf
+
+# Merge PDF-derived knowledge bases
+cargo run --bin merge_kb
+```
+
 ---
 
-### 5. Recommendations
+### 6. Recommendations
 
 - Upgrade your dependencies
 - Use new `lib.rs` re-exports
 - Test thoroughly
 - Explore new context formatting
+- Try PDF knowledge extraction for document analysis

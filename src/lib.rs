@@ -5,6 +5,7 @@ pub mod agent;
 pub mod context_agent;
 pub mod knowledge;
 pub mod match_agent;
+pub mod pdf_loader;
 pub mod tfidf_agent;
 
 // Re-exports for easier usage
@@ -12,6 +13,7 @@ pub use agent::{Agent, ContextualAgent, ResponseFormat, TrainableAgent, Training
 pub use context_agent::ContextAgent;
 pub use knowledge::KnowledgeBase;
 pub use match_agent::MatchAgent;
+pub use pdf_loader::{pdf_to_knowledge_base, pdf_to_training_examples, PdfLoader, PdfLoaderConfig};
 pub use tfidf_agent::TfidfAgent;
 
 // Version and library information

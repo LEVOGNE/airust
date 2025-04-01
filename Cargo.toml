@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["LEVOGNE"]
 edition = "2021"
 description = "Trainable, modular AI engine in Rust with compile-time knowledge"
@@ -26,6 +26,7 @@ regex = "1.5"
 plotly = { version = "0.8", optional = true }
 tokio = { version = "1.0", features = ["full"], optional = true }
 plotters = { version = "0.3", optional = true }
+pdf-extract = "0.4"
 
 [features]
 default = ["colors"]
@@ -36,6 +37,19 @@ async = ["dep:tokio"]
 [build-dependencies]
 serde_json = "1.0"
 
+[lib]
+name = "airust"
+path = "src/lib.rs"
+
 [[bin]]
 name = "airust"
 path = "src/bin/airust.rs"
+
+
+[[bin]]
+name = "pdf2kb"
+path = "src/bin/pdf2kb.rs"
+
+[[bin]]
+name = "merge_kb"
+path = "src/bin/merge_kb.rs"
