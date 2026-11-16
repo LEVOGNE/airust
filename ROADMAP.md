@@ -2,7 +2,21 @@
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
 
-This roadmap describes future work beyond the English and hardening baseline in 0.1.9. It is not a list of features already implemented. External application integrations remain separate work and are not included in this release.
+The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-neutral embeddings and an explicitly configured local E5 adapter. Later releases are implemented and validated one at a time. External application integrations remain separate work.
+
+| Target | Scope | Status |
+| --- | --- | --- |
+| 0.2.0 | Optional embeddings and exact semantic retrieval | Implemented; see the release report for validation. |
+| 0.2.1 | Hybrid lexical and semantic retrieval | Planned. |
+| 0.2.2 | Generic graph model and bounded algorithms | Planned. |
+| 0.2.3 | Structured context assembly and budgets | Planned. |
+| 0.2.4 | Optional typed source references | Planned. |
+| 0.2.5 | Versioned persistent derived-index cache | Planned. |
+| 0.2.6 | Optional HNSW with recall measurements | Planned. |
+| 0.2.7 | Generic revisions and conflict detection | Planned. |
+| 0.2.8 | Reproducible performance and quality suite | Planned. |
+
+The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 
 ## 1. Maintain the tested 0.1.9 baseline
 
@@ -14,11 +28,11 @@ Acceptance: repeatable checks, explicit limits, reproducible artifacts, and a ch
 
 ## 2. Add an optional semantic provider boundary
 
-Introduce an optional embedding-provider interface around the existing lexical core. A provider should accept application text and return vectors plus a stable model identifier. It may run locally or call a service through an application-owned adapter.
+The optional boundary is implemented in 0.2.0; see the [semantic API](docs/SEMANTIC.md) and [local-model guide](docs/LOCAL-EMBEDDINGS.md). Providers accept borrowed application text and return vectors tied to a stable model recipe. The caller owns external-service policy.
 
 The contract must define vector dimension, finite values, empty-input handling, normalization, timeouts, cancellation, and failure reporting. Index metadata must record the provider and model fingerprint. Vectors from incompatible models must not silently share a search space.
 
-Compare lexical retrieval, semantic retrieval, and a documented hybrid ranking strategy. Preserve a useful lexical path when a provider is unavailable. Do not add mandatory model downloads, cloud accounts, or HTTP dependencies to the default core.
+Hybrid ranking follows separately in 0.2.1. Preserve a useful lexical path when a provider is unavailable. Do not add mandatory model downloads, cloud accounts, or HTTP dependencies to the default core.
 
 Acceptance: interchangeable test providers, vector validation, model-mismatch detection, stable result ordering, and measured retrieval quality on an identified corpus. Spelling similarity must remain distinct from semantic similarity.
 

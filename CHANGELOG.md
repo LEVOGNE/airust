@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 — Optional embeddings — November 16, 2026
+
+- Add the optional `embeddings` feature with provider-neutral batch inference, model-space validation, normalized vectors, and robust cosine similarity.
+- Reuse the existing lexical index, entry storage, metadata filters, and bounded deterministic ranking for exact semantic retrieval.
+- Validate and stage provider-backed batches before applying any source or vector updates.
+- Add an optional local FastEmbed/E5 adapter that reads explicit files and fingerprints the complete model recipe; disable upstream downloads.
+- Preserve Rust 1.89 for the core and general provider feature. The optional current ONNX adapter needs Rust 1.92.
+- Add public multilingual reference cases, deterministic failure tests, examples, measured evaluation, and migration documentation.
+
+See the [0.2.0 change report](docs/CHANGES-0.2.0.md). Hybrid fusion and the remaining roadmap stages are not part of this release.
+
 ## Repository documentation update — November 16, 2026
 
 - Add the [follow-up 0.1.9 validation report](docs/VALIDATION-0.1.9.md), aggregate measurements, a separate registry test consumer, and public fixtures.

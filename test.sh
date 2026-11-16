@@ -11,5 +11,7 @@ cargo clippy --workspace --all-targets --features cli --locked -- -D warnings
 cargo check --lib --no-default-features --features pdf --locked
 cargo check --lib --no-default-features --features bots --locked
 cargo check --lib --no-default-features --features async --locked
+cargo check --lib --no-default-features --features embeddings --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
 cargo run --locked --example core
+cargo run --locked --features embeddings --example semantic

@@ -1,10 +1,10 @@
-# AIRust 0.1.9
+# AIRust 0.2.0
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.1.9 adds English documentation and interfaces, safer persistence and process controls, and hardened optional web tools. See the [release notes](https://github.com/LEVOGNE/airust/releases/tag/v0.1.9) and [crates.io package](https://crates.io/crates/airust/0.1.9).
+Version 0.2.0 adds optional embeddings, provider-neutral model integration, and exact semantic retrieval. The default build remains the lexical library. See the [0.2.0 change report](docs/CHANGES-0.2.0.md), [embedding API guide](docs/SEMANTIC.md), and [local-model guide](docs/LOCAL-EMBEDDINGS.md).
 
 ## What it does
 
@@ -13,14 +13,15 @@ Version 0.1.9 adds English documentation and interfaces, safer persistence and p
 | `search()` | Relevant entries ranked with BM25. TF-IDF is also available. | Finding notes and document passages. |
 | `find_matches()` | Exact matches, spelling similarity, or shared words. Rust also accepts `r#match()`. | Reviewing duplicates and similar content. |
 | `relate()` | Suggested connections with the shared terms that explain them. | Helping users review possible links. |
+| `SemanticIndex::search()` | Exact cosine ranking with an application-supplied embedding provider. | Finding related meanings, including across languages when the model supports them. |
 
-These methods compare words and characters. They do not automatically recognize synonyms or infer meaning. A calling application can add a language model or semantic embeddings when it needs those capabilities. AIRust has no required LLM dependency.
+The default `search()`, matching, and `relate()` methods compare words and characters. The optional semantic index uses model embeddings instead. Its quality depends on the provider and corpus. AIRust has no required model, cloud account, HTTP client, or LLM dependency.
 
 A relationship suggestion is evidence of shared words. The application must decide whether that evidence supports a useful connection, hierarchy, prerequisite, or contradiction.
 
 ## Try the source checkout
 
-Use Rust 1.89 or newer. From the project directory:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapter needs Rust 1.92. From the project directory:
 
 ```bash
 cargo run --locked --example core
@@ -30,11 +31,11 @@ The example demonstrates search, text comparison, duplicates, relation suggestio
 
 ## Add AIRust to an application
 
-To use the exact library version covered by the validation report, add this to your `Cargo.toml`:
+For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.1.9", default-features = false }
+airust = { version = "=0.2.0", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -83,7 +84,21 @@ Your application owns the IDs, storage model, and presentation. AIRust accepts t
 
 Search results contain the original entry, a relevance score, and matching terms. A query without a match returns an empty list. BM25 scores are relevance values, not probabilities. Equal scores use ascending entry IDs for a stable order.
 
-## Tested behavior and limits
+## Optional semantic search
+
+Enable `features = ["embeddings"]` for validated vectors, the provider interface, and `SemanticIndex`. This feature adds no dependencies. Supply an `EmbeddingProvider` or precomputed vectors. Each model space records a complete model recipe identifier and dimension; incompatible spaces are rejected.
+
+```bash
+cargo run --locked --features embeddings --example semantic
+```
+
+The example uses hand-written vectors to demonstrate the API. For real local inference, enable `local-embeddings` and supply the E5 model files and an ONNX Runtime shared library explicitly. Compiling the crate downloads neither model weights nor runtime binaries. See the [local-model guide](docs/LOCAL-EMBEDDINGS.md).
+
+The fixed release smoke corpus contains twelve public records and sixteen German, English, French, and Spanish queries. Actual model results and their limits are recorded in the [0.2.0 change report](docs/CHANGES-0.2.0.md). The [embedding API guide](docs/SEMANTIC.md) explains updates, batches, filtering, and exact search costs.
+
+Semantic retrieval scans all eligible vectors. There is no hybrid rank fusion, graph traversal, persistent vector index, or approximate nearest-neighbor index in this release. Those are separate roadmap stages.
+
+## Tested lexical baseline and limits
 
 The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
 
@@ -106,7 +121,7 @@ The rare query matched about 1, 10, and 100 candidates; the common query matched
 
 Keep these limits in mind:
 
-- Search, matching, and relation suggestions are lexical. They do not infer synonyms or logical relationships. Opposing statements can share words and receive a `Related` suggestion.
+- Default search, matching, and relation suggestions are lexical. Optional semantic retrieval can find model-based similarities, but does not prove logical relationships. Opposing statements can share words and receive a `Related` suggestion.
 - Normalization preserves accents. `Straße` and `Strasse`, or `Führerschein` and `Fuehrerschein`, are not exact duplicates. Search has no stemming and can return entries matching only some query terms.
 - The core index is in memory. JSON loading rebuilds it. Applications own durable storage, committed-change replay, crash recovery, and permissions. AIRust does not automatically monitor SQLite.
 - `Context` filters search. Matching, duplicate grouping, and relation suggestions require the caller to supply an appropriately scoped index or otherwise enforce the authorized record set.
@@ -121,6 +136,8 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | Cargo feature | Enables |
 | --- | --- |
 | None | Knowledge index, BM25, TF-IDF, matching, duplicates, filters, and relation suggestions. |
+| `embeddings` | Provider-neutral validated embeddings, atomic updates, and exact semantic retrieval. No added dependencies; Rust 1.89. |
+| `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
 | `web` | The existing dashboard, HTTP, SQLite, bots, PDF, and CLI. |
@@ -161,6 +178,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/context.rs` | Search filters for IDs and metadata. |
 | `src/knowledge.rs` | Generic knowledge entries and the existing training collection. |
 | `src/index.rs` | Shared storage and retrieval operations. |
+| `src/semantic.rs`, `src/semantic/local.rs` | Optional semantic index, provider contract, and local E5 adapter. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
@@ -177,11 +195,13 @@ The [API guide](docs/API.md) describes the public contracts. The [architecture g
 
 ## Changes and compatibility
 
+See the [0.2.0 change report](docs/CHANGES-0.2.0.md) and [migration guide](docs/MIGRATION-0.2.0.md) for optional embedding features. Existing lexical APIs and default features are preserved. Cargo dependencies on 0.1.x must explicitly select 0.2.0 to use the new release.
+
 See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide](docs/MIGRATION-0.1.9.md) for the English-language and hardening work.
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) describes optional semantic providers, evidence-based relations, persistence, and generic structural context as future work. External application integration follows a tested engine release.
+The [roadmap](ROADMAP.md) separates the implemented optional embeddings from later hybrid search, graph, context assembly, provenance, persistent-index, ANN, revision, and quality work. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 

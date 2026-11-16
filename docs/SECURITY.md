@@ -1,6 +1,6 @@
 # Security and operating boundaries
 
-AIRust's default knowledge core is an in-memory library. The optional dashboard, file administration, crawler, and process controls add separate operating boundaries. This guide describes the 0.1.9 development behavior; validation results belong in [CHANGES-0.1.9.md](CHANGES-0.1.9.md).
+AIRust's default knowledge core is an in-memory library. Optional local inference, dashboard, file administration, crawler, and process controls add separate operating boundaries. The existing web boundaries were introduced in 0.1.9; the optional embedding boundary is described below. Validation results belong in the versioned release reports.
 
 ## Bind address and authentication
 
@@ -78,6 +78,12 @@ Atomic replacement preserves complete file content. It does not merge concurrent
 The CLI process-control commands currently depend on Unix-style `ps` and `kill`. They were tested on macOS in this development pass. Windows process control has not been validated.
 
 ## Scope of assurance
+
+Optional embedding providers are application-owned code. They may access a local model or external service; the caller controls credentials, deadlines, cancellation, and which text may leave its process. The checked batch boundary validates input, output count, finite nonzero vectors, dimensions, and model-space identity before committing index changes. It cannot prove a provider's claimed model identity or roll back external side effects.
+
+The local E5 adapter reads explicitly supplied model and tokenizer files, fingerprints its recipe, and dynamically loads an explicitly supplied ONNX Runtime library. It disables automatic model-hub and runtime downloads. Model and native library files must be trusted. Semantic similarities are not truth or authorization decisions. Search scope must be supplied by the application; the core exposes no new web endpoint for embeddings.
+
+The 0.2.0 audit found zero known vulnerabilities and retained optional-path maintenance warnings for `paste` through tokenizers and `ttf-parser` through PDF support. See [CHANGES-0.2.0.md](CHANGES-0.2.0.md) for the exact versions and advisory summary.
 
 The changes have targeted regression cases for their boundaries. They are not a comprehensive independent production security audit. No arbitrary user content should be treated as executable instructions, and lexical results should not bypass the calling application's access rules.
 

@@ -8,6 +8,8 @@ pub mod context;
 pub mod index;
 pub mod matching;
 pub mod search;
+#[cfg(feature = "embeddings")]
+pub mod semantic;
 pub mod text;
 
 pub mod agent;

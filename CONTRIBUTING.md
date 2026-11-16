@@ -1,12 +1,12 @@
 # Contribute to AIRust
 
-Use Rust 1.89 or newer. Run the repository checks before submitting a change:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapter and the complete all-feature check script need Rust 1.92 or newer. Run the repository checks before submitting a change:
 
 ```bash
 ./test.sh
 ```
 
-Keep the default build independent of PDF, HTTP, databases, and language models. New retrieval features should use the shared index and tokenizer.
+Keep the default build independent of PDF, HTTP, databases, and language models. Lexical retrieval features should use the shared index and tokenizer. Embedding providers receive original text and explicitly define their model's preprocessing recipe.
 
 A relevance score is not a probability. Shared words do not prove a logical relationship. Name results accurately and describe their limitations.
 

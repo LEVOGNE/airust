@@ -1,0 +1,36 @@
+{
+  "version": "airust-semantic-reference-v1",
+  "description": "Small hand-labeled multilingual smoke corpus, not an independent benchmark or production quality guarantee.",
+  "documents": [
+    {"id":"registration","text":"Kfz-Zulassung durchführen."},
+    {"id":"passport","text":"Einen neuen Reisepass beim Bürgeramt beantragen."},
+    {"id":"cooking","text":"Ein Rezept für selbst gebackenes Brot mit Mehl, Wasser und Hefe."},
+    {"id":"plants","text":"Zimmerpflanzen regelmäßig gießen und ausreichend mit Licht versorgen."},
+    {"id":"rust","text":"Rust verhindert viele Speicherfehler durch Ownership und Borrowing."},
+    {"id":"backup","text":"Eine Sicherungskopie wichtiger Dateien auf einem externen Datenträger erstellen."},
+    {"id":"train","text":"Fahrkarten für eine Zugreise buchen und die Abfahrtszeit prüfen."},
+    {"id":"vet","text":"Einen Termin beim Tierarzt vereinbaren, damit der Hund untersucht wird."},
+    {"id":"bicycle","text":"Das Fahrrad reparieren und die Bremsen vor der nächsten Fahrt kontrollieren."},
+    {"id":"meeting","text":"Besprechungsnotizen schreiben und vereinbarte Aufgaben an das Team verteilen."},
+    {"id":"password","text":"Ein langes einzigartiges Passwort und Zwei-Faktor-Authentifizierung schützen das Konto."},
+    {"id":"weather","text":"Die Wettervorhersage meldet Regen und niedrige Temperaturen für morgen."}
+  ],
+  "queries": [
+    {"id":"de-registration","text":"Ein Fahrzeug bei der Behörde anmelden","relevant":["registration"]},
+    {"id":"de-synonym","text":"Auto zulassen","relevant":["registration"]},
+    {"id":"de-passport","text":"Wo bekomme ich ein neues Reisedokument?","relevant":["passport"]},
+    {"id":"de-backup","text":"Wie schütze ich meine Daten vor Verlust?","relevant":["backup"]},
+    {"id":"de-vet","text":"Mein Haustier ist krank und braucht einen Arzt","relevant":["vet"]},
+    {"id":"de-bike","text":"Die Bremsanlage meines Rads überprüfen","relevant":["bicycle"]},
+    {"id":"de-rust","text":"Eine Programmiersprache mit sicherer Speicherverwaltung","relevant":["rust"]},
+    {"id":"de-plants","text":"Meine Blumen in der Wohnung brauchen Wasser","relevant":["plants"]},
+    {"id":"en-registration","text":"Register a vehicle at the licensing authority","relevant":["registration"]},
+    {"id":"en-bread","text":"How can I bake a loaf of bread?","relevant":["cooking"]},
+    {"id":"en-train","text":"Buy a railway ticket and check the departure time","relevant":["train"]},
+    {"id":"fr-weather","text":"Est-ce qu'il va pleuvoir demain?","relevant":["weather"]},
+    {"id":"es-password","text":"Cómo proteger mi cuenta con una contraseña segura","relevant":["password"]},
+    {"id":"fr-backup","text":"Créer une copie de sauvegarde des fichiers importants","relevant":["backup"]},
+    {"id":"en-meeting","text":"Record the decisions and distribute action items after a team meeting","relevant":["meeting"]},
+    {"id":"es-vet","text":"Mi perro necesita una consulta con el veterinario","relevant":["vet"]}
+  ]
+}

@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.1.9"
+version = "0.2.0"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -33,9 +33,13 @@ scraper = { version = "0.29", optional = true }
 sha2 = { version = "0.10", optional = true }
 url = { version = "2", optional = true }
 tempfile = { version = "3", optional = true }
+fastembed = { version = "=7.7.1", optional = true, default-features = false, features = ["ort-load-dynamic"] }
+ort = { version = "=2.0.0-rc.15", optional = true, default-features = false, features = ["load-dynamic"] }
 
 [features]
 default = []
+embeddings = []
+local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
 pdf = ["dep:pdf_oxide"]
 embedded-knowledge = []
@@ -74,3 +78,15 @@ codegen-units = 1
 
 [package.metadata.docs.rs]
 all-features = true
+
+[[example]]
+name = "semantic"
+required-features = ["embeddings"]
+
+[[example]]
+name = "semantic_quality"
+required-features = ["local-embeddings"]
+
+[[example]]
+name = "embedding_benchmark"
+required-features = ["embeddings"]

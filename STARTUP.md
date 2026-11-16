@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Use Rust 1.89 or newer and run these commands from the source checkout. The current development version is 0.1.9; the published baseline is 0.1.8.
+AIRust is a Rust library with optional tools. Version 0.2.0 adds optional embeddings. Use Rust 1.89 or newer for the core and general provider interface; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
 
 ## Try the core
 
@@ -111,13 +111,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.1.9 .
+docker build -t airust:0.2.0 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.1.9
+  airust:0.2.0
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.
@@ -139,4 +139,4 @@ cargo run --locked --release --example index_benchmark -- 10000 300
 
 This reports JSON with build, search percentiles, update, and delete timings. The entry and query counts are explicit. Larger benchmark methodology and evidence requirements are in [ROADMAP.md](ROADMAP.md).
 
-The older benchmark measures a small fixed workload. Results depend on the host. Historical 0.1.8 results are recorded in [CHANGES-0.1.8.md](docs/CHANGES-0.1.8.md). Current development results belong in [CHANGES-0.1.9.md](docs/CHANGES-0.1.9.md).
+The older benchmark measures a small fixed workload. Results depend on the host. Historical results remain in their versioned reports. Optional semantic evaluation and exact-vector measurements are recorded in [CHANGES-0.2.0.md](docs/CHANGES-0.2.0.md). Run the model-independent example with `cargo run --locked --features embeddings --example semantic`; the [local-model guide](docs/LOCAL-EMBEDDINGS.md) describes explicit native inference.

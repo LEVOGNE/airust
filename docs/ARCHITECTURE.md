@@ -27,6 +27,8 @@ The arrows represent possible library calls. No external application is integrat
 | `search` | Define BM25 parameters, TF-IDF retrieval, and search results. |
 | `matching` | Compare character edits and token overlap. |
 | `context` | Restrict eligible entries by ID and metadata. |
+| `semantic` | Optional provider interface, validated vectors, model-space identity, and exact semantic retrieval. |
+| `semantic::local` | Optional CPU E5 adapter using explicit model files and a dynamic native runtime. |
 
 `Engine` is an alias for `KnowledgeIndex`. Search, comparison, and relation suggestions use the same source entries.
 
@@ -52,6 +54,10 @@ Both modes find candidate entries through shared postings. A bounded heap retain
 
 The API exposes scores as evidence for ranking. BM25 scores are unbounded relevance values. TF-IDF cosine scores lie between zero and one. Neither is a calibrated probability.
 
+## Optional embeddings
+
+The optional `SemanticIndex` owns the existing lexical index and a vector side table. Source entries are stored once. Its lexical view is immutable; update methods validate and stage embeddings before updating both stores. It reuses `Context` and `TopK`. Provider batches receive borrowed original text and a query/document purpose. Cosine similarity and model-space validation are separate from BM25 and TF-IDF. See [SEMANTIC.md](SEMANTIC.md).
+
 ## Matching and duplicates
 
 `compare()` returns normalized equality, character similarity, and token similarity. Character similarity is one minus normalized Levenshtein distance. Token similarity is the Jaccard index of unique tokens. An empty text has zero similarity, including to another empty text.
@@ -76,7 +82,7 @@ The older `ContextAgent` retains its existing behavior: it appends formatted con
 
 Each suggestion contains source ID, target ID, `RelationKind::Related`, a Jaccard score, and shared terms. The source entry is excluded from its own targets. An unknown source ID is an error. Suggestions are computed on demand and are not stored as facts.
 
-Opposite claims can share words. Hierarchy, prerequisites, causality, and contradictions need additional evidence or an external semantic provider.
+Opposite claims can share words. Hierarchy, prerequisites, causality, and contradictions need additional evidence. Cosine similarity from an embedding provider does not by itself classify those logical relationships.
 
 ## Compatibility adapters
 
@@ -92,6 +98,6 @@ The index holds its complete source and derived data in memory. Candidate postin
 
 The runnable benchmark compares a fixed workload through the historical agent API. Historical before-and-after results are in [CHANGES-0.1.8.md](CHANGES-0.1.8.md). Performance measurements must identify their corpus, query distribution, host, and build configuration.
 
-The [roadmap](../ROADMAP.md) separates future semantic providers, typed evidence, persistent indexes, and structural adapters from the implemented core.
+The [roadmap](../ROADMAP.md) separates implemented optional embeddings from future hybrid fusion, graphs, context assembly, provenance, persistent derived indexes, HNSW, revisions, and broader quality evaluation.
 
 Public method contracts are documented in [API.md](API.md). Source comments are intentionally absent; design and validation explanations live in these documents.

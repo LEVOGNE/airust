@@ -112,3 +112,9 @@ The compatibility layer remains available for `input`/`output` training examples
 `KnowledgeBase::load()` and `save()` validate that weights are finite and nonnegative. Invalid data produces an error. `save()` rejects symlink and non-file destinations. It validates and serializes before replacing an existing file, writes through an exclusively created private temporary file, synchronizes content, and preserves existing file permissions.
 
 Atomic replacement keeps complete snapshots. It does not merge simultaneous writers or provide transaction isolation; callers requiring coordinated updates must supply that policy. Generic `Engine::to_json()` remains a serialization operation and does not write files.
+
+## Optional semantic API
+
+The `embeddings` feature exposes `airust::semantic`: `EmbeddingProvider`, `EmbeddingPurpose`, `EmbeddingSpace`, validated `Embedding` values, `embed_batch`, `cosine_similarity`, `SemanticIndex`, `SemanticSearchOptions`, and borrowed `SemanticResult` values. It adds no dependencies and preserves the existing lexical API. See [SEMANTIC.md](SEMANTIC.md) for complete contracts and a compiled example.
+
+The `local-embeddings` feature adds `semantic::local::FastEmbedProvider`, which accepts explicit E5 model and ONNX Runtime library paths. It enables no model-hub access or compile-time binary downloads. See [LOCAL-EMBEDDINGS.md](LOCAL-EMBEDDINGS.md) for its Rust 1.92 requirement, model recipe, memory costs, and explicit evaluation command.

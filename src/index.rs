@@ -64,13 +64,15 @@ impl KnowledgeIndex {
     }
 
     pub fn upsert(&mut self, entry: KnowledgeEntry) -> Result<Option<KnowledgeEntry>, IndexError> {
-        if entry.id.trim().is_empty() {
-            return Err(IndexError::EmptyId);
-        }
-        let normalized = text::normalize(&entry.text);
-        if normalized.is_empty() {
-            return Err(IndexError::EmptyText(entry.id));
-        }
+        let normalized = validate_entry(&entry)?;
+        Ok(self.insert_validated(entry, normalized))
+    }
+
+    pub(crate) fn insert_validated(
+        &mut self,
+        entry: KnowledgeEntry,
+        normalized: String,
+    ) -> Option<KnowledgeEntry> {
         let terms = text::frequencies_normalized(&normalized);
         let char_length = normalized.chars().count();
         let length = terms.values().sum();
@@ -96,7 +98,7 @@ impl KnowledgeIndex {
                 char_length,
             },
         );
-        Ok(previous)
+        previous
     }
 
     pub fn remove(&mut self, id: &str) -> Option<KnowledgeEntry> {
@@ -434,4 +436,15 @@ impl KnowledgeIndex {
             .flat_map(|postings| postings.keys().map(String::as_str))
             .collect()
     }
+}
+
+pub(crate) fn validate_entry(entry: &KnowledgeEntry) -> Result<String, IndexError> {
+    if entry.id.trim().is_empty() {
+        return Err(IndexError::EmptyId);
+    }
+    let normalized = text::normalize(&entry.text);
+    if normalized.is_empty() {
+        return Err(IndexError::EmptyText(entry.id.clone()));
+    }
+    Ok(normalized)
 }
