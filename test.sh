@@ -14,8 +14,10 @@ cargo check --lib --no-default-features --features async --locked
 cargo check --lib --no-default-features --features embeddings --locked
 cargo check --lib --no-default-features --features hybrid --locked
 cargo check --lib --no-default-features --features graph --locked
+cargo check --lib --no-default-features --features context-assembly --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
 cargo run --locked --example core
 cargo run --locked --features embeddings --example semantic
 cargo run --locked --features hybrid --example hybrid
 cargo run --locked --features graph --example graph
+cargo run --locked --features context-assembly --example context

@@ -106,6 +106,10 @@ The index holds its complete source and derived data in memory. Candidate postin
 
 The runnable benchmark compares a fixed workload through the historical agent API. Historical before-and-after results are in [CHANGES-0.1.8.md](CHANGES-0.1.8.md). Performance measurements must identify their corpus, query distribution, host, and build configuration.
 
-The [roadmap](../ROADMAP.md) separates implemented optional embeddings from future hybrid fusion, graphs, context assembly, provenance, persistent derived indexes, HNSW, revisions, and broader quality evaluation.
+The [roadmap](../ROADMAP.md) records implemented optional embeddings, hybrid fusion, graphs, and context assembly, followed by separate provenance, persistent-cache, HNSW, revision, and quality stages.
 
 Public method contracts are documented in [API.md](API.md). Source comments are intentionally absent; design and validation explanations live in these documents.
+
+## Structured context selection
+
+The optional `context_engine` module borrows the existing index, rankers and graph. It gives ranked source entries priority, intersects scopes, and adds bounded BFS neighbors without allowing missing or excluded entries to act as bridges. Text excerpts and metadata remain borrowed. Normalized duplicate content shares an excerpt while retaining distinct source references. Source-ID and text-byte budgets are separate; metadata and prompt serialization remain the application's responsibility. See [CONTEXT.md](CONTEXT.md).

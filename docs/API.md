@@ -126,3 +126,7 @@ The `hybrid` feature adds `SemanticIndex::hybrid_search()` and `airust::hybrid::
 ## Optional graph API
 
 The independent `graph` feature exposes `airust::graph::{KnowledgeGraph, Relation, RelationType, RelationDirection, TraversalDirection, TraversalOptions, Neighbor, GraphVisit, GraphError}`. It stores stable IDs, typed explicit relationships, and relation metadata without storing knowledge text. The [graph guide](GRAPH.md) defines update validation, neighbors, deterministic bounded BFS/DFS, allowlists, mixed-cycle semantics, and memory limits.
+
+## Optional structured context
+
+Enable `context-assembly` and use `ContextAssembler::new(&Engine)` or `from_semantic(&SemanticIndex)`, optionally with `with_graph`. `query` selects a configured existing ranker; `assemble` accepts already ranked IDs. The borrowed `ContextBundle` preserves source references, metadata, rank/path evidence and UTF-8 excerpt offsets. Configure node/text/per-item budgets, deduplication, scope and graph traversal with `ContextOptions`. `Context::intersection` returns `None` when filters conflict; keep this fail-closed result. The complete contract and runnable example are in [CONTEXT.md](CONTEXT.md).

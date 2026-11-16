@@ -9,7 +9,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.0 | Optional embeddings and exact semantic retrieval | Implemented; see the release report for validation. |
 | 0.2.1 | Hybrid lexical and semantic retrieval | Implemented; see the release report for validation. |
 | 0.2.2 | Generic graph model and bounded algorithms | Implemented; see the release report for validation. |
-| 0.2.3 | Structured context assembly and budgets | Planned. |
+| 0.2.3 | Structured context assembly and budgets | Implemented; see the release report for validation. |
 | 0.2.4 | Optional typed source references | Planned. |
 | 0.2.5 | Versioned persistent derived-index cache | Planned. |
 | 0.2.6 | Optional HNSW with recall measurements | Planned. |

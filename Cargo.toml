@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.2"
+version = "0.2.3"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -13,7 +13,7 @@ categories = ["text-processing", "algorithms"]
 documentation = "https://docs.rs/airust"
 homepage = "https://github.com/LEVOGNE/airust"
 repository = "https://github.com/LEVOGNE/airust"
-include = ["Cargo.toml", "Cargo.lock", "src/**", "build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "tests/**", "docs/**", "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md", "LICENSE", "test.sh", "Dockerfile", ".dockerignore"]
+include = ["Cargo.toml", "Cargo.lock", "src/**", "build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "tests/**", "docs/**", "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md", "LICENSE", "test.sh", "Dockerfile", ".dockerignore", "!**/.DS_Store", "!**/._*"]
  
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -42,6 +42,7 @@ default = []
 embeddings = []
 hybrid = ["embeddings"]
 graph = ["dep:petgraph", "serde/rc"]
+context-assembly = ["hybrid", "graph"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
 pdf = ["dep:pdf_oxide"]
@@ -113,3 +114,11 @@ required-features = ["graph"]
 [[example]]
 name = "graph_benchmark"
 required-features = ["graph"]
+
+[[example]]
+name = "context"
+required-features = ["context-assembly"]
+
+[[example]]
+name = "context_benchmark"
+required-features = ["context-assembly"]

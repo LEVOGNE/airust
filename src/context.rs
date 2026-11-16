@@ -37,4 +37,33 @@ impl Context {
                     == Some(value)
             })
     }
+
+    pub fn intersection(&self, other: &Self) -> Option<Self> {
+        let entry_ids = match (self.entry_ids.is_empty(), other.entry_ids.is_empty()) {
+            (true, _) => other.entry_ids.clone(),
+            (_, true) => self.entry_ids.clone(),
+            (false, false) => {
+                let ids: BTreeSet<_> = self
+                    .entry_ids
+                    .intersection(&other.entry_ids)
+                    .cloned()
+                    .collect();
+                if ids.is_empty() {
+                    return None;
+                }
+                ids
+            }
+        };
+        let mut metadata = self.metadata.clone();
+        for (key, value) in &other.metadata {
+            if metadata.get(key).is_some_and(|existing| existing != value) {
+                return None;
+            }
+            metadata.insert(key.clone(), value.clone());
+        }
+        Some(Self {
+            entry_ids,
+            metadata,
+        })
+    }
 }

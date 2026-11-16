@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3
+
+- Add optional borrowed context assembly over existing lexical, semantic, hybrid and graph APIs.
+- Preserve ranked source IDs, metadata, graph evidence and UTF-8 excerpt offsets within explicit node/text budgets.
+- Add fail-closed scope intersection and predicate-filtered BFS without hidden bridges.
+- Retain distinct duplicate source references; cover streaming, multilingual budgets, fallback and validation regressions.
+- Record 1k/10k/100k assembly measurements, API contracts and migration notes without adding an application integration.
+
 ## 0.2.2 — Optional generic graph — November 16, 2026
 
 - Reuse petgraph's stable storage, union-find, and iterative topological sorting behind an independent `graph` feature.

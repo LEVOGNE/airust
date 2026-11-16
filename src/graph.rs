@@ -170,6 +170,10 @@ impl TraversalOptions {
         self.include_start = include;
         self
     }
+    pub fn with_node_limit(mut self, limit: usize) -> Self {
+        self.max_nodes = limit;
+        self
+    }
     pub fn max_depth(&self) -> usize {
         self.max_depth
     }
@@ -370,6 +374,7 @@ impl KnowledgeGraph {
         options: &TraversalOptions,
         seen: &BTreeSet<NodeIndex>,
         budget: usize,
+        accepts: &impl Fn(&str) -> bool,
     ) -> Vec<(NodeIndex, &'a Relation)> {
         if budget == 0 {
             return Vec::new();
@@ -380,6 +385,7 @@ impl KnowledgeGraph {
             if seen.contains(&target)
                 || !options.allows(id)
                 || !options.allows_kind(relation.kind())
+                || !accepts(id)
             {
                 continue;
             }
@@ -412,8 +418,20 @@ impl KnowledgeGraph {
         start: &str,
         options: &TraversalOptions,
     ) -> Result<Vec<GraphVisit<'_>>, GraphError> {
+        self.breadth_first_matching(start, options, |_| true)
+    }
+
+    pub fn breadth_first_matching(
+        &self,
+        start: &str,
+        options: &TraversalOptions,
+        accepts: impl Fn(&str) -> bool,
+    ) -> Result<Vec<GraphVisit<'_>>, GraphError> {
         let start = self.node(start)?;
-        if options.max_nodes == 0 || !options.allows(&self.graph[start]) {
+        if options.max_nodes == 0
+            || !options.allows(&self.graph[start])
+            || !accepts(&self.graph[start])
+        {
             return Ok(Vec::new());
         }
         let mut queue = VecDeque::from([WalkStep {
@@ -438,7 +456,7 @@ impl KnowledgeGraph {
                 .max_nodes
                 .saturating_sub(results.len())
                 .saturating_sub(queue.len());
-            for (node, relation) in self.candidates(step.node, options, &seen, budget) {
+            for (node, relation) in self.candidates(step.node, options, &seen, budget, &accepts) {
                 seen.insert(node);
                 queue.push_back(WalkStep {
                     node,
@@ -473,7 +491,13 @@ impl KnowledgeGraph {
         if results.len() >= options.max_nodes || options.max_depth == 0 {
             return Ok(results);
         }
-        let candidates = self.candidates(start, options, &seen, options.max_nodes - results.len());
+        let candidates = self.candidates(
+            start,
+            options,
+            &seen,
+            options.max_nodes - results.len(),
+            &|_| true,
+        );
         let mut stack = vec![WalkFrame {
             node: start,
             depth: 0,
@@ -498,8 +522,13 @@ impl KnowledgeGraph {
             }
             results.push(self.visit(&step));
             if results.len() < options.max_nodes && step.depth < options.max_depth {
-                let neighbors =
-                    self.candidates(node, options, &seen, options.max_nodes - results.len());
+                let neighbors = self.candidates(
+                    node,
+                    options,
+                    &seen,
+                    options.max_nodes - results.len(),
+                    &|_| true,
+                );
                 if !neighbors.is_empty() {
                     stack.push(WalkFrame {
                         node,

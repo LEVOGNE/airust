@@ -4,7 +4,7 @@ use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 pub fn normalize(text: &str) -> String {
     let mut normalized = String::with_capacity(text.len());
     let mut pending_space = false;
-    for character in text.nfkc().flat_map(char::to_lowercase).nfkc() {
+    for character in normalized_characters(text) {
         if character.is_whitespace() {
             pending_space = !normalized.is_empty();
         } else {
@@ -16,6 +16,10 @@ pub fn normalize(text: &str) -> String {
         }
     }
     normalized
+}
+
+pub(crate) fn normalized_characters(text: &str) -> impl Iterator<Item = char> + '_ {
+    text.nfkc().flat_map(char::to_lowercase).nfkc()
 }
 
 pub fn tokenize(text: &str) -> Vec<String> {

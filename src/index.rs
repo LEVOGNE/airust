@@ -133,6 +133,10 @@ impl KnowledgeIndex {
     pub fn get(&self, id: &str) -> Option<&KnowledgeEntry> {
         self.documents.get(id).map(|d| &d.entry)
     }
+    #[cfg(feature = "context-assembly")]
+    pub(crate) fn normalized_text(&self, id: &str) -> Option<&str> {
+        self.documents.get(id).map(|d| d.normalized.as_str())
+    }
     pub fn entries(&self) -> impl Iterator<Item = &KnowledgeEntry> {
         self.documents.values().map(|d| &d.entry)
     }
