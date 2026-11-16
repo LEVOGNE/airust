@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 — Optional hybrid retrieval — November 16, 2026
+
+- Reuse BM25, TF-IDF, exact semantic ranking, metadata filters, source entries, and deterministic top-result selection.
+- Add configurable weighted reciprocal rank fusion with per-component candidate budgets and score/rank evidence.
+- Keep IDs unique across component results and preserve original entry references and metadata.
+- Offer an explicit provider-error fallback with a visible reason; model and vector integrity failures remain errors.
+- Add rank-reference, failure, scope, extreme-configuration, and large-candidate tests and a real-model comparison.
+- Preserve 0.2.0 APIs, feature defaults, and minimum toolchain boundaries.
+
+See the [0.2.1 report](docs/CHANGES-0.2.1.md) and [hybrid API](docs/HYBRID.md).
+
 ## 0.2.0 — Optional embeddings — November 16, 2026
 
 - Add the optional `embeddings` feature with provider-neutral batch inference, model-space validation, normalized vectors, and robust cosine similarity.

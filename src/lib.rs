@@ -5,6 +5,8 @@ mod persistence;
 mod ranking;
 
 pub mod context;
+#[cfg(feature = "hybrid")]
+pub mod hybrid;
 pub mod index;
 pub mod matching;
 pub mod search;

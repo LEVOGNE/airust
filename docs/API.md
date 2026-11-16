@@ -118,3 +118,7 @@ Atomic replacement keeps complete snapshots. It does not merge simultaneous writ
 The `embeddings` feature exposes `airust::semantic`: `EmbeddingProvider`, `EmbeddingPurpose`, `EmbeddingSpace`, validated `Embedding` values, `embed_batch`, `cosine_similarity`, `SemanticIndex`, `SemanticSearchOptions`, and borrowed `SemanticResult` values. It adds no dependencies and preserves the existing lexical API. See [SEMANTIC.md](SEMANTIC.md) for complete contracts and a compiled example.
 
 The `local-embeddings` feature adds `semantic::local::FastEmbedProvider`, which accepts explicit E5 model and ONNX Runtime library paths. It enables no model-hub access or compile-time binary downloads. See [LOCAL-EMBEDDINGS.md](LOCAL-EMBEDDINGS.md) for its Rust 1.92 requirement, model recipe, memory costs, and explicit evaluation command.
+
+## Optional hybrid API
+
+The `hybrid` feature adds `SemanticIndex::hybrid_search()` and `airust::hybrid::{HybridSearchOptions, HybridOutcome, HybridResult, HybridError, SemanticFailurePolicy}`. It reuses both lexical modes, exact semantic retrieval, source entries, scope filters, and result ordering. The outcome explains weighted reciprocal ranks and explicit provider-error fallback. See [HYBRID.md](HYBRID.md) for configuration, evidence, candidate budgets, and limits.

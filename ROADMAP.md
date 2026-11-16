@@ -7,7 +7,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | Target | Scope | Status |
 | --- | --- | --- |
 | 0.2.0 | Optional embeddings and exact semantic retrieval | Implemented; see the release report for validation. |
-| 0.2.1 | Hybrid lexical and semantic retrieval | Planned. |
+| 0.2.1 | Hybrid lexical and semantic retrieval | Implemented; see the release report for validation. |
 | 0.2.2 | Generic graph model and bounded algorithms | Planned. |
 | 0.2.3 | Structured context assembly and budgets | Planned. |
 | 0.2.4 | Optional typed source references | Planned. |
@@ -32,7 +32,7 @@ The optional boundary is implemented in 0.2.0; see the [semantic API](docs/SEMAN
 
 The contract must define vector dimension, finite values, empty-input handling, normalization, timeouts, cancellation, and failure reporting. Index metadata must record the provider and model fingerprint. Vectors from incompatible models must not silently share a search space.
 
-Hybrid ranking follows separately in 0.2.1. Preserve a useful lexical path when a provider is unavailable. Do not add mandatory model downloads, cloud accounts, or HTTP dependencies to the default core.
+Hybrid ranking is separately implemented in 0.2.1; see the [hybrid guide](docs/HYBRID.md). Preserve a useful lexical path when a provider is unavailable. Do not add mandatory model downloads, cloud accounts, or HTTP dependencies to the default core.
 
 Acceptance: interchangeable test providers, vector validation, model-mismatch detection, stable result ordering, and measured retrieval quality on an identified corpus. Spelling similarity must remain distinct from semantic similarity.
 

@@ -1,10 +1,10 @@
-# AIRust 0.2.0
+# AIRust 0.2.1
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.0 adds optional embeddings, provider-neutral model integration, and exact semantic retrieval. The default build remains the lexical library. See the [0.2.0 change report](docs/CHANGES-0.2.0.md), [embedding API guide](docs/SEMANTIC.md), and [local-model guide](docs/LOCAL-EMBEDDINGS.md).
+Version 0.2.1 adds optional hybrid retrieval: combine the existing lexical ranking with semantic retrieval and inspect each component's contribution. The default build remains the lexical library. See the [0.2.1 report](docs/CHANGES-0.2.1.md), [hybrid guide](docs/HYBRID.md), and [embedding API](docs/SEMANTIC.md).
 
 ## What it does
 
@@ -14,6 +14,7 @@ Version 0.2.0 adds optional embeddings, provider-neutral model integration, and 
 | `find_matches()` | Exact matches, spelling similarity, or shared words. Rust also accepts `r#match()`. | Reviewing duplicates and similar content. |
 | `relate()` | Suggested connections with the shared terms that explain them. | Helping users review possible links. |
 | `SemanticIndex::search()` | Exact cosine ranking with an application-supplied embedding provider. | Finding related meanings, including across languages when the model supports them. |
+| `SemanticIndex::hybrid_search()` | Combine lexical and semantic rank positions with visible evidence and optional fallback. | Queries mixing exact terminology and paraphrases. |
 
 The default `search()`, matching, and `relate()` methods compare words and characters. The optional semantic index uses model embeddings instead. Its quality depends on the provider and corpus. AIRust has no required model, cloud account, HTTP client, or LLM dependency.
 
@@ -35,7 +36,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.0", default-features = false }
+airust = { version = "=0.2.1", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -96,7 +97,13 @@ The example uses hand-written vectors to demonstrate the API. For real local inf
 
 The fixed release smoke corpus contains twelve public records and sixteen German, English, French, and Spanish queries. Actual model results and their limits are recorded in the [0.2.0 change report](docs/CHANGES-0.2.0.md). The [embedding API guide](docs/SEMANTIC.md) explains updates, batches, filtering, and exact search costs.
 
-Semantic retrieval scans all eligible vectors. There is no hybrid rank fusion, graph traversal, persistent vector index, or approximate nearest-neighbor index in this release. Those are separate roadmap stages.
+Semantic retrieval scans all eligible vectors. The `hybrid` feature adds reciprocal rank fusion over the existing lexical and semantic results. Configure weights, candidate limits, thresholds, metadata scope, and explicit provider-error fallback through `HybridSearchOptions`. Results explain their component ranks and scores. See [HYBRID.md](docs/HYBRID.md).
+
+```bash
+cargo run --locked --features hybrid --example hybrid
+```
+
+No graph traversal, persistent vector cache, or approximate index is included yet. Hybrid fusion can improve retrieval for some workloads and make it worse for others; the release report compares the fixed reference corpus without claiming universal improvement.
 
 ## Tested lexical baseline and limits
 
@@ -137,6 +144,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | --- | --- |
 | None | Knowledge index, BM25, TF-IDF, matching, duplicates, filters, and relation suggestions. |
 | `embeddings` | Provider-neutral validated embeddings, atomic updates, and exact semantic retrieval. No added dependencies; Rust 1.89. |
+| `hybrid` | Weighted reciprocal rank fusion, component evidence, filters, and explicit provider-error fallback. Enables `embeddings`; no added dependencies. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -179,6 +187,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/knowledge.rs` | Generic knowledge entries and the existing training collection. |
 | `src/index.rs` | Shared storage and retrieval operations. |
 | `src/semantic.rs`, `src/semantic/local.rs` | Optional semantic index, provider contract, and local E5 adapter. |
+| `src/hybrid.rs` | Optional rank fusion over the shared lexical and semantic index. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
@@ -194,6 +203,8 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 The [API guide](docs/API.md) describes the public contracts. The [architecture guide](docs/ARCHITECTURE.md) explains how the modules work together. Source code is kept free of comments; explanations live in these documents and executable examples.
 
 ## Changes and compatibility
+
+The [0.2.1 report](docs/CHANGES-0.2.1.md) and [migration guide](docs/MIGRATION-0.2.1.md) describe the additive hybrid feature. Existing 0.2.0 APIs, embeddings, and source formats are preserved.
 
 See the [0.2.0 change report](docs/CHANGES-0.2.0.md) and [migration guide](docs/MIGRATION-0.2.0.md) for optional embedding features. Existing lexical APIs and default features are preserved. Cargo dependencies on 0.1.x must explicitly select 0.2.0 to use the new release.
 

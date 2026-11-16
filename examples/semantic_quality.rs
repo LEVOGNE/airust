@@ -3,32 +3,19 @@ use airust::{
         embed_batch, local::FastEmbedProvider, EmbeddingProvider, EmbeddingPurpose, SemanticIndex,
         SemanticSearchOptions,
     },
-    Engine, KnowledgeEntry,
+    Engine,
 };
-use serde::Deserialize;
 use serde_json::json;
 use std::{error::Error, time::Instant};
 
-#[derive(Deserialize)]
-struct Reference {
-    version: String,
-    documents: Vec<KnowledgeEntry>,
-    queries: Vec<Query>,
-}
-#[derive(Deserialize)]
-struct Query {
-    id: String,
-    text: String,
-    relevant: Vec<String>,
-}
+mod support;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     if args.len() != 2 {
         return Err("Usage: semantic_quality MODEL_DIRECTORY ONNX_RUNTIME_LIBRARY".into());
     }
-    let reference: Reference =
-        serde_json::from_str(include_str!("../tests/fixtures/semantic-reference.json"))?;
+    let reference = support::reference()?;
     let started = Instant::now();
     let mut provider = FastEmbedProvider::multilingual_e5_small(&args[0], &args[1], 2)?;
     let load_ms = started.elapsed().as_secs_f64() * 1000.0;

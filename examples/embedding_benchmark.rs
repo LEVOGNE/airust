@@ -5,6 +5,9 @@ use airust::{
 use serde_json::json;
 use std::{error::Error, hint::black_box, time::Instant};
 
+#[path = "support/vectors.rs"]
+mod vectors;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let count = std::env::args()
         .nth(1)
@@ -16,17 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let dimensions = 384;
     let space = EmbeddingSpace::new("synthetic-benchmark-v1:seed7", dimensions)?;
-    let values = |id: usize| {
-        (0..dimensions)
-            .map(|d| {
-                (((id as u64)
-                    .wrapping_mul(6364136223846793005)
-                    .wrapping_add((d as u64).wrapping_mul(1442695040888963407).wrapping_add(7)))
-                    % 10007) as f32
-                    - 5003.0
-            })
-            .collect::<Vec<_>>()
-    };
+    let values = |id: usize| vectors::values(id, dimensions);
     let mut index = SemanticIndex::new(space.clone());
     let started = Instant::now();
     for id in 0..count {

@@ -1,0 +1,1948 @@
+{
+  "airust_version": "0.2.1",
+  "documents": 12,
+  "fixture": "airust-semantic-reference-v1",
+  "limits": "Fixed hand-labeled smoke corpus. Single-pass timings exclude model load and index build. No general quality improvement or latency guarantee.",
+  "model_space": "intfloat/multilingual-e5-small:sha256:bdeaf1db1a21c209f990af1bd3faa13d439d214ebc80e4e3dc73d76c9fa79456",
+  "queries": 16,
+  "systems": [
+    {
+      "cases": [
+        {
+          "elapsed_ms": 0.033083,
+          "first_relevant_rank": null,
+          "id": "de-registration",
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "score": 1.5510406806512866,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "bicycle",
+              "score": 1.4850909194267436,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "cooking",
+              "score": 1.4850909194267436,
+              "terms": [
+                "ein"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.000792,
+          "first_relevant_rank": null,
+          "id": "de-synonym",
+          "query": "Auto zulassen",
+          "relevant": [
+            "registration"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.00275,
+          "first_relevant_rank": null,
+          "id": "de-passport",
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "relevant": [
+            "passport"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "score": 1.4850909194267436,
+              "terms": [
+                "ein"
+              ]
+            },
+            {
+              "id": "password",
+              "score": 1.4850909194267436,
+              "terms": [
+                "ein"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.003,
+          "first_relevant_rank": null,
+          "id": "de-backup",
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "score": 1.9452362057167385,
+              "terms": [
+                "vor"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.008042,
+          "first_relevant_rank": 2,
+          "id": "de-vet",
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "passport",
+              "score": 1.8860654676719646,
+              "terms": [
+                "einen"
+              ]
+            },
+            {
+              "id": "vet",
+              "score": 1.5510406806512866,
+              "terms": [
+                "einen"
+              ]
+            },
+            {
+              "id": "plants",
+              "score": 0.43868806308327096,
+              "terms": [
+                "und"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.003167,
+          "first_relevant_rank": 3,
+          "id": "de-bike",
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "relevant": [
+            "bicycle"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "score": 1.291859921667209,
+              "terms": [
+                "die"
+              ]
+            },
+            {
+              "id": "weather",
+              "score": 1.291859921667209,
+              "terms": [
+                "die"
+              ]
+            },
+            {
+              "id": "bicycle",
+              "score": 1.182000967698659,
+              "terms": [
+                "die"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.003875,
+          "first_relevant_rank": null,
+          "id": "de-rust",
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "relevant": [
+            "rust"
+          ],
+          "top3": [
+            {
+              "id": "plants",
+              "score": 1.7022251513284878,
+              "terms": [
+                "mit"
+              ]
+            },
+            {
+              "id": "backup",
+              "score": 1.6231200238140833,
+              "terms": [
+                "eine"
+              ]
+            },
+            {
+              "id": "train",
+              "score": 1.6231200238140833,
+              "terms": [
+                "eine"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.002959,
+          "first_relevant_rank": null,
+          "id": "de-plants",
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "relevant": [
+            "plants"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "score": 1.9452362057167385,
+              "terms": [
+                "wasser"
+              ]
+            },
+            {
+              "id": "vet",
+              "score": 1.5510406806512866,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "bicycle",
+              "score": 1.4850909194267436,
+              "terms": [
+                "der"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.001667,
+          "first_relevant_rank": null,
+          "id": "en-registration",
+          "query": "Register a vehicle at the licensing authority",
+          "relevant": [
+            "registration"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.00125,
+          "first_relevant_rank": null,
+          "id": "en-bread",
+          "query": "How can I bake a loaf of bread?",
+          "relevant": [
+            "cooking"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.001666,
+          "first_relevant_rank": null,
+          "id": "en-train",
+          "query": "Buy a railway ticket and check the departure time",
+          "relevant": [
+            "train"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.001584,
+          "first_relevant_rank": null,
+          "id": "fr-weather",
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "relevant": [
+            "weather"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.002208,
+          "first_relevant_rank": null,
+          "id": "es-password",
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "relevant": [
+            "password"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.001958,
+          "first_relevant_rank": null,
+          "id": "fr-backup",
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "relevant": [
+            "backup"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.003083,
+          "first_relevant_rank": 1,
+          "id": "en-meeting",
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "relevant": [
+            "meeting"
+          ],
+          "top3": [
+            {
+              "id": "meeting",
+              "score": 2.1260326861103773,
+              "terms": [
+                "team"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.001583,
+          "first_relevant_rank": null,
+          "id": "es-vet",
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "relevant": [
+            "vet"
+          ],
+          "top3": []
+        }
+      ],
+      "mrr": 0.11458333333333333,
+      "recall_at_3": 0.1875,
+      "system": "bm25",
+      "top1_accuracy": 0.0625
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 0.006334,
+          "first_relevant_rank": null,
+          "id": "de-registration",
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "score": 0.2011379750028574,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "vet",
+              "score": 0.20007374593975305,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "cooking",
+              "score": 0.19937383897803176,
+              "terms": [
+                "ein"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.0007080000000000001,
+          "first_relevant_rank": null,
+          "id": "de-synonym",
+          "query": "Auto zulassen",
+          "relevant": [
+            "registration"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.00325,
+          "first_relevant_rank": null,
+          "id": "de-passport",
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "relevant": [
+            "passport"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "score": 0.28195718706512213,
+              "terms": [
+                "ein"
+              ]
+            },
+            {
+              "id": "password",
+              "score": 0.2780518246158797,
+              "terms": [
+                "ein"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.0029170000000000003,
+          "first_relevant_rank": null,
+          "id": "de-backup",
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "score": 0.33121588810612146,
+              "terms": [
+                "vor"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.009292,
+          "first_relevant_rank": 2,
+          "id": "de-vet",
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "passport",
+              "score": 0.32097770468559284,
+              "terms": [
+                "einen"
+              ]
+            },
+            {
+              "id": "vet",
+              "score": 0.24744499424742117,
+              "terms": [
+                "einen"
+              ]
+            },
+            {
+              "id": "plants",
+              "score": 0.08752311946489626,
+              "terms": [
+                "und"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.0035,
+          "first_relevant_rank": 3,
+          "id": "de-bike",
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "relevant": [
+            "bicycle"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "score": 0.2844022550373411,
+              "terms": [
+                "die"
+              ]
+            },
+            {
+              "id": "weather",
+              "score": 0.27929814199326153,
+              "terms": [
+                "die"
+              ]
+            },
+            {
+              "id": "bicycle",
+              "score": 0.25127258252470663,
+              "terms": [
+                "die"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.004625,
+          "first_relevant_rank": null,
+          "id": "de-rust",
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "relevant": [
+            "rust"
+          ],
+          "top3": [
+            {
+              "id": "plants",
+              "score": 0.23011326204458865,
+              "terms": [
+                "mit"
+              ]
+            },
+            {
+              "id": "train",
+              "score": 0.22765752271771372,
+              "terms": [
+                "eine"
+              ]
+            },
+            {
+              "id": "backup",
+              "score": 0.20544136477226724,
+              "terms": [
+                "eine"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.003792,
+          "first_relevant_rank": null,
+          "id": "de-plants",
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "relevant": [
+            "plants"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "score": 0.2490667076759152,
+              "terms": [
+                "wasser"
+              ]
+            },
+            {
+              "id": "bicycle",
+              "score": 0.18532644802509332,
+              "terms": [
+                "der"
+              ]
+            },
+            {
+              "id": "vet",
+              "score": 0.18434587838304833,
+              "terms": [
+                "der"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.001709,
+          "first_relevant_rank": null,
+          "id": "en-registration",
+          "query": "Register a vehicle at the licensing authority",
+          "relevant": [
+            "registration"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.0014169999999999999,
+          "first_relevant_rank": null,
+          "id": "en-bread",
+          "query": "How can I bake a loaf of bread?",
+          "relevant": [
+            "cooking"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.0018750000000000001,
+          "first_relevant_rank": null,
+          "id": "en-train",
+          "query": "Buy a railway ticket and check the departure time",
+          "relevant": [
+            "train"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.001333,
+          "first_relevant_rank": null,
+          "id": "fr-weather",
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "relevant": [
+            "weather"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.00175,
+          "first_relevant_rank": null,
+          "id": "es-password",
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "relevant": [
+            "password"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.001834,
+          "first_relevant_rank": null,
+          "id": "fr-backup",
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "relevant": [
+            "backup"
+          ],
+          "top3": []
+        },
+        {
+          "elapsed_ms": 0.003125,
+          "first_relevant_rank": 1,
+          "id": "en-meeting",
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "relevant": [
+            "meeting"
+          ],
+          "top3": [
+            {
+              "id": "meeting",
+              "score": 0.35800342916821304,
+              "terms": [
+                "team"
+              ]
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 0.001667,
+          "first_relevant_rank": null,
+          "id": "es-vet",
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "relevant": [
+            "vet"
+          ],
+          "top3": []
+        }
+      ],
+      "mrr": 0.11458333333333333,
+      "recall_at_3": 0.1875,
+      "system": "tfidf",
+      "top1_accuracy": 0.0625
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.6332500000000003,
+          "first_relevant_rank": 1,
+          "id": "de-registration",
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "score": 0.868915458566472
+            },
+            {
+              "id": "passport",
+              "score": 0.8571070767364127
+            },
+            {
+              "id": "train",
+              "score": 0.8261114932963656
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 1.744125,
+          "first_relevant_rank": 1,
+          "id": "de-synonym",
+          "query": "Auto zulassen",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "score": 0.8747887562815861
+            },
+            {
+              "id": "train",
+              "score": 0.8264290037886255
+            },
+            {
+              "id": "passport",
+              "score": 0.8257141207543056
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 1.8655,
+          "first_relevant_rank": 1,
+          "id": "de-passport",
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "relevant": [
+            "passport"
+          ],
+          "top3": [
+            {
+              "id": "passport",
+              "score": 0.8730791709672879
+            },
+            {
+              "id": "train",
+              "score": 0.8333421130155025
+            },
+            {
+              "id": "backup",
+              "score": 0.8105490416147839
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 1.973042,
+          "first_relevant_rank": 1,
+          "id": "de-backup",
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "score": 0.8319648278002323
+            },
+            {
+              "id": "password",
+              "score": 0.8198004619944285
+            },
+            {
+              "id": "rust",
+              "score": 0.8124359126712618
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 3.238583,
+          "first_relevant_rank": 1,
+          "id": "de-vet",
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "score": 0.8879841433581245
+            },
+            {
+              "id": "passport",
+              "score": 0.8073879319186472
+            },
+            {
+              "id": "train",
+              "score": 0.8068973073419571
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.5761249999999998,
+          "first_relevant_rank": 1,
+          "id": "de-bike",
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "relevant": [
+            "bicycle"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "score": 0.8804015074877681
+            },
+            {
+              "id": "train",
+              "score": 0.8421717208581109
+            },
+            {
+              "id": "registration",
+              "score": 0.830903469120579
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.244292,
+          "first_relevant_rank": 1,
+          "id": "de-rust",
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "relevant": [
+            "rust"
+          ],
+          "top3": [
+            {
+              "id": "rust",
+              "score": 0.8435121301383721
+            },
+            {
+              "id": "backup",
+              "score": 0.8425769924198871
+            },
+            {
+              "id": "password",
+              "score": 0.8315784357681548
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.742458,
+          "first_relevant_rank": 1,
+          "id": "de-plants",
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "relevant": [
+            "plants"
+          ],
+          "top3": [
+            {
+              "id": "plants",
+              "score": 0.8371647952158754
+            },
+            {
+              "id": "cooking",
+              "score": 0.8172519785209938
+            },
+            {
+              "id": "vet",
+              "score": 0.8065174612512706
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.229833,
+          "first_relevant_rank": 1,
+          "id": "en-registration",
+          "query": "Register a vehicle at the licensing authority",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "score": 0.8473777569365764
+            },
+            {
+              "id": "passport",
+              "score": 0.8360299862461735
+            },
+            {
+              "id": "train",
+              "score": 0.7920700800685369
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.233916,
+          "first_relevant_rank": 1,
+          "id": "en-bread",
+          "query": "How can I bake a loaf of bread?",
+          "relevant": [
+            "cooking"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "score": 0.8146020148164689
+            },
+            {
+              "id": "passport",
+              "score": 0.7705005723081277
+            },
+            {
+              "id": "plants",
+              "score": 0.7651157587522501
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.891959,
+          "first_relevant_rank": 1,
+          "id": "en-train",
+          "query": "Buy a railway ticket and check the departure time",
+          "relevant": [
+            "train"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "score": 0.8727626338917589
+            },
+            {
+              "id": "passport",
+              "score": 0.8327232041336287
+            },
+            {
+              "id": "bicycle",
+              "score": 0.8170341189011019
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.687792,
+          "first_relevant_rank": 1,
+          "id": "fr-weather",
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "relevant": [
+            "weather"
+          ],
+          "top3": [
+            {
+              "id": "weather",
+              "score": 0.8163264176580824
+            },
+            {
+              "id": "passport",
+              "score": 0.802392421415062
+            },
+            {
+              "id": "registration",
+              "score": 0.7977952293138619
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.331416,
+          "first_relevant_rank": 1,
+          "id": "es-password",
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "relevant": [
+            "password"
+          ],
+          "top3": [
+            {
+              "id": "password",
+              "score": 0.8164529347965181
+            },
+            {
+              "id": "backup",
+              "score": 0.7910081899373289
+            },
+            {
+              "id": "passport",
+              "score": 0.773648773100565
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.48775,
+          "first_relevant_rank": 1,
+          "id": "fr-backup",
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "score": 0.8703238021712183
+            },
+            {
+              "id": "passport",
+              "score": 0.8153486832328711
+            },
+            {
+              "id": "registration",
+              "score": 0.8075395033049069
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.6923749999999997,
+          "first_relevant_rank": 1,
+          "id": "en-meeting",
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "relevant": [
+            "meeting"
+          ],
+          "top3": [
+            {
+              "id": "meeting",
+              "score": 0.8540354666964176
+            },
+            {
+              "id": "passport",
+              "score": 0.7872418845147237
+            },
+            {
+              "id": "registration",
+              "score": 0.7785996416361547
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.3595,
+          "first_relevant_rank": 1,
+          "id": "es-vet",
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "score": 0.8507963794792802
+            },
+            {
+              "id": "passport",
+              "score": 0.7674599732013246
+            },
+            {
+              "id": "train",
+              "score": 0.7554465110642373
+            }
+          ]
+        }
+      ],
+      "mrr": 1.0,
+      "recall_at_3": 1.0,
+      "system": "semantic",
+      "top1_accuracy": 1.0
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.122875,
+          "first_relevant_rank": 5,
+          "id": "de-registration",
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "lexical_rank": 1,
+              "score": 0.016009221311475412,
+              "semantic_rank": 4
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": 2,
+              "score": 0.01575682382133995,
+              "semantic_rank": 5
+            },
+            {
+              "id": "password",
+              "lexical_rank": 4,
+              "score": 0.015165441176470588,
+              "semantic_rank": 8
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.4475000000000002,
+          "first_relevant_rank": 1,
+          "id": "de-synonym",
+          "query": "Auto zulassen",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.4728749999999997,
+          "first_relevant_rank": 3,
+          "id": "de-passport",
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "relevant": [
+            "passport"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "lexical_rank": 1,
+              "score": 0.015443098123069612,
+              "semantic_rank": 9
+            },
+            {
+              "id": "password",
+              "lexical_rank": 2,
+              "score": 0.015417457305502846,
+              "semantic_rank": 8
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.262791,
+          "first_relevant_rank": 2,
+          "id": "de-backup",
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "lexical_rank": 1,
+              "score": 0.015772478887232988,
+              "semantic_rank": 6
+            },
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "password",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.438541,
+          "first_relevant_rank": 2,
+          "id": "de-vet",
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "passport",
+              "lexical_rank": 1,
+              "score": 0.01626123744050767,
+              "semantic_rank": 2
+            },
+            {
+              "id": "vet",
+              "lexical_rank": 2,
+              "score": 0.01626123744050767,
+              "semantic_rank": 1
+            },
+            {
+              "id": "plants",
+              "lexical_rank": 3,
+              "score": 0.015749007936507936,
+              "semantic_rank": 4
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.3510419999999996,
+          "first_relevant_rank": 2,
+          "id": "de-bike",
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "relevant": [
+            "bicycle"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "lexical_rank": 1,
+              "score": 0.01626123744050767,
+              "semantic_rank": 2
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": 3,
+              "score": 0.016133229247983348,
+              "semantic_rank": 1
+            },
+            {
+              "id": "weather",
+              "lexical_rank": 2,
+              "score": 0.015640273704789834,
+              "semantic_rank": 6
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.126125,
+          "first_relevant_rank": 5,
+          "id": "de-rust",
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "relevant": [
+            "rust"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "lexical_rank": 2,
+              "score": 0.016129032258064516,
+              "semantic_rank": 2
+            },
+            {
+              "id": "plants",
+              "lexical_rank": 1,
+              "score": 0.015889029003783105,
+              "semantic_rank": 5
+            },
+            {
+              "id": "train",
+              "lexical_rank": 3,
+              "score": 0.01518288474810214,
+              "semantic_rank": 9
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.029375,
+          "first_relevant_rank": 4,
+          "id": "de-plants",
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "relevant": [
+            "plants"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "lexical_rank": 1,
+              "score": 0.01626123744050767,
+              "semantic_rank": 2
+            },
+            {
+              "id": "vet",
+              "lexical_rank": 2,
+              "score": 0.016001024065540194,
+              "semantic_rank": 3
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": 3,
+              "score": 0.015512265512265512,
+              "semantic_rank": 6
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.641,
+          "first_relevant_rank": 1,
+          "id": "en-registration",
+          "query": "Register a vehicle at the licensing authority",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.8617920000000003,
+          "first_relevant_rank": 1,
+          "id": "en-bread",
+          "query": "How can I bake a loaf of bread?",
+          "relevant": [
+            "cooking"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "plants",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.493583,
+          "first_relevant_rank": 1,
+          "id": "en-train",
+          "query": "Buy a railway ticket and check the departure time",
+          "relevant": [
+            "train"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.578625,
+          "first_relevant_rank": 1,
+          "id": "fr-weather",
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "relevant": [
+            "weather"
+          ],
+          "top3": [
+            {
+              "id": "weather",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.22425,
+          "first_relevant_rank": 1,
+          "id": "es-password",
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "relevant": [
+            "password"
+          ],
+          "top3": [
+            {
+              "id": "password",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.211375,
+          "first_relevant_rank": 1,
+          "id": "fr-backup",
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.321916,
+          "first_relevant_rank": 1,
+          "id": "en-meeting",
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "relevant": [
+            "meeting"
+          ],
+          "top3": [
+            {
+              "id": "meeting",
+              "lexical_rank": 1,
+              "score": 0.01639344262295082,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.779583,
+          "first_relevant_rank": 1,
+          "id": "es-vet",
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "lexical_rank": null,
+              "score": 0.00819672131147541,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.008064516129032258,
+              "semantic_rank": 2
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.007936507936507936,
+              "semantic_rank": 3
+            }
+          ]
+        }
+      ],
+      "mrr": 0.7177083333333334,
+      "recall_at_3": 0.8125,
+      "system": "hybrid_equal",
+      "top1_accuracy": 0.5625
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.44825,
+          "first_relevant_rank": 5,
+          "id": "de-registration",
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "lexical_rank": 1,
+              "score": 0.015817110655737706,
+              "semantic_rank": 4
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": 2,
+              "score": 0.015570719602977668,
+              "semantic_rank": 5
+            },
+            {
+              "id": "password",
+              "lexical_rank": 4,
+              "score": 0.014935661764705883,
+              "semantic_rank": 8
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 1.8381669999999999,
+          "first_relevant_rank": 1,
+          "id": "de-synonym",
+          "query": "Auto zulassen",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.399,
+          "first_relevant_rank": 3,
+          "id": "de-passport",
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "relevant": [
+            "passport"
+          ],
+          "top3": [
+            {
+              "id": "password",
+              "lexical_rank": 2,
+              "score": 0.015061669829222012,
+              "semantic_rank": 8
+            },
+            {
+              "id": "cooking",
+              "lexical_rank": 1,
+              "score": 0.01496792587312901,
+              "semantic_rank": 9
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.641041,
+          "first_relevant_rank": 2,
+          "id": "de-backup",
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "lexical_rank": 1,
+              "score": 0.01546199701937407,
+              "semantic_rank": 6
+            },
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "password",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.247875,
+          "first_relevant_rank": 1,
+          "id": "de-vet",
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "lexical_rank": 2,
+              "score": 0.016327340031729243,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": 1,
+              "score": 0.016195134849286093,
+              "semantic_rank": 2
+            },
+            {
+              "id": "train",
+              "lexical_rank": 6,
+              "score": 0.015692640692640692,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.1555,
+          "first_relevant_rank": 1,
+          "id": "de-bike",
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "relevant": [
+            "bicycle"
+          ],
+          "top3": [
+            {
+              "id": "bicycle",
+              "lexical_rank": 3,
+              "score": 0.016263335935467083,
+              "semantic_rank": 1
+            },
+            {
+              "id": "train",
+              "lexical_rank": 1,
+              "score": 0.016195134849286093,
+              "semantic_rank": 2
+            },
+            {
+              "id": "weather",
+              "lexical_rank": 2,
+              "score": 0.015395894428152493,
+              "semantic_rank": 6
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.554833,
+          "first_relevant_rank": 5,
+          "id": "de-rust",
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "relevant": [
+            "rust"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "lexical_rank": 2,
+              "score": 0.016129032258064516,
+              "semantic_rank": 2
+            },
+            {
+              "id": "plants",
+              "lexical_rank": 1,
+              "score": 0.015636822194199245,
+              "semantic_rank": 5
+            },
+            {
+              "id": "train",
+              "lexical_rank": 3,
+              "score": 0.014837819185645272,
+              "semantic_rank": 9
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.19225,
+          "first_relevant_rank": 4,
+          "id": "de-plants",
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "relevant": [
+            "plants"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "lexical_rank": 1,
+              "score": 0.016195134849286093,
+              "semantic_rank": 2
+            },
+            {
+              "id": "vet",
+              "lexical_rank": 2,
+              "score": 0.015937019969278033,
+              "semantic_rank": 3
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": 3,
+              "score": 0.015331890331890332,
+              "semantic_rank": 6
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.180333,
+          "first_relevant_rank": 1,
+          "id": "en-registration",
+          "query": "Register a vehicle at the licensing authority",
+          "relevant": [
+            "registration"
+          ],
+          "top3": [
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.465792,
+          "first_relevant_rank": 1,
+          "id": "en-bread",
+          "query": "How can I bake a loaf of bread?",
+          "relevant": [
+            "cooking"
+          ],
+          "top3": [
+            {
+              "id": "cooking",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "plants",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.7352499999999997,
+          "first_relevant_rank": 1,
+          "id": "en-train",
+          "query": "Buy a railway ticket and check the departure time",
+          "relevant": [
+            "train"
+          ],
+          "top3": [
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "bicycle",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.373584,
+          "first_relevant_rank": 1,
+          "id": "fr-weather",
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "relevant": [
+            "weather"
+          ],
+          "top3": [
+            {
+              "id": "weather",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.131959,
+          "first_relevant_rank": 1,
+          "id": "es-password",
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "relevant": [
+            "password"
+          ],
+          "top3": [
+            {
+              "id": "password",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.9067089999999998,
+          "first_relevant_rank": 1,
+          "id": "fr-backup",
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "relevant": [
+            "backup"
+          ],
+          "top3": [
+            {
+              "id": "backup",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.507292,
+          "first_relevant_rank": 1,
+          "id": "en-meeting",
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "relevant": [
+            "meeting"
+          ],
+          "top3": [
+            {
+              "id": "meeting",
+              "lexical_rank": 1,
+              "score": 0.01639344262295082,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "registration",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        },
+        {
+          "elapsed_ms": 2.215959,
+          "first_relevant_rank": 1,
+          "id": "es-vet",
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "relevant": [
+            "vet"
+          ],
+          "top3": [
+            {
+              "id": "vet",
+              "lexical_rank": null,
+              "score": 0.012295081967213115,
+              "semantic_rank": 1
+            },
+            {
+              "id": "passport",
+              "lexical_rank": null,
+              "score": 0.012096774193548387,
+              "semantic_rank": 2
+            },
+            {
+              "id": "train",
+              "lexical_rank": null,
+              "score": 0.011904761904761904,
+              "semantic_rank": 3
+            }
+          ]
+        }
+      ],
+      "mrr": 0.7802083333333334,
+      "recall_at_3": 0.8125,
+      "system": "hybrid_semantic75",
+      "top1_accuracy": 0.6875
+    }
+  ]
+}

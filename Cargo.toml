@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.0"
+version = "0.2.1"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -39,6 +39,7 @@ ort = { version = "=2.0.0-rc.15", optional = true, default-features = false, fea
 [features]
 default = []
 embeddings = []
+hybrid = ["embeddings"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
 pdf = ["dep:pdf_oxide"]
@@ -90,3 +91,15 @@ required-features = ["local-embeddings"]
 [[example]]
 name = "embedding_benchmark"
 required-features = ["embeddings"]
+
+[[example]]
+name = "hybrid"
+required-features = ["hybrid"]
+
+[[example]]
+name = "hybrid_quality"
+required-features = ["hybrid", "local-embeddings"]
+
+[[example]]
+name = "hybrid_benchmark"
+required-features = ["hybrid"]

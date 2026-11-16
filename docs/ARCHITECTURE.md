@@ -29,6 +29,7 @@ The arrows represent possible library calls. No external application is integrat
 | `context` | Restrict eligible entries by ID and metadata. |
 | `semantic` | Optional provider interface, validated vectors, model-space identity, and exact semantic retrieval. |
 | `semantic::local` | Optional CPU E5 adapter using explicit model files and a dynamic native runtime. |
+| `hybrid` | Optional weighted reciprocal-rank fusion using existing lexical and semantic results. |
 
 `Engine` is an alias for `KnowledgeIndex`. Search, comparison, and relation suggestions use the same source entries.
 
@@ -57,6 +58,8 @@ The API exposes scores as evidence for ranking. BM25 scores are unbounded releva
 ## Optional embeddings
 
 The optional `SemanticIndex` owns the existing lexical index and a vector side table. Source entries are stored once. Its lexical view is immutable; update methods validate and stage embeddings before updating both stores. It reuses `Context` and `TopK`. Provider batches receive borrowed original text and a query/document purpose. Cosine similarity and model-space validation are separate from BM25 and TF-IDF. See [SEMANTIC.md](SEMANTIC.md).
+
+The `hybrid` feature ranks each component through those existing APIs, then merges by borrowed entry ID. A temporary map retains at most two candidate lists and the shared heap keeps final top results. Component scores and ranks remain inspectable. Explicit offline fallback is distinguished from successful semantic participation. Model and vector integrity failures remain errors. See [HYBRID.md](HYBRID.md).
 
 ## Matching and duplicates
 
