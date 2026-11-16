@@ -30,11 +30,11 @@ The example demonstrates search, text comparison, duplicates, relation suggestio
 
 ## Add AIRust to an application
 
-Add AIRust to your `Cargo.toml`:
+To use the exact library version covered by the validation report, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = "0.1.9"
+airust = { version = "=0.1.9", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -82,6 +82,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 Your application owns the IDs, storage model, and presentation. AIRust accepts the same entry format from document tools, graph applications, and agent services.
 
 Search results contain the original entry, a relevance score, and matching terms. A query without a match returns an empty list. BM25 scores are relevance values, not probabilities. Equal scores use ascending entry IDs for a stable order.
+
+## Tested behavior and limits
+
+The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
+
+| Check | Observed result |
+| --- | --- |
+| Real records | Indexed 722 exported entries from three local maps. Private text and databases are excluded from this repository. |
+| Incremental changes | After 200 replacements or deletions, checked search scores, statistics, duplicate groups, fuzzy results, and relation proposals against a fresh index. |
+| SQLite replay | A separate in-memory test database passed 300 steps with committed changes and rollbacks. The test caller updated the index. |
+| German text | Equivalent Unicode umlauts matched exactly. The checked spelling-error example scored 0.92 character similarity. |
+
+A synthetic scale check also measured frequent queries. Each size used short five-token records, a result limit of ten, and twelve warm samples per query on macOS ARM64 with 64 GiB memory and Rust 1.98.0:
+
+| Entries | Rare query median (ms) | Common query median (ms) | Peak process memory (MiB) |
+| ---: | ---: | ---: | ---: |
+| 10,000 | 0.000604 | 2.737 | 25.62 |
+| 100,000 | 0.001896 | 28.509 | 187.50 |
+| 1,000,000 | 0.018708 | 313.901 | 1,914.19 |
+
+The rare query matched about 1, 10, and 100 candidates; the common query matched every entry. These single-process results describe this workload. They do not establish application speedups, production capacity, or tail latency. The report includes raw samples and a runnable public test consumer.
+
+Keep these limits in mind:
+
+- Search, matching, and relation suggestions are lexical. They do not infer synonyms or logical relationships. Opposing statements can share words and receive a `Related` suggestion.
+- Normalization preserves accents. `Straße` and `Strasse`, or `Führerschein` and `Fuehrerschein`, are not exact duplicates. Search has no stemming and can return entries matching only some query terms.
+- The core index is in memory. JSON loading rebuilds it. Applications own durable storage, committed-change replay, crash recovery, and permissions. AIRust does not automatically monitor SQLite.
+- `Context` filters search. Matching, duplicate grouping, and relation suggestions require the caller to supply an appropriately scoped index or otherwise enforce the authorized record set.
+- These checks do not establish semantic retrieval quality, token savings, or a completed production security audit. The real-corpus queries had no labeled relevance judgments.
+
+DenkMaps was inspected read-only and its exported records were tested in a separate consumer. No DenkMaps or MCP integration was implemented. A direct comparison with the application's existing search, including relevance and end-to-end performance, remains future work.
 
 ## Optional integrations
 
@@ -134,7 +165,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
 | `tests/` | Cross-module tests and regression cases. |
-| `docs/` | API contracts, architecture, migration, and change reports. |
+| `docs/` | API contracts, architecture, migration, change reports, and follow-up validation with reproducible checks. |
 | `knowledge/`, `data/pdf/` | Sample knowledge and a PDF fixture. |
 | `airust.db` | Existing local dashboard database, excluded from the crate package. |
 | `backups/` | The preserved original archive, excluded from the crate package. |
@@ -147,6 +178,8 @@ The [API guide](docs/API.md) describes the public contracts. The [architecture g
 ## Changes and compatibility
 
 See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide](docs/MIGRATION-0.1.9.md) for the English-language and hardening work.
+
+The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
 The [roadmap](ROADMAP.md) describes optional semantic providers, evidence-based relations, persistence, and generic structural context as future work. External application integration follows a tested engine release.
 

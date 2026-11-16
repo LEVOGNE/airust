@@ -1,5 +1,12 @@
 # Changelog
 
+## Repository documentation update — November 16, 2026
+
+- Add the [follow-up 0.1.9 validation report](docs/VALIDATION-0.1.9.md), aggregate measurements, a separate registry test consumer, and public fixtures.
+- Summarize the 187 published-package tests, real-corpus index checks, SQLite replay checks, and common-query scale measurements in the README.
+- State the limits of lexical matching, application synchronization, scope handling, relevance evaluation, and the read-only DenkMaps investigation.
+- Keep AIRust at 0.1.9. This documentation update introduces no library changes, new crate release, or DenkMaps/MCP integration.
+
 ## 0.1.9 — English and hardening — November 16, 2026
 
 - Move project documentation and user-facing project text to English.

@@ -1,0 +1,42 @@
+{
+  "airust_version": "0.1.9",
+  "build_ms": 22.461458999999998,
+  "checks": {
+    "context_filter": true,
+    "duplicate_rebuild_parity": true,
+    "fuzzy_rebuild_parity": true,
+    "ranker_rebuild_parity": true,
+    "relation_rebuild_parity": true,
+    "round_trip": true,
+    "sqlite_commit_and_rollback_replay": true
+  },
+  "german": {
+    "opposing_statements_can_share_terms": true,
+    "semantic_pair": {
+      "character": 0.18918918918918914,
+      "exact": false,
+      "token": 0.0
+    },
+    "synonym_relation_found": false,
+    "transliterations_are_not_exact": true,
+    "typo": {
+      "character": 0.92,
+      "exact": false,
+      "token": 0.5
+    },
+    "unicode_equivalence": {
+      "character": 1.0,
+      "exact": true,
+      "token": 1.0
+    }
+  },
+  "limits": "The test caller replays committed writes. AIRust does not observe SQLite automatically. No semantic quality, relevance labels, production sync or application performance claim.",
+  "real_corpus_mutations": 200,
+  "rusqlite_dependency": "0.41.1",
+  "source": "read-only local application corpus; no content included in report",
+  "source_entries": 722,
+  "sqlite_in_memory_steps": 300,
+  "sqlite_version": "3.54.1",
+  "warm_query_count": 100,
+  "warm_query_total_ms": 8.954584
+}

@@ -1,0 +1,278 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling libc v0.2.191
+   Compiling serde_core v1.0.229
+   Compiling memchr v2.8.3
+   Compiling zmij v1.0.23
+   Compiling serde v1.0.229
+   Compiling regex-syntax v0.8.11
+   Compiling serde_json v1.0.154
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.6
+   Compiling thiserror v1.0.69
+   Compiling once_cell v1.21.4
+   Compiling airust v0.1.9 (<cargo-registry>/airust-0.1.9)
+   Compiling bitflags v2.13.2
+   Compiling tinyvec v1.13.3
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.19
+   Compiling strsim v0.10.0
+   Compiling fastrand v2.5.0
+   Compiling aho-corasick v1.1.5
+   Compiling unicode-normalization v0.1.26
+   Compiling regex-automata v0.4.18
+   Compiling errno v0.3.15
+   Compiling syn v3.0.10
+   Compiling syn v2.0.119
+   Compiling tempfile v3.27.0
+   Compiling thiserror-impl v1.0.69
+   Compiling serde_derive v1.0.229
+   Compiling regex v1.13.1
+    Finished `release` profile [optimized] target(s) in 9.13s
+     Running unittests src/lib.rs (<validation-target>/release/deps/airust-b6184e42910005aa)
+
+running 146 tests
+test agent::tests::test_legacy_conversion ... ok
+test agent::tests::test_levenshtein_identical ... ok
+test agent::tests::test_levenshtein_one_empty ... ok
+test agent::tests::test_levenshtein_symmetric ... ok
+test agent::tests::test_levenshtein_empty_both ... ok
+test agent::tests::test_levenshtein_unicode ... ok
+test agent::tests::test_ngrams_n_equals_len ... ok
+test agent::tests::test_ngrams_basic ... ok
+test agent::tests::test_ngrams_n_greater_than_len ... ok
+test agent::tests::test_jaccard_partial ... ok
+test agent::tests::test_jaccard_empty ... ok
+test agent::tests::test_legacy_conversion_default_weight ... ok
+test agent::tests::test_levenshtein_single_insertion ... ok
+test agent::tests::test_jaccard_identical ... ok
+test agent::tests::test_jaccard_disjoint ... ok
+test agent::tests::test_ngrams_empty_text ... ok
+test agent::tests::test_levenshtein_single_deletion ... ok
+test agent::tests::test_jaccard_order_independent ... ok
+test agent::tests::test_ngrams_n_zero ... ok
+test agent::tests::test_ngrams_unicode ... ok
+test agent::tests::test_normalize_text_lowercase ... ok
+test agent::tests::test_normalize_text_trim ... ok
+test agent::tests::test_prediction_result_from_response_format ... ok
+test agent::tests::test_normalize_text_nfkd ... ok
+test agent::tests::test_prediction_result_into_response_format ... ok
+test agent::tests::test_remove_stopwords_all_stopwords ... ok
+test agent::tests::test_remove_stopwords_english ... ok
+test agent::tests::test_remove_stopwords_german ... ok
+test agent::tests::test_remove_stopwords_german_variants ... ok
+test agent::tests::test_remove_stopwords_unknown_lang_defaults_to_english ... ok
+test agent::tests::test_response_format_default ... ok
+test agent::tests::test_response_format_conversion ... ok
+test agent::tests::test_response_format_display_json ... ok
+test agent::tests::test_response_format_display_markdown ... ok
+test agent::tests::test_response_format_display_text ... ok
+test agent::tests::test_response_format_from_str ... ok
+test agent::tests::test_response_format_from_string ... ok
+test agent::tests::test_response_format_markdown_into_string ... ok
+test agent::tests::test_text_utils ... ok
+test agent::tests::test_tokenize_empty ... ok
+test agent::tests::test_tokenize_extra_whitespace ... ok
+test agent::tests::test_tokenize_numbers_preserved ... ok
+test agent::tests::test_tokenize_only_punctuation ... ok
+test agent::tests::test_tokenize_unicode ... ok
+test agent::tests::test_unique_terms_all_same ... ok
+test agent::tests::test_unique_terms_empty ... ok
+test context_agent::tests::test_add_text_context ... ok
+test context_agent::tests::test_append_delegates_to_base ... ok
+test context_agent::tests::test_clear_context ... ok
+test context_agent::tests::test_context_agent_with_tfidf ... ok
+test context_agent::tests::test_context_modifies_input ... ok
+test context_agent::tests::test_fifo_eviction ... ok
+test context_agent::tests::test_format_custom ... ok
+test context_agent::tests::test_format_list ... ok
+test context_agent::tests::test_format_multiple_items ... ok
+test context_agent::tests::test_format_qa_pairs ... ok
+test context_agent::tests::test_format_sentence ... ok
+test context_agent::tests::test_max_context_items_zero ... ok
+test context_agent::tests::test_no_context_passthrough ... ok
+test context_agent::tests::test_train_delegates_to_base ... ok
+test knowledge::tests::test_add_example ... ok
+test knowledge::tests::test_add_multiple_examples ... ok
+test knowledge::tests::test_default_creates_empty ... ok
+test knowledge::tests::test_from_embedded ... ok
+test knowledge::tests::test_get_examples_order ... ok
+test knowledge::tests::test_merge_both_populated ... ok
+test knowledge::tests::test_merge_empty_into_populated ... ok
+test knowledge::tests::test_merge_into_empty ... ok
+test knowledge::tests::test_merge_preserves_order ... ok
+test knowledge::tests::test_new_creates_empty ... ok
+test knowledge::tests::test_remove_invalid_index ... ok
+test knowledge::tests::test_remove_valid_index ... ok
+test knowledge::tests::test_save_no_path ... ok
+test match_agent::tests::test_add_example_appends ... ok
+test knowledge::tests::test_load_invalid_json ... ok
+test knowledge::tests::test_load_legacy_format ... ok
+test match_agent::tests::test_append_preserves_existing ... ok
+test match_agent::tests::test_can_answer_false ... ok
+test match_agent::tests::test_can_answer_true ... ok
+test match_agent::tests::test_confidence_match ... ok
+test match_agent::tests::test_confidence_no_match ... ok
+test match_agent::tests::test_default_strategy_is_fuzzy ... ok
+test match_agent::tests::test_exact_basic_match ... ok
+test match_agent::tests::test_exact_calculate_confidence_empty ... ok
+test match_agent::tests::test_exact_calculate_confidence_match ... ok
+test match_agent::tests::test_exact_calculate_confidence_no_match ... ok
+test match_agent::tests::test_exact_case_insensitive ... ok
+test match_agent::tests::test_exact_empty_string ... ok
+test match_agent::tests::test_exact_empty_training ... ok
+test match_agent::tests::test_exact_first_match_wins ... ok
+test match_agent::tests::test_exact_json_response ... ok
+test match_agent::tests::test_exact_markdown_response ... ok
+test match_agent::tests::test_exact_no_match_fallback ... ok
+test match_agent::tests::test_exact_predict_top_n ... ok
+test match_agent::tests::test_exact_unicode_input ... ok
+test match_agent::tests::test_exact_whitespace_sensitivity ... ok
+test match_agent::tests::test_fuzzy_best_match_selection ... ok
+test match_agent::tests::test_fuzzy_calculate_confidence_close ... ok
+test match_agent::tests::test_fuzzy_calculate_confidence_exact ... ok
+test match_agent::tests::test_fuzzy_calculate_confidence_no_match ... ok
+test match_agent::tests::test_fuzzy_case_insensitive ... ok
+test match_agent::tests::test_fuzzy_close_match ... ok
+test match_agent::tests::test_fuzzy_custom_options ... ok
+test match_agent::tests::test_fuzzy_default_options ... ok
+test match_agent::tests::test_fuzzy_exact_input ... ok
+test match_agent::tests::test_fuzzy_max_distance_constraint ... ok
+test match_agent::tests::test_fuzzy_predict_top_n ... ok
+test match_agent::tests::test_fuzzy_threshold_rejection ... ok
+test match_agent::tests::test_new_exact_constructor ... ok
+test match_agent::tests::test_new_fuzzy_constructor ... ok
+test match_agent::tests::test_predict_top_n_empty ... ok
+test match_agent::tests::test_predict_top_n_zero ... ok
+test match_agent::tests::test_train_replaces_all_data ... ok
+test match_agent::tests::test_train_single_appends ... ok
+test match_agent::tests::test_with_strategy ... ok
+test matching::bounded_tests::distance_threshold_preserves_floating_point_boundaries ... ok
+test tfidf_agent::tests::test_append_preserves_existing ... ok
+test tfidf_agent::tests::test_bm25_b_zero_no_length_norm ... ok
+test tfidf_agent::tests::test_bm25_custom_params ... ok
+test tfidf_agent::tests::test_bm25_default_params ... ok
+test tfidf_agent::tests::test_calculate_confidence_empty_query ... ok
+test tfidf_agent::tests::test_calculate_confidence_empty_training ... ok
+test tfidf_agent::tests::test_calculate_confidence_match ... ok
+test tfidf_agent::tests::test_calculate_confidence_no_match ... ok
+test tfidf_agent::tests::test_case_insensitive ... ok
+test tfidf_agent::tests::test_default_trait ... ok
+test tfidf_agent::tests::test_empty_query ... ok
+test tfidf_agent::tests::test_empty_training ... ok
+test tfidf_agent::tests::test_exact_query ... ok
+test tfidf_agent::tests::test_no_match ... ok
+test tfidf_agent::tests::test_partial_query ... ok
+test tfidf_agent::tests::test_predict_top_n ... ok
+test tfidf_agent::tests::test_predict_top_n_empty ... ok
+test tfidf_agent::tests::test_predict_top_n_limits_results ... ok
+test tfidf_agent::tests::test_predict_top_n_no_match ... ok
+test tfidf_agent::tests::test_predict_top_n_zero ... ok
+test tfidf_agent::tests::test_punctuation_handling ... ok
+test tfidf_agent::tests::test_single_document ... ok
+test tfidf_agent::tests::test_single_term ... ok
+test tfidf_agent::tests::test_stopwords_in_query ... ok
+test tfidf_agent::tests::test_train_replaces_data ... ok
+test tfidf_agent::tests::test_train_single_appends ... ok
+test tfidf_agent::tests::test_weight_affects_ranking ... ok
+test tfidf_agent::tests::test_zero_weight_suppresses ... ok
+test matching::bounded_tests::bounded_distance_agrees_with_full_unicode_distance ... ok
+test knowledge::tests::test_save_load_roundtrip ... ok
+
+test result: ok. 146 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/cli.rs (<validation-target>/release/deps/cli-36bbca7c209f9f54)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/compatibility.rs (<validation-target>/release/deps/compatibility-c18cec1de73a6b97)
+
+running 6 tests
+test default_library_embeds_no_training_data ... ok
+test fuzzy_threshold_counts_unicode_characters_instead_of_bytes ... ok
+test trained_answer_text_does_not_determine_match_confidence ... ok
+test confidence_and_provenance_are_consistent_through_adapters ... ok
+test invalid_bm25_parameters_and_weights_do_not_produce_nan_results ... ok
+test mixed_old_and_new_training_json_keeps_metadata ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/core.rs (<validation-target>/release/deps/core-fc503e8769a76b4e)
+
+running 20 tests
+test engine_and_context_are_send_and_sync ... ok
+test bm25_agrees_with_hand_calculated_reference ... ok
+test emoji_only_entries_can_match_without_producing_invalid_search_scores ... ok
+test empty_and_unknown_queries_return_no_results ... ok
+test duplicate_groups_follow_unicode_normalization_and_updates ... ok
+test context_filters_ids_and_exact_metadata_without_changing_scores ... ok
+test comparison_is_symmetric_and_lexical ... ok
+test invalid_replacement_leaves_previous_data_intact ... ok
+test import_validates_ids_and_preserves_metadata ... ok
+test matching_exposes_independent_character_and_token_evidence ... ok
+test configuration_rejects_nan_infinity_and_invalid_ranges ... ok
+test mutation_removes_stale_postings_and_updates_statistics ... ok
+test relations_are_explained_proposals_and_never_invent_logical_types ... ok
+test tfidf_is_cosine_similarity_with_smoothed_idf ... ok
+test ties_and_limits_are_deterministic ... ok
+test tokenizer_preserves_identifiers_and_separates_punctuation ... ok
+test unicode_normalization_keeps_accents_and_punctuation ... ok
+test bounded_rankings_preserve_full_order_and_large_limits_do_not_preallocate ... ok
+test match_candidate_pruning_agrees_with_full_pairwise_comparison ... ok
+test incremental_updates_equal_a_fresh_index_for_both_rankers ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/integration.rs (<validation-target>/release/deps/integration-340c30eb82a4acbd)
+
+running 10 tests
+test test_context_fifo_live ... ok
+test test_confidence_agent_match_pipeline ... ok
+test test_kb_to_exact_match_pipeline ... ok
+test test_kb_merge_train_multiple_agents ... ok
+test test_incremental_training_pipeline ... ok
+test test_confidence_agent_tfidf_pipeline ... ok
+test test_kb_tfidf_context_pipeline ... ok
+test test_kb_to_fuzzy_match_pipeline ... ok
+test test_kb_to_tfidf_pipeline ... ok
+test test_save_load_train_predict_roundtrip ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pdf.rs (<validation-target>/release/deps/pdf-e4e9b347c9214a51)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/persistence.rs (<validation-target>/release/deps/persistence-1dd3144eeb9f52ed)
+
+running 4 tests
+test invalid_weights_are_rejected_before_replacing_existing_data ... ok
+test loading_invalid_weights_returns_an_error ... ok
+test concurrent_saves_leave_complete_valid_json_and_no_temporary_files ... ok
+test save_rejects_symlinks_and_creates_private_files ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/web.rs (<validation-target>/release/deps/web-795d11ef195ecc9a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/web_security.rs (<validation-target>/release/deps/web_security-c4f4844e264658bd)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests airust
+
+running 1 test
+test src/lib.rs - (line 49) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s

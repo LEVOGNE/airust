@@ -77,6 +77,8 @@ The full source checks run through `./test.sh`. Additional regression cases exer
 
 The table records the local validation runs. GitHub CI results are tracked separately in [Actions](https://github.com/LEVOGNE/airust/actions). No local Docker build was performed. The optional web surface still requires deployment-specific TLS and access controls; filesystem checks do not isolate a hostile local process.
 
+The [follow-up validation report](VALIDATION-0.1.9.md) separately records a rerun of the published package's 187 default-feature tests, exported real-corpus checks, in-memory SQLite replay, and synthetic common-query measurements. It adds no new crate version or application integration. Its workload and consumer build profile differ from the release benchmark below.
+
 ## Reproducible scale measurements
 
 The release-mode `index_benchmark` example was run three times at each size on this ARM64 Mac with 64 GiB physical memory. Each run used 300 warm BM25 queries, result limit 10, 1,000 replacements and 1,000 deletions. The corpus consists of short synthetic records with 10,000 bucket terms. Queries select one bucket: about 1, 10, or 100 candidate entries at the three corpus sizes. They do not represent common-term queries over the full corpus.
