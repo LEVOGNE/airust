@@ -49,6 +49,8 @@ pub struct ContextOptions {
     traversal: TraversalOptions,
     deduplicate: bool,
     include_metadata: bool,
+    #[cfg(feature = "provenance")]
+    include_sources: bool,
 }
 
 impl Default for ContextOptions {
@@ -67,6 +69,8 @@ impl Default for ContextOptions {
                 .with_start(false),
             deduplicate: true,
             include_metadata: true,
+            #[cfg(feature = "provenance")]
+            include_sources: true,
         }
     }
 }
@@ -112,6 +116,11 @@ impl ContextOptions {
     }
     pub fn with_metadata(mut self, included: bool) -> Self {
         self.include_metadata = included;
+        self
+    }
+    #[cfg(feature = "provenance")]
+    pub fn with_source_references(mut self, included: bool) -> Self {
+        self.include_sources = included;
         self
     }
     pub fn max_nodes(&self) -> usize {
@@ -215,6 +224,10 @@ pub struct ContextReference<'a> {
     id: &'a str,
     metadata: Option<&'a serde_json::Value>,
     origin: ContextOrigin<'a>,
+    #[cfg(feature = "provenance")]
+    sources: Vec<&'a crate::provenance::SourceReference>,
+    #[cfg(feature = "provenance")]
+    source_status: crate::provenance::ProvenanceStatus,
 }
 impl<'a> ContextReference<'a> {
     pub fn id(&self) -> &'a str {
@@ -225,6 +238,14 @@ impl<'a> ContextReference<'a> {
     }
     pub fn origin(&self) -> &ContextOrigin<'a> {
         &self.origin
+    }
+    #[cfg(feature = "provenance")]
+    pub fn sources(&self) -> &[&'a crate::provenance::SourceReference] {
+        &self.sources
+    }
+    #[cfg(feature = "provenance")]
+    pub fn provenance_status(&self) -> crate::provenance::ProvenanceStatus {
+        self.source_status
     }
 }
 
@@ -301,6 +322,8 @@ pub struct ContextAssembler<'a> {
     lexical: &'a Engine,
     semantic: Option<&'a SemanticIndex>,
     graph: Option<&'a KnowledgeGraph>,
+    #[cfg(feature = "provenance")]
+    provenance: Option<&'a crate::provenance::ProvenanceStore>,
 }
 impl<'a> ContextAssembler<'a> {
     pub fn new(index: &'a Engine) -> Self {
@@ -308,6 +331,8 @@ impl<'a> ContextAssembler<'a> {
             lexical: index,
             semantic: None,
             graph: None,
+            #[cfg(feature = "provenance")]
+            provenance: None,
         }
     }
     pub fn from_semantic(index: &'a SemanticIndex) -> Self {
@@ -315,10 +340,17 @@ impl<'a> ContextAssembler<'a> {
             lexical: index.lexical(),
             semantic: Some(index),
             graph: None,
+            #[cfg(feature = "provenance")]
+            provenance: None,
         }
     }
     pub fn with_graph(mut self, graph: &'a KnowledgeGraph) -> Self {
         self.graph = Some(graph);
+        self
+    }
+    #[cfg(feature = "provenance")]
+    pub fn with_provenance(mut self, provenance: &'a crate::provenance::ProvenanceStore) -> Self {
+        self.provenance = Some(provenance);
         self
     }
 
@@ -461,6 +493,8 @@ impl<'a> ContextAssembler<'a> {
             .collect();
         let mut selection = Selection {
             index: self.lexical,
+            #[cfg(feature = "provenance")]
+            provenance: self.provenance,
             options,
             scope,
             terms,
@@ -524,6 +558,8 @@ impl<'a> ContextAssembler<'a> {
 
 struct Selection<'a, 'o> {
     index: &'a Engine,
+    #[cfg(feature = "provenance")]
+    provenance: Option<&'a crate::provenance::ProvenanceStore>,
     options: &'o ContextOptions,
     scope: &'o Context,
     terms: BTreeSet<String>,
@@ -548,6 +584,25 @@ impl<'a> Selection<'a, '_> {
             self.bundle.skipped_budget += 1;
             return false;
         }
+        #[cfg(feature = "provenance")]
+        let (sources, source_status) = {
+            use crate::provenance::ProvenanceStatus;
+            if self.options.include_sources {
+                let sources: Vec<_> = self
+                    .provenance
+                    .into_iter()
+                    .flat_map(|store| store.sources_for(&entry.id))
+                    .collect();
+                let status = if sources.is_empty() {
+                    ProvenanceStatus::Missing
+                } else {
+                    ProvenanceStatus::Referenced
+                };
+                (sources, status)
+            } else {
+                (Vec::new(), ProvenanceStatus::Omitted)
+            }
+        };
         let reference = ContextReference {
             id: &entry.id,
             metadata: self
@@ -556,6 +611,10 @@ impl<'a> Selection<'a, '_> {
                 .then_some(entry.metadata.as_ref())
                 .flatten(),
             origin,
+            #[cfg(feature = "provenance")]
+            sources,
+            #[cfg(feature = "provenance")]
+            source_status,
         };
         let normalized = self
             .index

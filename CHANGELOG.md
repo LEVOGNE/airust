@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.4
+
+- Add independent optional source provenance with validated document/page/text/file/code locations.
+- Intern reference definitions, bind stable entry IDs, preserve merged sources and reject conflicts before mutation.
+- Add checked versioned JSON, pruning, missing/omitted states and borrowed context-source references.
+- Preserve existing entry schemas, algorithms and default features; document coordinate and freshness limits.
+
+
 ## 0.2.3
 
 - Add optional borrowed context assembly over existing lexical, semantic, hybrid and graph APIs.

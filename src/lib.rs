@@ -13,6 +13,8 @@ pub mod graph;
 pub mod hybrid;
 pub mod index;
 pub mod matching;
+#[cfg(feature = "provenance")]
+pub mod provenance;
 pub mod search;
 #[cfg(feature = "embeddings")]
 pub mod semantic;

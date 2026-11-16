@@ -130,3 +130,7 @@ The independent `graph` feature exposes `airust::graph::{KnowledgeGraph, Relatio
 ## Optional structured context
 
 Enable `context-assembly` and use `ContextAssembler::new(&Engine)` or `from_semantic(&SemanticIndex)`, optionally with `with_graph`. `query` selects a configured existing ranker; `assemble` accepts already ranked IDs. The borrowed `ContextBundle` preserves source references, metadata, rank/path evidence and UTF-8 excerpt offsets. Configure node/text/per-item budgets, deduplication, scope and graph traversal with `ContextOptions`. `Context::intersection` returns `None` when filters conflict; keep this fail-closed result. The complete contract and runnable example are in [CONTEXT.md](CONTEXT.md).
+
+## Optional source provenance
+
+Enable `provenance` for `SourceReference`, `TextSpan`, `CodePosition`, `CodeSpan` and `ProvenanceStore`. Register and bind shared references, preserve multiple sources on merges, reject conflicting definitions, and export/import versioned JSON. Locations have explicit UTF-8 byte units and optional exact-text validation. Combine with `context-assembly` and attach `with_provenance` to borrow source evidence in selected context; missing and omitted sources are explicit. The complete API and caller freshness responsibilities are in [PROVENANCE.md](PROVENANCE.md).

@@ -1,10 +1,10 @@
-# AIRust 0.2.3
+# AIRust 0.2.4
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.3 adds optional structured context assembly. Select relevant search hits and graph neighbors, keep source IDs and metadata, remove duplicate content, and limit returned text bytes. The default build remains the lexical library. See the [0.2.3 report](docs/CHANGES-0.2.3.md) and [context guide](docs/CONTEXT.md).
+Version 0.2.4 adds optional source references. Keep document, page, text, file and code locations alongside knowledge entries, share references, and preserve them in context results. The default build remains the lexical library. See the [0.2.4 report](docs/CHANGES-0.2.4.md) and [source-reference guide](docs/PROVENANCE.md).
 
 ## What it does
 
@@ -17,6 +17,7 @@ Version 0.2.3 adds optional structured context assembly. Select relevant search 
 | `SemanticIndex::hybrid_search()` | Combine lexical and semantic rank positions with visible evidence and optional fallback. | Queries mixing exact terminology and paraphrases. |
 | `KnowledgeGraph` | Store explicit relationships, inspect neighbors, traverse within budgets, and detect cycles. | Application-owned hierarchies, dependencies, and references. |
 | `ContextAssembler::query()` | Assemble ranked excerpts and optional graph neighbors with source evidence and budgets. | Preparing focused, inspectable context for an application or agent. |
+| `ProvenanceStore` | Share explicit source references and preserve them when entries are combined. | Showing where knowledge came from without inventing citations. |
 
 The default `search()`, matching, and `relate()` methods compare words and characters. The optional semantic index uses model embeddings instead. Its quality depends on the provider and corpus. AIRust has no required model, cloud account, HTTP client, or LLM dependency.
 
@@ -38,7 +39,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.3", default-features = false }
+airust = { version = "=0.2.4", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -129,6 +130,17 @@ cargo run --locked --features context-assembly --example context
 
 Set limits for unique source IDs, total returned text bytes, and each excerpt. Duplicate normalized content shares text while retaining separate source references. Clipping preserves UTF-8 and original byte offsets. Metadata and serialization overhead are outside the text budget; applications measure their final prompt with the chosen tokenizer. Scope intersections fail closed, and excluded or missing entries cannot become graph bridges. See [CONTEXT.md](docs/CONTEXT.md) for the API, priority rules, and excerpt limits. No prompt format, LLM, or application integration is required.
 
+## Optional source references
+
+Enable `provenance` for `SourceReference`, validated UTF-8 byte/code positions, and `ProvenanceStore`. The store holds each reference definition once and associates its ID with any number of knowledge entries. It supports multiple or missing sources, conflict-checked merging, removal, pruning, and versioned JSON without changing the existing entry format.
+
+```bash
+cargo run --locked --features provenance --example provenance
+cargo run --locked --features provenance,context-assembly --example provenance_context
+```
+
+When both features are enabled, attach `ContextAssembler::with_provenance` to retain each selected entry's references, including duplicate content with distinct sources. Missing and intentionally omitted sources are separate states. Source locations stay in their original coordinates. References do not prove truth or freshness; callers update bindings when text changes and verify exact source bytes/revisions when needed. See [PROVENANCE.md](docs/PROVENANCE.md).
+
 ## Tested lexical baseline and limits
 
 The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
@@ -171,6 +183,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `hybrid` | Weighted reciprocal rank fusion, component evidence, filters, and explicit provider-error fallback. Enables `embeddings`; no added dependencies. |
 | `graph` | Stable IDs, typed directed/undirected relationships, bounded queries, and cycle checks using petgraph. Independent of embeddings; Rust 1.89. |
 | `context-assembly` | Borrowed ranked excerpts, graph evidence, deduplication, scope intersection, and text budgets. Enables `hybrid` and `graph`; Rust 1.89. |
+| `provenance` | Shared document/page/text/file/code source references, checked merges and versioned export. No added dependencies; Rust 1.89. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -216,6 +229,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/hybrid.rs` | Optional rank fusion over the shared lexical and semantic index. |
 | `src/graph.rs` | Optional ID-based graph, relationship metadata, bounded traversals, and cycle checks. |
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
+| `src/provenance.rs` | Optional validated source locations and shared entry-to-source bindings. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
@@ -232,6 +246,8 @@ The [API guide](docs/API.md) describes the public contracts. The [architecture g
 
 ## Changes and compatibility
 
+The [0.2.4 report](docs/CHANGES-0.2.4.md) and [migration guide](docs/MIGRATION-0.2.4.md) describe optional provenance. Source entries keep their original fields and JSON; references live in a separate caller-owned sidecar.
+
 The [0.2.3 report](docs/CHANGES-0.2.3.md) and [migration guide](docs/MIGRATION-0.2.3.md) describe context assembly. Existing filters, graph, source formats, and retrieval APIs are preserved.
 
 The [0.2.2 report](docs/CHANGES-0.2.2.md) and [migration guide](docs/MIGRATION-0.2.2.md) describe the additive graph feature. Existing source entries and lexical, semantic, and hybrid APIs are preserved.
@@ -244,7 +260,7 @@ See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide]
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) records the implemented optional embeddings, hybrid retrieval, graph, and context assembly. Provenance, persistent-index, ANN, revision, and broader quality work follow in separate stages. External application integrations remain separate.
+The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Persistent-index, ANN, revision, and broader quality work follow in separate stages. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 
