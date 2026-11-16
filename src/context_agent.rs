@@ -1,5 +1,7 @@
 // src/context_agent.rs - Revised ContextAgent
-use crate::agent::{Agent, ContextualAgent, ResponseFormat, TrainableAgent, TrainingExample};
+use crate::agent::{
+    Agent, ContextualAgent, PredictionResult, ResponseFormat, TrainableAgent, TrainingExample,
+};
 use std::collections::VecDeque;
 
 /// Context agent wraps another agent and provides context-aware responses
@@ -85,20 +87,30 @@ impl<A: Agent> ContextAgent<A> {
             ),
         }
     }
+
+    fn enhanced_input(&self, input: &str) -> String {
+        let context = self.get_context_string();
+        if context.is_empty() {
+            input.to_owned()
+        } else {
+            format!("{} [Context: {}]", input, context)
+        }
+    }
 }
 
 impl<A: Agent> Agent for ContextAgent<A> {
     /// Generates a response with context added to the input
     fn predict(&self, input: &str) -> ResponseFormat {
-        // Adds context to input
-        let context_str = self.get_context_string();
-        let enhanced_input = if context_str.is_empty() {
-            input.to_string()
-        } else {
-            format!("{} [Context: {}]", input, context_str)
-        };
+        self.base_agent.predict(&self.enhanced_input(input))
+    }
 
-        self.base_agent.predict(&enhanced_input)
+    fn predict_with_metadata(&self, input: &str) -> PredictionResult {
+        self.base_agent
+            .predict_with_metadata(&self.enhanced_input(input))
+    }
+
+    fn confidence(&self, input: &str) -> f32 {
+        self.base_agent.confidence(&self.enhanced_input(input))
     }
 }
 
@@ -223,8 +235,7 @@ mod tests {
     #[test]
     fn test_format_qa_pairs() {
         let base = trained_match_agent();
-        let mut ctx = ContextAgent::new(base, 5)
-            .with_context_format(ContextFormat::QAPairs);
+        let mut ctx = ContextAgent::new(base, 5).with_context_format(ContextFormat::QAPairs);
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
 
         let context_str = ctx.get_context_string();
@@ -234,8 +245,7 @@ mod tests {
     #[test]
     fn test_format_list() {
         let base = trained_match_agent();
-        let mut ctx = ContextAgent::new(base, 5)
-            .with_context_format(ContextFormat::List);
+        let mut ctx = ContextAgent::new(base, 5).with_context_format(ContextFormat::List);
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
 
         let context_str = ctx.get_context_string();
@@ -247,8 +257,7 @@ mod tests {
     #[test]
     fn test_format_sentence() {
         let base = trained_match_agent();
-        let mut ctx = ContextAgent::new(base, 5)
-            .with_context_format(ContextFormat::Sentence);
+        let mut ctx = ContextAgent::new(base, 5).with_context_format(ContextFormat::Sentence);
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
 
         let context_str = ctx.get_context_string();
@@ -259,14 +268,15 @@ mod tests {
     #[test]
     fn test_format_custom() {
         let base = trained_match_agent();
-        let mut ctx = ContextAgent::new(base, 5)
-            .with_context_format(ContextFormat::Custom(Box::new(|items| {
+        let mut ctx = ContextAgent::new(base, 5).with_context_format(ContextFormat::Custom(
+            Box::new(|items| {
                 items
                     .iter()
                     .map(|(q, a)| format!("{}={}", q, String::from(a.clone())))
                     .collect::<Vec<_>>()
                     .join("|")
-            })));
+            }),
+        ));
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
         ctx.add_context("q2".to_string(), ResponseFormat::Text("a2".to_string()));
 
@@ -277,8 +287,7 @@ mod tests {
     #[test]
     fn test_format_multiple_items() {
         let base = trained_match_agent();
-        let mut ctx = ContextAgent::new(base, 5)
-            .with_context_format(ContextFormat::List);
+        let mut ctx = ContextAgent::new(base, 5).with_context_format(ContextFormat::List);
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
         ctx.add_context("q2".to_string(), ResponseFormat::Text("a2".to_string()));
 

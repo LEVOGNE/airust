@@ -37,7 +37,12 @@ pub fn compute_doc_frequencies(docs: &[&str]) -> HashMap<String, f64> {
 }
 
 /// Compute TF-IDF vector for a text given vocabulary, document frequencies, and total doc count
-pub fn tfidf_vector(text: &str, vocab: &[String], df: &HashMap<String, f64>, total_docs: f64) -> Vec<f64> {
+pub fn tfidf_vector(
+    text: &str,
+    vocab: &[String],
+    df: &HashMap<String, f64>,
+    total_docs: f64,
+) -> Vec<f64> {
     let tokens = tokenize(text);
     let total_terms = tokens.len() as f64;
     if total_terms == 0.0 {
@@ -50,16 +55,19 @@ pub fn tfidf_vector(text: &str, vocab: &[String], df: &HashMap<String, f64>, tot
         *tf.entry(token.clone()).or_insert(0.0) += 1.0;
     }
 
-    vocab.iter().map(|term| {
-        let term_freq = tf.get(term).copied().unwrap_or(0.0) / total_terms;
-        let doc_freq = df.get(term).copied().unwrap_or(0.0);
-        let idf = if doc_freq > 0.0 {
-            (total_docs / doc_freq).ln() + 1.0
-        } else {
-            1.0
-        };
-        term_freq * idf
-    }).collect()
+    vocab
+        .iter()
+        .map(|term| {
+            let term_freq = tf.get(term).copied().unwrap_or(0.0) / total_terms;
+            let doc_freq = df.get(term).copied().unwrap_or(0.0);
+            let idf = if doc_freq > 0.0 {
+                (total_docs / doc_freq).ln() + 1.0
+            } else {
+                1.0
+            };
+            term_freq * idf
+        })
+        .collect()
 }
 
 /// Cosine similarity between two vectors
@@ -77,7 +85,11 @@ pub fn cosine_similarity(a: &[f64], b: &[f64]) -> f64 {
 }
 
 /// Perform similarity search across entries in a collection
-pub fn similarity_search(query: &str, entries: &[VectorEntryRow], top_k: usize) -> Vec<SearchResult> {
+pub fn similarity_search(
+    query: &str,
+    entries: &[VectorEntryRow],
+    top_k: usize,
+) -> Vec<SearchResult> {
     if entries.is_empty() {
         return Vec::new();
     }
@@ -92,19 +104,26 @@ pub fn similarity_search(query: &str, entries: &[VectorEntryRow], top_k: usize) 
     let query_vec = tfidf_vector(query, &vocab, &df, total_docs);
 
     // Compute similarity for each entry
-    let mut scored: Vec<SearchResult> = entries.iter().map(|entry| {
-        let entry_vec = tfidf_vector(&entry.content, &vocab, &df, total_docs);
-        let score = cosine_similarity(&query_vec, &entry_vec);
-        SearchResult {
-            entry_id: entry.id,
-            content: entry.content.clone(),
-            metadata_json: entry.metadata_json.clone(),
-            score,
-        }
-    }).collect();
+    let mut scored: Vec<SearchResult> = entries
+        .iter()
+        .map(|entry| {
+            let entry_vec = tfidf_vector(&entry.content, &vocab, &df, total_docs);
+            let score = cosine_similarity(&query_vec, &entry_vec);
+            SearchResult {
+                entry_id: entry.id,
+                content: entry.content.clone(),
+                metadata_json: entry.metadata_json.clone(),
+                score,
+            }
+        })
+        .collect();
 
     // Sort by score descending
-    scored.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    scored.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     scored.truncate(top_k);
 
     // Filter out zero-score results
@@ -113,7 +132,10 @@ pub fn similarity_search(query: &str, entries: &[VectorEntryRow], top_k: usize) 
 
 /// Compute embedding for storage (JSON-serialized TF-IDF vector)
 pub fn compute_embedding_for_storage(content: &str, existing_entries: &[VectorEntryRow]) -> String {
-    let mut docs: Vec<&str> = existing_entries.iter().map(|e| e.content.as_str()).collect();
+    let mut docs: Vec<&str> = existing_entries
+        .iter()
+        .map(|e| e.content.as_str())
+        .collect();
     docs.push(content);
     let vocab = build_vocabulary(&docs);
     let df = compute_doc_frequencies(&docs);

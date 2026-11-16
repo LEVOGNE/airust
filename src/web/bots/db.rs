@@ -4,9 +4,15 @@ use rusqlite::params;
 impl crate::web::db::Database {
     // ── Bots CRUD ─────────────────────────────────────────────────────────────
 
-    pub fn create_bot(&self, name: &str, bot_type: &str, config: &BotConfig) -> Result<i64, String> {
+    pub fn create_bot(
+        &self,
+        name: &str,
+        bot_type: &str,
+        config: &BotConfig,
+    ) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        let config_json = serde_json::to_string(config).map_err(|e| format!("JSON error: {}", e))?;
+        let config_json =
+            serde_json::to_string(config).map_err(|e| format!("JSON error: {}", e))?;
         conn.execute(
             "INSERT INTO bots (name, bot_type, config) VALUES (?1, ?2, ?3)",
             params![name, bot_type, config_json],
@@ -37,8 +43,7 @@ impl crate::web::db::Database {
         for r in rows {
             let (id, name, bot_type, config_str, enabled, created_at) =
                 r.map_err(|e| format!("Row error: {}", e))?;
-            let config: BotConfig =
-                serde_json::from_str(&config_str).unwrap_or_default();
+            let config: BotConfig = serde_json::from_str(&config_str).unwrap_or_default();
             result.push(Bot {
                 id,
                 name,
@@ -70,8 +75,7 @@ impl crate::web::db::Database {
         );
         match result {
             Ok((id, name, bot_type, config_str, enabled, created_at)) => {
-                let config: BotConfig =
-                    serde_json::from_str(&config_str).unwrap_or_default();
+                let config: BotConfig = serde_json::from_str(&config_str).unwrap_or_default();
                 Ok(Some(Bot {
                     id,
                     name,
@@ -86,9 +90,16 @@ impl crate::web::db::Database {
         }
     }
 
-    pub fn update_bot(&self, id: i64, name: &str, bot_type: &str, config: &BotConfig) -> Result<(), String> {
+    pub fn update_bot(
+        &self,
+        id: i64,
+        name: &str,
+        bot_type: &str,
+        config: &BotConfig,
+    ) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        let config_json = serde_json::to_string(config).map_err(|e| format!("JSON error: {}", e))?;
+        let config_json =
+            serde_json::to_string(config).map_err(|e| format!("JSON error: {}", e))?;
         conn.execute(
             "UPDATE bots SET name = ?2, bot_type = ?3, config = ?4 WHERE id = ?1",
             params![id, name, bot_type, config_json],
@@ -103,7 +114,8 @@ impl crate::web::db::Database {
         conn.execute(
             "DELETE FROM raw_data WHERE bot_run_id IN (SELECT id FROM bot_runs WHERE bot_id = ?1)",
             params![id],
-        ).map_err(|e| format!("Delete raw_data error: {}", e))?;
+        )
+        .map_err(|e| format!("Delete raw_data error: {}", e))?;
         conn.execute("DELETE FROM bot_runs WHERE bot_id = ?1", params![id])
             .map_err(|e| format!("Delete bot_runs error: {}", e))?;
         conn.execute("DELETE FROM bots WHERE id = ?1", params![id])
@@ -271,7 +283,10 @@ impl crate::web::db::Database {
     pub fn approve_all_raw_data(&self) -> Result<u64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         let count = conn
-            .execute("UPDATE raw_data SET status = 'approved' WHERE status = 'pending'", [])
+            .execute(
+                "UPDATE raw_data SET status = 'approved' WHERE status = 'pending'",
+                [],
+            )
             .map_err(|e| format!("Approve all error: {}", e))?;
         Ok(count as u64)
     }
@@ -384,7 +399,12 @@ impl crate::web::db::Database {
 
     // ── Vectors ───────────────────────────────────────────────────────────────
 
-    pub fn insert_vector(&self, source_id: i64, term: &str, tfidf_score: f64) -> Result<(), String> {
+    pub fn insert_vector(
+        &self,
+        source_id: i64,
+        term: &str,
+        tfidf_score: f64,
+    ) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         conn.execute(
             "INSERT INTO vectors (source_id, term, tfidf_score) VALUES (?1, ?2, ?3)",
@@ -396,8 +416,11 @@ impl crate::web::db::Database {
 
     pub fn clear_vectors_for_source(&self, source_id: i64) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        conn.execute("DELETE FROM vectors WHERE source_id = ?1", params![source_id])
-            .map_err(|e| format!("Clear vectors error: {}", e))?;
+        conn.execute(
+            "DELETE FROM vectors WHERE source_id = ?1",
+            params![source_id],
+        )
+        .map_err(|e| format!("Clear vectors error: {}", e))?;
         Ok(())
     }
 
@@ -419,24 +442,35 @@ impl crate::web::db::Database {
         Ok((total, terms))
     }
 
-    pub fn search_vectors(&self, terms: &[String], top_k: usize) -> Result<Vec<(i64, f64)>, String> {
+    pub fn search_vectors(
+        &self,
+        terms: &[String],
+        top_k: usize,
+    ) -> Result<Vec<(i64, f64)>, String> {
         if terms.is_empty() {
             return Ok(Vec::new());
         }
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        let placeholders: Vec<String> = terms.iter().enumerate().map(|(i, _)| format!("?{}", i + 1)).collect();
+        let placeholders: Vec<String> = terms
+            .iter()
+            .enumerate()
+            .map(|(i, _)| format!("?{}", i + 1))
+            .collect();
         let sql = format!(
             "SELECT source_id, SUM(tfidf_score) as score FROM vectors WHERE term IN ({}) GROUP BY source_id ORDER BY score DESC LIMIT ?{}",
             placeholders.join(","),
             terms.len() + 1
         );
-        let mut stmt = conn.prepare(&sql).map_err(|e| format!("Query error: {}", e))?;
+        let mut stmt = conn
+            .prepare(&sql)
+            .map_err(|e| format!("Query error: {}", e))?;
         let mut param_values: Vec<Box<dyn rusqlite::types::ToSql>> = terms
             .iter()
             .map(|t| Box::new(t.clone()) as Box<dyn rusqlite::types::ToSql>)
             .collect();
         param_values.push(Box::new(top_k as i64));
-        let refs: Vec<&dyn rusqlite::types::ToSql> = param_values.iter().map(|p| p.as_ref()).collect();
+        let refs: Vec<&dyn rusqlite::types::ToSql> =
+            param_values.iter().map(|p| p.as_ref()).collect();
         let rows = stmt
             .query_map(refs.as_slice(), |row| Ok((row.get(0)?, row.get(1)?)))
             .map_err(|e| format!("Query error: {}", e))?;

@@ -8,11 +8,7 @@ pub struct VectorDB;
 impl VectorDB {
     /// Tokenize text into terms (lowercase, split on whitespace/punctuation)
     fn tokenize(text: &str) -> Vec<String> {
-        text.to_lowercase()
-            .split(|c: char| !c.is_alphanumeric())
-            .filter(|s| s.len() > 1)
-            .map(|s| s.to_string())
-            .collect()
+        crate::text::tokenize(text)
     }
 
     /// Compute TF (term frequency) for a document
@@ -74,7 +70,11 @@ impl VectorDB {
     }
 
     /// Search for similar content using cosine-like similarity via the DB
-    pub fn search(db: &Arc<Database>, query: &str, top_k: usize) -> Result<Vec<SearchResult>, String> {
+    pub fn search(
+        db: &Arc<Database>,
+        query: &str,
+        top_k: usize,
+    ) -> Result<Vec<SearchResult>, String> {
         let terms = Self::tokenize(query);
         if terms.is_empty() {
             return Ok(Vec::new());

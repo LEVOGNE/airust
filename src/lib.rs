@@ -1,10 +1,17 @@
-// AIRust library module exports and version information
+#![doc = include_str!("../README.md")]
 
-// Core modules
+pub mod context;
+pub mod index;
+pub mod matching;
+pub mod search;
+pub mod text;
+
+// Compatibility adapters for the existing training and agent API.
 pub mod agent;
 pub mod context_agent;
 pub mod knowledge;
 pub mod match_agent;
+#[cfg(feature = "pdf")]
 pub mod pdf_loader;
 pub mod tfidf_agent;
 
@@ -12,11 +19,25 @@ pub mod tfidf_agent;
 pub mod web;
 
 // Re-exports for easier usage
-pub use agent::{Agent, AgentError, ContextualAgent, ResponseFormat, TrainableAgent, TrainingExample};
+pub use agent::ConfidenceAgent;
+pub use agent::{
+    Agent, AgentError, ContextualAgent, ResponseFormat, TrainableAgent, TrainingExample,
+};
+pub use context::Context;
+pub use index::{IndexError, IndexStats, KnowledgeIndex};
+pub use knowledge::{KnowledgeEntry, RelationKind, RelationSuggestion};
+pub use matching::{compare, MatchError, MatchOptions, MatchResult, MatchStrategy, Similarity};
+pub use search::{Bm25Config, SearchAlgorithm, SearchError, SearchOptions, SearchResult};
+
+/// The shared index and its retrieval operations.
+pub type Engine = KnowledgeIndex;
 pub use context_agent::ContextAgent;
 pub use knowledge::KnowledgeBase;
 pub use match_agent::MatchAgent;
-pub use pdf_loader::{pdf_to_knowledge_base, pdf_to_training_examples, PageContent, PdfLoader, PdfLoaderConfig};
+#[cfg(feature = "pdf")]
+pub use pdf_loader::{
+    pdf_to_knowledge_base, pdf_to_training_examples, PageContent, PdfLoader, PdfLoaderConfig,
+};
 pub use tfidf_agent::TfidfAgent;
 
 // Version and library information
@@ -30,5 +51,5 @@ pub fn version_info() -> String {
 
 /// Provides a brief description of the library's purpose
 pub fn library_description() -> String {
-    "AIRust: A modular Rust library for building flexible AI agents with various matching strategies".to_string()
+    "AIRust: A Modular Knowledge Intelligence Engine — find knowledge, compare text, suggest connections".to_string()
 }

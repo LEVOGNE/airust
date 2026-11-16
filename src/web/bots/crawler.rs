@@ -16,7 +16,11 @@ pub struct CrawledPage {
 
 impl CrawlerBot {
     /// Crawl a URL and extract text content
-    pub async fn run(config: &BotConfig, db: &Arc<Database>, run_id: i64) -> Result<(i64, i64), String> {
+    pub async fn run(
+        config: &BotConfig,
+        db: &Arc<Database>,
+        run_id: i64,
+    ) -> Result<(i64, i64), String> {
         let mut items_found: i64 = 0;
         let mut items_added: i64 = 0;
 
@@ -71,7 +75,10 @@ impl CrawlerBot {
                             }
 
                             // Rate limiting
-                            tokio::time::sleep(std::time::Duration::from_millis(config.rate_limit_ms)).await;
+                            tokio::time::sleep(std::time::Duration::from_millis(
+                                config.rate_limit_ms,
+                            ))
+                            .await;
                         }
                         Err(e) => {
                             eprintln!("Crawl error for {}: {}", url, e);
@@ -101,7 +108,7 @@ impl CrawlerBot {
 
     async fn fetch_page(url: &str) -> Result<CrawledPage, String> {
         let client = reqwest::Client::builder()
-            .user_agent("AIRust Bot/0.1 (educational)")
+            .user_agent(concat!("AIRust/", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30))
             .build()
             .map_err(|e| format!("Client error: {}", e))?;
@@ -113,8 +120,15 @@ impl CrawlerBot {
             .map_err(|e| format!("Fetch error: {}", e))?;
 
         // Skip non-HTML content (PDFs, images, etc.)
-        if let Some(ct) = response.headers().get("content-type").and_then(|v| v.to_str().ok()) {
-            if !ct.contains("text/html") && !ct.contains("text/plain") && !ct.contains("application/xhtml") {
+        if let Some(ct) = response
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+        {
+            if !ct.contains("text/html")
+                && !ct.contains("text/plain")
+                && !ct.contains("application/xhtml")
+            {
                 return Err(format!("Skipping non-HTML content: {}", ct));
             }
         }
@@ -137,8 +151,8 @@ impl CrawlerBot {
         // Extract main text content (skip scripts, styles, nav)
         let body_selector = scraper::Selector::parse("body").unwrap();
         let skip_tags = [
-            "script", "style", "nav", "header", "footer", "noscript",
-            "aside", "form", "button", "svg", "canvas", "iframe", "select", "input",
+            "script", "style", "nav", "header", "footer", "noscript", "aside", "form", "button",
+            "svg", "canvas", "iframe", "select", "input",
         ];
 
         let mut text_parts = Vec::new();
@@ -176,11 +190,25 @@ impl CrawlerBot {
                 return String::new();
             }
             // Also check for high ratio of non-printable chars (binary data)
-            let non_printable = raw.chars().filter(|c| {
-                !c.is_alphanumeric() && !c.is_whitespace() && !c.is_ascii_punctuation()
-                    && *c != 'ä' && *c != 'ö' && *c != 'ü' && *c != 'Ä' && *c != 'Ö' && *c != 'Ü' && *c != 'ß'
-                    && *c != 'é' && *c != 'è' && *c != 'à' && *c != 'ñ'
-            }).count();
+            let non_printable = raw
+                .chars()
+                .filter(|c| {
+                    !c.is_alphanumeric()
+                        && !c.is_whitespace()
+                        && !c.is_ascii_punctuation()
+                        && *c != 'ä'
+                        && *c != 'ö'
+                        && *c != 'ü'
+                        && *c != 'Ä'
+                        && *c != 'Ö'
+                        && *c != 'Ü'
+                        && *c != 'ß'
+                        && *c != 'é'
+                        && *c != 'è'
+                        && *c != 'à'
+                        && *c != 'ñ'
+                })
+                .count();
             if non_printable as f64 / total_chars as f64 > 0.10 {
                 return String::new();
             }
@@ -268,11 +296,9 @@ impl CrawlerBot {
                         parts.push(t.to_string());
                     }
                 }
-                scraper::Node::Element(el) => {
-                    if !skip_tags.contains(&el.name()) {
-                        if let Some(child_ref) = scraper::ElementRef::wrap(child) {
-                            Self::extract_text(child_ref, skip_tags, parts);
-                        }
+                scraper::Node::Element(el) if !skip_tags.contains(&el.name()) => {
+                    if let Some(child_ref) = scraper::ElementRef::wrap(child) {
+                        Self::extract_text(child_ref, skip_tags, parts);
                     }
                 }
                 _ => {}
@@ -283,7 +309,7 @@ impl CrawlerBot {
     async fn extract_links(base_url: &str, _content: &str) -> Result<Vec<String>, String> {
         // Re-fetch to get links from HTML (we already have the content but need HTML for links)
         let client = reqwest::Client::builder()
-            .user_agent("AIRust Bot/0.1 (educational)")
+            .user_agent(concat!("AIRust/", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30))
             .build()
             .map_err(|e| format!("Client error: {}", e))?;

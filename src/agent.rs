@@ -98,6 +98,7 @@ pub struct TrainingExample {
     pub input: String,
 
     /// Die erwartete Ausgabe
+    #[serde(deserialize_with = "deserialize_response")]
     pub output: ResponseFormat,
 
     /// Gewichtung des Beispiels (höhere Werte bedeuten höhere Priorität)
@@ -107,6 +108,21 @@ pub struct TrainingExample {
     /// Optionale Metadaten für das Beispiel
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
+}
+
+fn deserialize_response<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<ResponseFormat, D::Error> {
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum CompatibleResponse {
+        Structured(ResponseFormat),
+        Legacy(String),
+    }
+    Ok(match CompatibleResponse::deserialize(deserializer)? {
+        CompatibleResponse::Structured(response) => response,
+        CompatibleResponse::Legacy(text) => ResponseFormat::Text(text),
+    })
 }
 
 /// Für die Rückwärtskompatibilität mit älteren Versionen
@@ -181,14 +197,11 @@ pub trait Agent {
     fn confidence(&self, input: &str) -> f32 {
         let response = self.predict(input);
         match response {
-            ResponseFormat::Text(ref s) | ResponseFormat::Markdown(ref s) => {
+            ResponseFormat::Text(ref s) | ResponseFormat::Markdown(ref s)
                 if s.contains("No matching answer found")
-                    || s.contains("No training data available")
-                {
-                    0.0
-                } else {
-                    1.0
-                }
+                    || s.contains("No training data available") =>
+            {
+                0.0
             }
             _ => 1.0,
         }
@@ -273,7 +286,6 @@ pub mod text_utils {
     use once_cell::sync::Lazy;
     use regex::Regex;
     use std::collections::HashSet;
-    use unicode_normalization::UnicodeNormalization;
 
     /// Regulärer Ausdruck zur Identifizierung von Wortzeichen
     pub static WORD_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[^\p{L}\p{N}]").unwrap());
@@ -300,13 +312,7 @@ pub mod text_utils {
 
     /// Tokenisiert Text in einzelne Wörter
     pub fn tokenize(text: &str) -> Vec<String> {
-        text.to_lowercase()
-            .chars()
-            .filter(|&c| c.is_alphabetic() || c.is_whitespace())
-            .collect::<String>()
-            .split_whitespace()
-            .map(|s| s.to_string())
-            .collect()
+        crate::text::tokenize(text)
     }
 
     /// Findet eindeutige Begriffe in einem Text
@@ -329,35 +335,7 @@ pub mod text_utils {
 
     /// Berechnet Levenshtein-Distanz zwischen zwei Strings
     pub fn levenshtein_distance(a: &str, b: &str) -> usize {
-        if a.is_empty() {
-            return b.chars().count();
-        }
-        if b.is_empty() {
-            return a.chars().count();
-        }
-
-        let a_chars: Vec<char> = a.chars().collect();
-        let b_chars: Vec<char> = b.chars().collect();
-        let b_len = b_chars.len();
-
-        let mut cache: Vec<usize> = (0..=b_len).collect();
-        let mut distances = vec![0; b_len + 1];
-
-        for (i, a_char) in a_chars.iter().enumerate() {
-            distances[0] = i + 1;
-
-            for (j, b_char) in b_chars.iter().enumerate() {
-                let cost = if a_char == b_char { 0 } else { 1 };
-                distances[j + 1] = std::cmp::min(
-                    std::cmp::min(distances[j] + 1, cache[j + 1] + 1),
-                    cache[j] + cost,
-                );
-            }
-
-            std::mem::swap(&mut cache, &mut distances);
-        }
-
-        cache[b_len]
+        crate::matching::levenshtein_distance(a, b)
     }
 
     /// Berechnet die Jaccard-Ähnlichkeit zwischen zwei Strings
@@ -393,11 +371,7 @@ pub mod text_utils {
 
     /// Normalisiert Text für verschiedene Verarbeitungsschritte
     pub fn normalize_text(text: &str) -> String {
-        text.to_lowercase()
-            .nfkd()
-            .collect::<String>()
-            .trim()
-            .to_string()
+        crate::text::normalize(text)
     }
 }
 
@@ -547,9 +521,9 @@ mod tests {
     }
 
     #[test]
-    fn test_tokenize_numbers_stripped() {
+    fn test_tokenize_numbers_preserved() {
         let tokens = text_utils::tokenize("hello 123 world");
-        assert_eq!(tokens, vec!["hello", "world"]);
+        assert_eq!(tokens, vec!["hello", "123", "world"]);
     }
 
     #[test]
@@ -606,10 +580,7 @@ mod tests {
 
     #[test]
     fn test_remove_stopwords_unknown_lang_defaults_to_english() {
-        let tokens = vec!["the", "cat"]
-            .into_iter()
-            .map(String::from)
-            .collect();
+        let tokens = vec!["the", "cat"].into_iter().map(String::from).collect();
         let filtered = text_utils::remove_stopwords(tokens, "fr");
         assert_eq!(filtered, vec!["cat"]);
     }
@@ -668,7 +639,10 @@ mod tests {
 
     #[test]
     fn test_jaccard_identical() {
-        assert_eq!(text_utils::jaccard_similarity("hello world", "hello world"), 1.0);
+        assert_eq!(
+            text_utils::jaccard_similarity("hello world", "hello world"),
+            1.0
+        );
     }
 
     #[test]

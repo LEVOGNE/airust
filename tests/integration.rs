@@ -1,6 +1,8 @@
 // Integration tests: cross-module pipelines
 use airust::agent::{Agent, ConfidenceAgent, ContextualAgent, TrainableAgent};
-use airust::{ContextAgent, KnowledgeBase, MatchAgent, ResponseFormat, TfidfAgent, TrainingExample};
+use airust::{
+    ContextAgent, KnowledgeBase, MatchAgent, ResponseFormat, TfidfAgent, TrainingExample,
+};
 
 fn make_example(input: &str, output: &str) -> TrainingExample {
     TrainingExample {
@@ -60,8 +62,16 @@ fn test_kb_to_fuzzy_match_pipeline() {
 #[test]
 fn test_kb_tfidf_context_pipeline() {
     let mut kb = KnowledgeBase::new();
-    kb.add_example("rust programming".to_string(), "Rust is a systems language", 1.0);
-    kb.add_example("python scripting".to_string(), "Python is great for AI", 1.0);
+    kb.add_example(
+        "rust programming".to_string(),
+        "Rust is a systems language",
+        1.0,
+    );
+    kb.add_example(
+        "python scripting".to_string(),
+        "Python is great for AI",
+        1.0,
+    );
 
     let mut base = TfidfAgent::new();
     base.train(kb.get_examples());
@@ -76,7 +86,9 @@ fn test_kb_tfidf_context_pipeline() {
     ctx.add_text_context("rust".to_string(), result1);
     // Context adds "rust" terms, so TF-IDF may match either document
     let result2 = String::from(ctx.predict("python"));
-    assert!(result2.contains("Python") || result2.contains("Rust") || result2.contains("No matching"));
+    assert!(
+        result2.contains("Python") || result2.contains("Rust") || result2.contains("No matching")
+    );
 }
 
 // === Full Roundtrip: KB Save/Load → Train → Predict ===
@@ -84,7 +96,11 @@ fn test_kb_tfidf_context_pipeline() {
 #[test]
 fn test_save_load_train_predict_roundtrip() {
     let mut kb = KnowledgeBase::new();
-    kb.add_example("what is rust".to_string(), "A systems language by Mozilla", 1.0);
+    kb.add_example(
+        "what is rust".to_string(),
+        "A systems language by Mozilla",
+        1.0,
+    );
     kb.add_example("what is python".to_string(), "A scripting language", 2.0);
 
     // Save to temp file

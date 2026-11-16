@@ -1,3 +1,4 @@
+use crate::{ResponseFormat, TrainingExample};
 use rusqlite::{params, Connection};
 use std::sync::Mutex;
 
@@ -42,6 +43,29 @@ pub struct TrainingDataRow {
     pub output_format: String,
     pub weight: f64,
     pub created_at: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+}
+
+impl TrainingDataRow {
+    pub fn into_example(self) -> TrainingExample {
+        TrainingExample {
+            input: self.input,
+            output: decode_response(self.output_text, &self.output_format),
+            weight: self.weight as f32,
+            metadata: self.metadata,
+        }
+    }
+}
+
+pub(crate) fn decode_response(output: String, format: &str) -> ResponseFormat {
+    match format {
+        "markdown" => ResponseFormat::Markdown(output),
+        "json" => ResponseFormat::Json(
+            serde_json::from_str(&output).unwrap_or(serde_json::Value::String(output)),
+        ),
+        _ => ResponseFormat::Text(output),
+    }
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
@@ -199,7 +223,18 @@ impl Database {
             );
             ",
         )
-        .map_err(|e| format!("Init tables error: {}", e))
+        .map_err(|e| format!("Init tables error: {}", e))?;
+        let has_metadata: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM pragma_table_info('training_data') WHERE name = 'metadata_json')", [], |row| row.get(0)
+        ).map_err(|error| format!("Training metadata migration check: {error}"))?;
+        if !has_metadata {
+            conn.execute(
+                "ALTER TABLE training_data ADD COLUMN metadata_json TEXT",
+                [],
+            )
+            .map_err(|error| format!("Training metadata migration: {error}"))?;
+        }
+        Ok(())
     }
 
     fn seed_defaults(&self) -> Result<(), String> {
@@ -242,6 +277,7 @@ impl Database {
 
         Self::seed_new_translations(&conn)?;
         Self::seed_landing_translations(&conn)?;
+        Self::refresh_product_text(&conn)?;
 
         Ok(())
     }
@@ -252,27 +288,71 @@ impl Database {
             ("agent.tfidf.name", "en", "Smart Search"),
             ("agent.tfidf.name", "de", "Schlaue Suche"),
             ("agent.tfidf.name", "tr", "Akıllı Arama"),
-            ("agent.tfidf.desc", "en", "Finds best answer by meaning"),
-            ("agent.tfidf.desc", "de", "Findet beste Antwort nach Bedeutung"),
-            ("agent.tfidf.desc", "tr", "Anlama göre en iyi cevabı bulur"),
+            (
+                "agent.tfidf.desc",
+                "en",
+                "Ranks answers by shared words (BM25)",
+            ),
+            (
+                "agent.tfidf.desc",
+                "de",
+                "Ordnet Antworten nach gemeinsamen Wörtern (BM25)",
+            ),
+            (
+                "agent.tfidf.desc",
+                "tr",
+                "Ortak kelimelere göre sıralar (BM25)",
+            ),
             ("agent.exact.name", "en", "Word-for-Word"),
             ("agent.exact.name", "de", "Wort für Wort"),
             ("agent.exact.name", "tr", "Kelimesi Kelimesine"),
             ("agent.exact.desc", "en", "Must match exactly, ignores caps"),
-            ("agent.exact.desc", "de", "Muss genau passen, Groß/Klein egal"),
-            ("agent.exact.desc", "tr", "Tam eşleşmeli, büyük/küçük harf yok"),
+            (
+                "agent.exact.desc",
+                "de",
+                "Muss genau passen, Groß/Klein egal",
+            ),
+            (
+                "agent.exact.desc",
+                "tr",
+                "Tam eşleşmeli, büyük/küçük harf yok",
+            ),
             ("agent.fuzzy.name", "en", "Close Enough"),
             ("agent.fuzzy.name", "de", "Fast Richtig"),
             ("agent.fuzzy.name", "tr", "Yaklaşık Eşleşme"),
-            ("agent.fuzzy.desc", "en", "Also finds typos and similar words"),
-            ("agent.fuzzy.desc", "de", "Findet auch Tippfehler und ähnliche Wörter"),
-            ("agent.fuzzy.desc", "tr", "Yazım hataları ve benzer kelimeleri de bulur"),
+            (
+                "agent.fuzzy.desc",
+                "en",
+                "Also finds typos and similar words",
+            ),
+            (
+                "agent.fuzzy.desc",
+                "de",
+                "Findet auch Tippfehler und ähnliche Wörter",
+            ),
+            (
+                "agent.fuzzy.desc",
+                "tr",
+                "Yazım hataları ve benzer kelimeleri de bulur",
+            ),
             ("agent.context.name", "en", "Remembers Chat"),
             ("agent.context.name", "de", "Merkt sich Chat"),
             ("agent.context.name", "tr", "Sohbeti Hatırlar"),
-            ("agent.context.desc", "en", "Uses previous messages for better answers"),
-            ("agent.context.desc", "de", "Nutzt vorherige Nachrichten für bessere Antworten"),
-            ("agent.context.desc", "tr", "Daha iyi cevaplar için önceki mesajları kullanır"),
+            (
+                "agent.context.desc",
+                "en",
+                "Uses previous messages for better answers",
+            ),
+            (
+                "agent.context.desc",
+                "de",
+                "Nutzt vorherige Nachrichten für bessere Antworten",
+            ),
+            (
+                "agent.context.desc",
+                "tr",
+                "Daha iyi cevaplar için önceki mesajları kullanır",
+            ),
             // KB search
             ("kb.search", "en", "Search..."),
             ("kb.search", "de", "Suchen..."),
@@ -340,9 +420,21 @@ impl Database {
             ("kb.load", "en", "Load Brain"),
             ("kb.load", "de", "Gehirn Laden"),
             ("kb.load", "tr", "Beyni Yükle"),
-            ("kb.path_placeholder", "en", "Path (e.g. ./knowledge/my.json)"),
-            ("kb.path_placeholder", "de", "Pfad (z.B. ./knowledge/my.json)"),
-            ("kb.path_placeholder", "tr", "Yol (örn. ./knowledge/my.json)"),
+            (
+                "kb.path_placeholder",
+                "en",
+                "Path (e.g. ./knowledge/my.json)",
+            ),
+            (
+                "kb.path_placeholder",
+                "de",
+                "Pfad (z.B. ./knowledge/my.json)",
+            ),
+            (
+                "kb.path_placeholder",
+                "tr",
+                "Yol (örn. ./knowledge/my.json)",
+            ),
             // PDF
             ("pdf.title", "en", "Upload PDF"),
             ("pdf.title", "de", "PDF Hochladen"),
@@ -443,7 +535,9 @@ impl Database {
         ];
 
         let mut stmt = conn
-            .prepare("INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)")
+            .prepare(
+                "INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)",
+            )
             .map_err(|e| format!("Prepare error: {}", e))?;
 
         for (key, lang, text) in &translations {
@@ -516,11 +610,8 @@ impl Database {
 
     pub fn create_chat(&self, title: &str) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        conn.execute(
-            "INSERT INTO chats (title) VALUES (?1)",
-            params![title],
-        )
-        .map_err(|e| format!("Create chat error: {}", e))?;
+        conn.execute("INSERT INTO chats (title) VALUES (?1)", params![title])
+            .map_err(|e| format!("Create chat error: {}", e))?;
         Ok(conn.last_insert_rowid())
     }
 
@@ -531,7 +622,9 @@ impl Database {
         } else {
             "SELECT id, title, created_at, updated_at, archived FROM chats WHERE archived = 0 ORDER BY updated_at DESC"
         };
-        let mut stmt = conn.prepare(sql).map_err(|e| format!("Query error: {}", e))?;
+        let mut stmt = conn
+            .prepare(sql)
+            .map_err(|e| format!("Query error: {}", e))?;
         let rows = stmt
             .query_map([], |row| {
                 Ok(ChatRow {
@@ -698,13 +791,29 @@ impl Database {
             ("import.tatoeba", "tr", "Tatoeba (TSV)"),
             ("import.drop", "en", "Drop TSV file here or click"),
             ("import.drop", "de", "TSV-Datei hierher ziehen oder klicken"),
-            ("import.drop", "tr", "TSV dosyasını buraya bırakın veya tıklayın"),
+            (
+                "import.drop",
+                "tr",
+                "TSV dosyasını buraya bırakın veya tıklayın",
+            ),
             ("import.importing", "en", "Importing..."),
             ("import.importing", "de", "Importiere..."),
             ("import.importing", "tr", "İçe aktarılıyor..."),
-            ("import.info", "en", "Tatoeba bilingual sentence pairs from manythings.org/anki/"),
-            ("import.info", "de", "Tatoeba zweisprachige Satzpaare von manythings.org/anki/"),
-            ("import.info", "tr", "manythings.org/anki/ kaynağından Tatoeba iki dilli cümle çiftleri"),
+            (
+                "import.info",
+                "en",
+                "Tatoeba bilingual sentence pairs from manythings.org/anki/",
+            ),
+            (
+                "import.info",
+                "de",
+                "Tatoeba zweisprachige Satzpaare von manythings.org/anki/",
+            ),
+            (
+                "import.info",
+                "tr",
+                "manythings.org/anki/ kaynağından Tatoeba iki dilli cümle çiftleri",
+            ),
             // Console
             ("console.title", "en", "Console"),
             ("console.title", "de", "Konsole"),
@@ -751,7 +860,9 @@ impl Database {
         ];
 
         let mut stmt = conn
-            .prepare("INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)")
+            .prepare(
+                "INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)",
+            )
             .map_err(|e| format!("Prepare error: {}", e))?;
 
         for (key, lang, text) in &translations {
@@ -762,30 +873,82 @@ impl Database {
         Ok(())
     }
 
+    /// Update shipped product text while preserving customized translations.
+    fn refresh_product_text(conn: &Connection) -> Result<(), String> {
+        let updates: &[(&str, &str, &str, &str)] = &[
+            ("agent.tfidf.desc", "en", "Finds best answer by meaning", "Ranks answers by shared words (BM25)"),
+            ("agent.tfidf.desc", "de", "Findet beste Antwort nach Bedeutung", "Ordnet Antworten nach gemeinsamen Wörtern (BM25)"),
+            ("agent.tfidf.desc", "tr", "Anlama göre en iyi cevabı bulur", "Ortak kelimelere göre sıralar (BM25)"),
+            ("landing.tagline", "en", "A trainable, modular AI engine written in Rust", "A Modular Knowledge Intelligence Engine"),
+            ("landing.tagline", "de", "Eine trainierbare, modulare KI-Engine in Rust", "Wissen finden, vergleichen und verbinden"),
+            ("landing.tagline", "tr", "Rust ile yazılmış eğitilebilir, modüler bir yapay zeka motoru", "Rust ile modüler bilgi arama ve karşılaştırma"),
+            ("landing.desc", "en", "Build intelligent agents, manage knowledge bases, extract wisdom from PDFs, and deploy a full web dashboard \u{2014} all without external AI APIs.", "Find knowledge, compare text, and propose connections. This optional dashboard uses the AIRust Rust library."),
+            ("landing.desc", "de", "Erstelle intelligente Agenten, verwalte Wissensbasen, extrahiere Wissen aus PDFs und starte ein vollständiges Web-Dashboard \u{2014} alles ohne externe KI-APIs.", "Finde Wissen, vergleiche Texte und prüfe mögliche Verbindungen. Dieses optionale Dashboard verwendet die AIRust-Bibliothek."),
+            ("landing.desc", "tr", "Akıllı ajanlar oluşturun, bilgi tabanlarını yönetin, PDF'lerden bilgi çıkarın ve tam bir web paneli kurun \u{2014} harici yapay zeka API'leri olmadan.", "Bilgi bulun, metinleri karşılaştırın ve bağlantı önerilerini inceleyin. Bu isteğe bağlı panel AIRust kütüphanesini kullanır."),
+            ("landing.badge.version", "en", "v0.1.7", concat!("v", env!("CARGO_PKG_VERSION"))),
+            ("landing.badge.version", "de", "v0.1.7", concat!("v", env!("CARGO_PKG_VERSION"))),
+            ("landing.badge.version", "tr", "v0.1.7", concat!("v", env!("CARGO_PKG_VERSION"))),
+            ("landing.badge.rust", "en", "Rust 1.85+", "Rust 1.89+"),
+            ("landing.badge.rust", "de", "Rust 1.85+", "Rust 1.89+"),
+            ("landing.badge.rust", "tr", "Rust 1.85+", "Rust 1.89+"),
+            ("landing.badge.tests", "en", "156 Tests", "Tests & CI"),
+            ("landing.badge.tests", "de", "156 Tests", "Tests & CI"),
+            ("landing.badge.tests", "tr", "156 Test", "Testler & CI"),
+            ("landing.claim", "en", "100% Local \u{00b7} Zero Cloud Dependencies \u{00b7} Fully Private", "Local core \u{00b7} Optional integrations"),
+            ("landing.claim", "de", "100% Lokal \u{00b7} Keine Cloud-Abhängigkeiten \u{00b7} Vollständig Privat", "Lokaler Kern \u{00b7} Optionale Erweiterungen"),
+            ("landing.claim", "tr", "100% Yerel \u{00b7} Sıfır Bulut Bağımlılığı \u{00b7} Tamamen Gizli", "Yerel çekirdek \u{00b7} İsteğe bağlı eklentiler"),
+            ("landing.features.sub", "en", "Everything you need to build, train, and deploy an AI system", "Optional tools around the AIRust knowledge library"),
+            ("landing.features.sub", "de", "Alles, was du brauchst, um ein KI-System zu bauen, zu trainieren und bereitzustellen", "Optionale Werkzeuge rund um die AIRust-Wissensbibliothek"),
+            ("landing.features.sub", "tr", "Bir yapay zeka sistemi oluşturmak, eğitmek ve dağıtmak için ihtiyacınız olan her şey", "AIRust bilgi kütüphanesi için isteğe bağlı araçlar"),
+            ("landing.feat.agents.desc", "en", "Exact Match, Fuzzy Match, TF-IDF/BM25 Semantic, Context-Aware", "Exact Match, Fuzzy Match, BM25 lexical search, Context-Aware"),
+            ("landing.feat.agents.desc", "de", "Exakt, Fuzzy, TF-IDF/BM25 Semantisch, Kontextbewusst", "Exakt, Fuzzy, BM25-Wortsuche, Kontextbewusst"),
+            ("landing.feat.agents.desc", "tr", "Tam Eşleşme, Bulanık Eşleşme, TF-IDF/BM25 Semantik, Bağlam Duyarlı", "Tam Eşleşme, Bulanık Eşleşme, BM25 kelime arama, Bağlam Duyarlı"),
+            ("landing.agent.tfidf.desc", "en", "Semantic search using TF-IDF and BM25 ranking. Understands meaning, not just words. Handles synonyms and related concepts.", "Lexical BM25 ranking using shared terms. Synonyms and meaning require an optional external model."),
+            ("landing.agent.tfidf.desc", "de", "Semantische Suche mit TF-IDF und BM25-Ranking. Versteht Bedeutung, nicht nur Wörter. Verarbeitet Synonyme und verwandte Konzepte.", "BM25 ordnet Treffer nach gemeinsamen Wörtern. Für Synonyme und Bedeutung ist ein optionales externes Modell nötig."),
+            ("landing.agent.tfidf.desc", "tr", "TF-IDF ve BM25 sıralaması ile semantik arama. Sadece kelimeleri değil, anlamı anlar. Eş anlamlıları ve ilgili kavramları işler.", "BM25 ortak kelimelere göre sıralar. Anlam ve eş anlamlılar için isteğe bağlı harici bir model gerekir."),
+            ("landing.bench.tests.label", "en", "Tests Passing", "Automated Checks"),
+            ("landing.bench.tests.label", "de", "Bestandene Tests", "Automatische Prüfungen"),
+            ("landing.bench.tests.label", "tr", "Başarılı Testler", "Otomatik kontroller"),
+            ("landing.bench.apis.label", "en", "External APIs", "Required LLM APIs"),
+            ("landing.bench.apis.label", "de", "Externe APIs", "Benötigte LLM-APIs"),
+            ("landing.bench.apis.label", "tr", "Harici API'ler", "Gerekli LLM API'leri"),
+            ("landing.bench.local.label", "en", "Local & Private", "Local Core"),
+            ("landing.bench.local.label", "de", "Lokal & Privat", "Lokaler Kern"),
+            ("landing.bench.local.label", "tr", "Yerel & Gizli", "Yerel çekirdek"),
+        ];
+        for (key, language, previous, current) in updates {
+            conn.execute(
+                "UPDATE translations SET text = ?1 WHERE key = ?2 AND language_code = ?3 AND text = ?4",
+                params![current, key, language, previous],
+            ).map_err(|error| format!("Product text migration error: {error}"))?;
+        }
+        Ok(())
+    }
+
     fn seed_landing_translations(conn: &Connection) -> Result<(), String> {
         let translations: Vec<(&str, &str, &str)> = vec![
             // Hero
-            ("landing.tagline", "en", "A trainable, modular AI engine written in Rust"),
-            ("landing.tagline", "de", "Eine trainierbare, modulare KI-Engine in Rust"),
-            ("landing.tagline", "tr", "Rust ile yazılmış eğitilebilir, modüler bir yapay zeka motoru"),
-            ("landing.desc", "en", "Build intelligent agents, manage knowledge bases, extract wisdom from PDFs, and deploy a full web dashboard \u{2014} all without external AI APIs."),
-            ("landing.desc", "de", "Erstelle intelligente Agenten, verwalte Wissensbasen, extrahiere Wissen aus PDFs und starte ein vollständiges Web-Dashboard \u{2014} alles ohne externe KI-APIs."),
-            ("landing.desc", "tr", "Akıllı ajanlar oluşturun, bilgi tabanlarını yönetin, PDF'lerden bilgi çıkarın ve tam bir web paneli kurun \u{2014} harici yapay zeka API'leri olmadan."),
-            ("landing.badge.version", "en", "v0.1.7"),
-            ("landing.badge.version", "de", "v0.1.7"),
-            ("landing.badge.version", "tr", "v0.1.7"),
+            ("landing.tagline", "en", "A Modular Knowledge Intelligence Engine"),
+            ("landing.tagline", "de", "Wissen finden, vergleichen und verbinden"),
+            ("landing.tagline", "tr", "Rust ile modüler bilgi arama ve karşılaştırma"),
+            ("landing.desc", "en", "Find knowledge, compare text, and propose connections. This optional dashboard uses the AIRust Rust library."),
+            ("landing.desc", "de", "Finde Wissen, vergleiche Texte und prüfe mögliche Verbindungen. Dieses optionale Dashboard verwendet die AIRust-Bibliothek."),
+            ("landing.desc", "tr", "Bilgi bulun, metinleri karşılaştırın ve bağlantı önerilerini inceleyin. Bu isteğe bağlı panel AIRust kütüphanesini kullanır."),
+            ("landing.badge.version", "en", concat!("v", env!("CARGO_PKG_VERSION"))),
+            ("landing.badge.version", "de", concat!("v", env!("CARGO_PKG_VERSION"))),
+            ("landing.badge.version", "tr", concat!("v", env!("CARGO_PKG_VERSION"))),
             ("landing.badge.license", "en", "MIT License"),
             ("landing.badge.license", "de", "MIT-Lizenz"),
             ("landing.badge.license", "tr", "MIT Lisansı"),
-            ("landing.badge.rust", "en", "Rust 1.85+"),
-            ("landing.badge.rust", "de", "Rust 1.85+"),
-            ("landing.badge.rust", "tr", "Rust 1.85+"),
-            ("landing.badge.tests", "en", "156 Tests"),
-            ("landing.badge.tests", "de", "156 Tests"),
-            ("landing.badge.tests", "tr", "156 Test"),
-            ("landing.claim", "en", "100% Local \u{00b7} Zero Cloud Dependencies \u{00b7} Fully Private"),
-            ("landing.claim", "de", "100% Lokal \u{00b7} Keine Cloud-Abhängigkeiten \u{00b7} Vollständig Privat"),
-            ("landing.claim", "tr", "100% Yerel \u{00b7} Sıfır Bulut Bağımlılığı \u{00b7} Tamamen Gizli"),
+            ("landing.badge.rust", "en", "Rust 1.89+"),
+            ("landing.badge.rust", "de", "Rust 1.89+"),
+            ("landing.badge.rust", "tr", "Rust 1.89+"),
+            ("landing.badge.tests", "en", "Tests & CI"),
+            ("landing.badge.tests", "de", "Tests & CI"),
+            ("landing.badge.tests", "tr", "Testler & CI"),
+            ("landing.claim", "en", "Local core \u{00b7} Optional integrations"),
+            ("landing.claim", "de", "Lokaler Kern \u{00b7} Optionale Erweiterungen"),
+            ("landing.claim", "tr", "Yerel çekirdek \u{00b7} İsteğe bağlı eklentiler"),
             ("landing.cta", "en", "Try it now"),
             ("landing.cta", "de", "Jetzt ausprobieren"),
             ("landing.cta", "tr", "Şimdi deneyin"),
@@ -793,15 +956,15 @@ impl Database {
             ("landing.features.title", "en", "Features"),
             ("landing.features.title", "de", "Funktionen"),
             ("landing.features.title", "tr", "Özellikler"),
-            ("landing.features.sub", "en", "Everything you need to build, train, and deploy an AI system"),
-            ("landing.features.sub", "de", "Alles, was du brauchst, um ein KI-System zu bauen, zu trainieren und bereitzustellen"),
-            ("landing.features.sub", "tr", "Bir yapay zeka sistemi oluşturmak, eğitmek ve dağıtmak için ihtiyacınız olan her şey"),
+            ("landing.features.sub", "en", "Optional tools around the AIRust knowledge library"),
+            ("landing.features.sub", "de", "Optionale Werkzeuge rund um die AIRust-Wissensbibliothek"),
+            ("landing.features.sub", "tr", "AIRust bilgi kütüphanesi için isteğe bağlı araçlar"),
             ("landing.feat.agents.name", "en", "4 Agent Types"),
             ("landing.feat.agents.name", "de", "4 Agententypen"),
             ("landing.feat.agents.name", "tr", "4 Ajan Türü"),
-            ("landing.feat.agents.desc", "en", "Exact Match, Fuzzy Match, TF-IDF/BM25 Semantic, Context-Aware"),
-            ("landing.feat.agents.desc", "de", "Exakt, Fuzzy, TF-IDF/BM25 Semantisch, Kontextbewusst"),
-            ("landing.feat.agents.desc", "tr", "Tam Eşleşme, Bulanık Eşleşme, TF-IDF/BM25 Semantik, Bağlam Duyarlı"),
+            ("landing.feat.agents.desc", "en", "Exact Match, Fuzzy Match, BM25 lexical search, Context-Aware"),
+            ("landing.feat.agents.desc", "de", "Exakt, Fuzzy, BM25-Wortsuche, Kontextbewusst"),
+            ("landing.feat.agents.desc", "tr", "Tam Eşleşme, Bulanık Eşleşme, BM25 kelime arama, Bağlam Duyarlı"),
             ("landing.feat.kb.name", "en", "Knowledge Base"),
             ("landing.feat.kb.name", "de", "Wissensbasis"),
             ("landing.feat.kb.name", "tr", "Bilgi Tabanı"),
@@ -912,9 +1075,9 @@ impl Database {
             ("landing.agent.tfidf.title", "en", "TfidfAgent"),
             ("landing.agent.tfidf.title", "de", "TfidfAgent"),
             ("landing.agent.tfidf.title", "tr", "TfidfAgent"),
-            ("landing.agent.tfidf.desc", "en", "Semantic search using TF-IDF and BM25 ranking. Understands meaning, not just words. Handles synonyms and related concepts."),
-            ("landing.agent.tfidf.desc", "de", "Semantische Suche mit TF-IDF und BM25-Ranking. Versteht Bedeutung, nicht nur Wörter. Verarbeitet Synonyme und verwandte Konzepte."),
-            ("landing.agent.tfidf.desc", "tr", "TF-IDF ve BM25 sıralaması ile semantik arama. Sadece kelimeleri değil, anlamı anlar. Eş anlamlıları ve ilgili kavramları işler."),
+            ("landing.agent.tfidf.desc", "en", "Lexical BM25 ranking using shared terms. Synonyms and meaning require an optional external model."),
+            ("landing.agent.tfidf.desc", "de", "BM25 ordnet Treffer nach gemeinsamen Wörtern. Für Synonyme und Bedeutung ist ein optionales externes Modell nötig."),
+            ("landing.agent.tfidf.desc", "tr", "BM25 ortak kelimelere göre sıralar. Anlam ve eş anlamlılar için isteğe bağlı harici bir model gerekir."),
             ("landing.agent.tfidf.use", "en", "Best for: Natural language Q&A, documentation search"),
             ("landing.agent.tfidf.use", "de", "Ideal für: Natürlichsprachige Fragen & Antworten, Dokumentationssuche"),
             ("landing.agent.tfidf.use", "tr", "En iyi: Doğal dil Soru & Cevap, dokümantasyon araması"),
@@ -934,18 +1097,18 @@ impl Database {
             ("landing.bench.sub", "en", "Built for performance, privacy, and simplicity"),
             ("landing.bench.sub", "de", "Gebaut für Leistung, Datenschutz und Einfachheit"),
             ("landing.bench.sub", "tr", "Performans, gizlilik ve basitlik için tasarlandı"),
-            ("landing.bench.tests.label", "en", "Tests Passing"),
-            ("landing.bench.tests.label", "de", "Bestandene Tests"),
-            ("landing.bench.tests.label", "tr", "Başarılı Testler"),
-            ("landing.bench.apis.label", "en", "External APIs"),
-            ("landing.bench.apis.label", "de", "Externe APIs"),
-            ("landing.bench.apis.label", "tr", "Harici API'ler"),
+            ("landing.bench.tests.label", "en", "Automated Checks"),
+            ("landing.bench.tests.label", "de", "Automatische Prüfungen"),
+            ("landing.bench.tests.label", "tr", "Otomatik kontroller"),
+            ("landing.bench.apis.label", "en", "Required LLM APIs"),
+            ("landing.bench.apis.label", "de", "Benötigte LLM-APIs"),
+            ("landing.bench.apis.label", "tr", "Gerekli LLM API'leri"),
             ("landing.bench.endpoints.label", "en", "REST Endpoints"),
             ("landing.bench.endpoints.label", "de", "REST-Endpunkte"),
             ("landing.bench.endpoints.label", "tr", "REST Uç Noktaları"),
-            ("landing.bench.local.label", "en", "Local & Private"),
-            ("landing.bench.local.label", "de", "Lokal & Privat"),
-            ("landing.bench.local.label", "tr", "Yerel & Gizli"),
+            ("landing.bench.local.label", "en", "Local Core"),
+            ("landing.bench.local.label", "de", "Lokaler Kern"),
+            ("landing.bench.local.label", "tr", "Yerel çekirdek"),
             // Installation
             ("landing.install.title", "en", "Get Started"),
             ("landing.install.title", "de", "Loslegen"),
@@ -960,7 +1123,9 @@ impl Database {
         ];
 
         let mut stmt = conn
-            .prepare("INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)")
+            .prepare(
+                "INSERT OR IGNORE INTO translations (key, language_code, text) VALUES (?1, ?2, ?3)",
+            )
             .map_err(|e| format!("Prepare error: {}", e))?;
 
         for (key, lang, text) in &translations {
@@ -976,7 +1141,9 @@ impl Database {
     pub fn list_categories(&self) -> Result<Vec<CategoryRow>, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         let mut stmt = conn
-            .prepare("SELECT id, name, color, description, created_at FROM categories ORDER BY name ASC")
+            .prepare(
+                "SELECT id, name, color, description, created_at FROM categories ORDER BY name ASC",
+            )
             .map_err(|e| format!("Query error: {}", e))?;
         let rows = stmt
             .query_map([], |row| {
@@ -996,7 +1163,12 @@ impl Database {
         Ok(result)
     }
 
-    pub fn create_category(&self, name: &str, color: &str, description: &str) -> Result<i64, String> {
+    pub fn create_category(
+        &self,
+        name: &str,
+        color: &str,
+        description: &str,
+    ) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         conn.execute(
             "INSERT INTO categories (name, color, description) VALUES (?1, ?2, ?3)",
@@ -1008,8 +1180,11 @@ impl Database {
 
     pub fn delete_category(&self, id: i64) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        conn.execute("UPDATE training_data SET category_id = NULL WHERE category_id = ?1", params![id])
-            .map_err(|e| format!("Update training data error: {}", e))?;
+        conn.execute(
+            "UPDATE training_data SET category_id = NULL WHERE category_id = ?1",
+            params![id],
+        )
+        .map_err(|e| format!("Update training data error: {}", e))?;
         conn.execute("DELETE FROM categories WHERE id = ?1", params![id])
             .map_err(|e| format!("Delete category error: {}", e))?;
         Ok(())
@@ -1017,7 +1192,10 @@ impl Database {
 
     // ── Training Data CRUD ───────────────────────────────────────────────────
 
-    pub fn list_training_data(&self, category_id: Option<i64>) -> Result<Vec<TrainingDataRow>, String> {
+    pub fn list_training_data(
+        &self,
+        category_id: Option<i64>,
+    ) -> Result<Vec<TrainingDataRow>, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
 
         fn extract_row(row: &rusqlite::Row) -> rusqlite::Result<TrainingDataRow> {
@@ -1029,24 +1207,38 @@ impl Database {
                 output_format: row.get(4)?,
                 weight: row.get(5)?,
                 created_at: row.get(6)?,
+                metadata: row
+                    .get::<_, Option<String>>(7)?
+                    .map(|json| {
+                        serde_json::from_str(&json).map_err(|error| {
+                            rusqlite::Error::FromSqlConversionFailure(
+                                7,
+                                rusqlite::types::Type::Text,
+                                Box::new(error),
+                            )
+                        })
+                    })
+                    .transpose()?,
             })
         }
 
         let mut result = Vec::new();
         if let Some(cid) = category_id {
             let mut stmt = conn.prepare(
-                "SELECT id, category_id, input, output_text, output_format, weight, created_at FROM training_data WHERE category_id = ?1 ORDER BY id DESC"
+                "SELECT id, category_id, input, output_text, output_format, weight, created_at, metadata_json FROM training_data WHERE category_id = ?1 ORDER BY id DESC"
             ).map_err(|e| format!("Query error: {}", e))?;
-            let rows = stmt.query_map(params![cid], extract_row)
+            let rows = stmt
+                .query_map(params![cid], extract_row)
                 .map_err(|e| format!("Query error: {}", e))?;
             for r in rows {
                 result.push(r.map_err(|e| format!("Row error: {}", e))?);
             }
         } else {
             let mut stmt = conn.prepare(
-                "SELECT id, category_id, input, output_text, output_format, weight, created_at FROM training_data ORDER BY id DESC"
+                "SELECT id, category_id, input, output_text, output_format, weight, created_at, metadata_json FROM training_data ORDER BY id DESC"
             ).map_err(|e| format!("Query error: {}", e))?;
-            let rows = stmt.query_map([], extract_row)
+            let rows = stmt
+                .query_map([], extract_row)
                 .map_err(|e| format!("Query error: {}", e))?;
             for r in rows {
                 result.push(r.map_err(|e| format!("Row error: {}", e))?);
@@ -1056,7 +1248,12 @@ impl Database {
     }
 
     pub fn add_training_data(
-        &self, category_id: Option<i64>, input: &str, output_text: &str, output_format: &str, weight: f64,
+        &self,
+        category_id: Option<i64>,
+        input: &str,
+        output_text: &str,
+        output_format: &str,
+        weight: f64,
     ) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         conn.execute(
@@ -1072,6 +1269,34 @@ impl Database {
         conn.execute("DELETE FROM training_data WHERE id = ?1", params![id])
             .map_err(|e| format!("Delete training data error: {}", e))?;
         Ok(())
+    }
+
+    /// Persist the complete example, including PDF provenance, across restarts.
+    pub fn add_training_example(
+        &self,
+        category_id: Option<i64>,
+        example: &TrainingExample,
+    ) -> Result<i64, String> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|error| format!("Lock error: {error}"))?;
+        let format = match &example.output {
+            ResponseFormat::Text(_) => "text",
+            ResponseFormat::Markdown(_) => "markdown",
+            ResponseFormat::Json(_) => "json",
+        };
+        let metadata = example
+            .metadata
+            .as_ref()
+            .map(serde_json::to_string)
+            .transpose()
+            .map_err(|error| format!("Metadata serialization: {error}"))?;
+        conn.execute(
+            "INSERT INTO training_data (category_id, input, output_text, output_format, weight, metadata_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![category_id, example.input, example.output.to_string(), format, example.weight as f64, metadata],
+        ).map_err(|error| format!("Add training example: {error}"))?;
+        Ok(conn.last_insert_rowid())
     }
 
     pub fn get_all_training_data(&self) -> Result<Vec<TrainingDataRow>, String> {
@@ -1114,8 +1339,11 @@ impl Database {
 
     pub fn delete_vector_collection(&self, id: i64) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        conn.execute("DELETE FROM vector_entries WHERE collection_id = ?1", params![id])
-            .map_err(|e| format!("Delete entries error: {}", e))?;
+        conn.execute(
+            "DELETE FROM vector_entries WHERE collection_id = ?1",
+            params![id],
+        )
+        .map_err(|e| format!("Delete entries error: {}", e))?;
         conn.execute("DELETE FROM vector_collections WHERE id = ?1", params![id])
             .map_err(|e| format!("Delete collection error: {}", e))?;
         Ok(())
@@ -1148,7 +1376,11 @@ impl Database {
     }
 
     pub fn add_vector_entry(
-        &self, collection_id: i64, content: &str, metadata_json: &str, embedding_json: &str,
+        &self,
+        collection_id: i64,
+        content: &str,
+        metadata_json: &str,
+        embedding_json: &str,
     ) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
         conn.execute(
@@ -1166,7 +1398,10 @@ impl Database {
         Ok(())
     }
 
-    pub fn get_all_vector_entries_in_collection(&self, collection_id: i64) -> Result<Vec<VectorEntryRow>, String> {
+    pub fn get_all_vector_entries_in_collection(
+        &self,
+        collection_id: i64,
+    ) -> Result<Vec<VectorEntryRow>, String> {
         self.list_vector_entries(collection_id)
     }
 }

@@ -1,210 +1,134 @@
-// src/tfidf_agent.rs - Optimized TF-IDF/BM25 Agent
+//! Compatibility adapter: the historical TfidfAgent name uses the shared BM25 index.
 use crate::agent::{
-    text_utils, Agent, ConfidenceAgent, PredictionResult, ResponseFormat, TrainableAgent,
-    TrainingExample,
+    Agent, ConfidenceAgent, PredictionResult, ResponseFormat, TrainableAgent, TrainingExample,
 };
-use indexmap::IndexMap;
-use std::collections::HashSet;
+use crate::{text, Bm25Config, Engine, KnowledgeEntry, SearchError, SearchOptions};
 
-/// TF-IDF Agent using BM25 scoring for intelligent text matching
 pub struct TfidfAgent {
-    /// Stored training documents
     docs: Vec<TrainingExample>,
-
-    /// Document frequency for each term (in how many documents a term appears)
-    term_df: IndexMap<String, f32>,
-
-    /// Term frequencies for each document
-    doc_term_freq: Vec<IndexMap<String, f32>>,
-
-    /// Total number of documents
-    doc_count: f32,
-
-    /// BM25 parameter k1 (controls term frequency scaling)
+    index: Engine,
     bm25_k1: f32,
-
-    /// BM25 parameter b (controls document length normalization)
     bm25_b: f32,
 }
 
 impl TfidfAgent {
-    /// Creates a new TF-IDF agent with default BM25 parameters
     pub fn new() -> Self {
         Self {
             docs: Vec::new(),
-            term_df: IndexMap::new(),
-            doc_term_freq: Vec::new(),
-            doc_count: 0.0,
-            bm25_k1: 1.2, // Default term frequency scaling
-            bm25_b: 0.75, // Default length normalization
+            index: Engine::new(),
+            bm25_k1: 1.2,
+            bm25_b: 0.75,
         }
     }
 
-    /// Configures custom BM25 parameters for fine-tuned matching
+    /// Set valid parameters. Invalid values leave the existing configuration unchanged.
+    /// Use try_with_bm25_params when invalid configuration must be reported.
     pub fn with_bm25_params(mut self, k1: f32, b: f32) -> Self {
-        self.bm25_k1 = k1;
-        self.bm25_b = b;
+        if Bm25Config::new(k1 as f64, b as f64).is_ok() {
+            self.bm25_k1 = k1;
+            self.bm25_b = b;
+        }
         self
     }
 
-    /// Returns scored documents sorted descending by score
-    fn scored_docs(&self, query_terms: &[String]) -> Vec<(usize, f32)> {
-        let mut scores: Vec<(usize, f32)> = self
-            .docs
-            .iter()
-            .enumerate()
-            .map(|(i, doc)| {
-                let score = self.bm25_score(query_terms, i) * doc.weight;
-                (i, score)
+    pub fn try_with_bm25_params(self, k1: f32, b: f32) -> Result<Self, SearchError> {
+        Bm25Config::new(k1 as f64, b as f64)?;
+        Ok(self.with_bm25_params(k1, b))
+    }
+
+    fn scored_docs(&self, input: &str) -> Vec<(usize, f32)> {
+        let options = SearchOptions {
+            limit: self.docs.len(),
+            bm25: Bm25Config::new(self.bm25_k1 as f64, self.bm25_b as f64).unwrap_or_default(),
+            ..SearchOptions::default()
+        };
+        let mut scored: Vec<(usize, f32)> = self
+            .index
+            .search_with_options(input, &options)
+            .into_iter()
+            .filter_map(|hit| {
+                let idx = hit.entry.id.parse::<usize>().ok()?;
+                let weight = self.docs[idx].weight;
+                let score = (hit.score * weight as f64) as f32;
+                (score.is_finite() && score > 0.0).then_some((idx, score))
             })
             .collect();
-
-        scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-        scores
-    }
-
-    /// Rebuilds the internal term frequency index from stored documents
-    fn rebuild_index(&mut self) {
-        self.doc_count = self.docs.len() as f32;
-        self.term_df.clear();
-        self.doc_term_freq.clear();
-
-        for doc in &self.docs {
-            let mut doc_terms: IndexMap<String, f32> = IndexMap::new();
-            let terms = text_utils::tokenize(&doc.input);
-
-            for term in &terms {
-                *doc_terms.entry(term.clone()).or_insert(0.0) += 1.0;
-            }
-
-            let unique_terms: HashSet<String> = terms.into_iter().collect();
-            for term in unique_terms {
-                *self.term_df.entry(term).or_insert(0.0) += 1.0;
-            }
-
-            self.doc_term_freq.push(doc_terms);
-        }
-    }
-
-    /// Calculates BM25 score between query terms and a specific document
-    fn bm25_score(&self, query_terms: &[String], doc_idx: usize) -> f32 {
-        // Calculate average document length
-        let avg_doc_len: f32 = self
-            .doc_term_freq
-            .iter()
-            .map(|doc| doc.values().sum::<f32>())
-            .sum::<f32>()
-            / self.doc_count;
-
-        // Length of the current document
-        let doc_len: f32 = self.doc_term_freq[doc_idx].values().sum();
-
-        query_terms
-            .iter()
-            .map(|term| {
-                // Check if term exists in the document frequency index
-                if let Some(&df) = self.term_df.get(term) {
-                    // Inverse Document Frequency (IDF) component
-                    let idf = (self.doc_count - df + 0.5) / (df + 0.5);
-                    let idf = (1.0 + idf).ln();
-
-                    // Term Frequency (TF) with BM25 normalization
-                    let tf = self.doc_term_freq[doc_idx]
-                        .get(term)
-                        .cloned()
-                        .unwrap_or(0.0);
-
-                    // BM25 scoring formula
-                    let numerator = tf * (self.bm25_k1 + 1.0);
-                    let denominator = tf
-                        + self.bm25_k1 * (1.0 - self.bm25_b + self.bm25_b * doc_len / avg_doc_len);
-
-                    idf * numerator / denominator
-                } else {
-                    0.0
-                }
-            })
-            .sum()
+        scored.sort_by(|a, b| b.1.total_cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+        scored
     }
 }
 
 impl Agent for TfidfAgent {
-    /// Predicts the most relevant response using BM25 scoring
     fn predict(&self, input: &str) -> ResponseFormat {
-        if self.docs.is_empty() {
-            return ResponseFormat::Text("No training data available.".to_string());
-        }
+        self.predict_with_metadata(input).response
+    }
 
-        let query_terms = text_utils::tokenize(input);
-        let scores = self.scored_docs(&query_terms);
+    fn predict_with_metadata(&self, input: &str) -> PredictionResult {
+        self.predict_top_n(input, 1)
+            .into_iter()
+            .next()
+            .unwrap_or_else(|| PredictionResult {
+                response: ResponseFormat::Text(if self.docs.is_empty() {
+                    "No training data available.".to_owned()
+                } else {
+                    "No matching answer found.".to_owned()
+                }),
+                confidence: 0.0,
+                metadata: None,
+            })
+    }
 
-        if let Some(&(best_idx, score)) = scores.first() {
-            if score > 0.0 {
-                return self.docs[best_idx].output.clone();
-            }
-        }
-
-        ResponseFormat::Text("No matching answer found.".to_string())
+    fn confidence(&self, input: &str) -> f32 {
+        self.calculate_confidence(input)
     }
 }
 
 impl ConfidenceAgent for TfidfAgent {
-    /// Calculates a confidence score for the best-matching document (0.0 - 1.0)
+    /// Historical confidence heuristic, not a calibrated probability.
     fn calculate_confidence(&self, input: &str) -> f32 {
-        if self.docs.is_empty() {
-            return 0.0;
-        }
-
-        let query_terms = text_utils::tokenize(input);
-        if query_terms.is_empty() {
-            return 0.0;
-        }
-
-        let scores = self.scored_docs(&query_terms);
-        match scores.first() {
-            Some(&(_, score)) if score > 0.0 => (1.0_f32).min(score / (query_terms.len() as f32)),
-            _ => 0.0,
-        }
+        self.predict_top_n(input, 1)
+            .first()
+            .map_or(0.0, |result| result.confidence)
     }
 
-    /// Returns the top N predictions with confidence scores
     fn predict_top_n(&self, input: &str, n: usize) -> Vec<PredictionResult> {
-        if self.docs.is_empty() || n == 0 {
+        if n == 0 {
             return Vec::new();
         }
-
-        let query_terms = text_utils::tokenize(input);
-        let scores = self.scored_docs(&query_terms);
-        let normalizer = (query_terms.len() as f32).max(1.0);
-
-        scores
+        let normalizer = text::tokenize(input).len().max(1) as f32;
+        self.scored_docs(input)
             .into_iter()
-            .filter(|&(_, score)| score > 0.0)
             .take(n)
             .map(|(idx, score)| PredictionResult {
                 response: self.docs[idx].output.clone(),
-                confidence: (1.0_f32).min(score / normalizer),
-                metadata: None,
+                confidence: (score / normalizer).clamp(0.0, 1.0),
+                metadata: self.docs[idx].metadata.clone(),
             })
             .collect()
     }
 }
 
 impl TrainableAgent for TfidfAgent {
-    /// Trains the agent by replacing all training documents
     fn train(&mut self, data: &[TrainingExample]) {
-        self.docs = data.to_vec();
-        self.rebuild_index();
+        self.docs.clear();
+        self.index.clear();
+        self.append(data);
     }
 
-    /// Appends training documents without replacing existing data
     fn append(&mut self, data: &[TrainingExample]) {
-        self.docs.extend_from_slice(data);
-        self.rebuild_index();
+        for example in data {
+            let id = self.docs.len().to_string();
+            // Empty historical training inputs remain stored but cannot match terms.
+            if !example.input.trim().is_empty() {
+                self.index
+                    .upsert(KnowledgeEntry::new(id, &example.input))
+                    .expect("nonempty historical input and generated ID are valid");
+            }
+            self.docs.push(example.clone());
+        }
     }
 }
 
-// Default implementation for creating a new TF-IDF agent
 impl Default for TfidfAgent {
     fn default() -> Self {
         Self::new()
@@ -226,9 +150,15 @@ mod tests {
 
     fn tech_data() -> Vec<TrainingExample> {
         vec![
-            make_example("rust programming language", "Rust is a systems programming language"),
+            make_example(
+                "rust programming language",
+                "Rust is a systems programming language",
+            ),
             make_example("python scripting language", "Python is great for scripting"),
-            make_example("javascript web development", "JavaScript runs in the browser"),
+            make_example(
+                "javascript web development",
+                "JavaScript runs in the browser",
+            ),
         ]
     }
 

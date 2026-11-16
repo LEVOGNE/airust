@@ -54,12 +54,10 @@ impl BotScheduler {
                     // Processor runs synchronously in a blocking task
                     let db2 = db.clone();
                     let config2 = config.clone();
-                    tokio::task::spawn_blocking(move || {
-                        ProcessorBot::process(&db2, &config2)
-                    })
-                    .await
-                    .map_err(|e| format!("Task error: {}", e))
-                    .and_then(|r| r)
+                    tokio::task::spawn_blocking(move || ProcessorBot::process(&db2, &config2))
+                        .await
+                        .map_err(|e| format!("Task error: {}", e))
+                        .and_then(|r| r)
                 }
                 _ => Err(format!("Unknown bot type: {}", bot_type)),
             };

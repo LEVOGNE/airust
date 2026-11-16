@@ -23,7 +23,9 @@ pub async fn list_bots(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<BotResponse>>, (StatusCode, String)> {
     let s = state.read().await;
-    let bots = s.db.list_bots().map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let bots =
+        s.db.list_bots()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let running_ids = s.scheduler.running_bot_ids().await;
     let result: Vec<BotResponse> = bots
         .into_iter()
@@ -58,10 +60,9 @@ pub async fn create_bot(
     Json(req): Json<CreateBotRequest>,
 ) -> Result<Json<CreateBotResponse>, (StatusCode, String)> {
     let s = state.read().await;
-    let id = s
-        .db
-        .create_bot(&req.name, &req.bot_type, &req.config)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let id =
+        s.db.create_bot(&req.name, &req.bot_type, &req.config)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(CreateBotResponse { id }))
 }
 
@@ -70,11 +71,10 @@ pub async fn get_bot(
     Path(id): Path<i64>,
 ) -> Result<Json<BotResponse>, (StatusCode, String)> {
     let s = state.read().await;
-    let bot = s
-        .db
-        .get_bot(id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?
-        .ok_or((StatusCode::NOT_FOUND, "Bot not found".to_string()))?;
+    let bot =
+        s.db.get_bot(id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?
+            .ok_or((StatusCode::NOT_FOUND, "Bot not found".to_string()))?;
     let running = s.scheduler.is_running(id).await;
     Ok(Json(BotResponse {
         id: bot.id,
@@ -101,8 +101,7 @@ pub async fn update_bot(
     Json(req): Json<UpdateBotRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db
-        .update_bot(id, &req.name, &req.bot_type, &req.config)
+    s.db.update_bot(id, &req.name, &req.bot_type, &req.config)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
@@ -112,8 +111,7 @@ pub async fn delete_bot(
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db
-        .delete_bot(id)
+    s.db.delete_bot(id)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
@@ -147,10 +145,9 @@ pub async fn get_bot_runs(
     Path(id): Path<i64>,
 ) -> Result<Json<Vec<super::models::BotRun>>, (StatusCode, String)> {
     let s = state.read().await;
-    let runs = s
-        .db
-        .get_bot_runs(id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let runs =
+        s.db.get_bot_runs(id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(runs))
 }
 
@@ -159,10 +156,9 @@ pub async fn get_run_data(
     Path((_bot_id, run_id)): Path<(i64, i64)>,
 ) -> Result<Json<Vec<super::models::RawData>>, (StatusCode, String)> {
     let s = state.read().await;
-    let data = s
-        .db
-        .get_raw_data_by_run_id(run_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let data =
+        s.db.get_raw_data_by_run_id(run_id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(data))
 }
 
@@ -172,10 +168,9 @@ pub async fn get_pending_data(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<super::models::RawData>>, (StatusCode, String)> {
     let s = state.read().await;
-    let data = s
-        .db
-        .get_pending_raw_data()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let data =
+        s.db.get_pending_raw_data()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(data))
 }
 
@@ -184,8 +179,7 @@ pub async fn approve_data(
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db
-        .approve_raw_data(id)
+    s.db.approve_raw_data(id)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
@@ -195,8 +189,7 @@ pub async fn reject_data(
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db
-        .reject_raw_data(id)
+    s.db.reject_raw_data(id)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
@@ -205,21 +198,21 @@ pub async fn approve_all_data(
     State(state): State<SharedState>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    let count = s
-        .db
-        .approve_all_raw_data()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    Ok(Json(serde_json::json!({"success": true, "approved": count})))
+    let count =
+        s.db.approve_all_raw_data()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    Ok(Json(
+        serde_json::json!({"success": true, "approved": count}),
+    ))
 }
 
 pub async fn get_approved_data(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<super::models::ApprovedData>>, (StatusCode, String)> {
     let s = state.read().await;
-    let data = s
-        .db
-        .get_approved_data()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let data =
+        s.db.get_approved_data()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(data))
 }
 
@@ -229,10 +222,9 @@ pub async fn add_to_kb(
     State(state): State<SharedState>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let mut s = state.write().await;
-    let unadded = s
-        .db
-        .get_unadded_approved_data()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let unadded =
+        s.db.get_unadded_approved_data()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
 
     let mut added = 0;
     for item in &unadded {
@@ -241,8 +233,7 @@ pub async fn add_to_kb(
             ResponseFormat::Text(item.output.clone()),
             item.weight as f32,
         );
-        s.db
-            .mark_added_to_kb(item.id)
+        s.db.mark_added_to_kb(item.id)
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
         added += 1;
     }
@@ -251,7 +242,9 @@ pub async fn add_to_kb(
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
 
-    Ok(Json(serde_json::json!({"success": true, "added": added, "total": examples.len()})))
+    Ok(Json(
+        serde_json::json!({"success": true, "added": added, "total": examples.len()}),
+    ))
 }
 
 // ── Vector DB ─────────────────────────────────────────────────────────────────
@@ -260,10 +253,9 @@ pub async fn vector_stats(
     State(state): State<SharedState>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    let (total, terms) = s
-        .db
-        .get_vector_stats()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let (total, terms) =
+        s.db.get_vector_stats()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"vectors": total, "terms": terms})))
 }
 
@@ -273,12 +265,18 @@ pub async fn rebuild_vectors(
     let s = state.read().await;
     let db = s.db.clone();
     drop(s);
-    let (docs, vectors) =
-        tokio::task::spawn_blocking(move || VectorDB::rebuild_all(&db))
-            .await
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Task error: {}", e)))?
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    Ok(Json(serde_json::json!({"success": true, "documents": docs, "vectors": vectors})))
+    let (docs, vectors) = tokio::task::spawn_blocking(move || VectorDB::rebuild_all(&db))
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Task error: {}", e),
+            )
+        })?
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    Ok(Json(
+        serde_json::json!({"success": true, "documents": docs, "vectors": vectors}),
+    ))
 }
 
 #[derive(Deserialize)]
@@ -299,10 +297,14 @@ pub async fn search_vectors(
     let s = state.read().await;
     let db = s.db.clone();
     drop(s);
-    let results =
-        tokio::task::spawn_blocking(move || VectorDB::search(&db, &req.query, req.top_k))
-            .await
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Task error: {}", e)))?
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let results = tokio::task::spawn_blocking(move || VectorDB::search(&db, &req.query, req.top_k))
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Task error: {}", e),
+            )
+        })?
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(results))
 }

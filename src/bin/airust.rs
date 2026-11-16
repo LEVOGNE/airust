@@ -15,6 +15,13 @@ const PID_FILE: &str = "/tmp/airust.pid";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    if args
+        .get(1)
+        .is_some_and(|arg| matches!(arg.as_str(), "--version" | "-V"))
+    {
+        println!("{}", airust::version_info());
+        return;
+    }
 
     let mut port: u16 = DEFAULT_PORT;
     let mut detached = false;
@@ -35,7 +42,14 @@ fn main() {
                         eprintln!("Invalid port: {}", args[i + 1]);
                         process::exit(1);
                     });
+                    if port == 0 || port == u16::MAX {
+                        eprintln!("Port must be between 1 and 65534 (console uses port+1)");
+                        process::exit(1);
+                    }
                     i += 1;
+                } else {
+                    eprintln!("--port requires a value");
+                    process::exit(1);
                 }
             }
             "stop" | "cli" | "help" if command.is_none() => {
@@ -55,6 +69,9 @@ fn main() {
         }
         i += 1;
     }
+
+    #[cfg(not(feature = "web"))]
+    let _ = (port, detached, show_landing);
 
     // Internal daemon mode (used by -d to respawn)
     if is_daemon {
@@ -78,8 +95,7 @@ fn main() {
             }
             #[cfg(not(feature = "web"))]
             {
-                eprintln!("Web feature not enabled. Compile with: --features web");
-                process::exit(1);
+                print_help();
             }
         }
         _ => print_help(),
@@ -117,7 +133,11 @@ fn start_detached(port: u16, show_landing: bool) {
     let log_file = fs::File::create("/tmp/airust.log").expect("Failed to create log file");
     let err_file = log_file.try_clone().expect("Failed to clone log file");
 
-    let mut daemon_args = vec!["--_daemon".to_string(), "--port".to_string(), port.to_string()];
+    let mut daemon_args = vec![
+        "--_daemon".to_string(),
+        "--port".to_string(),
+        port.to_string(),
+    ];
     if show_landing {
         daemon_args.push("--landingpage".to_string());
     }
@@ -132,7 +152,9 @@ fn start_detached(port: u16, show_landing: bool) {
 
     let pid = child.id();
     // Detach child so it doesn't become a zombie
-    std::thread::spawn(move || { let _ = child.wait(); });
+    std::thread::spawn(move || {
+        let _ = child.wait();
+    });
     fs::write(PID_FILE, pid.to_string()).ok();
 
     println!("AIRust running at http://localhost:{}", port);
@@ -160,6 +182,7 @@ fn stop_server() {
     }
 }
 
+#[cfg(feature = "web")]
 fn is_server_running() -> bool {
     if let Ok(pid_str) = fs::read_to_string(PID_FILE) {
         let pid = pid_str.trim();
@@ -167,7 +190,11 @@ fn is_server_running() -> bool {
         if pid == process::id().to_string() {
             return false;
         }
-        if let Ok(status) = process::Command::new("kill").args(["-0", pid]).stderr(process::Stdio::null()).status() {
+        if let Ok(status) = process::Command::new("kill")
+            .args(["-0", pid])
+            .stderr(process::Stdio::null())
+            .status()
+        {
             if status.success() {
                 return true;
             }
@@ -204,10 +231,19 @@ fn handle_cli(args: &[String]) {
 }
 
 fn print_help() {
-    println!("airust - Modular AI Engine in Rust");
+    println!(
+        "{} — Modular Knowledge Intelligence Engine",
+        airust::version_info()
+    );
+    println!(
+        "Web dashboard: compile with --features web; library example: cargo run --example core"
+    );
     println!();
     println!("Usage:");
-    println!("  airust                 Start web server (port {})", DEFAULT_PORT);
+    println!(
+        "  airust                 Start web server (port {})",
+        DEFAULT_PORT
+    );
     println!("  airust --port <PORT>   Start on specific port");
     println!("  airust -d              Start in background (detached)");
     println!("  airust --landingpage   Show landing page + dashboard");

@@ -79,7 +79,9 @@ impl AppState {
         for agent in &self.agents {
             if self.active_agents.contains(&agent.name().to_string()) {
                 let result = agent.predict_with_metadata(input);
-                let dominated = best_result.as_ref().is_some_and(|b| result.confidence <= b.confidence);
+                let dominated = best_result
+                    .as_ref()
+                    .is_some_and(|b| result.confidence <= b.confidence);
                 if !dominated {
                     best_agent = agent.name().to_string();
                     best_result = Some(result);
@@ -98,11 +100,14 @@ impl AppState {
 
         match best_result {
             Some(result) => (result, best_agent),
-            None => (PredictionResult {
-                response: ResponseFormat::Text("No agents available".to_string()),
-                confidence: 0.0,
-                metadata: None,
-            }, "none".to_string()),
+            None => (
+                PredictionResult {
+                    response: ResponseFormat::Text("No agents available".to_string()),
+                    confidence: 0.0,
+                    metadata: None,
+                },
+                "none".to_string(),
+            ),
         }
     }
 

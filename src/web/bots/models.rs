@@ -26,11 +26,21 @@ pub struct BotConfig {
     pub min_length: usize,
 }
 
-fn default_mode() -> String { "single_page".to_string() }
-fn default_max_depth() -> u32 { 2 }
-fn default_rate_limit() -> u64 { 1000 }
-fn default_strategy() -> String { "heading_content".to_string() }
-fn default_min_length() -> usize { 20 }
+fn default_mode() -> String {
+    "single_page".to_string()
+}
+fn default_max_depth() -> u32 {
+    2
+}
+fn default_rate_limit() -> u64 {
+    1000
+}
+fn default_strategy() -> String {
+    "heading_content".to_string()
+}
+fn default_min_length() -> usize {
+    20
+}
 
 impl Default for BotConfig {
     fn default() -> Self {

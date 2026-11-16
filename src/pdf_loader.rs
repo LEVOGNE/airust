@@ -1,11 +1,17 @@
 // src/pdf_loader.rs - PDF to Training Data Converter (pdf_oxide backend)
 use crate::agent::{ResponseFormat, TrainingExample};
 use crate::knowledge::KnowledgeBase;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use std::error::Error;
 use std::fmt;
 use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
+
+static DEHYPHEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\w)-\s*\n\s*(\w)").unwrap());
+static SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r" {2,}").unwrap());
+static NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n{3,}").unwrap());
+static PAGE_NUMBER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*-?\s*\d{1,4}\s*-?\s*$").unwrap());
 
 // Define a custom error type for PDF operations
 #[derive(Debug)]
@@ -13,6 +19,7 @@ pub enum PdfError {
     IoError(std::io::Error),
     PdfError(String),
     InvalidPath(String),
+    InvalidConfig(String),
 }
 
 impl fmt::Display for PdfError {
@@ -21,6 +28,7 @@ impl fmt::Display for PdfError {
             PdfError::IoError(err) => write!(f, "IO Error: {}", err),
             PdfError::PdfError(msg) => write!(f, "PDF Error: {}", msg),
             PdfError::InvalidPath(path) => write!(f, "Invalid Path: {}", path),
+            PdfError::InvalidConfig(message) => write!(f, "Invalid PDF configuration: {}", message),
         }
     }
 }
@@ -41,7 +49,7 @@ pub struct PageContent {
 
 /// Structure for configuring how PDFs are converted to training data
 pub struct PdfLoaderConfig {
-    /// Minimum length of a chunk (in characters)
+    /// Preferred minimum length (in characters); a final shorter chunk is retained
     pub min_chunk_size: usize,
 
     /// Maximum length of a chunk (in characters)
@@ -89,6 +97,27 @@ impl Default for PdfLoaderConfig {
     }
 }
 
+impl PdfLoaderConfig {
+    pub fn validate(&self) -> Result<(), PdfError> {
+        if self.max_chunk_size == 0 || self.min_chunk_size > self.max_chunk_size {
+            return Err(PdfError::InvalidConfig(
+                "require 0 <= min_chunk_size <= max_chunk_size and max_chunk_size > 0".to_owned(),
+            ));
+        }
+        if self.chunk_overlap >= self.max_chunk_size {
+            return Err(PdfError::InvalidConfig(
+                "chunk_overlap must be smaller than max_chunk_size".to_owned(),
+            ));
+        }
+        if !self.default_weight.is_finite() || self.default_weight < 0.0 {
+            return Err(PdfError::InvalidConfig(
+                "default_weight must be finite and nonnegative".to_owned(),
+            ));
+        }
+        Ok(())
+    }
+}
+
 pub struct PdfLoader {
     config: PdfLoaderConfig,
 }
@@ -119,12 +148,7 @@ impl PdfLoader {
     ) -> Result<KnowledgeBase, PdfError> {
         let examples = self.pdf_to_training_examples(path)?;
 
-        let mut kb = KnowledgeBase::new();
-        for example in examples {
-            kb.add_example(example.input, example.output, example.weight);
-        }
-
-        Ok(kb)
+        Ok(KnowledgeBase::from_examples(examples))
     }
 
     /// Loads a PDF and converts it to TrainingExamples
@@ -132,18 +156,11 @@ impl PdfLoader {
         &self,
         path: P,
     ) -> Result<Vec<TrainingExample>, PdfError> {
+        self.config.validate()?;
         let path = path.as_ref();
         if !path.exists() {
             return Err(PdfError::InvalidPath(path.to_string_lossy().to_string()));
         }
-
-        let text = self.extract_text_from_pdf(path)?;
-
-        let cleaned = if self.config.clean_text {
-            self.clean_text(&text)
-        } else {
-            text
-        };
 
         let filename = path
             .file_name()
@@ -151,40 +168,24 @@ impl PdfLoader {
             .to_string_lossy()
             .to_string();
 
-        let examples = self.text_to_training_examples(&cleaned, &filename);
-
-        Ok(examples)
-    }
-
-    /// Extracts text page-by-page using pdf_oxide
-    fn extract_text_from_pdf(&self, path: &Path) -> Result<String, PdfError> {
-        let mut doc = pdf_oxide::PdfDocument::open(path)
-            .map_err(|e| PdfError::PdfError(format!("{}", e)))?;
-
-        let page_count = doc
-            .page_count()
-            .map_err(|e| PdfError::PdfError(format!("{}", e)))?;
-
-        let mut full_text = String::new();
-
-        for page_idx in 0..page_count {
-            let text = doc
-                .extract_text(page_idx)
-                .map_err(|e| PdfError::PdfError(format!("Page {}: {}", page_idx + 1, e)))?;
-
-            if !text.trim().is_empty() && !Self::is_garbage_text(&text) {
-                full_text.push_str(&text);
-                full_text.push_str("\n\n");
+        let mut examples = Vec::new();
+        for page in self.extract_pages_from_pdf(path)? {
+            let mut page_examples = self.text_to_training_examples(&page.text, &filename);
+            for example in &mut page_examples {
+                if let Some(metadata) = &mut example.metadata {
+                    metadata["page_number"] = serde_json::json!(page.page_number);
+                }
             }
+            examples.extend(page_examples);
         }
-
-        Ok(full_text)
+        Ok(examples)
     }
 
     /// Extracts pages individually with metadata
     pub fn extract_pages_from_pdf(&self, path: &Path) -> Result<Vec<PageContent>, PdfError> {
-        let mut doc = pdf_oxide::PdfDocument::open(path)
-            .map_err(|e| PdfError::PdfError(format!("{}", e)))?;
+        self.config.validate()?;
+        let doc =
+            pdf_oxide::PdfDocument::open(path).map_err(|e| PdfError::PdfError(format!("{}", e)))?;
 
         let page_count = doc
             .page_count()
@@ -220,7 +221,7 @@ impl PdfLoader {
 
     /// Detects binary garbage / non-text content from scanned or image-only pages.
     /// Returns true if the text has a high ratio of non-printable, replacement,
-    /// or non-ASCII characters — indicating it's not real extracted text.
+    /// or private-use characters. Valid Unicode letters remain readable.
     fn is_garbage_text(text: &str) -> bool {
         let trimmed = text.trim();
         if trimmed.is_empty() {
@@ -236,8 +237,6 @@ impl PdfLoader {
         // - Unicode replacement char (U+FFFD)
         // - Private Use Area (U+E000..U+F8FF)
         // - Non-printable controls (excluding \n \t \r \x20)
-        // - Characters outside Basic Multilingual Plane that aren't common emoji
-        //   (many garbled PDFs produce random high codepoints)
         let garbage_count = trimmed
             .chars()
             .filter(|c| {
@@ -245,7 +244,6 @@ impl PdfLoader {
                 *c == '\u{FFFD}'                           // replacement char
                     || (0xE000..=0xF8FF).contains(&cp)     // private use area
                     || (c.is_control() && *c != '\n' && *c != '\t' && *c != '\r')
-                    || cp > 0xFFFF                         // supplementary planes (often garbage in PDFs)
             })
             .count();
 
@@ -254,9 +252,7 @@ impl PdfLoader {
         // Also check: ratio of printable ASCII + common Unicode (letters, digits, punctuation)
         let readable_count = trimmed
             .chars()
-            .filter(|c| {
-                c.is_alphanumeric() || c.is_ascii_punctuation() || c.is_ascii_whitespace()
-            })
+            .filter(|c| c.is_alphanumeric() || c.is_ascii_punctuation() || c.is_ascii_whitespace())
             .count();
 
         let readable_ratio = readable_count as f64 / total as f64;
@@ -286,25 +282,21 @@ impl PdfLoader {
 
         // 4. Dehyphenation: word-\n -> word (rejoin hyphenated line breaks)
         if self.config.dehyphenate {
-            let re_dehyphen = Regex::new(r"(\w)-\s*\n\s*(\w)").unwrap();
-            text = re_dehyphen.replace_all(&text, "$1$2").to_string();
+            text = DEHYPHEN.replace_all(&text, "$1$2").to_string();
         }
 
         // 5. Whitespace normalization
         text = text.replace('\t', " ").replace("\r\n", "\n");
 
-        let re_spaces = Regex::new(r" {2,}").unwrap();
-        text = re_spaces.replace_all(&text, " ").to_string();
+        text = SPACES.replace_all(&text, " ").to_string();
 
-        let re_newlines = Regex::new(r"\n{3,}").unwrap();
-        text = re_newlines.replace_all(&text, "\n\n").to_string();
+        text = NEWLINES.replace_all(&text, "\n\n").to_string();
 
         // 6. Remove page-number-only lines
         if self.config.remove_page_numbers {
-            let re_page_num = Regex::new(r"^\s*-?\s*\d{1,4}\s*-?\s*$").unwrap();
             text = text
                 .lines()
-                .filter(|l| !re_page_num.is_match(l))
+                .filter(|l| !PAGE_NUMBER.is_match(l))
                 .collect::<Vec<_>>()
                 .join("\n");
         }
@@ -313,11 +305,7 @@ impl PdfLoader {
     }
 
     /// Splits text into chunks and creates TrainingExamples with extended metadata
-    fn text_to_training_examples(
-        &self,
-        text: &str,
-        source_file: &str,
-    ) -> Vec<TrainingExample> {
+    fn text_to_training_examples(&self, text: &str, source_file: &str) -> Vec<TrainingExample> {
         let mut examples = Vec::new();
         let chunks = self.split_text_into_chunks(text);
 
@@ -345,75 +333,56 @@ impl PdfLoader {
 
     /// Splits text into overlapping chunks while respecting UTF-8 characters
     fn split_text_into_chunks(&self, text: &str) -> Vec<String> {
-        let mut chunks = Vec::new();
+        if self.config.validate().is_err() || text.trim().is_empty() {
+            return Vec::new();
+        }
         let text = text.trim();
-
-        if text.is_empty() {
-            return chunks;
-        }
-
-        // If the text is shorter than the maximum chunk size, return it as a single chunk
         if text.chars().count() <= self.config.max_chunk_size {
-            chunks.push(text.to_string());
-            return chunks;
+            return vec![text.to_owned()];
         }
-
-        // Determine segments: paragraph-first, then sentence, then characters
         let segments = if self.config.split_by_paragraph {
             self.split_into_paragraph_segments(text)
         } else if self.config.split_by_sentence {
             self.split_into_sentences(text)
         } else {
-            text.chars().map(|c| c.to_string()).collect()
+            vec![text.to_owned()]
         };
-
-        let mut current_chunk = String::new();
-
+        let mut chars = Vec::new();
+        let mut boundaries = std::collections::BTreeSet::new();
         for segment in segments {
-            // If adding the segment would exceed max_chunk_size
-            if current_chunk.chars().count() + segment.chars().count() > self.config.max_chunk_size
-            {
-                // If the current chunk is large enough, save it
-                if current_chunk.chars().count() >= self.config.min_chunk_size {
-                    chunks.push(current_chunk.clone());
-
-                    // Start new chunk with overlap
-                    if self.config.chunk_overlap > 0 {
-                        if current_chunk.chars().count() > self.config.chunk_overlap {
-                            let chars: Vec<char> = current_chunk.chars().collect();
-                            let overlap_start = chars.len() - self.config.chunk_overlap;
-                            current_chunk = chars[overlap_start..].iter().collect();
-                        }
-                    } else {
-                        current_chunk.clear();
-                    }
-                }
-            }
-
-            // Add segment to current chunk
-            current_chunk.push_str(&segment);
-
-            // If the chunk is now larger than max_chunk_size, split it
-            let chunk_char_count = current_chunk.chars().count();
-            if chunk_char_count > self.config.max_chunk_size {
-                let chars: Vec<char> = current_chunk.chars().collect();
-                chunks.push(chars[..self.config.max_chunk_size].iter().collect());
-
-                if self.config.chunk_overlap > 0 {
-                    let overlap_start = self.config.max_chunk_size - self.config.chunk_overlap;
-                    current_chunk = chars[overlap_start..].iter().collect();
-                } else {
-                    current_chunk = chars[self.config.max_chunk_size..].iter().collect();
-                }
-            }
+            chars.extend(segment.chars());
+            boundaries.insert(chars.len());
         }
-
-        // Add the last chunk if it's large enough
-        if !current_chunk.is_empty() && current_chunk.chars().count() >= self.config.min_chunk_size
-        {
-            chunks.push(current_chunk);
+        let mut chunks = Vec::new();
+        let mut start = 0usize;
+        while start < chars.len() {
+            let hard_end = start
+                .saturating_add(self.config.max_chunk_size)
+                .min(chars.len());
+            let end = if hard_end == chars.len() {
+                hard_end
+            } else {
+                let minimum = self
+                    .config
+                    .min_chunk_size
+                    .max(self.config.chunk_overlap + 1);
+                let earliest = start.saturating_add(minimum).min(hard_end);
+                boundaries
+                    .range(earliest..=hard_end)
+                    .next_back()
+                    .copied()
+                    .unwrap_or(hard_end)
+            };
+            let chunk: String = chars[start..end].iter().collect();
+            if !chunk.trim().is_empty() {
+                chunks.push(chunk.trim().to_owned());
+            }
+            if end == chars.len() {
+                break;
+            }
+            // Every iteration advances, including overlap=max-1 and Unicode text.
+            start = end - self.config.chunk_overlap;
         }
-
         chunks
     }
 
@@ -467,11 +436,7 @@ impl PdfLoader {
 
             if chars[i] == '.' || chars[i] == '!' || chars[i] == '?' {
                 // Check for ellipsis: "..."
-                if chars[i] == '.'
-                    && i + 2 < len
-                    && chars[i + 1] == '.'
-                    && chars[i + 2] == '.'
-                {
+                if chars[i] == '.' && i + 2 < len && chars[i + 1] == '.' && chars[i + 2] == '.' {
                     current.push(chars[i + 1]);
                     current.push(chars[i + 2]);
                     i += 3;
@@ -488,10 +453,8 @@ impl PdfLoader {
 
                 // Check for number context: "3.14", "100.000"
                 if chars[i] == '.' {
-                    let has_digit_before =
-                        i > 0 && chars[i - 1].is_ascii_digit();
-                    let has_digit_after =
-                        i + 1 < len && chars[i + 1].is_ascii_digit();
+                    let has_digit_before = i > 0 && chars[i - 1].is_ascii_digit();
+                    let has_digit_after = i + 1 < len && chars[i + 1].is_ascii_digit();
                     if has_digit_before && has_digit_after {
                         i += 1;
                         continue;
@@ -556,9 +519,7 @@ fn extract_word_before(chars: &[char], pos: usize) -> String {
     }
     let mut end = pos;
     // Skip back past the punctuation
-    if end > 0 {
-        end -= 1;
-    }
+    end = end.saturating_sub(1);
     // Collect alphabetic characters going backwards
     let mut word = String::new();
     let mut j = end;
@@ -590,15 +551,36 @@ pub fn pdf_to_knowledge_base<P: AsRef<Path>>(path: P) -> Result<KnowledgeBase, P
     PdfLoader::new().pdf_to_knowledge_base(path)
 }
 
-pub fn pdf_to_training_examples<P: AsRef<Path>>(
-    path: P,
-) -> Result<Vec<TrainingExample>, PdfError> {
+pub fn pdf_to_training_examples<P: AsRef<Path>>(path: P) -> Result<Vec<TrainingExample>, PdfError> {
     PdfLoader::new().pdf_to_training_examples(path)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn long_unicode_segments_are_bounded_and_keep_the_tail() {
+        for overlap in [0, 5, 19] {
+            let loader = PdfLoader::with_config(PdfLoaderConfig {
+                min_chunk_size: 10,
+                max_chunk_size: 20,
+                chunk_overlap: overlap,
+                split_by_paragraph: false,
+                split_by_sentence: false,
+                ..Default::default()
+            });
+            let input = format!("{}尾", "ä😀".repeat(45));
+            let chunks = loader.split_text_into_chunks(&input);
+            assert!(chunks.iter().all(|chunk| chunk.chars().count() <= 20));
+            assert!(chunks.last().unwrap().ends_with('尾'));
+            let mut reconstructed = chunks[0].clone();
+            for chunk in chunks.iter().skip(1) {
+                reconstructed.extend(chunk.chars().skip(overlap));
+            }
+            assert_eq!(reconstructed, input);
+        }
+    }
 
     #[test]
     fn test_clean_text_ligatures() {
@@ -704,10 +686,7 @@ mod tests {
         let chunks = loader.split_text_into_chunks(text);
 
         // All three paragraphs should fit in one chunk (< 200 chars)
-        assert!(
-            !chunks.is_empty(),
-            "Should produce at least one chunk"
-        );
+        assert!(!chunks.is_empty(), "Should produce at least one chunk");
     }
 
     #[test]
@@ -753,33 +732,51 @@ mod tests {
         let raw = "incor-\nporated";
         // Direct clean_text call with dehyphenate=false
         let result = loader.clean_text(raw);
-        assert!(result.contains("incor-"), "Dehyphenation should be disabled");
+        assert!(
+            result.contains("incor-"),
+            "Dehyphenation should be disabled"
+        );
     }
 
     #[test]
     fn test_garbage_detection_binary() {
         // Simulated binary garbage like from image-only PDF pages
         let garbage = "v>It\u{FFFD}<\u{FFFD}o\u{FFFD}\u{FFFD}\u{FFFD}.\u{FFFD}\u{FFFD};d\u{FFFD}a\u{FFFD}P\u{FFFD}1\u{FFFD}W<\u{FFFD}\u{FFFD}\u{FFFD}R";
-        assert!(PdfLoader::is_garbage_text(garbage), "Should detect binary garbage");
+        assert!(
+            PdfLoader::is_garbage_text(garbage),
+            "Should detect binary garbage"
+        );
     }
 
     #[test]
     fn test_garbage_detection_clean_text() {
-        let clean = "This is a perfectly normal English sentence. It has proper words and punctuation.";
-        assert!(!PdfLoader::is_garbage_text(clean), "Should NOT flag clean text as garbage");
+        let clean =
+            "This is a perfectly normal English sentence. It has proper words and punctuation.";
+        assert!(
+            !PdfLoader::is_garbage_text(clean),
+            "Should NOT flag clean text as garbage"
+        );
     }
 
     #[test]
     fn test_garbage_detection_private_use_area() {
         // Text dominated by Private Use Area characters
-        let pua: String = (0..50).map(|i| char::from_u32(0xE000 + i).unwrap()).collect();
-        assert!(PdfLoader::is_garbage_text(&pua), "Should detect PUA-heavy text as garbage");
+        let pua: String = (0..50)
+            .map(|i| char::from_u32(0xE000 + i).unwrap())
+            .collect();
+        assert!(
+            PdfLoader::is_garbage_text(&pua),
+            "Should detect PUA-heavy text as garbage"
+        );
     }
 
     #[test]
     fn test_garbage_detection_mixed() {
         // Mostly readable with a few odd chars — should pass
         let mostly_ok = "Hello world. Some text here with a \u{FFFD} or two.";
-        assert!(!PdfLoader::is_garbage_text(mostly_ok), "Small amount of replacement chars is OK");
+        assert!(
+            !PdfLoader::is_garbage_text(mostly_ok),
+            "Small amount of replacement chars is OK"
+        );
     }
 }

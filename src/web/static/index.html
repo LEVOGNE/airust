@@ -432,15 +432,15 @@ input[type=range]{width:140px;accent-color:var(--primary)}
       <span class="lang-flag" onclick="setLanguage('de')" title="Deutsch">DE</span>
       <span class="lang-flag" onclick="setLanguage('tr')" title="Türkçe">TR</span>
     </div>
-    <div class="landing-tagline" data-t="landing.tagline">A trainable, modular AI engine written in Rust</div>
-    <div class="landing-desc" data-t="landing.desc">Build intelligent agents, manage knowledge bases, extract wisdom from PDFs, and deploy a full web dashboard &mdash; all without external AI APIs.</div>
+    <div class="landing-tagline" data-t="landing.tagline">A Modular Knowledge Intelligence Engine</div>
+    <div class="landing-desc" data-t="landing.desc">Find knowledge, compare text, and propose connections. This optional dashboard uses the AIRust Rust library.</div>
     <div class="landing-badges">
-      <span class="landing-badge accent" data-t="landing.badge.version">v0.1.7</span>
+      <span class="landing-badge accent" data-t="landing.badge.version">v{{AIRUST_VERSION}}</span>
       <span class="landing-badge" data-t="landing.badge.license">MIT License</span>
-      <span class="landing-badge" data-t="landing.badge.rust">Rust 1.85+</span>
-      <span class="landing-badge" data-t="landing.badge.tests">156 Tests</span>
+      <span class="landing-badge" data-t="landing.badge.rust">Rust 1.89+</span>
+      <span class="landing-badge" data-t="landing.badge.tests">Tests & CI</span>
     </div>
-    <div class="landing-claim" data-t="landing.claim">100% Local &middot; Zero Cloud Dependencies &middot; Fully Private</div>
+    <div class="landing-claim" data-t="landing.claim">Local core &middot; Optional integrations</div>
     <div class="scroll-cta" onclick="document.getElementById('landing-features').scrollIntoView({behavior:'smooth'})">
       <span data-t="landing.cta">Try it now</span><span class="arrow">&darr;</span>
     </div>
@@ -449,9 +449,9 @@ input[type=range]{width:140px;accent-color:var(--primary)}
   <!-- Features -->
   <section class="landing-section" id="landing-features">
     <div class="landing-section-title" data-t="landing.features.title">Features</div>
-    <div class="landing-section-sub" data-t="landing.features.sub">Everything you need to build, train, and deploy an AI system</div>
+    <div class="landing-section-sub" data-t="landing.features.sub">Optional tools around the AIRust knowledge library</div>
     <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon">&#129504;</div><div class="feature-name" data-t="landing.feat.agents.name">4 Agent Types</div><div class="feature-desc" data-t="landing.feat.agents.desc">Exact Match, Fuzzy Match, TF-IDF/BM25 Semantic, Context-Aware</div></div>
+      <div class="feature-card"><div class="feature-icon">&#129504;</div><div class="feature-name" data-t="landing.feat.agents.name">4 Agent Types</div><div class="feature-desc" data-t="landing.feat.agents.desc">Exact Match, Fuzzy Match, BM25 lexical search, Context-Aware</div></div>
       <div class="feature-card"><div class="feature-icon">&#128218;</div><div class="feature-name" data-t="landing.feat.kb.name">Knowledge Base</div><div class="feature-desc" data-t="landing.feat.kb.desc">JSON-based, compile-time embedded, runtime expandable</div></div>
       <div class="feature-card"><div class="feature-icon">&#128196;</div><div class="feature-name" data-t="landing.feat.pdf.name">PDF Processing</div><div class="feature-desc" data-t="landing.feat.pdf.desc">Convert PDFs to structured training data with smart chunking</div></div>
       <div class="feature-card"><div class="feature-icon">&#127912;</div><div class="feature-name" data-t="landing.feat.dashboard.name">Web Dashboard</div><div class="feature-desc" data-t="landing.feat.dashboard.desc">Full UI with chat, training manager, bot control, file browser</div></div>
@@ -476,7 +476,7 @@ input[type=range]{width:140px;accent-color:var(--primary)}
                 ├──────────┬───────────┬───────────────┤
                 │MatchAgent│TfidfAgent │ ContextAgent  │
                 │(exact/   │(BM25      │ (wraps any    │
-                │ fuzzy)   │ semantic) │  agent + mem) │
+                │ fuzzy)   │ lexical) │  agent + mem) │
                 ├──────────┴───────────┴───────────────┤
                 │         Knowledge Base                │
                 │   (JSON / Embedded / Runtime)         │
@@ -519,7 +519,7 @@ let answer = agent.predict("hello");</pre>
       </div>
       <div class="agent-card-landing">
         <div class="agent-card-title" data-t="landing.agent.tfidf.title">TfidfAgent</div>
-        <div class="agent-card-desc" data-t="landing.agent.tfidf.desc">Semantic search using TF-IDF and BM25 ranking. Understands meaning, not just words. Handles synonyms and related concepts.</div>
+        <div class="agent-card-desc" data-t="landing.agent.tfidf.desc">Lexical BM25 ranking using shared terms. Synonyms and meaning require an optional external model.</div>
         <pre>let agent = TfidfAgent::new();
 agent.train(&amp;knowledge);
 let answer = agent.predict("greeting");</pre>
@@ -541,8 +541,8 @@ let answer = agent.predict("and this?");</pre>
     <div class="landing-section-title" data-t="landing.bench.title">By the Numbers</div>
     <div class="landing-section-sub" data-t="landing.bench.sub">Built for performance, privacy, and simplicity</div>
     <div class="benchmarks-row">
-      <div class="bench-card"><div class="bench-num">156</div><div class="bench-label" data-t="landing.bench.tests.label">Tests Passing</div></div>
-      <div class="bench-card"><div class="bench-num">0</div><div class="bench-label" data-t="landing.bench.apis.label">External APIs</div></div>
+      <div class="bench-card"><div class="bench-num">&#10003;</div><div class="bench-label" data-t="landing.bench.tests.label">Automated Checks</div></div>
+      <div class="bench-card"><div class="bench-num">0</div><div class="bench-label" data-t="landing.bench.apis.label">Required LLM APIs</div></div>
       <div class="bench-card"><div class="bench-num">50+</div><div class="bench-label" data-t="landing.bench.endpoints.label">REST Endpoints</div></div>
       <div class="bench-card"><div class="bench-num">100%</div><div class="bench-label" data-t="landing.bench.local.label">Local &amp; Private</div></div>
     </div>
@@ -560,23 +560,22 @@ let answer = agent.predict("and this?");</pre>
     <div class="install-block active" id="install-cargo">
 <pre># Add to your Cargo.toml
 [dependencies]
-airust = "0.1.7"
+airust = { path = "/path/to/airust" }
 
-# Or run directly
-cargo install airust
-cargo run --release</pre>
+# Run from a local source checkout
+cargo run --release --features web --bin airust</pre>
     </div>
     <div class="install-block" id="install-docker">
 <pre># Build and run with Docker
 docker build -t airust .
-docker run -p 7070:7070 airust</pre>
+docker run -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 airust</pre>
     </div>
     <div class="install-block" id="install-source">
 <pre># Clone and build from source
 git clone https://github.com/LEVOGNE/airust.git
 cd airust
-cargo build --release
-cargo run --release</pre>
+cargo build --locked --release --features web --bin airust
+cargo run --locked --release --features web --bin airust</pre>
     </div>
   </section>
 
@@ -833,7 +832,7 @@ cargo run --release</pre>
         <div class="section">
           <div class="section-title" data-t="nav.agent">Agent</div>
           <div id="agent-list">
-            <label class="agent-option active"><input type="checkbox" name="agent" value="tfidf" checked><div><div class="agent-name" data-t="agent.tfidf.name">Smart Search</div><div class="agent-tech" data-t="agent.tfidf.desc">Finds best answer by meaning</div></div></label>
+            <label class="agent-option active"><input type="checkbox" name="agent" value="tfidf" checked><div><div class="agent-name" data-t="agent.tfidf.name">Smart Search</div><div class="agent-tech" data-t="agent.tfidf.desc">Ranks answers by shared words (BM25)</div></div></label>
             <label class="agent-option active"><input type="checkbox" name="agent" value="exact" checked><div><div class="agent-name" data-t="agent.exact.name">Word-for-Word</div><div class="agent-tech" data-t="agent.exact.desc">Must match exactly</div></div></label>
             <label class="agent-option active"><input type="checkbox" name="agent" value="fuzzy" checked><div><div class="agent-name" data-t="agent.fuzzy.name">Close Enough</div><div class="agent-tech" data-t="agent.fuzzy.desc">Also finds typos</div></div></label>
             <label class="agent-option active"><input type="checkbox" name="agent" value="context" checked><div><div class="agent-name" data-t="agent.context.name">Remembers Chat</div><div class="agent-tech" data-t="agent.context.desc">Uses previous messages</div></div></label>

@@ -1,8 +1,8 @@
 # Stage 1: Build
-FROM rust:1.85-bookworm AS builder
+FROM rust:bookworm AS builder
 WORKDIR /app
 COPY . .
-RUN cargo build --release
+RUN cargo build --locked --release --features web --bin airust
 
 # Stage 2: Runtime
 FROM debian:bookworm-slim
@@ -11,5 +11,6 @@ WORKDIR /app
 COPY --from=builder /app/target/release/airust /usr/local/bin/airust
 COPY --from=builder /app/knowledge/ ./knowledge/
 
-EXPOSE 7070
+ENV AIRUST_BIND_ADDR=0.0.0.0
+EXPOSE 7070 7071
 CMD ["airust"]

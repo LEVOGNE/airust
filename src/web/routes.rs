@@ -13,11 +13,14 @@ use std::collections::HashMap;
 
 pub async fn index(State(state): State<SharedState>) -> Html<String> {
     let s = state.read().await;
-    let html = include_str!("static/index.html");
+    let html = include_str!("static/index.html").replace("{{AIRUST_VERSION}}", crate::VERSION);
     if s.show_landing {
         Html(html.to_string())
     } else {
-        Html(html.replace("</head>", "<style>#landing{display:none!important}</style></head>"))
+        Html(html.replace(
+            "</head>",
+            "<style>#landing{display:none!important}</style></head>",
+        ))
     }
 }
 
@@ -67,6 +70,8 @@ pub struct QueryResponse {
     agents_used: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     settings_changed: Option<Vec<SettingsChange>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    metadata: Option<serde_json::Value>,
 }
 
 struct SettingsCommand {
@@ -79,9 +84,22 @@ fn detect_settings_command(input: &str, current_theme: &str) -> Option<SettingsC
 
     // Trigger on action words OR page/site references with color words
     let action_words = [
-        "make", "mach", "yap", "set", "change", "switch",
-        "stelle", "ändere", "değiştir", "seite", "page", "sayfa",
-        "site", "webseite", "website", "mode",
+        "make",
+        "mach",
+        "yap",
+        "set",
+        "change",
+        "switch",
+        "stelle",
+        "ändere",
+        "değiştir",
+        "seite",
+        "page",
+        "sayfa",
+        "site",
+        "webseite",
+        "website",
+        "mode",
     ];
     let has_action = action_words.iter().any(|w| lower.contains(w));
     if !has_action {
@@ -96,26 +114,50 @@ fn detect_settings_command(input: &str, current_theme: &str) -> Option<SettingsC
     if lower.contains("dark") || lower.contains("dunkel") || lower.contains("koyu") {
         changes.push(("theme".to_string(), "dark".to_string()));
         descriptions.push("Dark Mode");
-    } else if lower.contains("light") || lower.contains("hell") || lower.contains("açık") || lower.contains("bright") {
+    } else if lower.contains("light")
+        || lower.contains("hell")
+        || lower.contains("açık")
+        || lower.contains("bright")
+    {
         changes.push(("theme".to_string(), "light".to_string()));
         descriptions.push("Light Mode");
     }
 
     // Detect if user wants background color specifically
-    let is_bg = lower.contains("background") || lower.contains("hintergrund") || lower.contains("arka plan");
+    let is_bg = lower.contains("background")
+        || lower.contains("hintergrund")
+        || lower.contains("arka plan");
 
     // Color detection
     let colors = [
-        ("green", "#44d7a8", "Green"), ("grün", "#44d7a8", "Grün"), ("yeşil", "#44d7a8", "Yeşil"),
-        ("red", "#e05566", "Red"), ("rot", "#e05566", "Rot"), ("kırmızı", "#e05566", "Kırmızı"),
-        ("blue", "#4488ee", "Blue"), ("blau", "#4488ee", "Blau"), ("mavi", "#4488ee", "Mavi"),
-        ("purple", "#7c6ef0", "Purple"), ("lila", "#7c6ef0", "Lila"), ("mor", "#7c6ef0", "Mor"),
-        ("orange", "#e08844", "Orange"), ("turuncu", "#e08844", "Turuncu"),
-        ("pink", "#e055aa", "Pink"), ("rosa", "#e055aa", "Rosa"), ("pembe", "#e055aa", "Pembe"),
-        ("yellow", "#e0c844", "Yellow"), ("gelb", "#e0c844", "Gelb"), ("sarı", "#e0c844", "Sarı"),
-        ("cyan", "#44c8d7", "Cyan"), ("türkis", "#44c8d7", "Türkis"),
-        ("black", "#0a0a0a", "Black"), ("schwarz", "#0a0a0a", "Schwarz"), ("siyah", "#0a0a0a", "Siyah"),
-        ("white", "#f5f5f5", "White"), ("weiß", "#f5f5f5", "Weiß"), ("beyaz", "#f5f5f5", "Beyaz"),
+        ("green", "#44d7a8", "Green"),
+        ("grün", "#44d7a8", "Grün"),
+        ("yeşil", "#44d7a8", "Yeşil"),
+        ("red", "#e05566", "Red"),
+        ("rot", "#e05566", "Rot"),
+        ("kırmızı", "#e05566", "Kırmızı"),
+        ("blue", "#4488ee", "Blue"),
+        ("blau", "#4488ee", "Blau"),
+        ("mavi", "#4488ee", "Mavi"),
+        ("purple", "#7c6ef0", "Purple"),
+        ("lila", "#7c6ef0", "Lila"),
+        ("mor", "#7c6ef0", "Mor"),
+        ("orange", "#e08844", "Orange"),
+        ("turuncu", "#e08844", "Turuncu"),
+        ("pink", "#e055aa", "Pink"),
+        ("rosa", "#e055aa", "Rosa"),
+        ("pembe", "#e055aa", "Pembe"),
+        ("yellow", "#e0c844", "Yellow"),
+        ("gelb", "#e0c844", "Gelb"),
+        ("sarı", "#e0c844", "Sarı"),
+        ("cyan", "#44c8d7", "Cyan"),
+        ("türkis", "#44c8d7", "Türkis"),
+        ("black", "#0a0a0a", "Black"),
+        ("schwarz", "#0a0a0a", "Schwarz"),
+        ("siyah", "#0a0a0a", "Siyah"),
+        ("white", "#f5f5f5", "White"),
+        ("weiß", "#f5f5f5", "Weiß"),
+        ("beyaz", "#f5f5f5", "Beyaz"),
     ];
     for (name, hex, label) in &colors {
         if lower.contains(name) {
@@ -140,7 +182,8 @@ fn detect_settings_command(input: &str, current_theme: &str) -> Option<SettingsC
     } else if lower.contains("german") || lower.contains("deutsch") || lower.contains("almanca") {
         changes.push(("language".to_string(), "de".to_string()));
         descriptions.push("Deutsch");
-    } else if lower.contains("turkish") || lower.contains("türkisch") || lower.contains("türkçe") {
+    } else if lower.contains("turkish") || lower.contains("türkisch") || lower.contains("türkçe")
+    {
         changes.push(("language".to_string(), "tr".to_string()));
         descriptions.push("Türkçe");
     }
@@ -163,9 +206,10 @@ pub async fn query(
     let mut s = state.write().await;
 
     // Get current theme for per-theme settings
-    let current_theme = s.db.get_setting("theme")
-        .unwrap_or(None)
-        .unwrap_or_else(|| "dark".to_string());
+    let current_theme =
+        s.db.get_setting("theme")
+            .unwrap_or(None)
+            .unwrap_or_else(|| "dark".to_string());
 
     // Detect settings commands
     let settings_cmd = detect_settings_command(&req.input, &current_theme);
@@ -177,23 +221,31 @@ pub async fn query(
     }
 
     // Use custom response for settings commands, otherwise use agent(s)
-    let (response_str, confidence, agent_name, agents_used) = if let Some(ref cmd) = settings_cmd {
-        (cmd.description.clone(), 1.0_f32, s.active_agents_display(), None)
-    } else {
-        let (result, winning_agent) = s.query_best(&req.input);
-        let resp: String = result.response.clone().into();
-        let conf = result.confidence;
-        let used: Vec<String> = s.active_agents.clone();
-        if req.add_context {
-            s.add_context_to_agents(req.input.clone(), result.response);
-        }
-        (resp, conf, winning_agent, Some(used))
-    };
+    let (response_str, confidence, agent_name, agents_used, metadata) =
+        if let Some(ref cmd) = settings_cmd {
+            (
+                cmd.description.clone(),
+                1.0_f32,
+                s.active_agents_display(),
+                None,
+                None,
+            )
+        } else {
+            let (result, winning_agent) = s.query_best(&req.input);
+            let resp: String = result.response.clone().into();
+            let conf = result.confidence;
+            let used: Vec<String> = s.active_agents.clone();
+            if req.add_context {
+                s.add_context_to_agents(req.input.clone(), result.response);
+            }
+            (resp, conf, winning_agent, Some(used), result.metadata)
+        };
 
     // Save messages to DB if chat_id provided
     if let Some(chat_id) = req.chat_id {
         let _ = s.db.add_message(chat_id, "user", &req.input, None);
-        let _ = s.db.add_message(chat_id, "bot", &response_str, Some(confidence as f64));
+        let _ =
+            s.db.add_message(chat_id, "bot", &response_str, Some(confidence as f64));
     }
 
     let sc = settings_cmd.map(|cmd| {
@@ -209,6 +261,7 @@ pub async fn query(
         agent: agent_name,
         agents_used,
         settings_changed: sc,
+        metadata,
     })
 }
 
@@ -241,7 +294,10 @@ pub async fn switch_agent(
     } else if let Some(t) = req.agent_type {
         vec![t]
     } else {
-        return Err((StatusCode::BAD_REQUEST, "No agent type(s) specified".to_string()));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "No agent type(s) specified".to_string(),
+        ));
     };
 
     // Validate all requested types
@@ -256,7 +312,10 @@ pub async fn switch_agent(
     }
 
     if requested.is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "At least one agent must be selected".to_string()));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "At least one agent must be selected".to_string(),
+        ));
     }
 
     s.active_agents = requested;
@@ -288,8 +347,12 @@ pub struct KnowledgeQuery {
     limit: usize,
 }
 
-fn default_kb_offset() -> usize { 0 }
-fn default_kb_limit() -> usize { 20 }
+fn default_kb_offset() -> usize {
+    0
+}
+fn default_kb_limit() -> usize {
+    20
+}
 
 #[derive(Serialize)]
 pub struct KnowledgeListResponse {
@@ -309,18 +372,21 @@ pub async fn list_knowledge(
     let total = all.len();
 
     // Filter by search term
-    let filtered_entries: Vec<(usize, &crate::agent::TrainingExample)> = if let Some(ref search) = q.search {
-        let lower = search.to_lowercase();
-        all.iter()
-            .enumerate()
-            .filter(|(_, ex)| {
-                ex.input.to_lowercase().contains(&lower)
-                    || String::from(ex.output.clone()).to_lowercase().contains(&lower)
-            })
-            .collect()
-    } else {
-        all.iter().enumerate().collect()
-    };
+    let filtered_entries: Vec<(usize, &crate::agent::TrainingExample)> =
+        if let Some(ref search) = q.search {
+            let lower = search.to_lowercase();
+            all.iter()
+                .enumerate()
+                .filter(|(_, ex)| {
+                    ex.input.to_lowercase().contains(&lower)
+                        || String::from(ex.output.clone())
+                            .to_lowercase()
+                            .contains(&lower)
+                })
+                .collect()
+        } else {
+            all.iter().enumerate().collect()
+        };
     let filtered = filtered_entries.len();
 
     // Paginate
@@ -512,7 +578,12 @@ pub async fn upload_pdf(
         Ok(kb)
     })
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Task error: {}", e)))?
+    .map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Task error: {}", e),
+        )
+    })?
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
 
     let added = pdf_kb.get_examples().len();
@@ -520,9 +591,9 @@ pub async fn upload_pdf(
     let mut s = state.write().await;
 
     // Persist each chunk to the DB so data survives server restarts
-    for ex in pdf_kb.get_examples() {
-        let output_text: String = ex.output.clone().into();
-        let _ = s.db.add_training_data(None, &ex.input, &output_text, "text", ex.weight as f64);
+    for example in pdf_kb.get_examples() {
+        s.db.add_training_example(None, example)
+            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
     }
 
     s.knowledge_base.merge(&pdf_kb);
@@ -545,7 +616,9 @@ pub async fn get_settings(
     State(state): State<SharedState>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
     let s = state.read().await;
-    let settings = s.db.get_all_settings().map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let settings =
+        s.db.get_all_settings()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let map: HashMap<String, String> = settings.into_iter().collect();
     Ok(Json(map))
 }
@@ -558,9 +631,12 @@ pub async fn update_settings(
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
     let s = state.read().await;
     for (key, value) in &req {
-        s.db.set_setting(key, value).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+        s.db.set_setting(key, value)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     }
-    let settings = s.db.get_all_settings().map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let settings =
+        s.db.get_all_settings()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let map: HashMap<String, String> = settings.into_iter().collect();
     Ok(Json(map))
 }
@@ -578,7 +654,9 @@ pub async fn get_translations(
     Path(lang): Path<String>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
     let s = state.read().await;
-    let translations = s.db.get_translations(&lang).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let translations =
+        s.db.get_translations(&lang)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let map: HashMap<String, String> = translations.into_iter().collect();
     Ok(Json(map))
 }
@@ -596,7 +674,9 @@ pub async fn list_chats(
     Query(q): Query<ChatsQuery>,
 ) -> Result<Json<Vec<crate::web::db::ChatRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let chats = s.db.list_chats(q.include_archived).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let chats =
+        s.db.list_chats(q.include_archived)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(chats))
 }
 
@@ -619,8 +699,14 @@ pub async fn create_chat(
     Json(req): Json<CreateChatRequest>,
 ) -> Result<Json<CreateChatResponse>, (StatusCode, String)> {
     let s = state.read().await;
-    let title = if req.title.is_empty() { "New Chat".to_string() } else { req.title };
-    let id = s.db.create_chat(&title).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let title = if req.title.is_empty() {
+        "New Chat".to_string()
+    } else {
+        req.title
+    };
+    let id =
+        s.db.create_chat(&title)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(CreateChatResponse { id, title }))
 }
 
@@ -631,7 +717,9 @@ pub async fn get_chat_messages(
     Path(id): Path<i64>,
 ) -> Result<Json<Vec<crate::web::db::MessageRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let messages = s.db.get_messages(id).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let messages =
+        s.db.get_messages(id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(messages))
 }
 
@@ -647,7 +735,8 @@ pub async fn delete_chat(
     Path(id): Path<i64>,
 ) -> Result<Json<DeleteChatResponse>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db.delete_chat(id).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    s.db.delete_chat(id)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(DeleteChatResponse { success: true }))
 }
 
@@ -663,7 +752,8 @@ pub async fn archive_chat(
     Path(id): Path<i64>,
 ) -> Result<Json<ArchiveChatResponse>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db.archive_chat(id).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    s.db.archive_chat(id)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(ArchiveChatResponse { success: true }))
 }
 
@@ -675,7 +765,9 @@ pub async fn list_categories(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<crate::web::db::CategoryRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let cats = s.db.list_categories().map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let cats =
+        s.db.list_categories()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(cats))
 }
 
@@ -688,15 +780,18 @@ pub struct CreateCategoryRequest {
     pub description: String,
 }
 
-fn default_color() -> String { "#7c6ef0".to_string() }
+fn default_color() -> String {
+    "#7c6ef0".to_string()
+}
 
 pub async fn create_category(
     State(state): State<SharedState>,
     Json(req): Json<CreateCategoryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    let id = s.db.create_category(&req.name, &req.color, &req.description)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let id =
+        s.db.create_category(&req.name, &req.color, &req.description)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"id": id})))
 }
 
@@ -705,7 +800,8 @@ pub async fn delete_category(
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    s.db.delete_category(id).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    s.db.delete_category(id)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
 
@@ -722,8 +818,9 @@ pub async fn list_training_data(
     Query(q): Query<TrainingDataQuery>,
 ) -> Result<Json<Vec<crate::web::db::TrainingDataRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let data = s.db.list_training_data(q.category_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let data =
+        s.db.list_training_data(q.category_id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(data))
 }
 
@@ -732,36 +829,43 @@ pub struct AddTrainingDataRequest {
     #[serde(default)]
     pub category_id: Option<i64>,
     pub input: String,
+    #[serde(alias = "output_text")]
     pub output: String,
-    #[serde(default = "default_format")]
+    #[serde(default = "default_format", alias = "output_format")]
     pub format: String,
     #[serde(default = "default_weight_f64")]
     pub weight: f64,
+    #[serde(default)]
+    pub metadata: Option<serde_json::Value>,
 }
 
-fn default_format() -> String { "text".to_string() }
-fn default_weight_f64() -> f64 { 1.0 }
+fn default_format() -> String {
+    "text".to_string()
+}
+fn default_weight_f64() -> f64 {
+    1.0
+}
 
 pub async fn add_training_data(
     State(state): State<SharedState>,
     Json(req): Json<AddTrainingDataRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let mut s = state.write().await;
-    let id = s.db.add_training_data(req.category_id, &req.input, &req.output, &req.format, req.weight)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    // Add to KB and retrain
-    let output_format = match req.format.as_str() {
-        "markdown" => ResponseFormat::Markdown(req.output.clone()),
-        "json" => {
-            let val: serde_json::Value = serde_json::from_str(&req.output).unwrap_or(serde_json::Value::String(req.output.clone()));
-            ResponseFormat::Json(val)
-        }
-        _ => ResponseFormat::Text(req.output.clone()),
+    let example = crate::TrainingExample {
+        input: req.input,
+        output: crate::web::db::decode_response(req.output, &req.format),
+        weight: req.weight as f32,
+        metadata: req.metadata,
     };
-    s.knowledge_base.add_example(req.input, output_format, req.weight as f32);
+    let id =
+        s.db.add_training_example(req.category_id, &example)
+            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    s.knowledge_base.push_example(example);
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
-    Ok(Json(serde_json::json!({"id": id, "examples": examples.len()})))
+    Ok(Json(
+        serde_json::json!({"id": id, "examples": examples.len()}),
+    ))
 }
 
 pub async fn delete_training_data(
@@ -769,11 +873,14 @@ pub async fn delete_training_data(
     Path(id): Path<i64>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let mut s = state.write().await;
-    s.db.delete_training_data(id).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    s.db.delete_training_data(id)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     // Rebuild KB from DB + embedded
     rebuild_kb_from_db(&mut s).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let count = s.knowledge_base.get_examples().len();
-    Ok(Json(serde_json::json!({"success": true, "examples": count})))
+    Ok(Json(
+        serde_json::json!({"success": true, "examples": count}),
+    ))
 }
 
 // ── Training Import / Export ─────────────────────────────────────────────────
@@ -781,13 +888,16 @@ pub async fn delete_training_data(
 #[derive(Deserialize)]
 pub struct TrainingImportItem {
     pub input: String,
+    #[serde(alias = "output_text")]
     pub output: String,
-    #[serde(default = "default_format")]
+    #[serde(default = "default_format", alias = "output_format")]
     pub format: String,
     #[serde(default = "default_weight_f64")]
     pub weight: f64,
     #[serde(default)]
     pub category_id: Option<i64>,
+    #[serde(default)]
+    pub metadata: Option<serde_json::Value>,
 }
 
 pub async fn import_training(
@@ -797,26 +907,31 @@ pub async fn import_training(
     let mut s = state.write().await;
     let mut imported = 0;
     for item in &items {
-        s.db.add_training_data(item.category_id, &item.input, &item.output, &item.format, item.weight)
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-        let output_format = match item.format.as_str() {
-            "markdown" => ResponseFormat::Markdown(item.output.clone()),
-            _ => ResponseFormat::Text(item.output.clone()),
+        let example = crate::TrainingExample {
+            input: item.input.clone(),
+            output: crate::web::db::decode_response(item.output.clone(), &item.format),
+            weight: item.weight as f32,
+            metadata: item.metadata.clone(),
         };
-        s.knowledge_base.add_example(item.input.clone(), output_format, item.weight as f32);
+        s.db.add_training_example(item.category_id, &example)
+            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+        s.knowledge_base.push_example(example);
         imported += 1;
     }
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
-    Ok(Json(serde_json::json!({"imported": imported, "examples": examples.len()})))
+    Ok(Json(
+        serde_json::json!({"imported": imported, "examples": examples.len()}),
+    ))
 }
 
 pub async fn export_training(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<crate::web::db::TrainingDataRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let data = s.db.get_all_training_data()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let data =
+        s.db.get_all_training_data()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(data))
 }
 
@@ -841,40 +956,34 @@ pub async fn upload_json(
     let mut s = state.write().await;
     let mut imported = 0;
     for item in &items {
-        s.db.add_training_data(item.category_id, &item.input, &item.output, &item.format, item.weight)
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-        let output_format = match item.format.as_str() {
-            "markdown" => ResponseFormat::Markdown(item.output.clone()),
-            _ => ResponseFormat::Text(item.output.clone()),
+        let example = crate::TrainingExample {
+            input: item.input.clone(),
+            output: crate::web::db::decode_response(item.output.clone(), &item.format),
+            weight: item.weight as f32,
+            metadata: item.metadata.clone(),
         };
-        s.knowledge_base.add_example(item.input.clone(), output_format, item.weight as f32);
+        s.db.add_training_example(item.category_id, &example)
+            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+        s.knowledge_base.push_example(example);
         imported += 1;
     }
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
-    Ok(Json(serde_json::json!({"imported": imported, "examples": examples.len()})))
+    Ok(Json(
+        serde_json::json!({"imported": imported, "examples": examples.len()}),
+    ))
 }
 
 // ── Rebuild KB Helper ────────────────────────────────────────────────────────
 
 fn rebuild_kb_from_db(s: &mut crate::web::state::AppState) -> Result<(), String> {
-    // Start with embedded KB
-    let mut kb = KnowledgeBase::from_embedded();
-    // Merge all DB training data
-    let db_data = s.db.get_all_training_data()?;
-    for item in &db_data {
-        let output = match item.output_format.as_str() {
-            "markdown" => ResponseFormat::Markdown(item.output_text.clone()),
-            "json" => {
-                let val: serde_json::Value = serde_json::from_str(&item.output_text)
-                    .unwrap_or(serde_json::Value::String(item.output_text.clone()));
-                ResponseFormat::Json(val)
-            }
-            _ => ResponseFormat::Text(item.output_text.clone()),
-        };
-        kb.add_example(item.input.clone(), output, item.weight as f32);
-    }
-    s.knowledge_base = kb;
+    let mut examples = KnowledgeBase::from_embedded().get_examples().to_vec();
+    examples.extend(
+        s.db.get_all_training_data()?
+            .into_iter()
+            .map(crate::web::db::TrainingDataRow::into_example),
+    );
+    s.knowledge_base = KnowledgeBase::from_examples(examples);
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
     Ok(())
@@ -894,22 +1003,35 @@ fn safe_path(input: &str) -> Result<std::path::PathBuf, (StatusCode, String)> {
     let input = input.trim();
     // Block absolute paths
     if input.starts_with('/') || input.starts_with('\\') {
-        return Err((StatusCode::FORBIDDEN, "Absolute paths not allowed".to_string()));
+        return Err((
+            StatusCode::FORBIDDEN,
+            "Absolute paths not allowed".to_string(),
+        ));
     }
     // Block any component that is ".."
     for component in std::path::Path::new(input).components() {
         if matches!(component, std::path::Component::ParentDir) {
-            return Err((StatusCode::FORBIDDEN, "Path traversal not allowed".to_string()));
+            return Err((
+                StatusCode::FORBIDDEN,
+                "Path traversal not allowed".to_string(),
+            ));
         }
     }
-    let cwd = std::env::current_dir()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("CWD error: {}", e)))?;
+    let cwd = std::env::current_dir().map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("CWD error: {}", e),
+        )
+    })?;
     let resolved = cwd.join(input);
     // Canonicalize to resolve any remaining symlinks, then verify it's inside CWD
     let canonical = resolved.canonicalize().unwrap_or(resolved.clone());
     let canonical_cwd = cwd.canonicalize().unwrap_or(cwd);
     if !canonical.starts_with(&canonical_cwd) {
-        return Err((StatusCode::FORBIDDEN, "Access outside working directory not allowed".to_string()));
+        return Err((
+            StatusCode::FORBIDDEN,
+            "Access outside working directory not allowed".to_string(),
+        ));
     }
     Ok(canonical)
 }
@@ -920,7 +1042,9 @@ pub struct FileListQuery {
     pub path: String,
 }
 
-fn default_file_path() -> String { ".".to_string() }
+fn default_file_path() -> String {
+    ".".to_string()
+}
 
 #[derive(Serialize)]
 pub struct FileEntry {
@@ -942,14 +1066,28 @@ pub async fn list_files(
     }
 
     let mut entries = Vec::new();
-    let read_dir = std::fs::read_dir(path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Read dir error: {}", e)))?;
+    let read_dir = std::fs::read_dir(path).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Read dir error: {}", e),
+        )
+    })?;
 
     for entry in read_dir {
-        let entry = entry.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Entry error: {}", e)))?;
-        let metadata = entry.metadata()
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Metadata error: {}", e)))?;
-        let modified = metadata.modified()
+        let entry = entry.map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Entry error: {}", e),
+            )
+        })?;
+        let metadata = entry.metadata().map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Metadata error: {}", e),
+            )
+        })?;
+        let modified = metadata
+            .modified()
             .map(|t| {
                 let datetime: chrono::DateTime<chrono::Utc> = t.into();
                 datetime.format("%Y-%m-%d %H:%M").to_string()
@@ -964,10 +1102,14 @@ pub async fn list_files(
     }
 
     entries.sort_by(|a, b| {
-        b.is_dir.cmp(&a.is_dir).then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+        b.is_dir
+            .cmp(&a.is_dir)
+            .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
     });
 
-    Ok(Json(serde_json::json!({"path": q.path, "entries": entries})))
+    Ok(Json(
+        serde_json::json!({"path": q.path, "entries": entries}),
+    ))
 }
 
 #[derive(Deserialize)]
@@ -985,9 +1127,15 @@ pub async fn read_file(
     if !path.is_file() {
         return Err((StatusCode::BAD_REQUEST, "Not a file".to_string()));
     }
-    let content = std::fs::read_to_string(&path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Read error: {}", e)))?;
-    Ok(Json(serde_json::json!({"path": q.path, "content": content})))
+    let content = std::fs::read_to_string(&path).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Read error: {}", e),
+        )
+    })?;
+    Ok(Json(
+        serde_json::json!({"path": q.path, "content": content}),
+    ))
 }
 
 #[derive(Deserialize)]
@@ -1003,29 +1151,47 @@ pub async fn write_file(
     let p = std::path::Path::new(&req.path);
     if let Some(parent_str) = p.parent() {
         let parent_s = parent_str.to_string_lossy().to_string();
-        if !parent_s.is_empty() && parent_s != "" {
+        if !parent_s.is_empty() {
             let safe_parent = safe_path(&parent_s)?;
             if !safe_parent.exists() {
-                std::fs::create_dir_all(&safe_parent)
-                    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Mkdir error: {}", e)))?;
+                std::fs::create_dir_all(&safe_parent).map_err(|e| {
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Mkdir error: {}", e),
+                    )
+                })?;
             }
         }
     }
     // Now validate the full path (file may not exist yet, so check components)
     let input = req.path.trim();
     if input.starts_with('/') || input.starts_with('\\') {
-        return Err((StatusCode::FORBIDDEN, "Absolute paths not allowed".to_string()));
+        return Err((
+            StatusCode::FORBIDDEN,
+            "Absolute paths not allowed".to_string(),
+        ));
     }
     for component in std::path::Path::new(input).components() {
         if matches!(component, std::path::Component::ParentDir) {
-            return Err((StatusCode::FORBIDDEN, "Path traversal not allowed".to_string()));
+            return Err((
+                StatusCode::FORBIDDEN,
+                "Path traversal not allowed".to_string(),
+            ));
         }
     }
-    let cwd = std::env::current_dir()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("CWD error: {}", e)))?;
+    let cwd = std::env::current_dir().map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("CWD error: {}", e),
+        )
+    })?;
     let resolved = cwd.join(input);
-    std::fs::write(&resolved, &req.content)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Write error: {}", e)))?;
+    std::fs::write(&resolved, &req.content).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Write error: {}", e),
+        )
+    })?;
     Ok(Json(serde_json::json!({"success": true, "path": req.path})))
 }
 
@@ -1040,18 +1206,32 @@ pub async fn mkdir(
     // Validate parent exists in CWD, then create target
     let input = req.path.trim();
     if input.starts_with('/') || input.starts_with('\\') {
-        return Err((StatusCode::FORBIDDEN, "Absolute paths not allowed".to_string()));
+        return Err((
+            StatusCode::FORBIDDEN,
+            "Absolute paths not allowed".to_string(),
+        ));
     }
     for component in std::path::Path::new(input).components() {
         if matches!(component, std::path::Component::ParentDir) {
-            return Err((StatusCode::FORBIDDEN, "Path traversal not allowed".to_string()));
+            return Err((
+                StatusCode::FORBIDDEN,
+                "Path traversal not allowed".to_string(),
+            ));
         }
     }
-    let cwd = std::env::current_dir()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("CWD error: {}", e)))?;
+    let cwd = std::env::current_dir().map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("CWD error: {}", e),
+        )
+    })?;
     let resolved = cwd.join(input);
-    std::fs::create_dir_all(&resolved)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Mkdir error: {}", e)))?;
+    std::fs::create_dir_all(&resolved).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Mkdir error: {}", e),
+        )
+    })?;
     Ok(Json(serde_json::json!({"success": true, "path": req.path})))
 }
 
@@ -1068,16 +1248,30 @@ pub async fn delete_file(
         return Err((StatusCode::NOT_FOUND, "Path not found".to_string()));
     }
     // Prevent deleting CWD itself
-    let cwd = std::env::current_dir().unwrap_or_default().canonicalize().unwrap_or_default();
+    let cwd = std::env::current_dir()
+        .unwrap_or_default()
+        .canonicalize()
+        .unwrap_or_default();
     if path == cwd {
-        return Err((StatusCode::FORBIDDEN, "Cannot delete working directory".to_string()));
+        return Err((
+            StatusCode::FORBIDDEN,
+            "Cannot delete working directory".to_string(),
+        ));
     }
     if path.is_dir() {
-        std::fs::remove_dir_all(&path)
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Remove dir error: {}", e)))?;
+        std::fs::remove_dir_all(&path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Remove dir error: {}", e),
+            )
+        })?;
     } else {
-        std::fs::remove_file(&path)
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Remove file error: {}", e)))?;
+        std::fs::remove_file(&path).map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Remove file error: {}", e),
+            )
+        })?;
     }
     Ok(Json(serde_json::json!({"success": true})))
 }
@@ -1096,19 +1290,33 @@ pub async fn rename_file(
         // Target may not exist yet — validate components only
         let input = req.to.trim();
         if input.starts_with('/') || input.starts_with('\\') {
-            return Err((StatusCode::FORBIDDEN, "Absolute paths not allowed".to_string()));
+            return Err((
+                StatusCode::FORBIDDEN,
+                "Absolute paths not allowed".to_string(),
+            ));
         }
         for component in std::path::Path::new(input).components() {
             if matches!(component, std::path::Component::ParentDir) {
-                return Err((StatusCode::FORBIDDEN, "Path traversal not allowed".to_string()));
+                return Err((
+                    StatusCode::FORBIDDEN,
+                    "Path traversal not allowed".to_string(),
+                ));
             }
         }
-        let cwd = std::env::current_dir()
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("CWD error: {}", e)))?;
+        let cwd = std::env::current_dir().map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("CWD error: {}", e),
+            )
+        })?;
         Ok(cwd.join(input))
     })?;
-    std::fs::rename(&from, &_to)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Rename error: {}", e)))?;
+    std::fs::rename(&from, &_to).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Rename error: {}", e),
+        )
+    })?;
     Ok(Json(serde_json::json!({"success": true})))
 }
 
@@ -1123,24 +1331,41 @@ pub async fn copy_file(
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let from = safe_path(&req.from)?;
     if from.is_dir() {
-        return Err((StatusCode::BAD_REQUEST, "Cannot copy directories".to_string()));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Cannot copy directories".to_string(),
+        ));
     }
     let to = safe_path(&req.to).or_else(|_| {
         let input = req.to.trim();
         if input.starts_with('/') || input.starts_with('\\') {
-            return Err((StatusCode::FORBIDDEN, "Absolute paths not allowed".to_string()));
+            return Err((
+                StatusCode::FORBIDDEN,
+                "Absolute paths not allowed".to_string(),
+            ));
         }
         for component in std::path::Path::new(input).components() {
             if matches!(component, std::path::Component::ParentDir) {
-                return Err((StatusCode::FORBIDDEN, "Path traversal not allowed".to_string()));
+                return Err((
+                    StatusCode::FORBIDDEN,
+                    "Path traversal not allowed".to_string(),
+                ));
             }
         }
-        let cwd = std::env::current_dir()
-            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("CWD error: {}", e)))?;
+        let cwd = std::env::current_dir().map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("CWD error: {}", e),
+            )
+        })?;
         Ok(cwd.join(input))
     })?;
-    std::fs::copy(&from, &to)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Copy error: {}", e)))?;
+    std::fs::copy(&from, &to).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Copy error: {}", e),
+        )
+    })?;
     Ok(Json(serde_json::json!({"success": true})))
 }
 
@@ -1152,8 +1377,9 @@ pub async fn list_vector_collections(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<crate::web::db::VectorCollectionRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let cols = s.db.list_vector_collections()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let cols =
+        s.db.list_vector_collections()
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(cols))
 }
 
@@ -1169,8 +1395,9 @@ pub async fn create_vector_collection(
     Json(req): Json<CreateCollectionRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    let id = s.db.create_vector_collection(&req.name, &req.description)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let id =
+        s.db.create_vector_collection(&req.name, &req.description)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"id": id})))
 }
 
@@ -1196,8 +1423,9 @@ pub async fn list_vector_entries(
     Query(q): Query<VectorEntriesQuery>,
 ) -> Result<Json<Vec<crate::web::db::VectorEntryRow>>, (StatusCode, String)> {
     let s = state.read().await;
-    let entries = s.db.list_vector_entries(q.collection_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let entries =
+        s.db.list_vector_entries(q.collection_id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(entries))
 }
 
@@ -1209,7 +1437,9 @@ pub struct AddVectorEntryRequest {
     pub metadata_json: String,
 }
 
-fn default_metadata() -> String { "{}".to_string() }
+fn default_metadata() -> String {
+    "{}".to_string()
+}
 
 pub async fn add_vector_entry(
     State(state): State<SharedState>,
@@ -1217,10 +1447,17 @@ pub async fn add_vector_entry(
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
     // Compute embedding
-    let existing = s.db.list_vector_entries(req.collection_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let existing =
+        s.db.list_vector_entries(req.collection_id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let embedding = crate::web::vectordb::compute_embedding_for_storage(&req.content, &existing);
-    let id = s.db.add_vector_entry(req.collection_id, &req.content, &req.metadata_json, &embedding)
+    let id =
+        s.db.add_vector_entry(
+            req.collection_id,
+            &req.content,
+            &req.metadata_json,
+            &embedding,
+        )
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"id": id})))
 }
@@ -1245,15 +1482,18 @@ pub struct VectorSearchRequest {
     pub top_k: usize,
 }
 
-fn default_vector_top_k() -> usize { 5 }
+fn default_vector_top_k() -> usize {
+    5
+}
 
 pub async fn vector_search(
     State(state): State<SharedState>,
     Json(req): Json<VectorSearchRequest>,
 ) -> Result<Json<Vec<crate::web::vectordb::SearchResult>>, (StatusCode, String)> {
     let s = state.read().await;
-    let entries = s.db.list_vector_entries(req.collection_id)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
+    let entries =
+        s.db.list_vector_entries(req.collection_id)
+            .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let results = crate::web::vectordb::similarity_search(&req.query, &entries, req.top_k);
     Ok(Json(results))
 }
@@ -1272,17 +1512,27 @@ pub async fn db_tables(
     Query(q): Query<DbPathQuery>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let db_path = safe_path(&q.path)?;
-    let conn = rusqlite::Connection::open_with_flags(
-        &db_path,
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
-    ).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Open error: {}", e)))?;
+    let conn =
+        rusqlite::Connection::open_with_flags(&db_path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Open error: {}", e),
+                )
+            })?;
 
     let mut stmt = conn.prepare(
         "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
     ).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {}", e)))?;
 
-    let tables: Vec<String> = stmt.query_map([], |row| row.get(0))
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {}", e)))?
+    let tables: Vec<String> = stmt
+        .query_map([], |row| row.get(0))
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Query error: {}", e),
+            )
+        })?
         .filter_map(|r| r.ok())
         .collect();
 
@@ -1299,17 +1549,23 @@ pub struct DbQueryRequest {
     pub offset: i64,
 }
 
-fn default_db_limit() -> i64 { 100 }
+fn default_db_limit() -> i64 {
+    100
+}
 
 /// GET /api/files/db/query — read rows from a table
 pub async fn db_query(
     Query(q): Query<DbQueryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let db_path = safe_path(&q.path)?;
-    let conn = rusqlite::Connection::open_with_flags(
-        &db_path,
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY,
-    ).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Open error: {}", e)))?;
+    let conn =
+        rusqlite::Connection::open_with_flags(&db_path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Open error: {}", e),
+                )
+            })?;
 
     // Validate table name (prevent SQL injection)
     if !q.table.chars().all(|c| c.is_alphanumeric() || c == '_') {
@@ -1317,36 +1573,73 @@ pub async fn db_query(
     }
 
     // Get column info
-    let mut pragma = conn.prepare(&format!("PRAGMA table_info(\"{}\")", q.table))
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Pragma error: {}", e)))?;
-    let columns: Vec<(String, String)> = pragma.query_map([], |row| {
-        Ok((row.get::<_, String>(1)?, row.get::<_, String>(2)?))
-    }).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Pragma error: {}", e)))?
-    .filter_map(|r| r.ok())
-    .collect();
+    let mut pragma = conn
+        .prepare(&format!("PRAGMA table_info(\"{}\")", q.table))
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Pragma error: {}", e),
+            )
+        })?;
+    let columns: Vec<(String, String)> = pragma
+        .query_map([], |row| {
+            Ok((row.get::<_, String>(1)?, row.get::<_, String>(2)?))
+        })
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Pragma error: {}", e),
+            )
+        })?
+        .filter_map(|r| r.ok())
+        .collect();
 
     if columns.is_empty() {
         return Err((StatusCode::NOT_FOUND, "Table not found".to_string()));
     }
 
     // Get total count
-    let total: i64 = conn.query_row(
-        &format!("SELECT COUNT(*) FROM \"{}\"", q.table), [], |row| row.get(0)
-    ).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Count error: {}", e)))?;
+    let total: i64 = conn
+        .query_row(
+            &format!("SELECT COUNT(*) FROM \"{}\"", q.table),
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Count error: {}", e),
+            )
+        })?;
 
     // Query rows
-    let sql = format!("SELECT * FROM \"{}\" LIMIT {} OFFSET {}", q.table, q.limit, q.offset);
-    let mut stmt = conn.prepare(&sql)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {}", e)))?;
+    let sql = format!(
+        "SELECT * FROM \"{}\" LIMIT {} OFFSET {}",
+        q.table, q.limit, q.offset
+    );
+    let mut stmt = conn.prepare(&sql).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Query error: {}", e),
+        )
+    })?;
 
     let col_count = stmt.column_count();
     let mut rows: Vec<Vec<serde_json::Value>> = Vec::new();
 
-    let mut result_rows = stmt.query([])
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {}", e)))?;
+    let mut result_rows = stmt.query([]).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Query error: {}", e),
+        )
+    })?;
 
-    while let Some(row) = result_rows.next()
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Row error: {}", e)))? {
+    while let Some(row) = result_rows.next().map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Row error: {}", e),
+        )
+    })? {
         let mut vals = Vec::new();
         for i in 0..col_count {
             let val: serde_json::Value = match row.get_ref(i) {
@@ -1366,7 +1659,8 @@ pub async fn db_query(
         rows.push(vals);
     }
 
-    let col_info: Vec<serde_json::Value> = columns.iter()
+    let col_info: Vec<serde_json::Value> = columns
+        .iter()
         .map(|(name, typ)| serde_json::json!({"name": name, "type": typ}))
         .collect();
 
@@ -1391,18 +1685,34 @@ pub async fn db_execute(
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let sql_upper = req.sql.trim().to_uppercase();
     // Only allow INSERT, UPDATE, DELETE
-    if !sql_upper.starts_with("INSERT") && !sql_upper.starts_with("UPDATE") && !sql_upper.starts_with("DELETE") {
-        return Err((StatusCode::BAD_REQUEST, "Only INSERT, UPDATE, DELETE allowed".to_string()));
+    if !sql_upper.starts_with("INSERT")
+        && !sql_upper.starts_with("UPDATE")
+        && !sql_upper.starts_with("DELETE")
+    {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Only INSERT, UPDATE, DELETE allowed".to_string(),
+        ));
     }
 
     let db_path = safe_path(&req.path)?;
-    let conn = rusqlite::Connection::open(&db_path)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Open error: {}", e)))?;
+    let conn = rusqlite::Connection::open(&db_path).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Open error: {}", e),
+        )
+    })?;
 
-    let affected = conn.execute(&req.sql, [])
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Execute error: {}", e)))?;
+    let affected = conn.execute(&req.sql, []).map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Execute error: {}", e),
+        )
+    })?;
 
-    Ok(Json(serde_json::json!({"success": true, "affected": affected})))
+    Ok(Json(
+        serde_json::json!({"success": true, "affected": affected}),
+    ))
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1463,11 +1773,8 @@ pub async fn import_tatoeba(
     // Bulk-add to knowledge base and training_data DB
     let mut s = state.write().await;
     for (input, output) in &pairs {
-        s.knowledge_base.add_example(
-            input.clone(),
-            ResponseFormat::Text(output.clone()),
-            1.0,
-        );
+        s.knowledge_base
+            .add_example(input.clone(), ResponseFormat::Text(output.clone()), 1.0);
         let _ = s.db.add_training_data(None, input, output, "text", 1.0);
     }
 

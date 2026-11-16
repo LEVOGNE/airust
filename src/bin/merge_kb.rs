@@ -1,104 +1,115 @@
-// src/bin/merge_kb.rs - Tool for merging all JSON files in the knowledge/ directory
-use airust::knowledge::KnowledgeBase;
-use std::fs;
-use std::path::PathBuf;
-use std::process;
+//! Merge legacy training JSON without reading the destination back into itself.
+use airust::KnowledgeBase;
+use std::collections::BTreeSet;
+use std::env;
+use std::fs::{self, OpenOptions};
+use std::io::Write;
+use std::path::{Path, PathBuf};
 
 fn main() {
-    println!("=== Knowledge Base Merger ===");
-    println!("Searching the knowledge/ directory for JSON files...");
-
-    // Path to the knowledge directory
-    let knowledge_dir = PathBuf::from("knowledge");
-
-    // Check if the directory exists
-    if !knowledge_dir.exists() {
-        eprintln!("Error: The 'knowledge/' directory does not exist!");
-        process::exit(1);
+    if let Err(error) = run() {
+        eprintln!("Zusammenfügen fehlgeschlagen: {error}");
+        std::process::exit(1);
     }
+}
 
-    // Find all JSON files in the directory
-    let mut json_files = Vec::new();
-    match fs::read_dir(&knowledge_dir) {
-        Ok(entries) => {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.is_file() && path.extension().is_some_and(|ext| ext == "json") {
-                    json_files.push(path);
-                }
+fn run() -> Result<(), Box<dyn std::error::Error>> {
+    let mut output = PathBuf::from("knowledge/train.json");
+    let mut inputs = Vec::new();
+    let mut include_embedded = false;
+    let mut args = env::args().skip(1);
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--help" | "-h" => {
+                println!("merge_kb [QUELLE.json ...] [--output ZIEL.json] [--include-embedded]");
+                println!("Ohne Quellen: knowledge/*.json, ohne die Zieldatei. Exakte Duplikate werden entfernt.");
+                return Ok(());
             }
-        }
-        Err(e) => {
-            eprintln!("Error reading directory: {}", e);
-            process::exit(1);
+            "--output" => output = args.next().ok_or("--output benötigt einen Pfad")?.into(),
+            "--include-embedded" => include_embedded = true,
+            value if value.starts_with('-') => {
+                return Err(format!("Unbekannte Option: {value}").into())
+            }
+            value => inputs.push(PathBuf::from(value)),
         }
     }
-
-    // Check if JSON files were found
-    if json_files.is_empty() {
-        eprintln!("No JSON files found in the knowledge/ directory!");
-        process::exit(1);
-    }
-
-    println!("{} JSON files found:", json_files.len());
-    for file in &json_files {
-        println!("  - {}", file.file_name().unwrap_or_default().to_string_lossy());
-    }
-
-    // Create target Knowledge Base
-    let mut merged_kb = KnowledgeBase::new();
-
-    // Load and merge all JSON files
-    for file in &json_files {
-        match KnowledgeBase::load(file.clone()) {
-            Ok(kb) => {
-                let example_count = kb.get_examples().len();
-                println!(
-                    "File {} loaded: {} examples",
-                    file.file_name().unwrap_or_default().to_string_lossy(),
-                    example_count
-                );
-                merged_kb.merge(&kb);
-            }
-            Err(e) => {
-                println!(
-                    "Warning: Could not load file {}: {}",
-                    file.file_name().unwrap_or_default().to_string_lossy(),
-                    e
-                );
+    if inputs.is_empty() {
+        for entry in fs::read_dir("knowledge")? {
+            let path = entry?.path();
+            if path.is_file()
+                && path.extension().is_some_and(|ext| ext == "json")
+                && !same_path(&path, &output)
+            {
+                inputs.push(path);
             }
         }
     }
-
-    println!(
-        "\nTotal Knowledge Base contains {} examples.",
-        merged_kb.get_examples().len()
-    );
-
-    // Ask if the standard examples should be included
-    println!("\nDo you want to add the standard examples (embedded data)? (y/n)");
-    let mut input = String::new();
-    let _ = std::io::stdin().read_line(&mut input);
-
-    if input.trim().to_lowercase() == "y" {
-        merged_kb.merge_embedded();
-        println!(
-            "Standard examples added. New size: {} examples.",
-            merged_kb.get_examples().len()
+    inputs.sort();
+    inputs.dedup();
+    if inputs.is_empty() && !include_embedded {
+        return Err(
+            "Keine Quelldateien gefunden. Die Zieldatei wird nicht als Quelle eingelesen.".into(),
         );
     }
-
-    // Save Knowledge Base in the knowledge/ directory
-    let out_path = knowledge_dir.join("train.json");
-    match merged_kb.save(Some(out_path.clone())) {
-        Ok(_) => {
-            println!("✓ Merged Knowledge Base successfully saved as 'knowledge/train.json'!");
-            println!("\nYou can now use it with standard AIRust commands:");
-            println!("  cargo run --bin airust -- query tfidf \"Your question here\"");
-            println!("  cargo run --bin airust -- interactive");
+    let mut examples = Vec::new();
+    let mut seen = BTreeSet::new();
+    for path in &inputs {
+        if same_path(path, &output) {
+            return Err(format!("Quelle und Ziel sind dieselbe Datei: {}", path.display()).into());
         }
-        Err(e) => {
-            eprintln!("❌ Error saving the Knowledge Base: {}", e);
+        // Read and validate every source before touching the output.
+        let kb = KnowledgeBase::load(path.clone())?;
+        for example in kb.get_examples() {
+            if seen.insert(serde_json::to_string(example)?) {
+                examples.push(example.clone());
+            }
         }
     }
+    if include_embedded {
+        for example in KnowledgeBase::from_embedded().get_examples() {
+            if seen.insert(serde_json::to_string(example)?) {
+                examples.push(example.clone());
+            }
+        }
+    }
+    let data = serde_json::to_string_pretty(&examples)?;
+    let parent = output
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
+    fs::create_dir_all(parent)?;
+    let filename = output
+        .file_name()
+        .ok_or("Ziel benötigt einen Dateinamen")?
+        .to_string_lossy();
+    let temporary = parent.join(format!(".{filename}.{}.tmp", std::process::id()));
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&temporary)?;
+    let result = (|| -> std::io::Result<()> {
+        file.write_all(data.as_bytes())?;
+        file.sync_all()?;
+        drop(file);
+        fs::rename(&temporary, &output)
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(&temporary);
+    }
+    result?;
+    println!(
+        "{} Quellen, {} eindeutige Beispiele → {}",
+        inputs.len(),
+        examples.len(),
+        output.display()
+    );
+    Ok(())
+}
+
+fn same_path(a: &Path, b: &Path) -> bool {
+    a == b
+        || a.canonicalize()
+            .ok()
+            .zip(b.canonicalize().ok())
+            .is_some_and(|(a, b)| a == b)
 }

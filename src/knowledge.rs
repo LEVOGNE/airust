@@ -1,5 +1,5 @@
 // src/knowledge.rs - Unified Knowledge Base
-use crate::agent::{AgentError, LegacyTrainingExample, ResponseFormat, TrainingExample};
+use crate::agent::{AgentError, ResponseFormat, TrainingExample};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
@@ -7,12 +7,46 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-/// Supports both legacy and modern training data formats for backward compatibility
-#[derive(Serialize, Deserialize)]
-#[serde(untagged)]
-enum TrainingData {
-    Legacy(Vec<LegacyTrainingExample>),
-    Modern(Vec<TrainingExample>),
+/// An application-owned identifier, searchable text, and optional application data.
+/// The index validates entries on insertion; original text and metadata are retained.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct KnowledgeEntry {
+    pub id: String,
+    pub text: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+}
+
+impl KnowledgeEntry {
+    pub fn new(id: impl Into<String>, text: impl Into<String>) -> Self {
+        Self {
+            id: id.into(),
+            text: text.into(),
+            metadata: None,
+        }
+    }
+
+    pub fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
+        self.metadata = Some(metadata);
+        self
+    }
+}
+
+/// Only lexical relatedness is inferred. Logical or causal types require external evidence.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum RelationKind {
+    Related,
+}
+
+/// A proposal, never an automatically stored relationship or a statement of fact.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RelationSuggestion {
+    pub source_id: String,
+    pub target_id: String,
+    pub kind: RelationKind,
+    /// Jaccard similarity after removing the small English/German stopword list.
+    pub score: f64,
+    pub shared_terms: Vec<String>,
 }
 
 /// Represents a flexible knowledge base for storing and managing training examples
@@ -26,12 +60,8 @@ pub struct KnowledgeBase {
 pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
     let raw = include_str!(concat!(env!("OUT_DIR"), "/train.json"));
 
-    match serde_json::from_str::<TrainingData>(raw) {
-        Ok(TrainingData::Modern(examples)) => Arc::new(examples),
-        Ok(TrainingData::Legacy(legacy)) => {
-            // Converts legacy data into the modern format
-            Arc::new(legacy.into_iter().map(|ex| ex.into()).collect())
-        }
+    match serde_json::from_str::<Vec<TrainingExample>>(raw) {
+        Ok(examples) => Arc::new(examples),
         Err(e) => {
             eprintln!("Error loading embedded training data: {}", e);
             Arc::new(Vec::new())
@@ -48,7 +78,8 @@ impl KnowledgeBase {
         }
     }
 
-    /// Creates a knowledge base from embedded data
+    /// Creates a knowledge base from embedded data. Without the
+    /// `embedded-knowledge` feature this is empty, so library users embed no demo data.
     pub fn from_embedded() -> Self {
         Self {
             examples: EMBEDDED_DATA.to_vec(),
@@ -60,20 +91,10 @@ impl KnowledgeBase {
     pub fn load(path: PathBuf) -> Result<Self, AgentError> {
         let data = fs::read_to_string(&path)?;
 
-        match serde_json::from_str::<TrainingData>(&data) {
-            Ok(TrainingData::Modern(examples)) => Ok(Self {
-                examples,
-                file_path: Some(path),
-            }),
-            Ok(TrainingData::Legacy(legacy)) => {
-                // Converts legacy data
-                Ok(Self {
-                    examples: legacy.into_iter().map(|ex| ex.into()).collect(),
-                    file_path: Some(path),
-                })
-            }
-            Err(e) => Err(AgentError::SerializationError(e)),
-        }
+        Ok(Self {
+            examples: serde_json::from_str(&data)?,
+            file_path: Some(path),
+        })
     }
 
     /// Saves the knowledge base to a JSON file
@@ -113,6 +134,19 @@ impl KnowledgeBase {
     /// Returns a reference to all training examples
     pub fn get_examples(&self) -> &[TrainingExample] {
         &self.examples
+    }
+
+    /// Preserve complete examples, including import provenance and custom metadata.
+    pub fn from_examples(examples: Vec<TrainingExample>) -> Self {
+        Self {
+            examples,
+            file_path: None,
+        }
+    }
+
+    /// Append a complete training example without discarding metadata.
+    pub fn push_example(&mut self, example: TrainingExample) {
+        self.examples.push(example);
     }
 
     /// Merges another knowledge base into the current one
@@ -263,7 +297,11 @@ mod tests {
         kb2.add_example("d".to_string(), "4", 1.0);
 
         kb1.merge(&kb2);
-        let inputs: Vec<&str> = kb1.get_examples().iter().map(|e| e.input.as_str()).collect();
+        let inputs: Vec<&str> = kb1
+            .get_examples()
+            .iter()
+            .map(|e| e.input.as_str())
+            .collect();
         assert_eq!(inputs, vec!["a", "b", "c", "d"]);
     }
 

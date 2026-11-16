@@ -1,179 +1,622 @@
 [
-  {"input": "What is AIRust?", "output": "AIRust is a self-contained AI engine written entirely in Rust. It runs 100% locally — no OpenAI, no API keys, no internet required. You train it with your own data and it answers questions using pattern matching, fuzzy search, and semantic similarity algorithms. Think of it as your own private AI assistant that you teach yourself.", "weight": 2.0},
-  {"input": "Was ist AIRust?", "output": "AIRust ist eine eigenstaendige KI-Engine, komplett in Rust geschrieben. Sie laeuft 100% lokal — kein OpenAI, keine API-Keys, kein Internet noetig. Du trainierst sie mit deinen eigenen Daten und sie beantwortet Fragen mit Pattern Matching, Fuzzy-Suche und semantischen Aehnlichkeitsalgorithmen. Stell es dir als deinen eigenen privaten KI-Assistenten vor, den du selbst unterrichtest.", "weight": 2.0},
-  {"input": "AIRust nedir?", "output": "AIRust, tamamen Rust ile yazilmis bagimsiz bir yapay zeka motorudur. %100 yerel calisir — OpenAI yok, API anahtari yok, internet gerekli degil. Kendi verilerinizle egitirsiniz ve sorulari oruntu eslestirme, bulanik arama ve anlamsal benzerlik algoritmalari ile yanitlar.", "weight": 2.0},
-
-  {"input": "How do I start AIRust?", "output": "Run: cargo run --features web\nThis starts the web server on http://localhost:7070\nConsole WebSocket runs on ws://localhost:7071\n\nOther options:\n- cargo run --features web -- --port 8080 (custom port)\n- cargo run --features web -- -d (background/daemon mode)\n- cargo run --features web -- --landingpage (with landing page)\n- cargo run --features web -- stop (stop background server)", "weight": 2.0},
-  {"input": "Wie starte ich AIRust?", "output": "Fuehre aus: cargo run --features web\nDas startet den Webserver auf http://localhost:7070\nConsole WebSocket laeuft auf ws://localhost:7071\n\nWeitere Optionen:\n- cargo run --features web -- --port 8080 (eigener Port)\n- cargo run --features web -- -d (Hintergrund-Modus)\n- cargo run --features web -- --landingpage (mit Landing Page)\n- cargo run --features web -- stop (Hintergrund-Server stoppen)", "weight": 2.0},
-  {"input": "AIRust nasil baslatilir?", "output": "Calistirin: cargo run --features web\nBu, web sunucusunu http://localhost:7070 adresinde baslatir.\nKonsol WebSocket ws://localhost:7071 uzerinde calisir.\n\nDiger secenekler:\n- cargo run --features web -- --port 8080 (ozel port)\n- cargo run --features web -- -d (arka plan modu)\n- cargo run --features web -- --landingpage (acilis sayfasi ile)\n- cargo run --features web -- stop (arka plan sunucusunu durdur)", "weight": 2.0},
-
-  {"input": "What happens when AIRust starts?", "output": "1. Database is opened (airust.db) — created automatically if missing\n2. 4 Agents are created: TF-IDF, Exact Match, Fuzzy Match, Context\n3. Knowledge Base is loaded (embedded JSON + SQLite training data)\n4. All agents are trained with the KB data\n5. Web server starts on port 7070\n6. Console WebSocket starts on port 7071\n7. Default active agent is TF-IDF", "weight": 1.5},
-  {"input": "Was passiert beim Start von AIRust?", "output": "1. Datenbank wird geoeffnet (airust.db) — wird automatisch erstellt falls nicht vorhanden\n2. 4 Agenten werden erstellt: TF-IDF, Exact Match, Fuzzy Match, Context\n3. Knowledge Base wird geladen (eingebettete JSON + SQLite-Trainingsdaten)\n4. Alle Agenten werden mit den KB-Daten trainiert\n5. Webserver startet auf Port 7070\n6. Console WebSocket startet auf Port 7071\n7. Standard-Agent ist TF-IDF", "weight": 1.5},
-
-  {"input": "How do I use the chat?", "output": "1. Open http://localhost:7070 in your browser\n2. The Chat tab is active by default\n3. Click + (top left) to create a new chat\n4. Type a question in the input field at the bottom\n5. Press Enter or click Send\n6. The answer appears with a confidence score (0-100%)\n\nYour question goes to all active agents in parallel. The answer with the highest confidence wins.", "weight": 2.0},
-  {"input": "Wie benutze ich den Chat?", "output": "1. Oeffne http://localhost:7070 im Browser\n2. Der Chat-Tab ist beim Start aktiv\n3. Klicke + (oben links) um einen neuen Chat zu erstellen\n4. Tippe eine Frage ins Eingabefeld unten\n5. Druecke Enter oder klicke Send\n6. Die Antwort erscheint mit einem Confidence-Score (0-100%)\n\nDeine Frage geht an alle aktiven Agenten gleichzeitig. Die Antwort mit der hoechsten Confidence gewinnt.", "weight": 2.0},
-  {"input": "Chat nasil kullanilir?", "output": "1. Tarayicinizda http://localhost:7070 adresini acin\n2. Chat sekmesi varsayilan olarak aktiftir\n3. Yeni bir sohbet olusturmak icin + isaretine tiklayin\n4. Alttaki giris alanina bir soru yazin\n5. Enter'a basin veya Send'e tiklayin\n6. Yanit bir guven puaniyla (0-100%) gorunur\n\nSorunuz tum aktif ajanlara paralel olarak gider. En yuksek guvene sahip yanit kazanir.", "weight": 2.0},
-
-  {"input": "What agents are available?", "output": "AIRust has 4 agent types:\n\n1. Smart Search (TF-IDF/BM25) — Splits questions into words, calculates importance by frequency and rarity, ranks by BM25 score. Best for natural language.\n2. Word-for-Word (Exact Match) — Compares input exactly (case-insensitive) against all training questions. For exact commands or keywords.\n3. Close Enough (Fuzzy/Levenshtein) — Calculates Levenshtein distance, tolerates typos. For users who often mistype.\n4. Remembers Chat (Context + TF-IDF) — Appends previous Q&A to the current question, uses TF-IDF underneath. For multi-turn conversations.", "weight": 2.0},
-  {"input": "Welche Agenten gibt es?", "output": "AIRust hat 4 Agenten-Typen:\n\n1. Smart Search (TF-IDF/BM25) — Zerlegt Fragen in Woerter, berechnet Gewichtung nach Haeufigkeit und Seltenheit, rankt nach BM25-Score. Beste Wahl fuer natuerliche Sprache.\n2. Word-for-Word (Exact Match) — Vergleicht Eingabe exakt (case-insensitive) mit allen Trainingsfragen. Fuer exakte Kommandos.\n3. Close Enough (Fuzzy/Levenshtein) — Berechnet Levenshtein-Distanz, toleriert Tippfehler.\n4. Remembers Chat (Context + TF-IDF) — Haengt vorherige Fragen+Antworten an die aktuelle Frage, nutzt TF-IDF darunter. Fuer mehrteilige Gespraeche.", "weight": 2.0},
-  {"input": "Hangi ajanlar mevcut?", "output": "AIRust'ta 4 ajan tipi vardir:\n\n1. Smart Search (TF-IDF/BM25) — Sorulari kelimelere ayirir, siklik ve nadirlige gore onem hesaplar. Dogal dil icin en iyisi.\n2. Word-for-Word (Exact Match) — Girdiyi tum egitim sorulariyla birebir karsilastirir.\n3. Close Enough (Fuzzy/Levenshtein) — Levenshtein mesafesi hesaplar, yazim hatalarini tolere eder.\n4. Remembers Chat (Context + TF-IDF) — Onceki soru-cevaplari mevcut soruya ekler, altinda TF-IDF kullanir.", "weight": 2.0},
-
-  {"input": "How do I select agents?", "output": "Go to Settings in the sidebar. You'll see 4 agent checkboxes:\n- Smart Search (TF-IDF) — checked by default\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nYou can check multiple agents! When you send a query, ALL checked agents run in parallel. The answer with the highest confidence wins. The status bar at the bottom shows your active agents.", "weight": 1.5},
-  {"input": "Wie waehle ich Agenten aus?", "output": "Gehe zu Settings in der Sidebar. Du siehst 4 Agent-Checkboxen:\n- Smart Search (TF-IDF) — standardmaessig aktiviert\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nDu kannst mehrere Agenten gleichzeitig ankreuzen! Bei einer Query laufen ALLE ausgewaehlten parallel. Die Antwort mit der hoechsten Confidence gewinnt. Die Statusbar unten zeigt die aktiven Agenten.", "weight": 1.5},
-  {"input": "Ajanlar nasil secilir?", "output": "Kenar cubugundaki Settings'e gidin. 4 ajan onay kutusu goreceksiniz:\n- Smart Search (TF-IDF) — varsayilan olarak secili\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nBirden fazla ajan secebilirsiniz! Bir sorgu gonderdiginizde TUM secili ajanlar paralel calisir. En yuksek guvene sahip yanit kazanir.", "weight": 1.5},
-
-  {"input": "What agent combinations do you recommend?", "output": "Recommended combinations:\n- TF-IDF alone — Standard, fast, good enough for most cases\n- TF-IDF + Fuzzy — Semantics + typo tolerance\n- TF-IDF + Exact — Semantics + prefer exact matches when available\n- All 4 — Maximum coverage, always the best answer\n- Context alone — For multi-turn conversations with memory", "weight": 1.5},
-  {"input": "Welche Agenten-Kombinationen empfiehlst du?", "output": "Empfohlene Kombinationen:\n- TF-IDF allein — Standard, schnell, gut genug fuer die meisten Faelle\n- TF-IDF + Fuzzy — Semantik + Tippfehler-Toleranz\n- TF-IDF + Exact — Semantik + exakte Treffer bevorzugen\n- Alle 4 — Maximale Abdeckung, immer die beste Antwort\n- Context allein — Fuer mehrteilige Gespraeche mit Gedaechtnis", "weight": 1.5},
-
-  {"input": "What does confidence mean?", "output": "Confidence is how sure the agent is about the answer (0-100%):\n- 80-100%: Very confident, good match found\n- 50-80%: Partially matching, answer might be imprecise\n- 0-50%: Low confidence, agent didn't find a good match\n\nWhen multiple agents are active, the one with the highest confidence wins.", "weight": 1.5},
-  {"input": "Was bedeutet Confidence?", "output": "Confidence zeigt wie sicher der Agent bei der Antwort ist (0-100%):\n- 80-100%: Sehr sicher, gute Uebereinstimmung gefunden\n- 50-80%: Teilweise passend, moeglicherweise ungenaue Antwort\n- 0-50%: Niedrige Sicherheit, keine gute Uebereinstimmung\n\nBei mehreren aktiven Agenten gewinnt der mit der hoechsten Confidence.", "weight": 1.5},
-
-  {"input": "How do I add training data?", "output": "Several ways:\n\n1. Manual: Go to Brain tab > All > click 'Add Example'. Fill in Input (question), Output (answer), Format (text/markdown/json), Weight (0-10, default 1.0). Click Save.\n\n2. JSON Import: Brain tab > Import. Paste a JSON array or upload a .json file.\n\n3. PDF Upload: Brain tab > Import > drag & drop a PDF. Text is automatically extracted and chunked.\n\n4. Tatoeba Import: Brain tab > Import > upload a TSV file from manythings.org for translation pairs.\n\nAll agents are automatically retrained after any addition.", "weight": 2.0},
-  {"input": "Wie fuege ich Trainingsdaten hinzu?", "output": "Mehrere Wege:\n\n1. Manuell: Brain Tab > All > 'Add Example' klicken. Input (Frage), Output (Antwort), Format (text/markdown/json), Weight (0-10, Standard 1.0) ausfuellen. Save klicken.\n\n2. JSON Import: Brain Tab > Import. JSON-Array einfuegen oder .json-Datei hochladen.\n\n3. PDF Upload: Brain Tab > Import > PDF per Drag & Drop hochladen. Text wird automatisch extrahiert und in Chunks zerlegt.\n\n4. Tatoeba Import: Brain Tab > Import > TSV-Datei von manythings.org hochladen fuer Uebersetzungspaare.\n\nAlle Agenten werden nach jeder Aenderung automatisch neu trainiert.", "weight": 2.0},
-  {"input": "Egitim verileri nasil eklenir?", "output": "Birkac yol:\n\n1. Manuel: Brain sekmesi > All > 'Add Example' tiklayin. Input (soru), Output (yanit), Format (text/markdown/json), Weight (0-10) doldurun.\n\n2. JSON Iceri Aktarma: Brain sekmesi > Import. JSON dizisi yapistirin veya .json dosyasi yukleyin.\n\n3. PDF Yukleme: Brain sekmesi > Import > PDF'i surukleyip birakin. Metin otomatik olarak cikarilir.\n\n4. Tatoeba Iceri Aktarma: Brain sekmesi > Import > manythings.org'dan TSV dosyasi yukleyin.\n\nTum ajanlar her eklemeden sonra otomatik olarak yeniden egitilir.", "weight": 2.0},
-
-  {"input": "How does the training data format look?", "output": "JSON array format:\n[\n  {\n    \"input\": \"What is Rust?\",\n    \"output\": \"A systems programming language\",\n    \"format\": \"text\",\n    \"weight\": 1.0\n  }\n]\n\nFields:\n- input: The question/trigger\n- output: The answer\n- format: text (default), markdown, or json\n- weight: Importance 0.0-10.0 (higher = preferred in similar matches)\n\nOld-style {\"input\": \"...\", \"output\": \"...\"} without format/weight is also supported.", "weight": 1.5},
-  {"input": "Wie sieht das Trainingsdaten-Format aus?", "output": "JSON-Array Format:\n[\n  {\n    \"input\": \"Was ist Rust?\",\n    \"output\": \"Eine Systemprogrammiersprache\",\n    \"format\": \"text\",\n    \"weight\": 1.0\n  }\n]\n\nFelder:\n- input: Die Frage/der Trigger\n- output: Die Antwort\n- format: text (Standard), markdown oder json\n- weight: Gewichtung 0.0-10.0 (hoeher = bevorzugt bei aehnlichen Treffern)", "weight": 1.5},
-
-  {"input": "How does weight work?", "output": "Weight controls the importance of a training example:\n- Weight 1.0 = normal priority (default)\n- Weight 2.0 = twice as important, preferred when similar matches exist\n- Weight 0.0 = ignored (disabled without deleting)\n- Weight 0.1-0.9 = lower priority than normal\n- Weight 3.0-10.0 = high priority, almost always wins", "weight": 1.0},
-  {"input": "Wie funktioniert die Gewichtung?", "output": "Weight steuert die Wichtigkeit eines Trainingsbeispiels:\n- Weight 1.0 = normale Prioritaet (Standard)\n- Weight 2.0 = doppelt so wichtig, wird bei aehnlichen Treffern bevorzugt\n- Weight 0.0 = wird ignoriert (deaktiviert ohne zu loeschen)\n- Weight 0.1-0.9 = niedrigere Prioritaet als normal\n- Weight 3.0-10.0 = hohe Prioritaet, gewinnt fast immer", "weight": 1.0},
-
-  {"input": "How do I save and load the knowledge base?", "output": "Save: In the Brain tab, at the bottom there's a path bar. Enter a path (e.g. ./knowledge/my_kb.json) and click Save. The KB is saved as a JSON file on the server.\n\nLoad: Enter the path to a JSON file and click Load. The existing KB is REPLACED (not merged!). All agents are retrained automatically.", "weight": 1.5},
-  {"input": "Wie speichere und lade ich die Knowledge Base?", "output": "Speichern: Im Brain Tab gibt es unten eine Pfad-Leiste. Pfad eingeben (z.B. ./knowledge/meine_kb.json) und Save klicken. Die KB wird als JSON auf dem Server gespeichert.\n\nLaden: Pfad zu einer JSON-Datei eingeben und Load klicken. Die bestehende KB wird ERSETZT (nicht gemergt!). Alle Agenten werden automatisch neu trainiert.", "weight": 1.5},
-
-  {"input": "Where does the data come from?", "output": "Data sources:\n1. knowledge/train.json — Compile-time (initially empty [])\n2. SQLite training_data table — Manual entries, imports, PDF uploads\n3. SQLite approved_data — Data collected by bots and approved\n\nAt startup: train.json + DB training_data are merged into one KnowledgeBase, which trains all agents.\n\nAt runtime: New examples are added to KB + DB, and all agents are immediately retrained.", "weight": 1.5},
-  {"input": "Woher kommen die Daten?", "output": "Datenquellen:\n1. knowledge/train.json — Compile-Zeit (initial leer [])\n2. SQLite training_data Tabelle — Manuelle Eintraege, Imports, PDF-Uploads\n3. SQLite approved_data — Von Bots gesammelt und genehmigt\n\nBeim Start: train.json + DB training_data werden zur KnowledgeBase zusammengefuehrt, die alle Agenten trainiert.\n\nZur Laufzeit: Neue Beispiele werden in KB + DB gespeichert, alle Agenten sofort neu trainiert.", "weight": 1.5},
-
-  {"input": "How do categories work?", "output": "Categories help organize training data by topic.\n\n1. Go to Brain tab > Categories sub-tab\n2. Create a new category: Enter name (e.g. 'Tech', 'Smalltalk', 'Support'), pick a color, click Create\n3. When adding training examples, select a category\n4. Filter by category: Click a category to see only its entries\n5. Deleting a category keeps the training data (category is set to 'None')", "weight": 1.0},
-  {"input": "Wie funktionieren Kategorien?", "output": "Kategorien helfen, Trainingsdaten thematisch zu organisieren.\n\n1. Brain Tab > Sub-Tab Categories\n2. Neue Kategorie erstellen: Name eingeben (z.B. 'Technik', 'Smalltalk', 'Support'), Farbe waehlen, Create klicken\n3. Beim Erstellen von Beispielen die Kategorie auswaehlen\n4. Nach Kategorie filtern: Auf eine Kategorie klicken\n5. Kategorie loeschen behaelt die Trainingsdaten (Kategorie wird auf 'Keine' gesetzt)", "weight": 1.0},
-
-  {"input": "How do bots work?", "output": "Bots automatically crawl websites and collect training data.\n\n1. Go to Tools tab > Bots sub-tab\n2. Click 'New Bot'\n3. Configure: Name, URL, Mode (single page or follow links), Max Depth, Rate Limit\n4. Click Create, then Start\n\nWorkflow: Bot crawls → raw data (pending) → Review: Approve/Reject → approved data → Add to Knowledge → agents retrained\n\nDeduplication via SHA-256 content hash prevents duplicate entries.", "weight": 1.5},
-  {"input": "Wie funktionieren Bots?", "output": "Bots crawlen automatisch Webseiten und sammeln Trainingsdaten.\n\n1. Tools Tab > Sub-Tab Bots\n2. 'New Bot' klicken\n3. Konfigurieren: Name, URL, Modus (einzelne Seite oder Links folgen), Max Tiefe, Rate Limit\n4. Create klicken, dann Start\n\nWorkflow: Bot crawlt → Rohdaten (pending) → Review: Approve/Reject → genehmigte Daten → Add to Knowledge → Agenten neu trainiert\n\nDeduplizierung via SHA-256 Content-Hash verhindert Duplikate.", "weight": 1.5},
-  {"input": "Botlar nasil calisir?", "output": "Botlar otomatik olarak web sitelerini tarar ve egitim verileri toplar.\n\n1. Tools sekmesi > Bots alt sekmesi\n2. 'New Bot' tiklayin\n3. Yapilandirin: Ad, URL, Mod (tek sayfa veya linkleri takip), Max Derinlik, Hiz Limiti\n4. Create tiklayin, sonra Start\n\nIs akisi: Bot tarar → ham veri (beklemede) → Inceleme: Onayla/Reddet → onaylanan veriler → Bilgi tabanina ekle → ajanlar yeniden egitilir", "weight": 1.5},
-
-  {"input": "How does the data review work?", "output": "After bots collect data, it needs to be reviewed:\n\n1. Go to Tools tab > Review sub-tab\n2. See all pending data entries\n3. For each entry: Click Approve (good data) or Reject (bad data)\n4. Or use 'Approve All' for bulk approval\n5. Toggle 'Show Approved' to see approved entries\n6. Click 'Add to Knowledge' to transfer approved data to the KB\n7. All agents are automatically retrained", "weight": 1.0},
-  {"input": "Wie funktioniert die Datenprüfung?", "output": "Nachdem Bots Daten gesammelt haben, muessen sie geprueft werden:\n\n1. Tools Tab > Sub-Tab Review\n2. Alle ausstehenden Dateneintraege sehen\n3. Fuer jeden Eintrag: Approve (gut) oder Reject (schlecht) klicken\n4. Oder 'Approve All' fuer Massenfreigabe\n5. 'Show Approved' um genehmigte Eintraege zu sehen\n6. 'Add to Knowledge' klicken um genehmigte Daten in die KB zu uebernehmen\n7. Alle Agenten werden automatisch neu trainiert", "weight": 1.0},
-
-  {"input": "What is the VectorDB?", "output": "The VectorDB stores texts as TF-IDF vectors for similarity search using cosine similarity.\n\n1. Go to Tools tab > VectorDB sub-tab\n2. Create a collection (e.g. 'Product Descriptions')\n3. Add entries: Text + optional JSON metadata\n4. Search: Enter a query, set Top-K (default 5), click Search\n5. Results are sorted by similarity score\n\nHow it works: When adding text, it's converted to a TF-IDF vector. Search queries are also vectorized, then cosine similarity is calculated against all entries.", "weight": 1.5},
-  {"input": "Was ist die VectorDB?", "output": "Die VectorDB speichert Texte als TF-IDF-Vektoren fuer Aehnlichkeitssuche per Cosine-Similarity.\n\n1. Tools Tab > Sub-Tab VectorDB\n2. Collection erstellen (z.B. 'Produktbeschreibungen')\n3. Eintraege hinzufuegen: Text + optionale JSON-Metadaten\n4. Suchen: Query eingeben, Top-K einstellen (Standard: 5), Search klicken\n5. Ergebnisse nach Aehnlichkeits-Score sortiert\n\nFunktionsweise: Beim Hinzufuegen wird Text in TF-IDF-Vektor umgewandelt. Bei der Suche wird die Query ebenfalls vektorisiert und Cosine-Similarity berechnet.", "weight": 1.5},
-
-  {"input": "How does the file manager work?", "output": "Built-in file browser with editor:\n\n1. Go to Tools tab > Files sub-tab\n2. Navigate: Click through folders\n3. Read file: Click a file to open it in the editor\n4. Edit: Modify content, click Save\n5. New File/Folder: Use the respective buttons\n6. Rename/Copy/Delete: Available actions per file\n7. SQLite inspect: Click a .db file to see tables, columns, and data\n\nThe SQLite browser supports pagination and allows INSERT/UPDATE/DELETE queries.", "weight": 1.0},
-  {"input": "Wie funktioniert der Dateimanager?", "output": "Eingebauter Dateibrowser mit Editor:\n\n1. Tools Tab > Sub-Tab Files\n2. Navigieren: Durch Ordnerstruktur klicken\n3. Datei lesen: Klick auf eine Datei oeffnet sie im Editor\n4. Bearbeiten: Inhalt aendern, Save klicken\n5. Neue Datei/Ordner: Entsprechende Buttons nutzen\n6. Umbenennen/Kopieren/Loeschen: Aktionen pro Datei\n7. SQLite inspizieren: .db-Datei anklicken zeigt Tabellen und Inhalte\n\nDer SQLite-Browser unterstuetzt Pagination und erlaubt INSERT/UPDATE/DELETE Queries.", "weight": 1.0},
-
-  {"input": "How does the console work?", "output": "The console is docked at the bottom of the dashboard.\n\n1. Open/Close: Click the console header or the _ button\n2. Server logs appear in real-time (Info, Warn, Error)\n3. Type commands in the input field and press Enter\n\nBuilt-in commands:\n- status: Shows agent, KB entries, version\n- restart: Stops and restarts the server\n- stop: Stops the server (dashboard stays open)\n- start: Starts the server after stop\n- exit: Shuts everything down\n- clear: Clears console output\n\nAnything else is executed as a shell command (ls, git status, etc.)", "weight": 1.5},
-  {"input": "Wie funktioniert die Console?", "output": "Die Console ist unten im Dashboard angedockt.\n\n1. Oeffnen/Schliessen: Klick auf den Console-Header oder den _ Button\n2. Server-Logs erscheinen in Echtzeit (Info, Warn, Error)\n3. Befehle im Eingabefeld tippen und Enter druecken\n\nEingebaute Befehle:\n- status: Zeigt Agent, KB-Eintraege, Version\n- restart: Stoppt und startet den Server neu\n- stop: Stoppt den Server (Dashboard bleibt offen)\n- start: Startet den Server nach Stop wieder\n- exit: Faehrt alles herunter\n- clear: Loescht Console-Ausgabe\n\nAlles andere wird als Shell-Befehl ausgefuehrt (ls, git status, etc.)", "weight": 1.5},
-  {"input": "Konsol nasil calisir?", "output": "Konsol, kontrol panelinin altina yerlestirilmistir.\n\n1. Acma/Kapama: Konsol basligina veya _ dugmesine tiklayin\n2. Sunucu kayitlari gercek zamanli gorunur\n3. Giris alanina komut yazin ve Enter'a basin\n\nYerlesik komutlar:\n- status: Ajan, KB girisleri, surum gosterir\n- restart: Sunucuyu yeniden baslatir\n- stop: Sunucuyu durdurur\n- start: Durdurulduktan sonra baslatir\n- exit: Her seyi kapatir\n- clear: Konsol ciktisini temizler\n\nDiger her sey kabuk komutu olarak calistirilir.", "weight": 1.5},
-
-  {"input": "How do I change the theme?", "output": "Go to Settings in the sidebar:\n- Theme: Dark (default) or Light\n- Accent Color: Color picker — affects buttons, links, highlights\n- Background: Manual or Auto from Accent (complementary color)\n- Text Color: Manual or Auto from Background\n\nOr use smart settings via chat:\n- 'Make it dark' → Dark mode\n- 'Make it light' → Light mode\n- 'Color green' → Green accent\n- 'Background blue' → Blue background", "weight": 1.5},
-  {"input": "Wie aendere ich das Theme?", "output": "Gehe zu Settings in der Sidebar:\n- Theme: Dark (Standard) oder Light\n- Akzentfarbe: Farbwaehler — bestimmt Buttons, Links, Highlights\n- Hintergrund: Manuell oder Auto aus Akzent (Komplementaerfarbe)\n- Textfarbe: Manuell oder Auto aus Hintergrund\n\nOder Smart Settings im Chat:\n- 'Mach die Seite dunkel' → Dark Mode\n- 'Mach es hell' → Light Mode\n- 'Farbe gruen' → Gruene Akzentfarbe\n- 'Hintergrund blau' → Blauer Hintergrund", "weight": 1.5},
-  {"input": "Tema nasil degistirilir?", "output": "Kenar cubugundaki Settings'e gidin:\n- Tema: Dark (varsayilan) veya Light\n- Vurgu Rengi: Renk secici — dugmeleri, baglantilari etkiler\n- Arka Plan: Manuel veya Vurgudan Otomatik\n- Metin Rengi: Manuel veya Arka Plandan Otomatik\n\nVeya sohbet uzerinden akilli ayarlar:\n- 'Make it dark' → Karanlik mod\n- 'Make it light' → Aydinlik mod", "weight": 1.5},
-
-  {"input": "How do I change the language?", "output": "Go to Settings > Language dropdown. Available languages:\n- English\n- Deutsch (German)\n- Turkce (Turkish)\n\nAll UI elements, buttons, and labels are instantly translated (200+ keys).\n\nYou can also use the chat: 'Switch to German', 'Sprache Deutsch', 'Turkce yap'.", "weight": 1.0},
-  {"input": "Wie aendere ich die Sprache?", "output": "Gehe zu Settings > Sprache Dropdown. Verfuegbare Sprachen:\n- English\n- Deutsch\n- Turkce (Tuerkisch)\n\nAlle UI-Elemente, Buttons und Labels werden sofort uebersetzt (200+ Keys).\n\nOder im Chat: 'Switch to English', 'Sprache Deutsch', 'Turkce yap'.", "weight": 1.0},
-
-  {"input": "How do I use AIRust from the command line?", "output": "CLI usage (without web dashboard):\n\nDirect query:\n  airust cli query tfidf \"What is Rust?\"\n  airust cli query fuzzy \"What is Rust?\"\n  airust cli query simple \"What is Rust?\"\n  airust cli query context \"Tell me about Rust\"\n\nInteractive mode:\n  airust cli\n  → Choose agent type (1-4), ask questions in a loop, type 'exit' to quit\n\nKnowledge Base:\n  airust cli knowledge\n  → Create, load, test, extend knowledge bases\n\nPDF conversion:\n  cargo run --bin pdf2kb -- input.pdf output.json\n\nMerge KBs:\n  cargo run --bin merge_kb -- ./knowledge/", "weight": 1.5},
-  {"input": "Wie benutze ich AIRust ueber die Kommandozeile?", "output": "CLI-Nutzung (ohne Web-Dashboard):\n\nDirekte Abfrage:\n  airust cli query tfidf \"Was ist Rust?\"\n  airust cli query fuzzy \"Was ist Rust?\"\n  airust cli query simple \"Was ist Rust?\"\n\nInteraktiver Modus:\n  airust cli\n  → Agent-Typ waehlen (1-4), Fragen im Loop stellen, 'exit' zum Beenden\n\nKnowledge Base:\n  airust cli knowledge\n  → KBs erstellen, laden, testen, erweitern\n\nPDF konvertieren:\n  cargo run --bin pdf2kb -- input.pdf output.json\n\nKBs zusammenfuehren:\n  cargo run --bin merge_kb -- ./knowledge/", "weight": 1.5},
-
-  {"input": "How do I use Docker?", "output": "Build and run:\n  docker build -t airust .\n  docker run -p 7070:7070 airust\n\nWith landing page:\n  docker run -p 7070:7070 airust --landingpage\n\nWith persistent database:\n  docker run -p 7070:7070 -v $(pwd)/airust.db:/app/airust.db airust\n\nCustom port:\n  docker run -p 8080:8080 airust --port 8080\n\nThe container includes the optimized release binary, embedded KB, and creates SQLite at runtime. No external dependencies.", "weight": 1.0},
-  {"input": "Wie benutze ich Docker?", "output": "Bauen und starten:\n  docker build -t airust .\n  docker run -p 7070:7070 airust\n\nMit Landing Page:\n  docker run -p 7070:7070 airust --landingpage\n\nMit persistenter Datenbank:\n  docker run -p 7070:7070 -v $(pwd)/airust.db:/app/airust.db airust\n\nEigener Port:\n  docker run -p 8080:8080 airust --port 8080\n\nDer Container enthaelt das optimierte Release-Binary, eingebettete KB, und erstellt SQLite zur Laufzeit. Keine externen Abhaengigkeiten.", "weight": 1.0},
-
-  {"input": "What API endpoints are available?", "output": "AIRust has 50+ REST API endpoints:\n\n- GET /api/status — Server status and active agents\n- POST /api/query — Send a question, get answer with confidence\n- POST /api/agent/switch — Switch active agents\n- GET/POST /api/knowledge — List/add KB entries\n- POST /api/pdf/upload — Upload PDF for extraction\n- GET/POST /api/settings — Read/write settings\n- GET /api/translations/:lang — UI translations\n- GET/POST /api/chats — Chat history\n- GET/POST /api/training/data — Training data CRUD\n- POST /api/training/import — Bulk import\n- GET /api/training/export — Export all data\n- GET/POST /api/bots — Bot management\n- GET/POST /api/vectors/* — VectorDB operations\n- GET/POST /api/files/* — File system operations\n- GET /api/guide — This startup guide", "weight": 1.5},
-  {"input": "Welche API-Endpoints gibt es?", "output": "AIRust hat 50+ REST API Endpoints:\n\n- GET /api/status — Server-Status und aktive Agenten\n- POST /api/query — Frage senden, Antwort mit Confidence erhalten\n- POST /api/agent/switch — Aktive Agenten wechseln\n- GET/POST /api/knowledge — KB-Eintraege auflisten/hinzufuegen\n- POST /api/pdf/upload — PDF hochladen\n- GET/POST /api/settings — Einstellungen lesen/schreiben\n- GET/POST /api/chats — Chat-History\n- GET/POST /api/training/data — Trainingsdaten CRUD\n- POST /api/training/import — Massenimport\n- GET /api/training/export — Alle Daten exportieren\n- GET/POST /api/bots — Bot-Verwaltung\n- GET/POST /api/vectors/* — VectorDB-Operationen\n- GET/POST /api/files/* — Dateisystem-Operationen\n- GET /api/guide — Diese Startup-Anleitung", "weight": 1.5},
-
-  {"input": "How do I query the API?", "output": "Example with curl:\n\nQuery:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"What is Rust?\", \"add_context\": false}'\n\nResponse: {\"response\": \"...\", \"confidence\": 0.87, \"agent\": \"tfidf\", \"agents_used\": [\"tfidf\"]}\n\nSwitch agents:\n  curl -X POST http://localhost:7070/api/agent/switch \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"agent_types\": [\"tfidf\", \"fuzzy\"]}'", "weight": 1.0},
-  {"input": "Wie frage ich die API ab?", "output": "Beispiel mit curl:\n\nQuery:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"Was ist Rust?\", \"add_context\": false}'\n\nAntwort: {\"response\": \"...\", \"confidence\": 0.87, \"agent\": \"tfidf\", \"agents_used\": [\"tfidf\"]}\n\nAgenten wechseln:\n  curl -X POST http://localhost:7070/api/agent/switch \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"agent_types\": [\"tfidf\", \"fuzzy\"]}'", "weight": 1.0},
-
-  {"input": "How do I use AIRust as a Rust library?", "output": "Add to Cargo.toml:\n  [dependencies]\n  airust = \"0.1.7\"\n\nBasic example:\n  use airust::{Agent, TrainableAgent, MatchAgent, KnowledgeBase};\n  let kb = KnowledgeBase::from_embedded();\n  let mut agent = MatchAgent::new_exact();\n  agent.train(kb.get_examples());\n  let answer = agent.predict(\"What is AIRust?\");\n\nWith TF-IDF + Context:\n  let mut base = TfidfAgent::new().with_bm25_params(1.5, 0.8);\n  base.train(kb.get_examples());\n  let mut agent = ContextAgent::new(base, 5);\n  let answer = agent.predict(\"What is AIRust?\");", "weight": 1.0},
-  {"input": "Wie benutze ich AIRust als Rust-Bibliothek?", "output": "In Cargo.toml einfuegen:\n  [dependencies]\n  airust = \"0.1.7\"\n\nBasic Beispiel:\n  use airust::{Agent, TrainableAgent, MatchAgent, KnowledgeBase};\n  let kb = KnowledgeBase::from_embedded();\n  let mut agent = MatchAgent::new_exact();\n  agent.train(kb.get_examples());\n  let answer = agent.predict(\"Was ist AIRust?\");\n\nMit TF-IDF + Context:\n  let mut base = TfidfAgent::new().with_bm25_params(1.5, 0.8);\n  base.train(kb.get_examples());\n  let mut agent = ContextAgent::new(base, 5);", "weight": 1.0},
-
-  {"input": "How does PDF processing work?", "output": "AIRust extracts knowledge from PDFs automatically:\n\n1. PDF is uploaded and text extracted\n2. Text is split into chunks (max 1000 chars, min 50)\n3. Chunks overlap by 200 characters (to keep context)\n4. Each chunk becomes a question-answer training pair\n5. Agents are retrained\n\nVia CLI: cargo run --bin pdf2kb -- document.pdf output.json\nVia web: Brain tab > Import > drag & drop PDF\nVia API: POST /api/pdf/upload with multipart form\n\nLimitations: Only text-based PDFs (no scanned images/OCR). Tables are extracted as flowing text.", "weight": 1.5},
-  {"input": "Wie funktioniert die PDF-Verarbeitung?", "output": "AIRust extrahiert Wissen aus PDFs automatisch:\n\n1. PDF wird hochgeladen und Text extrahiert\n2. Text wird in Chunks zerlegt (max 1000 Zeichen, min 50)\n3. Chunks ueberlappen sich um 200 Zeichen (Kontext bleibt erhalten)\n4. Jeder Chunk wird als Frage-Antwort-Paar gespeichert\n5. Agenten werden neu trainiert\n\nPer CLI: cargo run --bin pdf2kb -- dokument.pdf output.json\nPer Web: Brain Tab > Import > PDF per Drag & Drop\nPer API: POST /api/pdf/upload mit Multipart-Form\n\nEinschraenkungen: Nur textbasierte PDFs (kein OCR). Tabellen werden als Fliesstext extrahiert.", "weight": 1.5},
-
-  {"input": "What is TF-IDF?", "output": "TF-IDF (Term Frequency - Inverse Document Frequency) is the algorithm behind the Smart Search agent. It works by:\n\n1. Splitting text into individual words (tokens)\n2. TF: How often a word appears in a specific document\n3. IDF: How rare a word is across ALL documents\n4. Common words (the, is, and) get low scores\n5. Rare, meaningful words get high scores\n\nAIRust uses the BM25 variant (same algorithm as Elasticsearch) which adds length normalization and term saturation. Parameters: k1 (term scaling, default 1.2) and b (length normalization, default 0.75).", "weight": 1.5},
-  {"input": "Was ist TF-IDF?", "output": "TF-IDF (Term Frequency - Inverse Document Frequency) ist der Algorithmus hinter dem Smart Search Agenten:\n\n1. Text wird in einzelne Woerter (Tokens) zerlegt\n2. TF: Wie oft ein Wort in einem bestimmten Dokument vorkommt\n3. IDF: Wie selten ein Wort ueber ALLE Dokumente ist\n4. Haeufige Woerter (der, die, das, ist) bekommen niedrige Scores\n5. Seltene, bedeutungsvolle Woerter bekommen hohe Scores\n\nAIRust nutzt die BM25-Variante (gleicher Algorithmus wie Elasticsearch) mit Laengennormalisierung. Parameter: k1 (Term-Skalierung) und b (Laengennormalisierung).", "weight": 1.5},
-
-  {"input": "What is Levenshtein distance?", "output": "Levenshtein distance measures how many single-character edits (insertions, deletions, substitutions) are needed to change one string into another.\n\nExamples:\n- 'cat' → 'car' = distance 1 (substitute t→r)\n- 'hello' → 'helo' = distance 1 (delete one l)\n- 'rust' → 'roost' = distance 2\n\nThe Fuzzy agent uses this to tolerate typos. If the distance is within the threshold (30% of input length by default), it considers it a match.", "weight": 1.0},
-  {"input": "Was ist die Levenshtein-Distanz?", "output": "Die Levenshtein-Distanz misst, wie viele Einzelzeichen-Aenderungen (Einfuegen, Loeschen, Ersetzen) noetig sind, um einen String in einen anderen umzuwandeln.\n\nBeispiele:\n- 'Katze' → 'Matze' = Distanz 1 (K→M ersetzen)\n- 'Hallo' → 'Halo' = Distanz 1 (ein l loeschen)\n\nDer Fuzzy-Agent nutzt dies um Tippfehler zu tolerieren. Wenn die Distanz innerhalb des Schwellwerts liegt (Standard: 30% der Eingabelaenge), gilt es als Treffer.", "weight": 1.0},
-
-  {"input": "How does the Context agent work?", "output": "The Context agent wraps another agent (TF-IDF by default) and adds conversation memory.\n\nHow it works:\n1. It stores the last N exchanges (default: 5 turns)\n2. When you ask a new question, it appends previous Q&A to your query\n3. The wrapped agent (TF-IDF) then searches with the enriched context\n4. This allows follow-up questions like 'Tell me more' or 'What about X?'\n\nExample:\n- Q1: 'What is Rust?' → A1: 'A programming language'\n- Q2: 'Who created it?' → Agent searches with context of Q1+A1+Q2, so it knows 'it' refers to Rust", "weight": 1.5},
-  {"input": "Wie funktioniert der Context-Agent?", "output": "Der Context-Agent umhuellt einen anderen Agenten (standardmaessig TF-IDF) und fuegt Gespraeches-Gedaechtnis hinzu.\n\nSo funktioniert es:\n1. Er speichert die letzten N Austausche (Standard: 5 Turns)\n2. Bei einer neuen Frage haengt er vorherige Q&A an die Query an\n3. Der umhuellte Agent (TF-IDF) sucht dann mit dem angereicherten Kontext\n4. Das ermoeglicht Folgefragen wie 'Erzaehl mehr' oder 'Was ist mit X?'\n\nBeispiel:\n- F1: 'Was ist Rust?' → A1: 'Eine Programmiersprache'\n- F2: 'Wer hat es erfunden?' → Agent sucht mit Kontext von F1+A1+F2", "weight": 1.5},
-
-  {"input": "What is the architecture of AIRust?", "output": "Layered architecture:\n\n┌─────────────────────────┐\n│     Web Dashboard       │\n│  Chat|Brain|Tools|Settings│\n├─────────────────────────┤\n│  REST API (50+ Endpoints)│\n├──────┬──────┬─────┬─────┤\n│TF-IDF│Exact │Fuzzy│Ctx  │\n│Agent │Match │Match│Agent│\n├──────┴──────┴─────┴─────┤\n│    Knowledge Base       │\n│  Embedded + SQLite      │\n├─────────────────────────┤\n│  SQLite (airust.db)     │\n│  Chats, Settings, Bots  │\n├─────────────────────────┤\n│  Console (WS :7071)     │\n└─────────────────────────┘\n\nCore traits: Agent, TrainableAgent, ContextualAgent, ConfidenceAgent", "weight": 1.0},
-  {"input": "Wie ist die Architektur von AIRust?", "output": "Schichtarchitektur:\n\n- Web Dashboard (Chat, Brain, Tools, Settings)\n- REST API (50+ Endpoints)\n- 4 Agenten (TF-IDF, Exact, Fuzzy, Context)\n- Knowledge Base (eingebettete JSON + SQLite)\n- SQLite Datenbank (Chats, Settings, Bots, Vektoren)\n- Console (WebSocket auf Port 7071)\n\nAlles kommuniziert ueber saubere Rust Traits: Agent, TrainableAgent, ContextualAgent, ConfidenceAgent.\n\n100% lokal, keine Cloud, keine externen APIs, keine Telemetrie.", "weight": 1.0},
-
-  {"input": "How do I build AIRust?", "output": "From source:\n  git clone https://github.com/LEVOGNE/airust.git\n  cd airust\n  cargo build --release --features web\n\nThe --features web flag enables the web dashboard. Without it, only the CLI and library are built.\n\nAs a library in your project:\n  [dependencies]\n  airust = \"0.1.7\"\n\nRequirements: Rust 1.85+", "weight": 1.5},
-  {"input": "Wie baue ich AIRust?", "output": "Aus dem Quellcode:\n  git clone https://github.com/LEVOGNE/airust.git\n  cd airust\n  cargo build --release --features web\n\nDas --features web Flag aktiviert das Web-Dashboard. Ohne es werden nur CLI und Bibliothek gebaut.\n\nAls Bibliothek in deinem Projekt:\n  [dependencies]\n  airust = \"0.1.7\"\n\nVoraussetzung: Rust 1.85+", "weight": 1.5},
-
-  {"input": "What features does AIRust have?", "output": "Key features:\n- 4 Agent Types: Exact Match, Fuzzy Match, TF-IDF/BM25 Semantic, Context-Aware\n- Knowledge Base: JSON-based, compile-time embedded, runtime expandable\n- PDF Processing: Convert PDFs to training data with smart chunking\n- Web Dashboard: Full UI with chat, training manager, bot control, file browser\n- Bot Ecosystem: Automated web scraping with review workflow\n- Vector Database: Embedding storage and similarity search\n- Chat History: Persistent conversations with archiving\n- Multi-Language UI: English, German, Turkish\n- REST API: 50+ endpoints\n- WebSocket Console: Live terminal with server logs and shell access\n- Docker Support: One-command deployment\n- CLI Tools: Interactive mode, query tools, PDF conversion\n- 100% local — no cloud, no API keys, fully private", "weight": 2.0},
-  {"input": "Welche Features hat AIRust?", "output": "Hauptfunktionen:\n- 4 Agenten-Typen: Exact Match, Fuzzy Match, TF-IDF/BM25, Context-Aware\n- Knowledge Base: JSON-basiert, compile-time eingebettet, zur Laufzeit erweiterbar\n- PDF-Verarbeitung: PDFs zu Trainingsdaten mit intelligentem Chunking\n- Web Dashboard: Vollstaendige UI mit Chat, Training-Manager, Bot-Steuerung, Dateibrowser\n- Bot Ecosystem: Automatisches Web-Scraping mit Review-Workflow\n- Vector-Datenbank: Embedding-Speicher und Aehnlichkeitssuche\n- Chat-History: Persistente Gespraeche mit Archivierung\n- Mehrsprachige UI: Englisch, Deutsch, Tuerkisch\n- REST API: 50+ Endpoints\n- WebSocket Console: Live-Terminal mit Server-Logs und Shell-Zugang\n- Docker Support: Ein-Befehl-Deployment\n- 100% lokal — keine Cloud, keine API-Keys, voellig privat", "weight": 2.0},
-  {"input": "AIRust'un ozellikleri nelerdir?", "output": "Temel ozellikler:\n- 4 Ajan Tipi: Exact Match, Fuzzy Match, TF-IDF/BM25, Context-Aware\n- Bilgi Tabani: JSON tabanli, derleme zamaninda gomulu, calisma zamaninda genisletilebilir\n- PDF Isleme: PDF'leri akilli parcalama ile egitim verilerine donusturme\n- Web Kontrol Paneli: Sohbet, egitim yoneticisi, bot kontrolu, dosya tarayicisi\n- Bot Ekosistemi: Inceleme is akisiyla otomatik web kazima\n- Vektor Veritabani: Gomme depolama ve benzerlik arama\n- Cok Dilli UI: Ingilizce, Almanca, Turkce\n- REST API: 50+ endpoint\n- %100 yerel — bulut yok, API anahtari yok, tamamen ozel", "weight": 2.0},
-
-  {"input": "How do I export training data?", "output": "Via web: Brain tab > Import sub-tab > click 'Export JSON'. Downloads all training data as a JSON file.\n\nVia API: curl http://localhost:7070/api/training/export > backup.json\n\nVia Knowledge Base: Enter a path in the bottom bar of the Brain tab and click Save to export the current KB.", "weight": 1.0},
-  {"input": "Wie exportiere ich Trainingsdaten?", "output": "Per Web: Brain Tab > Import Sub-Tab > 'Export JSON' klicken. Laedt alle Trainingsdaten als JSON-Datei herunter.\n\nPer API: curl http://localhost:7070/api/training/export > backup.json\n\nPer Knowledge Base: Im Brain Tab unten einen Pfad eingeben und Save klicken.", "weight": 1.0},
-
-  {"input": "How do I import Tatoeba translation data?", "output": "Tatoeba provides bilingual sentence pairs from manythings.org/anki/\n\nFormat (TSV — tab-separated):\nHello\\tHallo\\tCC-BY 2.0\nHow are you?\\tWie geht es dir?\\tCC-BY 2.0\n\nSteps:\n1. Download a TSV file from manythings.org\n2. Brain tab > Import sub-tab > Tatoeba section\n3. Upload the TSV file\n4. Each line becomes a source→target language pair\n5. Agents are retrained", "weight": 1.0},
-  {"input": "Wie importiere ich Tatoeba-Uebersetzungsdaten?", "output": "Tatoeba bietet zweisprachige Satzpaare von manythings.org/anki/\n\nFormat (TSV — Tab-getrennt):\nHello\\tHallo\\tCC-BY 2.0\nHow are you?\\tWie geht es dir?\\tCC-BY 2.0\n\nSchritte:\n1. TSV-Datei von manythings.org herunterladen\n2. Brain Tab > Import Sub-Tab > Tatoeba-Bereich\n3. TSV-Datei hochladen\n4. Jede Zeile wird als Quellsprache→Zielsprache Paar gespeichert\n5. Agenten werden neu trainiert", "weight": 1.0},
-
-  {"input": "What is the merge_kb tool?", "output": "merge_kb merges multiple JSON knowledge base files into one.\n\nUsage: cargo run --bin merge_kb -- ./knowledge/\n\nIt searches the given folder for all .json files, loads each as a KB, merges them together, and saves the result as knowledge/train.json. Useful when you have multiple topic-specific KB files that you want to combine.", "weight": 1.0},
-  {"input": "Was ist das merge_kb Tool?", "output": "merge_kb fuegt mehrere JSON Knowledge-Base-Dateien zu einer zusammen.\n\nVerwendung: cargo run --bin merge_kb -- ./knowledge/\n\nEs durchsucht den angegebenen Ordner nach allen .json-Dateien, laedt jede als KB, merged sie zusammen und speichert als knowledge/train.json. Nuetzlich wenn du mehrere themenspezifische KB-Dateien kombinieren willst.", "weight": 1.0},
-
-  {"input": "Is AIRust free?", "output": "Yes! AIRust is open source under the MIT License. You can use it freely for personal and commercial projects. No API keys, no subscriptions, no hidden costs. 100% local, 100% free.", "weight": 1.0},
-  {"input": "Ist AIRust kostenlos?", "output": "Ja! AIRust ist Open Source unter der MIT-Lizenz. Du kannst es frei fuer persoenliche und kommerzielle Projekte nutzen. Keine API-Keys, keine Abos, keine versteckten Kosten. 100% lokal, 100% kostenlos.", "weight": 1.0},
-  {"input": "AIRust ucretsiz mi?", "output": "Evet! AIRust, MIT Lisansi altinda acik kaynaktir. Kisisel ve ticari projeler icin ozgurce kullanabilirsiniz. API anahtari yok, abonelik yok, gizli maliyet yok. %100 yerel, %100 ucretsiz.", "weight": 1.0},
-
-  {"input": "What version is AIRust?", "output": "Current version: 0.1.7\n\nVersion history:\n- 0.1.7: Multi-agent mode, web dashboard improvements\n- 0.1.6: PDF processing\n- 0.1.5: Web bots & scraping\n- 0.1.4: VectorDB, file manager\n- 0.1.3: English translations\n- 0.1.2: Context agent, chat history", "weight": 1.0},
-  {"input": "Welche Version ist AIRust?", "output": "Aktuelle Version: 0.1.7\n\nVersionshistorie:\n- 0.1.7: Multi-Agent Modus, Web-Dashboard Verbesserungen\n- 0.1.6: PDF-Verarbeitung\n- 0.1.5: Web-Bots & Scraping\n- 0.1.4: VectorDB, Dateimanager\n- 0.1.3: Englische Uebersetzungen\n- 0.1.2: Context-Agent, Chat-History", "weight": 1.0},
-
-  {"input": "help", "output": "Welcome to AIRust! Here's how to get started:\n\n1. Ask questions in the Chat tab — I'll answer based on my training data\n2. Add knowledge in the Brain tab — manually, via JSON, PDF, or web scraping\n3. Choose agents in Settings — TF-IDF (default), Exact, Fuzzy, or Context\n4. Use the Console at the bottom for server commands\n5. Check the Guide tab for the full documentation\n\nTry asking: 'What is AIRust?', 'How do I add training data?', 'What agents are available?'", "weight": 3.0},
-  {"input": "hilfe", "output": "Willkommen bei AIRust! So startest du:\n\n1. Stelle Fragen im Chat Tab — Ich antworte basierend auf meinen Trainingsdaten\n2. Fuege Wissen im Brain Tab hinzu — manuell, per JSON, PDF oder Web-Scraping\n3. Waehle Agenten in Settings — TF-IDF (Standard), Exact, Fuzzy oder Context\n4. Nutze die Console unten fuer Server-Befehle\n5. Schau im Guide Tab fuer die vollstaendige Dokumentation\n\nProbier: 'Was ist AIRust?', 'Wie fuege ich Trainingsdaten hinzu?', 'Welche Agenten gibt es?'", "weight": 3.0},
-  {"input": "yardim", "output": "AIRust'a hosgeldiniz! Nasil baslanir:\n\n1. Chat sekmesinde sorular sorun — egitim verilerime gore yanitlarim\n2. Brain sekmesinde bilgi ekleyin — manuel, JSON, PDF veya web kazima ile\n3. Settings'de ajan secin — TF-IDF (varsayilan), Exact, Fuzzy veya Context\n4. Alttaki Konsolu sunucu komutlari icin kullanin\n5. Tam dokumantasyon icin Guide sekmesini kontrol edin", "weight": 3.0},
-
-  {"input": "What can you do?", "output": "I'm AIRust, a local AI assistant that you train yourself! I can:\n\n- Answer questions based on my training data\n- Search with 4 different algorithms (exact, fuzzy, semantic, contextual)\n- Learn from JSON, PDFs, and web scraping\n- Remember conversation context\n- Work in English, German, and Turkish\n\nMy knowledge depends on what you teach me. Add training data in the Brain tab to make me smarter!", "weight": 2.0},
-  {"input": "Was kannst du?", "output": "Ich bin AIRust, ein lokaler KI-Assistent, den du selbst trainierst! Ich kann:\n\n- Fragen basierend auf meinen Trainingsdaten beantworten\n- Mit 4 verschiedenen Algorithmen suchen (exakt, fuzzy, semantisch, kontextuell)\n- Aus JSON, PDFs und Web-Scraping lernen\n- Gespraeches-Kontext merken\n- Auf Englisch, Deutsch und Tuerkisch arbeiten\n\nMein Wissen haengt davon ab, was du mir beibringst. Fuege Trainingsdaten im Brain Tab hinzu!", "weight": 2.0},
-  {"input": "Ne yapabilirsin?", "output": "Ben AIRust, kendiniz egittiginiz yerel bir yapay zeka asistaniyim! Yapabileceklerim:\n\n- Egitim verilerime dayali sorulari yanitlamak\n- 4 farkli algoritma ile aramak (birebir, bulanik, anlamsal, baglamsal)\n- JSON, PDF ve web kazimadan ogrenmek\n- Sohbet baglamini hatirlamak\n- Ingilizce, Almanca ve Turkce calismak\n\nBilgim bana ne ogrettiginize baglidir. Brain sekmesine egitim verileri ekleyin!", "weight": 2.0},
-
-  {"input": "How do smart settings work?", "output": "You can change settings by typing naturally in the chat:\n\nTheme:\n- 'Make it dark' / 'Mach die Seite dunkel' → Dark mode\n- 'Make it light' / 'Mach es hell' → Light mode\n\nColors:\n- 'Color green' / 'Farbe gruen' → Green accent\n- 'Background blue' / 'Hintergrund blau' → Blue background\n\nLanguage:\n- 'Switch to English' / 'Sprache Deutsch' / 'Turkce yap'\n\nWorks in English, German, and Turkish. The system detects keywords and applies the setting automatically.", "weight": 1.0},
-  {"input": "Wie funktionieren Smart Settings?", "output": "Du kannst Einstellungen aendern, indem du natuerlich im Chat tippst:\n\nTheme:\n- 'Mach die Seite dunkel' / 'Make it dark' → Dark Mode\n- 'Mach es hell' / 'Make it light' → Light Mode\n\nFarben:\n- 'Farbe gruen' / 'Color green' → Gruene Akzentfarbe\n- 'Hintergrund blau' / 'Background blue' → Blauer Hintergrund\n\nSprache:\n- 'Sprache Deutsch' / 'Switch to English' / 'Turkce yap'\n\nFunktioniert auf Deutsch, Englisch und Tuerkisch.", "weight": 1.0},
-
-  {"input": "What are the use cases for AIRust?", "output": "Popular use cases:\n- Customer support bot — Train with FAQ data, deploy as web widget\n- Internal knowledge base — Company wiki searchable via chat\n- Document search — Upload PDFs, search content with natural language\n- Language learning — Import Tatoeba translation pairs\n- Personal assistant — Train with your own notes and references\n- Data collection pipeline — Bots scrape, you review, KB grows automatically\n- Embedded AI — Use as Rust library in your own applications\n- Offline AI — Works without internet, perfect for air-gapped systems", "weight": 1.0},
-  {"input": "Wofuer kann man AIRust nutzen?", "output": "Beliebte Anwendungsfaelle:\n- Kundensupport-Bot — Mit FAQ-Daten trainieren, als Web-Widget einsetzen\n- Interne Wissensdatenbank — Firmenwiki durchsuchbar per Chat\n- Dokumentensuche — PDFs hochladen, Inhalte mit natuerlicher Sprache durchsuchen\n- Sprachenlernen — Tatoeba-Uebersetzungspaare importieren\n- Persoenlicher Assistent — Mit eigenen Notizen und Referenzen trainieren\n- Datensammlungs-Pipeline — Bots scrapen, du pruefst, KB waechst automatisch\n- Eingebettete KI — Als Rust-Bibliothek in eigenen Anwendungen\n- Offline-KI — Funktioniert ohne Internet", "weight": 1.0},
-
-  {"input": "What is pattern matching?", "output": "Pattern matching in AIRust means comparing your question against stored training questions to find the best match.\n\nThere are 3 types:\n1. Exact Match — Your question must match a training question exactly (case-insensitive). Fast but strict.\n2. Fuzzy Match — Tolerates typos using Levenshtein distance. 'Waht is Rsut?' still matches 'What is Rust?'\n3. Semantic Match (TF-IDF) — Finds answers based on word meaning and importance, not exact text. 'Tell me about the programming language' can match 'What is Rust?'\n\nYou can enable all 3 simultaneously — the best answer wins.", "weight": 1.5},
-  {"input": "Was ist Pattern Matching?", "output": "Pattern Matching in AIRust bedeutet, deine Frage mit gespeicherten Trainingsfragen zu vergleichen, um die beste Uebereinstimmung zu finden.\n\n3 Typen:\n1. Exact Match — Deine Frage muss exakt mit einer Trainingsfrage uebereinstimmen (case-insensitive). Schnell aber strikt.\n2. Fuzzy Match — Toleriert Tippfehler via Levenshtein-Distanz. 'Ws ist Rsut?' matcht trotzdem 'Was ist Rust?'\n3. Semantischer Match (TF-IDF) — Findet Antworten basierend auf Wortbedeutung und -wichtigkeit, nicht exaktem Text.\n\nDu kannst alle 3 gleichzeitig aktivieren — die beste Antwort gewinnt.", "weight": 1.5},
-  {"input": "Oruntu eslestirme nedir?", "output": "AIRust'ta oruntu eslestirme, sorunuzu depolanmis egitim sorulariyla karsilastirarak en iyi eslemeyi bulmak anlamina gelir.\n\n3 tip vardir:\n1. Exact Match — Sorunuz bir egitim sorusuyla tam olarak eslesmelidir.\n2. Fuzzy Match — Levenshtein mesafesi kullanarak yazim hatalarini tolere eder.\n3. Semantik Esleme (TF-IDF) — Kelime anlami ve onemine gore yanitlar bulur.\n\nHer 3'unu ayni anda etkinlestirebilirsiniz — en iyi yanit kazanir.", "weight": 1.5},
-
-  {"input": "What is fuzzy search?", "output": "Fuzzy search (Close Enough agent) uses the Levenshtein distance algorithm to find matches even when you make typos.\n\nHow it works:\n- Counts the minimum number of character edits (insert, delete, replace) to transform one string into another\n- Example: 'cat' → 'car' = distance 1 (replace t with r)\n- Default threshold: 30% of input length\n- If the distance is within threshold, it's considered a match\n\nPerfect for: Users who often mistype, command-line input, search with spelling errors.", "weight": 1.5},
-  {"input": "Was ist Fuzzy-Suche?", "output": "Fuzzy-Suche (Close Enough Agent) nutzt den Levenshtein-Distanz-Algorithmus um Treffer auch bei Tippfehlern zu finden.\n\nSo funktioniert es:\n- Zaehlt die minimale Anzahl an Zeichenaenderungen (einfuegen, loeschen, ersetzen) um einen String in einen anderen umzuwandeln\n- Beispiel: 'Katze' → 'Matze' = Distanz 1 (K durch M ersetzen)\n- Standard-Schwellwert: 30% der Eingabelaenge\n- Wenn die Distanz innerhalb des Schwellwerts liegt, gilt es als Treffer\n\nIdeal fuer: Benutzer die oft tippen, Kommandozeilen-Eingaben, Suche mit Rechtschreibfehlern.", "weight": 1.5},
-
-  {"input": "What is semantic similarity?", "output": "Semantic similarity is how the Smart Search (TF-IDF) agent works. Instead of matching exact words, it understands the MEANING of your question.\n\nHow:\n1. Your question is split into individual words (tokens)\n2. Common words (the, is, a) are given low importance\n3. Rare, meaningful words are given high importance\n4. BM25 algorithm calculates a relevance score against each training question\n5. The highest-scoring match wins\n\nExample: 'Tell me about the programming language from Mozilla' can match 'What is Rust?' because the meaningful words overlap semantically.", "weight": 1.5},
-  {"input": "Was ist semantische Aehnlichkeit?", "output": "Semantische Aehnlichkeit ist die Arbeitsweise des Smart Search (TF-IDF) Agenten. Statt exakte Woerter abzugleichen, versteht er die BEDEUTUNG deiner Frage.\n\nWie:\n1. Deine Frage wird in einzelne Woerter (Tokens) zerlegt\n2. Haeufige Woerter (der, die, ist) bekommen niedrige Wichtigkeit\n3. Seltene, bedeutungsvolle Woerter bekommen hohe Wichtigkeit\n4. BM25-Algorithmus berechnet einen Relevanz-Score gegen jede Trainingsfrage\n5. Der hoechste Score gewinnt\n\nBeispiel: 'Erzaehl mir ueber die Programmiersprache von Mozilla' kann 'Was ist Rust?' matchen.", "weight": 1.5},
-
-  {"input": "What is BM25?", "output": "BM25 (Best Matching 25) is the ranking algorithm used by AIRust's Smart Search agent. It's the same algorithm used by search engines like Elasticsearch.\n\nIt improves on basic TF-IDF by adding:\n- Term saturation: After a word appears many times, additional occurrences matter less (controlled by k1, default 1.2)\n- Length normalization: Shorter documents aren't unfairly penalized vs longer ones (controlled by b, default 0.75)\n\nIn AIRust: Each training Q&A is a 'document'. Your query is scored against all documents, and the highest-scoring one becomes the answer.", "weight": 1.0},
-  {"input": "Was ist BM25?", "output": "BM25 (Best Matching 25) ist der Ranking-Algorithmus des Smart Search Agenten. Es ist derselbe Algorithmus wie in Suchmaschinen wie Elasticsearch.\n\nVerbesserungen gegenueber einfachem TF-IDF:\n- Term-Saettigung: Nach vielen Vorkommen eines Wortes bringen weitere weniger (gesteuert durch k1, Standard 1.2)\n- Laengennormalisierung: Kuerzere Dokumente werden nicht unfair benachteiligt (gesteuert durch b, Standard 0.75)\n\nIn AIRust: Jedes Trainings-Q&A ist ein 'Dokument'. Deine Query wird gegen alle Dokumente bewertet, das hoechstbewertete wird zur Antwort.", "weight": 1.0},
-
-  {"input": "What is Rust?", "output": "Rust is a systems programming language created by Graydon Hoare at Mozilla. It focuses on safety, speed, and concurrency. AIRust is written entirely in Rust, which means it compiles to a fast native binary with no runtime dependencies.", "weight": 1.0},
-  {"input": "Was ist Rust?", "output": "Rust ist eine Systemprogrammiersprache, die von Graydon Hoare bei Mozilla entwickelt wurde. Sie fokussiert auf Sicherheit, Geschwindigkeit und Nebenlaeufigkeit. AIRust ist komplett in Rust geschrieben — das bedeutet es kompiliert zu einem schnellen nativen Binary ohne Runtime-Abhaengigkeiten.", "weight": 1.0},
-  {"input": "Rust nedir?", "output": "Rust, Mozilla'da Graydon Hoare tarafindan olusturulan bir sistem programlama dilidir. Guvenlik, hiz ve es zamanliliga odaklanir. AIRust tamamen Rust ile yazilmistir.", "weight": 1.0},
-
-  {"input": "What is cosine similarity?", "output": "Cosine similarity measures how similar two text vectors are by calculating the cosine of the angle between them. A score of 1.0 means identical, 0.0 means completely different.\n\nUsed in AIRust's VectorDB: When you search, your query and all stored entries are converted to TF-IDF vectors, then cosine similarity finds the closest matches.", "weight": 1.0},
-  {"input": "Was ist Cosine-Similarity?", "output": "Cosine-Similarity misst die Aehnlichkeit zweier Textvektoren, indem sie den Kosinus des Winkels zwischen ihnen berechnet. 1.0 = identisch, 0.0 = voellig unterschiedlich.\n\nVerwendung in AIRusts VectorDB: Bei einer Suche werden Query und alle gespeicherten Eintraege in TF-IDF-Vektoren umgewandelt, dann findet Cosine-Similarity die naechsten Treffer.", "weight": 1.0},
-
-  {"input": "What is a knowledge base?", "output": "A knowledge base (KB) in AIRust is a collection of question-answer pairs that the AI uses to answer your questions. Without training data, the agent can't answer anything.\n\nSources:\n- knowledge/train.json (baked into the binary at compile time)\n- SQLite training_data table (added at runtime via UI, import, or API)\n- Approved bot data (collected by web scrapers and reviewed)\n\nAll sources are merged at startup. You can add, edit, delete, import, and export data through the Brain tab.", "weight": 1.5},
-  {"input": "Was ist eine Knowledge Base?", "output": "Eine Knowledge Base (KB) in AIRust ist eine Sammlung von Frage-Antwort-Paaren, die die KI nutzt um deine Fragen zu beantworten. Ohne Trainingsdaten kann der Agent nichts beantworten.\n\nQuellen:\n- knowledge/train.json (beim Kompilieren eingebettet)\n- SQLite training_data Tabelle (zur Laufzeit hinzugefuegt per UI, Import oder API)\n- Genehmigte Bot-Daten (von Web-Scrapern gesammelt und geprueft)\n\nAlle Quellen werden beim Start zusammengefuehrt. Im Brain Tab kannst du Daten hinzufuegen, bearbeiten, loeschen, importieren und exportieren.", "weight": 1.5},
-
-  {"input": "What is SQLite?", "output": "SQLite is a lightweight, file-based database engine. AIRust uses it to store everything persistently in a single file: airust.db\n\nStored in SQLite:\n- Chat history (conversations, messages)\n- Settings (theme, language, colors)\n- Training data (manually added or imported)\n- Bot configurations and run history\n- Approved/rejected scraped data\n- Vector collections and entries\n- UI translations\n\nYou can inspect the database through Tools > Files > click airust.db.", "weight": 1.0},
-  {"input": "Was ist SQLite?", "output": "SQLite ist eine leichtgewichtige, dateibasierte Datenbank-Engine. AIRust nutzt sie um alles persistent in einer einzigen Datei zu speichern: airust.db\n\nIn SQLite gespeichert:\n- Chat-History (Gespraeche, Nachrichten)\n- Einstellungen (Theme, Sprache, Farben)\n- Trainingsdaten (manuell oder importiert)\n- Bot-Konfigurationen und Lauf-Historie\n- Genehmigte/abgelehnte gecrawlte Daten\n- Vector-Collections und Eintraege\n- UI-Uebersetzungen\n\nDu kannst die Datenbank inspizieren: Tools > Files > airust.db anklicken.", "weight": 1.0},
-
-  {"input": "What is a WebSocket?", "output": "A WebSocket is a persistent two-way connection between the browser and the server. Unlike HTTP (request-response), WebSocket stays open for real-time communication.\n\nAIRust uses WebSocket for the Console:\n- Server logs stream to your browser in real-time\n- You can send commands back to the server\n- Multiple browser tabs all receive the same logs\n- Auto-reconnects if disconnected\n- Runs on port 7071 (main server port + 1)", "weight": 1.0},
-  {"input": "Was ist ein WebSocket?", "output": "Ein WebSocket ist eine persistente Zwei-Wege-Verbindung zwischen Browser und Server. Anders als HTTP (Request-Response) bleibt die Verbindung fuer Echtzeit-Kommunikation offen.\n\nAIRust nutzt WebSocket fuer die Console:\n- Server-Logs streamen in Echtzeit zum Browser\n- Du kannst Befehle an den Server senden\n- Mehrere Browser-Tabs erhalten alle die gleichen Logs\n- Automatische Wiederverbindung bei Unterbrechung\n- Laeuft auf Port 7071 (Hauptport + 1)", "weight": 1.0},
-
-  {"input": "What is REST API?", "output": "A REST API is a way to control AIRust programmatically using HTTP requests. Instead of using the web dashboard, you can send commands via curl, Python, JavaScript, or any programming language.\n\nExample:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"What is Rust?\"}'\n\nAIRust has 50+ API endpoints for querying, training, bot management, file operations, and more. See the Guide tab for the full list.", "weight": 1.0},
-  {"input": "Was ist eine REST API?", "output": "Eine REST API ist ein Weg, AIRust programmatisch ueber HTTP-Requests zu steuern. Statt das Web-Dashboard zu benutzen, kannst du Befehle per curl, Python, JavaScript oder jeder Programmiersprache senden.\n\nBeispiel:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"Was ist Rust?\"}'\n\nAIRust hat 50+ API-Endpoints fuer Abfragen, Training, Bot-Verwaltung, Dateioperationen und mehr.", "weight": 1.0},
-
-  {"input": "What is web scraping?", "output": "Web scraping means automatically downloading and extracting text content from websites. AIRust's bot system does this for you.\n\nWorkflow:\n1. Create a bot with a target URL\n2. Bot downloads the page and extracts text\n3. Raw data is saved as 'pending' for your review\n4. You approve or reject each entry\n5. Approved data is added to the knowledge base\n6. Agents are retrained with the new data\n\nThis creates a self-improving AI pipeline: bots collect, you curate, the AI learns.", "weight": 1.0},
-  {"input": "Was ist Web Scraping?", "output": "Web Scraping bedeutet, automatisch Text-Inhalte von Webseiten herunterzuladen und zu extrahieren. AIRusts Bot-System macht das fuer dich.\n\nWorkflow:\n1. Bot mit einer Ziel-URL erstellen\n2. Bot laedt die Seite herunter und extrahiert Text\n3. Rohdaten werden als 'pending' zur Pruefung gespeichert\n4. Du genehmigst oder lehnst jeden Eintrag ab\n5. Genehmigte Daten werden in die Knowledge Base uebernommen\n6. Agenten werden mit den neuen Daten neu trainiert\n\nDas schafft eine selbstverbessernde KI-Pipeline.", "weight": 1.0},
-
-  {"input": "How do I train the AI?", "output": "Training means adding question-answer pairs so the AI can learn to answer.\n\n5 ways to train:\n1. Manual: Brain tab > Add Example > fill in question + answer\n2. JSON import: Brain tab > Import > paste JSON array or upload file\n3. PDF upload: Brain tab > Import > drag & drop PDF\n4. Tatoeba: Brain tab > Import > upload TSV translation file\n5. Bots: Tools tab > create a web scraper bot > review collected data > add to KB\n\nAfter any addition, all agents are automatically retrained. The more data you add, the smarter the AI gets!", "weight": 2.0},
-  {"input": "Wie trainiere ich die KI?", "output": "Training bedeutet Frage-Antwort-Paare hinzuzufuegen, damit die KI lernt zu antworten.\n\n5 Wege zum Trainieren:\n1. Manuell: Brain Tab > Add Example > Frage + Antwort ausfuellen\n2. JSON Import: Brain Tab > Import > JSON-Array einfuegen oder Datei hochladen\n3. PDF Upload: Brain Tab > Import > PDF per Drag & Drop\n4. Tatoeba: Brain Tab > Import > TSV-Uebersetzungsdatei hochladen\n5. Bots: Tools Tab > Web-Scraper-Bot erstellen > gesammelte Daten pruefen > in KB uebernehmen\n\nNach jeder Aenderung werden alle Agenten automatisch neu trainiert. Je mehr Daten du hinzufuegst, desto schlauer wird die KI!", "weight": 2.0},
-  {"input": "Yapay zeka nasil egitilir?", "output": "Egitim, yapay zekanin yanitlamayi ogrenmesi icin soru-cevap ciftleri eklemek demektir.\n\n5 egitim yolu:\n1. Manuel: Brain sekmesi > Add Example\n2. JSON iceri aktarma: Brain sekmesi > Import > JSON yapistirin veya dosya yukleyin\n3. PDF yukleme: Brain sekmesi > Import > PDF surukleyip birakin\n4. Tatoeba: Brain sekmesi > Import > TSV ceviri dosyasi yukleyin\n5. Botlar: Tools sekmesi > web kaziyici bot olusturun > toplanan verileri inceleyin\n\nHer eklemeden sonra tum ajanlar otomatik olarak yeniden egitilir!", "weight": 2.0}
+  {
+    "input": "What is AIRust?",
+    "output": "AIRust 0.1.8 is a modular Rust knowledge library. It finds text with BM25 or TF-IDF, compares content, detects duplicates, and proposes lexical connections. Entries have IDs, text, and optional metadata. The core runs locally without an LLM. PDF import, bots, CLI, and the dashboard are optional integrations.",
+    "weight": 2.0
+  },
+  {
+    "input": "Was ist AIRust?",
+    "output": "AIRust 0.1.8 ist eine modulare Wissensbibliothek für Rust. Sie findet passende Texte, vergleicht Inhalte, erkennt Duplikate und schlägt mögliche Verbindungen vor. Einträge haben eine ID, einen Text und optionale Zusatzdaten. Der Kern läuft lokal ohne Sprachmodell. PDF, Bots, CLI und Dashboard sind optionale Erweiterungen.",
+    "weight": 2.0
+  },
+  {
+    "input": "AIRust nedir?",
+    "output": "AIRust 0.1.8, Rust için modüler bir bilgi kütüphanesidir. BM25 veya TF-IDF ile metin bulur, içerikleri karşılaştırır ve ortak kelimelere dayalı bağlantılar önerir. Çekirdek bir dil modeli gerektirmez. PDF, botlar, CLI ve web paneli isteğe bağlıdır.",
+    "weight": 2.0
+  },
+  {
+    "input": "How do I start AIRust?",
+    "output": "Run: cargo run --locked --features web --bin airust\nThis starts the web server on http://localhost:7070\nConsole WebSocket runs on ws://localhost:7071\n\nOther options:\n- cargo run --locked --features web --bin airust -- --port 8080 (custom port)\n- cargo run --locked --features web --bin airust -- -d (background/daemon mode)\n- cargo run --locked --features web --bin airust -- --landingpage (with landing page)\n- cargo run --locked --features web --bin airust -- stop (stop background server)",
+    "weight": 2.0
+  },
+  {
+    "input": "Wie starte ich AIRust?",
+    "output": "Fuehre aus: cargo run --locked --features web --bin airust\nDas startet den Webserver auf http://localhost:7070\nConsole WebSocket laeuft auf ws://localhost:7071\n\nWeitere Optionen:\n- cargo run --locked --features web --bin airust -- --port 8080 (eigener Port)\n- cargo run --locked --features web --bin airust -- -d (Hintergrund-Modus)\n- cargo run --locked --features web --bin airust -- --landingpage (mit Landing Page)\n- cargo run --locked --features web --bin airust -- stop (Hintergrund-Server stoppen)",
+    "weight": 2.0
+  },
+  {
+    "input": "AIRust nasil baslatilir?",
+    "output": "Calistirin: cargo run --locked --features web --bin airust\nBu, web sunucusunu http://localhost:7070 adresinde baslatir.\nKonsol WebSocket ws://localhost:7071 uzerinde calisir.\n\nDiger secenekler:\n- cargo run --locked --features web --bin airust -- --port 8080 (ozel port)\n- cargo run --locked --features web --bin airust -- -d (arka plan modu)\n- cargo run --locked --features web --bin airust -- --landingpage (acilis sayfasi ile)\n- cargo run --locked --features web --bin airust -- stop (arka plan sunucusunu durdur)",
+    "weight": 2.0
+  },
+  {
+    "input": "What happens when AIRust starts?",
+    "output": "1. Database is opened (airust.db) — created automatically if missing\n2. 4 Agents are created: TF-IDF, Exact Match, Fuzzy Match, Context\n3. Knowledge Base is loaded (embedded JSON + SQLite training data)\n4. All agents are trained with the KB data\n5. Web server starts on port 7070\n6. Console WebSocket starts on port 7071\n7. Default active agent is TF-IDF",
+    "weight": 1.5
+  },
+  {
+    "input": "Was passiert beim Start von AIRust?",
+    "output": "1. Datenbank wird geoeffnet (airust.db) — wird automatisch erstellt falls nicht vorhanden\n2. 4 Agenten werden erstellt: TF-IDF, Exact Match, Fuzzy Match, Context\n3. Knowledge Base wird geladen (eingebettete JSON + SQLite-Trainingsdaten)\n4. Alle Agenten werden mit den KB-Daten trainiert\n5. Webserver startet auf Port 7070\n6. Console WebSocket startet auf Port 7071\n7. Standard-Agent ist TF-IDF",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I use the chat?",
+    "output": "1. Open http://localhost:7070 in your browser\n2. The Chat tab is active by default\n3. Click + (top left) to create a new chat\n4. Type a question in the input field at the bottom\n5. Press Enter or click Send\n6. The answer appears with a confidence score (0-100%)\n\nYour question goes to all active agents in parallel. The answer with the highest confidence wins.",
+    "weight": 2.0
+  },
+  {
+    "input": "Wie benutze ich den Chat?",
+    "output": "1. Oeffne http://localhost:7070 im Browser\n2. Der Chat-Tab ist beim Start aktiv\n3. Klicke + (oben links) um einen neuen Chat zu erstellen\n4. Tippe eine Frage ins Eingabefeld unten\n5. Druecke Enter oder klicke Send\n6. Die Antwort erscheint mit einem Confidence-Score (0-100%)\n\nDeine Frage geht an alle aktiven Agenten gleichzeitig. Die Antwort mit der hoechsten Confidence gewinnt.",
+    "weight": 2.0
+  },
+  {
+    "input": "Chat nasil kullanilir?",
+    "output": "1. Tarayicinizda http://localhost:7070 adresini acin\n2. Chat sekmesi varsayilan olarak aktiftir\n3. Yeni bir sohbet olusturmak icin + isaretine tiklayin\n4. Alttaki giris alanina bir soru yazin\n5. Enter'a basin veya Send'e tiklayin\n6. Yanit bir guven puaniyla (0-100%) gorunur\n\nSorunuz tum aktif ajanlara paralel olarak gider. En yuksek guvene sahip yanit kazanir.",
+    "weight": 2.0
+  },
+  {
+    "input": "What agents are available?",
+    "output": "AIRust has 4 agent types:\n\n1. Smart Search (TF-IDF/BM25) — Splits questions into words, calculates importance by frequency and rarity, ranks by BM25 score. Best for natural language.\n2. Word-for-Word (Exact Match) — Compares input exactly (case-insensitive) against all training questions. For exact commands or keywords.\n3. Close Enough (Fuzzy/Levenshtein) — Calculates Levenshtein distance, tolerates typos. For users who often mistype.\n4. Remembers Chat (Context + TF-IDF) — Appends previous Q&A to the current question, uses TF-IDF underneath. For multi-turn conversations.",
+    "weight": 2.0
+  },
+  {
+    "input": "Welche Agenten gibt es?",
+    "output": "AIRust hat 4 Agenten-Typen:\n\n1. Smart Search (TF-IDF/BM25) — Zerlegt Fragen in Woerter, berechnet Gewichtung nach Haeufigkeit und Seltenheit, rankt nach BM25-Score. Beste Wahl fuer natuerliche Sprache.\n2. Word-for-Word (Exact Match) — Vergleicht Eingabe exakt (case-insensitive) mit allen Trainingsfragen. Fuer exakte Kommandos.\n3. Close Enough (Fuzzy/Levenshtein) — Berechnet Levenshtein-Distanz, toleriert Tippfehler.\n4. Remembers Chat (Context + TF-IDF) — Haengt vorherige Fragen+Antworten an die aktuelle Frage, nutzt TF-IDF darunter. Fuer mehrteilige Gespraeche.",
+    "weight": 2.0
+  },
+  {
+    "input": "Hangi ajanlar mevcut?",
+    "output": "AIRust'ta 4 ajan tipi vardir:\n\n1. Smart Search (TF-IDF/BM25) — Sorulari kelimelere ayirir, siklik ve nadirlige gore onem hesaplar. Dogal dil icin en iyisi.\n2. Word-for-Word (Exact Match) — Girdiyi tum egitim sorulariyla birebir karsilastirir.\n3. Close Enough (Fuzzy/Levenshtein) — Levenshtein mesafesi hesaplar, yazim hatalarini tolere eder.\n4. Remembers Chat (Context + TF-IDF) — Onceki soru-cevaplari mevcut soruya ekler, altinda TF-IDF kullanir.",
+    "weight": 2.0
+  },
+  {
+    "input": "How do I select agents?",
+    "output": "Go to Settings in the sidebar. You'll see 4 agent checkboxes:\n- Smart Search (TF-IDF) — checked by default\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nYou can check multiple agents! When you send a query, ALL checked agents run in parallel. The answer with the highest confidence wins. The status bar at the bottom shows your active agents.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie waehle ich Agenten aus?",
+    "output": "Gehe zu Settings in der Sidebar. Du siehst 4 Agent-Checkboxen:\n- Smart Search (TF-IDF) — standardmaessig aktiviert\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nDu kannst mehrere Agenten gleichzeitig ankreuzen! Bei einer Query laufen ALLE ausgewaehlten parallel. Die Antwort mit der hoechsten Confidence gewinnt. Die Statusbar unten zeigt die aktiven Agenten.",
+    "weight": 1.5
+  },
+  {
+    "input": "Ajanlar nasil secilir?",
+    "output": "Kenar cubugundaki Settings'e gidin. 4 ajan onay kutusu goreceksiniz:\n- Smart Search (TF-IDF) — varsayilan olarak secili\n- Word-for-Word (Exact)\n- Close Enough (Fuzzy)\n- Remembers Chat (Context)\n\nBirden fazla ajan secebilirsiniz! Bir sorgu gonderdiginizde TUM secili ajanlar paralel calisir. En yuksek guvene sahip yanit kazanir.",
+    "weight": 1.5
+  },
+  {
+    "input": "What agent combinations do you recommend?",
+    "output": "Choose the operation for the task: Engine::search for terms, find_matches for spelling or token similarity, and relate for lexical connection proposals. The optional dashboard retains the previous agents. Their confidence heuristics are not calibrated probabilities and should not be treated as equivalent semantic judgments.",
+    "weight": 1.5
+  },
+  {
+    "input": "Welche Agenten-Kombinationen empfiehlst du?",
+    "output": "Wähle die Aufgabe: Engine::search findet Suchbegriffe. find_matches vergleicht Schreibweisen oder Wörter. relate schlägt Verbindungen anhand gemeinsamer Begriffe vor. Das optionale Dashboard behält die bisherigen Agenten. Ihre Konfidenzwerte sind verschiedene Heuristiken und keine gesicherten Bedeutungsurteile.",
+    "weight": 1.5
+  },
+  {
+    "input": "What does confidence mean?",
+    "output": "Confidence is how sure the agent is about the answer (0-100%):\n- 80-100%: Very confident, good match found\n- 50-80%: Partially matching, answer might be imprecise\n- 0-50%: Low confidence, agent didn't find a good match\n\nWhen multiple agents are active, the one with the highest confidence wins.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was bedeutet Confidence?",
+    "output": "Confidence zeigt wie sicher der Agent bei der Antwort ist (0-100%):\n- 80-100%: Sehr sicher, gute Uebereinstimmung gefunden\n- 50-80%: Teilweise passend, moeglicherweise ungenaue Antwort\n- 0-50%: Niedrige Sicherheit, keine gute Uebereinstimmung\n\nBei mehreren aktiven Agenten gewinnt der mit der hoechsten Confidence.",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I add training data?",
+    "output": "Several ways:\n\n1. Manual: Go to Brain tab > All > click 'Add Example'. Fill in Input (question), Output (answer), Format (text/markdown/json), Weight (0-10, default 1.0). Click Save.\n\n2. JSON Import: Brain tab > Import. Paste a JSON array or upload a .json file.\n\n3. PDF Upload: Brain tab > Import > drag & drop a PDF. Text is automatically extracted and chunked.\n\n4. Tatoeba Import: Brain tab > Import > upload a TSV file from manythings.org for translation pairs.\n\nAll agents are automatically retrained after any addition.",
+    "weight": 2.0
+  },
+  {
+    "input": "Wie fuege ich Trainingsdaten hinzu?",
+    "output": "Mehrere Wege:\n\n1. Manuell: Brain Tab > All > 'Add Example' klicken. Input (Frage), Output (Antwort), Format (text/markdown/json), Weight (0-10, Standard 1.0) ausfuellen. Save klicken.\n\n2. JSON Import: Brain Tab > Import. JSON-Array einfuegen oder .json-Datei hochladen.\n\n3. PDF Upload: Brain Tab > Import > PDF per Drag & Drop hochladen. Text wird automatisch extrahiert und in Chunks zerlegt.\n\n4. Tatoeba Import: Brain Tab > Import > TSV-Datei von manythings.org hochladen fuer Uebersetzungspaare.\n\nAlle Agenten werden nach jeder Aenderung automatisch neu trainiert.",
+    "weight": 2.0
+  },
+  {
+    "input": "Egitim verileri nasil eklenir?",
+    "output": "Birkac yol:\n\n1. Manuel: Brain sekmesi > All > 'Add Example' tiklayin. Input (soru), Output (yanit), Format (text/markdown/json), Weight (0-10) doldurun.\n\n2. JSON Iceri Aktarma: Brain sekmesi > Import. JSON dizisi yapistirin veya .json dosyasi yukleyin.\n\n3. PDF Yukleme: Brain sekmesi > Import > PDF'i surukleyip birakin. Metin otomatik olarak cikarilir.\n\n4. Tatoeba Iceri Aktarma: Brain sekmesi > Import > manythings.org'dan TSV dosyasi yukleyin.\n\nTum ajanlar her eklemeden sonra otomatik olarak yeniden egitilir.",
+    "weight": 2.0
+  },
+  {
+    "input": "How does the training data format look?",
+    "output": "JSON array format:\n[\n  {\n    \"input\": \"What is Rust?\",\n    \"output\": \"A systems programming language\",\n    \"format\": \"text\",\n    \"weight\": 1.0\n  }\n]\n\nFields:\n- input: The question/trigger\n- output: The answer\n- format: text (default), markdown, or json\n- weight: Importance 0.0-10.0 (higher = preferred in similar matches)\n\nOld-style {\"input\": \"...\", \"output\": \"...\"} without format/weight is also supported.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie sieht das Trainingsdaten-Format aus?",
+    "output": "JSON-Array Format:\n[\n  {\n    \"input\": \"Was ist Rust?\",\n    \"output\": \"Eine Systemprogrammiersprache\",\n    \"format\": \"text\",\n    \"weight\": 1.0\n  }\n]\n\nFelder:\n- input: Die Frage/der Trigger\n- output: Die Antwort\n- format: text (Standard), markdown oder json\n- weight: Gewichtung 0.0-10.0 (hoeher = bevorzugt bei aehnlichen Treffern)",
+    "weight": 1.5
+  },
+  {
+    "input": "How does weight work?",
+    "output": "Weight controls the importance of a training example:\n- Weight 1.0 = normal priority (default)\n- Weight 2.0 = twice as important, preferred when similar matches exist\n- Weight 0.0 = ignored (disabled without deleting)\n- Weight 0.1-0.9 = lower priority than normal\n- Weight 3.0-10.0 = high priority, almost always wins",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie funktioniert die Gewichtung?",
+    "output": "Weight steuert die Wichtigkeit eines Trainingsbeispiels:\n- Weight 1.0 = normale Prioritaet (Standard)\n- Weight 2.0 = doppelt so wichtig, wird bei aehnlichen Treffern bevorzugt\n- Weight 0.0 = wird ignoriert (deaktiviert ohne zu loeschen)\n- Weight 0.1-0.9 = niedrigere Prioritaet als normal\n- Weight 3.0-10.0 = hohe Prioritaet, gewinnt fast immer",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I save and load the knowledge base?",
+    "output": "Save: In the Brain tab, at the bottom there's a path bar. Enter a path (e.g. ./knowledge/my_kb.json) and click Save. The KB is saved as a JSON file on the server.\n\nLoad: Enter the path to a JSON file and click Load. The existing KB is REPLACED (not merged!). All agents are retrained automatically.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie speichere und lade ich die Knowledge Base?",
+    "output": "Speichern: Im Brain Tab gibt es unten eine Pfad-Leiste. Pfad eingeben (z.B. ./knowledge/meine_kb.json) und Save klicken. Die KB wird als JSON auf dem Server gespeichert.\n\nLaden: Pfad zu einer JSON-Datei eingeben und Load klicken. Die bestehende KB wird ERSETZT (nicht gemergt!). Alle Agenten werden automatisch neu trainiert.",
+    "weight": 1.5
+  },
+  {
+    "input": "Where does the data come from?",
+    "output": "Data sources:\n1. knowledge/train.json — Compile-time (initially empty [])\n2. SQLite training_data table — Manual entries, imports, PDF uploads\n3. SQLite approved_data — Data collected by bots and approved\n\nAt startup: train.json + DB training_data are merged into one KnowledgeBase, which trains all agents.\n\nAt runtime: New examples are added to KB + DB, and all agents are immediately retrained.",
+    "weight": 1.5
+  },
+  {
+    "input": "Woher kommen die Daten?",
+    "output": "Datenquellen:\n1. knowledge/train.json — Compile-Zeit (initial leer [])\n2. SQLite training_data Tabelle — Manuelle Eintraege, Imports, PDF-Uploads\n3. SQLite approved_data — Von Bots gesammelt und genehmigt\n\nBeim Start: train.json + DB training_data werden zur KnowledgeBase zusammengefuehrt, die alle Agenten trainiert.\n\nZur Laufzeit: Neue Beispiele werden in KB + DB gespeichert, alle Agenten sofort neu trainiert.",
+    "weight": 1.5
+  },
+  {
+    "input": "How do categories work?",
+    "output": "Categories help organize training data by topic.\n\n1. Go to Brain tab > Categories sub-tab\n2. Create a new category: Enter name (e.g. 'Tech', 'Smalltalk', 'Support'), pick a color, click Create\n3. When adding training examples, select a category\n4. Filter by category: Click a category to see only its entries\n5. Deleting a category keeps the training data (category is set to 'None')",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie funktionieren Kategorien?",
+    "output": "Kategorien helfen, Trainingsdaten thematisch zu organisieren.\n\n1. Brain Tab > Sub-Tab Categories\n2. Neue Kategorie erstellen: Name eingeben (z.B. 'Technik', 'Smalltalk', 'Support'), Farbe waehlen, Create klicken\n3. Beim Erstellen von Beispielen die Kategorie auswaehlen\n4. Nach Kategorie filtern: Auf eine Kategorie klicken\n5. Kategorie loeschen behaelt die Trainingsdaten (Kategorie wird auf 'Keine' gesetzt)",
+    "weight": 1.0
+  },
+  {
+    "input": "How do bots work?",
+    "output": "Bots automatically crawl websites and collect training data.\n\n1. Go to Tools tab > Bots sub-tab\n2. Click 'New Bot'\n3. Configure: Name, URL, Mode (single page or follow links), Max Depth, Rate Limit\n4. Click Create, then Start\n\nWorkflow: Bot crawls → raw data (pending) → Review: Approve/Reject → approved data → Add to Knowledge → agents retrained\n\nDeduplication via SHA-256 content hash prevents duplicate entries.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie funktionieren Bots?",
+    "output": "Bots crawlen automatisch Webseiten und sammeln Trainingsdaten.\n\n1. Tools Tab > Sub-Tab Bots\n2. 'New Bot' klicken\n3. Konfigurieren: Name, URL, Modus (einzelne Seite oder Links folgen), Max Tiefe, Rate Limit\n4. Create klicken, dann Start\n\nWorkflow: Bot crawlt → Rohdaten (pending) → Review: Approve/Reject → genehmigte Daten → Add to Knowledge → Agenten neu trainiert\n\nDeduplizierung via SHA-256 Content-Hash verhindert Duplikate.",
+    "weight": 1.5
+  },
+  {
+    "input": "Botlar nasil calisir?",
+    "output": "Botlar otomatik olarak web sitelerini tarar ve egitim verileri toplar.\n\n1. Tools sekmesi > Bots alt sekmesi\n2. 'New Bot' tiklayin\n3. Yapilandirin: Ad, URL, Mod (tek sayfa veya linkleri takip), Max Derinlik, Hiz Limiti\n4. Create tiklayin, sonra Start\n\nIs akisi: Bot tarar → ham veri (beklemede) → Inceleme: Onayla/Reddet → onaylanan veriler → Bilgi tabanina ekle → ajanlar yeniden egitilir",
+    "weight": 1.5
+  },
+  {
+    "input": "How does the data review work?",
+    "output": "After bots collect data, it needs to be reviewed:\n\n1. Go to Tools tab > Review sub-tab\n2. See all pending data entries\n3. For each entry: Click Approve (good data) or Reject (bad data)\n4. Or use 'Approve All' for bulk approval\n5. Toggle 'Show Approved' to see approved entries\n6. Click 'Add to Knowledge' to transfer approved data to the KB\n7. All agents are automatically retrained",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie funktioniert die Datenprüfung?",
+    "output": "Nachdem Bots Daten gesammelt haben, muessen sie geprueft werden:\n\n1. Tools Tab > Sub-Tab Review\n2. Alle ausstehenden Dateneintraege sehen\n3. Fuer jeden Eintrag: Approve (gut) oder Reject (schlecht) klicken\n4. Oder 'Approve All' fuer Massenfreigabe\n5. 'Show Approved' um genehmigte Eintraege zu sehen\n6. 'Add to Knowledge' klicken um genehmigte Daten in die KB zu uebernehmen\n7. Alle Agenten werden automatisch neu trainiert",
+    "weight": 1.0
+  },
+  {
+    "input": "What is the VectorDB?",
+    "output": "The VectorDB stores texts as TF-IDF vectors for similarity search using cosine similarity.\n\n1. Go to Tools tab > VectorDB sub-tab\n2. Create a collection (e.g. 'Product Descriptions')\n3. Add entries: Text + optional JSON metadata\n4. Search: Enter a query, set Top-K (default 5), click Search\n5. Results are sorted by similarity score\n\nHow it works: When adding text, it's converted to a TF-IDF vector. Search queries are also vectorized, then cosine similarity is calculated against all entries.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist die VectorDB?",
+    "output": "Die VectorDB speichert Texte als TF-IDF-Vektoren fuer Aehnlichkeitssuche per Cosine-Similarity.\n\n1. Tools Tab > Sub-Tab VectorDB\n2. Collection erstellen (z.B. 'Produktbeschreibungen')\n3. Eintraege hinzufuegen: Text + optionale JSON-Metadaten\n4. Suchen: Query eingeben, Top-K einstellen (Standard: 5), Search klicken\n5. Ergebnisse nach Aehnlichkeits-Score sortiert\n\nFunktionsweise: Beim Hinzufuegen wird Text in TF-IDF-Vektor umgewandelt. Bei der Suche wird die Query ebenfalls vektorisiert und Cosine-Similarity berechnet.",
+    "weight": 1.5
+  },
+  {
+    "input": "How does the file manager work?",
+    "output": "Built-in file browser with editor:\n\n1. Go to Tools tab > Files sub-tab\n2. Navigate: Click through folders\n3. Read file: Click a file to open it in the editor\n4. Edit: Modify content, click Save\n5. New File/Folder: Use the respective buttons\n6. Rename/Copy/Delete: Available actions per file\n7. SQLite inspect: Click a .db file to see tables, columns, and data\n\nThe SQLite browser supports pagination and allows INSERT/UPDATE/DELETE queries.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie funktioniert der Dateimanager?",
+    "output": "Eingebauter Dateibrowser mit Editor:\n\n1. Tools Tab > Sub-Tab Files\n2. Navigieren: Durch Ordnerstruktur klicken\n3. Datei lesen: Klick auf eine Datei oeffnet sie im Editor\n4. Bearbeiten: Inhalt aendern, Save klicken\n5. Neue Datei/Ordner: Entsprechende Buttons nutzen\n6. Umbenennen/Kopieren/Loeschen: Aktionen pro Datei\n7. SQLite inspizieren: .db-Datei anklicken zeigt Tabellen und Inhalte\n\nDer SQLite-Browser unterstuetzt Pagination und erlaubt INSERT/UPDATE/DELETE Queries.",
+    "weight": 1.0
+  },
+  {
+    "input": "How does the console work?",
+    "output": "The console is docked at the bottom of the dashboard.\n\n1. Open/Close: Click the console header or the _ button\n2. Server logs appear in real-time (Info, Warn, Error)\n3. Type commands in the input field and press Enter\n\nBuilt-in commands:\n- status: Shows agent, KB entries, version\n- restart: Stops and restarts the server\n- stop: Stops the server (dashboard stays open)\n- start: Starts the server after stop\n- exit: Shuts everything down\n- clear: Clears console output\n\nAnything else is executed as a shell command (ls, git status, etc.)",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie funktioniert die Console?",
+    "output": "Die Console ist unten im Dashboard angedockt.\n\n1. Oeffnen/Schliessen: Klick auf den Console-Header oder den _ Button\n2. Server-Logs erscheinen in Echtzeit (Info, Warn, Error)\n3. Befehle im Eingabefeld tippen und Enter druecken\n\nEingebaute Befehle:\n- status: Zeigt Agent, KB-Eintraege, Version\n- restart: Stoppt und startet den Server neu\n- stop: Stoppt den Server (Dashboard bleibt offen)\n- start: Startet den Server nach Stop wieder\n- exit: Faehrt alles herunter\n- clear: Loescht Console-Ausgabe\n\nAlles andere wird als Shell-Befehl ausgefuehrt (ls, git status, etc.)",
+    "weight": 1.5
+  },
+  {
+    "input": "Konsol nasil calisir?",
+    "output": "Konsol, kontrol panelinin altina yerlestirilmistir.\n\n1. Acma/Kapama: Konsol basligina veya _ dugmesine tiklayin\n2. Sunucu kayitlari gercek zamanli gorunur\n3. Giris alanina komut yazin ve Enter'a basin\n\nYerlesik komutlar:\n- status: Ajan, KB girisleri, surum gosterir\n- restart: Sunucuyu yeniden baslatir\n- stop: Sunucuyu durdurur\n- start: Durdurulduktan sonra baslatir\n- exit: Her seyi kapatir\n- clear: Konsol ciktisini temizler\n\nDiger her sey kabuk komutu olarak calistirilir.",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I change the theme?",
+    "output": "Go to Settings in the sidebar:\n- Theme: Dark (default) or Light\n- Accent Color: Color picker — affects buttons, links, highlights\n- Background: Manual or Auto from Accent (complementary color)\n- Text Color: Manual or Auto from Background\n\nOr use smart settings via chat:\n- 'Make it dark' → Dark mode\n- 'Make it light' → Light mode\n- 'Color green' → Green accent\n- 'Background blue' → Blue background",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie aendere ich das Theme?",
+    "output": "Gehe zu Settings in der Sidebar:\n- Theme: Dark (Standard) oder Light\n- Akzentfarbe: Farbwaehler — bestimmt Buttons, Links, Highlights\n- Hintergrund: Manuell oder Auto aus Akzent (Komplementaerfarbe)\n- Textfarbe: Manuell oder Auto aus Hintergrund\n\nOder Smart Settings im Chat:\n- 'Mach die Seite dunkel' → Dark Mode\n- 'Mach es hell' → Light Mode\n- 'Farbe gruen' → Gruene Akzentfarbe\n- 'Hintergrund blau' → Blauer Hintergrund",
+    "weight": 1.5
+  },
+  {
+    "input": "Tema nasil degistirilir?",
+    "output": "Kenar cubugundaki Settings'e gidin:\n- Tema: Dark (varsayilan) veya Light\n- Vurgu Rengi: Renk secici — dugmeleri, baglantilari etkiler\n- Arka Plan: Manuel veya Vurgudan Otomatik\n- Metin Rengi: Manuel veya Arka Plandan Otomatik\n\nVeya sohbet uzerinden akilli ayarlar:\n- 'Make it dark' → Karanlik mod\n- 'Make it light' → Aydinlik mod",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I change the language?",
+    "output": "Go to Settings > Language dropdown. Available languages:\n- English\n- Deutsch (German)\n- Turkce (Turkish)\n\nAll UI elements, buttons, and labels are instantly translated (200+ keys).\n\nYou can also use the chat: 'Switch to German', 'Sprache Deutsch', 'Turkce yap'.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie aendere ich die Sprache?",
+    "output": "Gehe zu Settings > Sprache Dropdown. Verfuegbare Sprachen:\n- English\n- Deutsch\n- Turkce (Tuerkisch)\n\nAlle UI-Elemente, Buttons und Labels werden sofort uebersetzt (200+ Keys).\n\nOder im Chat: 'Switch to English', 'Sprache Deutsch', 'Turkce yap'.",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I use AIRust from the command line?",
+    "output": "CLI usage (without web dashboard):\n\nDirect query:\n  airust cli query tfidf \"What is Rust?\"\n  airust cli query fuzzy \"What is Rust?\"\n  airust cli query simple \"What is Rust?\"\n  airust cli query context \"Tell me about Rust\"\n\nInteractive mode:\n  airust cli\n  → Choose agent type (1-4), ask questions in a loop, type 'exit' to quit\n\nKnowledge Base:\n  airust cli knowledge\n  → Create, load, test, extend knowledge bases\n\nPDF conversion:\n  cargo run --locked --features cli,pdf --bin pdf2kb -- input.pdf output.json\n\nMerge KBs:\n  cargo run --locked --features cli --bin merge_kb",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie benutze ich AIRust ueber die Kommandozeile?",
+    "output": "CLI-Nutzung (ohne Web-Dashboard):\n\nDirekte Abfrage:\n  airust cli query tfidf \"Was ist Rust?\"\n  airust cli query fuzzy \"Was ist Rust?\"\n  airust cli query simple \"Was ist Rust?\"\n\nInteraktiver Modus:\n  airust cli\n  → Agent-Typ waehlen (1-4), Fragen im Loop stellen, 'exit' zum Beenden\n\nKnowledge Base:\n  airust cli knowledge\n  → KBs erstellen, laden, testen, erweitern\n\nPDF konvertieren:\n  cargo run --locked --features cli,pdf --bin pdf2kb -- input.pdf output.json\n\nKBs zusammenfuehren:\n  cargo run --locked --features cli --bin merge_kb",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I use Docker?",
+    "output": "Build and run:\n  docker build -t airust .\n  docker run -p 7070:7070 airust\n\nWith landing page:\n  docker run -p 7070:7070 airust --landingpage\n\nWith persistent database:\n  docker run -p 7070:7070 -v $(pwd)/airust.db:/app/airust.db airust\n\nCustom port:\n  docker run -p 8080:8080 airust --port 8080\n\nThe container includes the optimized release binary, embedded KB, and creates SQLite at runtime. No external dependencies.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie benutze ich Docker?",
+    "output": "Bauen und starten:\n  docker build -t airust .\n  docker run -p 7070:7070 airust\n\nMit Landing Page:\n  docker run -p 7070:7070 airust --landingpage\n\nMit persistenter Datenbank:\n  docker run -p 7070:7070 -v $(pwd)/airust.db:/app/airust.db airust\n\nEigener Port:\n  docker run -p 8080:8080 airust --port 8080\n\nDer Container enthaelt das optimierte Release-Binary, eingebettete KB, und erstellt SQLite zur Laufzeit. Keine externen Abhaengigkeiten.",
+    "weight": 1.0
+  },
+  {
+    "input": "What API endpoints are available?",
+    "output": "AIRust has 50+ REST API endpoints:\n\n- GET /api/status — Server status and active agents\n- POST /api/query — Send a question, get answer with confidence\n- POST /api/agent/switch — Switch active agents\n- GET/POST /api/knowledge — List/add KB entries\n- POST /api/pdf/upload — Upload PDF for extraction\n- GET/POST /api/settings — Read/write settings\n- GET /api/translations/:lang — UI translations\n- GET/POST /api/chats — Chat history\n- GET/POST /api/training/data — Training data CRUD\n- POST /api/training/import — Bulk import\n- GET /api/training/export — Export all data\n- GET/POST /api/bots — Bot management\n- GET/POST /api/vectors/* — VectorDB operations\n- GET/POST /api/files/* — File system operations\n- GET /api/guide — This startup guide",
+    "weight": 1.5
+  },
+  {
+    "input": "Welche API-Endpoints gibt es?",
+    "output": "AIRust hat 50+ REST API Endpoints:\n\n- GET /api/status — Server-Status und aktive Agenten\n- POST /api/query — Frage senden, Antwort mit Confidence erhalten\n- POST /api/agent/switch — Aktive Agenten wechseln\n- GET/POST /api/knowledge — KB-Eintraege auflisten/hinzufuegen\n- POST /api/pdf/upload — PDF hochladen\n- GET/POST /api/settings — Einstellungen lesen/schreiben\n- GET/POST /api/chats — Chat-History\n- GET/POST /api/training/data — Trainingsdaten CRUD\n- POST /api/training/import — Massenimport\n- GET /api/training/export — Alle Daten exportieren\n- GET/POST /api/bots — Bot-Verwaltung\n- GET/POST /api/vectors/* — VectorDB-Operationen\n- GET/POST /api/files/* — Dateisystem-Operationen\n- GET /api/guide — Diese Startup-Anleitung",
+    "weight": 1.5
+  },
+  {
+    "input": "How do I query the API?",
+    "output": "Example with curl:\n\nQuery:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"What is Rust?\", \"add_context\": false}'\n\nResponse: {\"response\": \"...\", \"confidence\": 0.87, \"agent\": \"tfidf\", \"agents_used\": [\"tfidf\"]}\n\nSwitch agents:\n  curl -X POST http://localhost:7070/api/agent/switch \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"agent_types\": [\"tfidf\", \"fuzzy\"]}'",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie frage ich die API ab?",
+    "output": "Beispiel mit curl:\n\nQuery:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"Was ist Rust?\", \"add_context\": false}'\n\nAntwort: {\"response\": \"...\", \"confidence\": 0.87, \"agent\": \"tfidf\", \"agents_used\": [\"tfidf\"]}\n\nAgenten wechseln:\n  curl -X POST http://localhost:7070/api/agent/switch \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"agent_types\": [\"tfidf\", \"fuzzy\"]}'",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I use AIRust as a Rust library?",
+    "output": "Add airust = \"0.1.8\" to the dependencies in Cargo.toml. For local development use airust = { path = \"../airust-master\" }. The default build is library only. Create Engine::new(), insert KnowledgeEntry::new(\"id\", \"text\") with upsert(), then call search(\"query\", 5). Run cargo run --locked --example core for a complete source example. Embedded demo knowledge requires the embedded-knowledge feature.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie benutze ich AIRust als Rust-Bibliothek?",
+    "output": "Trage airust = \"0.1.8\" als Abhängigkeit in Cargo.toml ein. Für die lokale Entwicklung geht airust = { path = \"../airust-master\" }. Erzeuge Engine::new(), füge KnowledgeEntry::new(\"id\", \"text\") mit upsert() ein und suche mit search(\"Suchbegriff\", 5). Das vollständige Quellcode-Beispiel startet mit cargo run --locked --example core. Eingebaute Beispieldaten benötigen embedded-knowledge.",
+    "weight": 1.0
+  },
+  {
+    "input": "How does PDF processing work?",
+    "output": "AIRust extracts knowledge from PDFs automatically:\n\n1. PDF is uploaded and text extracted\n2. Text is split into chunks (max 1000 chars, min 50)\n3. Chunks overlap by 200 characters (to keep context)\n4. Each chunk becomes a question-answer training pair\n5. Agents are retrained\n\nVia CLI: cargo run --locked --features cli,pdf --bin pdf2kb -- document.pdf output.json\nVia web: Brain tab > Import > drag & drop PDF\nVia API: POST /api/pdf/upload with multipart form\n\nLimitations: Only text-based PDFs (no scanned images/OCR). Tables are extracted as flowing text.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie funktioniert die PDF-Verarbeitung?",
+    "output": "AIRust extrahiert Wissen aus PDFs automatisch:\n\n1. PDF wird hochgeladen und Text extrahiert\n2. Text wird in Chunks zerlegt (max 1000 Zeichen, min 50)\n3. Chunks ueberlappen sich um 200 Zeichen (Kontext bleibt erhalten)\n4. Jeder Chunk wird als Frage-Antwort-Paar gespeichert\n5. Agenten werden neu trainiert\n\nPer CLI: cargo run --locked --features cli,pdf --bin pdf2kb -- dokument.pdf output.json\nPer Web: Brain Tab > Import > PDF per Drag & Drop\nPer API: POST /api/pdf/upload mit Multipart-Form\n\nEinschraenkungen: Nur textbasierte PDFs (kein OCR). Tabellen werden als Fliesstext extrahiert.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is TF-IDF?",
+    "output": "TF-IDF combines term frequency with inverse document frequency. The new core offers TF-IDF cosine search through SearchAlgorithm::Tfidf. The historical TfidfAgent uses BM25 instead. Both approaches rank shared words; they do not recognize synonyms or understand meaning automatically.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist TF-IDF?",
+    "output": "TF-IDF verbindet die Häufigkeit eines Wortes im Text mit seiner Seltenheit im gesamten Bestand. Der neue Kern bietet dafür SearchAlgorithm::Tfidf mit Kosinusähnlichkeit. Der bisherige TfidfAgent verwendet trotz seines Namens BM25. Beide Verfahren bewerten gemeinsame Wörter; sie verstehen keine Bedeutung automatisch.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is Levenshtein distance?",
+    "output": "Levenshtein distance measures how many single-character edits (insertions, deletions, substitutions) are needed to change one string into another.\n\nExamples:\n- 'cat' → 'car' = distance 1 (substitute t→r)\n- 'hello' → 'helo' = distance 1 (delete one l)\n- 'rust' → 'roost' = distance 2\n\nThe Fuzzy agent uses this to tolerate typos. If the distance is within the threshold (30% of input length by default), it considers it a match.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist die Levenshtein-Distanz?",
+    "output": "Die Levenshtein-Distanz misst, wie viele Einzelzeichen-Aenderungen (Einfuegen, Loeschen, Ersetzen) noetig sind, um einen String in einen anderen umzuwandeln.\n\nBeispiele:\n- 'Katze' → 'Matze' = Distanz 1 (K→M ersetzen)\n- 'Hallo' → 'Halo' = Distanz 1 (ein l loeschen)\n\nDer Fuzzy-Agent nutzt dies um Tippfehler zu tolerieren. Wenn die Distanz innerhalb des Schwellwerts liegt (Standard: 30% der Eingabelaenge), gilt es als Treffer.",
+    "weight": 1.0
+  },
+  {
+    "input": "How does the Context agent work?",
+    "output": "The Context agent wraps another agent (TF-IDF by default) and adds conversation memory.\n\nHow it works:\n1. It stores the last N exchanges (default: 5 turns)\n2. When you ask a new question, it appends previous Q&A to your query\n3. The wrapped agent (TF-IDF) then searches with the enriched context\n4. This allows follow-up questions like 'Tell me more' or 'What about X?'\n\nExample:\n- Q1: 'What is Rust?' → A1: 'A programming language'\n- Q2: 'Who created it?' → Agent searches with context of Q1+A1+Q2, so it knows 'it' refers to Rust",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie funktioniert der Context-Agent?",
+    "output": "Der Context-Agent umhuellt einen anderen Agenten (standardmaessig TF-IDF) und fuegt Gespraeches-Gedaechtnis hinzu.\n\nSo funktioniert es:\n1. Er speichert die letzten N Austausche (Standard: 5 Turns)\n2. Bei einer neuen Frage haengt er vorherige Q&A an die Query an\n3. Der umhuellte Agent (TF-IDF) sucht dann mit dem angereicherten Kontext\n4. Das ermoeglicht Folgefragen wie 'Erzaehl mehr' oder 'Was ist mit X?'\n\nBeispiel:\n- F1: 'Was ist Rust?' → A1: 'Eine Programmiersprache'\n- F2: 'Wer hat es erfunden?' → Agent sucht mit Kontext von F1+A1+F2",
+    "weight": 1.5
+  },
+  {
+    "input": "What is the architecture of AIRust?",
+    "output": "Applications call the AIRust Rust library. Engine owns one shared knowledge index. Its modules are text, matching, search, context, knowledge, and index. search finds terms, find_matches compares text, and relate proposes lexical connections. Optional adapters provide the old agents, PDF import, CLI, dashboard, SQLite, and bots. AIRust does not own DenkMaps nodes or an MCP transport.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie ist die Architektur von AIRust?",
+    "output": "Anwendungen rufen die AIRust-Bibliothek auf. Engine besitzt einen gemeinsamen Wissensindex. Seine Module heißen text, matching, search, context, knowledge und index. search findet Texte, find_matches vergleicht Inhalte und relate schlägt mögliche Verbindungen vor. Die bisherigen Agenten, PDF, CLI, Dashboard, SQLite und Bots bleiben optionale oder kompatible Adapter. DenkMaps verwaltet seine Knoten selbst.",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I build AIRust?",
+    "output": "Use Rust 1.89 or newer. In the source checkout: cargo build --locked --release builds the library. cargo run --locked --example core shows the core. For the old CLI add --features cli --bin airust. For the dashboard use cargo run --locked --release --features web --bin airust. The default build does not start a server.",
+    "weight": 1.5
+  },
+  {
+    "input": "Wie baue ich AIRust?",
+    "output": "Verwende Rust 1.89 oder neuer. Im Projektordner baut cargo build --locked --release die Bibliothek. cargo run --locked --example core zeigt den Kern. Für die bisherige CLI brauchst du --features cli --bin airust. Das Dashboard startet mit cargo run --locked --release --features web --bin airust. Standardmäßig wird kein Server gebaut.",
+    "weight": 1.5
+  },
+  {
+    "input": "What features does AIRust have?",
+    "output": "Core: stable entry IDs, BM25 and TF-IDF search, exact and fuzzy text comparison, token overlap, duplicate groups, metadata filters, JSON exchange, and explained lexical relation proposals. Optional: the previous agents, PDF import, CLI, SQLite dashboard, and bots. No required LLM.",
+    "weight": 2.0
+  },
+  {
+    "input": "Welche Features hat AIRust?",
+    "output": "Der Kern bietet Einträge mit IDs, BM25- und TF-IDF-Suche, Textvergleich, Duplikatgruppen, Metadatenfilter, JSON-Austausch und erklärte Verbindungsvorschläge. Die bisherigen Agenten bleiben verfügbar. PDF, CLI, Dashboard, SQLite und Bots werden ausdrücklich zugeschaltet. Ein Sprachmodell ist nicht erforderlich.",
+    "weight": 2.0
+  },
+  {
+    "input": "AIRust'un ozellikleri nelerdir?",
+    "output": "Çekirdek: kimlikli kayıtlar, BM25 ve TF-IDF arama, metin karşılaştırma, kopya grupları, metaveri filtreleri, JSON aktarımı ve açıklanan kelime bağlantıları. Önceki ajanlar korunur. PDF, CLI, web paneli ve botlar isteğe bağlıdır. Zorunlu bir dil modeli yoktur.",
+    "weight": 2.0
+  },
+  {
+    "input": "How do I export training data?",
+    "output": "Via web: Brain tab > Import sub-tab > click 'Export JSON'. Downloads all training data as a JSON file.\n\nVia API: curl http://localhost:7070/api/training/export > backup.json\n\nVia Knowledge Base: Enter a path in the bottom bar of the Brain tab and click Save to export the current KB.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie exportiere ich Trainingsdaten?",
+    "output": "Per Web: Brain Tab > Import Sub-Tab > 'Export JSON' klicken. Laedt alle Trainingsdaten als JSON-Datei herunter.\n\nPer API: curl http://localhost:7070/api/training/export > backup.json\n\nPer Knowledge Base: Im Brain Tab unten einen Pfad eingeben und Save klicken.",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I import Tatoeba translation data?",
+    "output": "Tatoeba provides bilingual sentence pairs from manythings.org/anki/\n\nFormat (TSV — tab-separated):\nHello\\tHallo\\tCC-BY 2.0\nHow are you?\\tWie geht es dir?\\tCC-BY 2.0\n\nSteps:\n1. Download a TSV file from manythings.org\n2. Brain tab > Import sub-tab > Tatoeba section\n3. Upload the TSV file\n4. Each line becomes a source→target language pair\n5. Agents are retrained",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie importiere ich Tatoeba-Uebersetzungsdaten?",
+    "output": "Tatoeba bietet zweisprachige Satzpaare von manythings.org/anki/\n\nFormat (TSV — Tab-getrennt):\nHello\\tHallo\\tCC-BY 2.0\nHow are you?\\tWie geht es dir?\\tCC-BY 2.0\n\nSchritte:\n1. TSV-Datei von manythings.org herunterladen\n2. Brain Tab > Import Sub-Tab > Tatoeba-Bereich\n3. TSV-Datei hochladen\n4. Jede Zeile wird als Quellsprache→Zielsprache Paar gespeichert\n5. Agenten werden neu trainiert",
+    "weight": 1.0
+  },
+  {
+    "input": "What is the merge_kb tool?",
+    "output": "merge_kb combines legacy input/output training files. Example: cargo run --locked --features cli --bin merge_kb -- source-a.json source-b.json --output /tmp/merged.json. Without source paths it reads knowledge/*.json except the output train.json. It removes exact duplicate examples and validates all sources before replacing the output. Use --include-embedded to explicitly include embedded examples. Generic id/text entries are loaded with Engine::from_json instead.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist das merge_kb Tool?",
+    "output": "merge_kb fügt bisherige Trainingsdateien mit input/output zusammen. Beispiel: cargo run --locked --features cli --bin merge_kb -- quelle-a.json quelle-b.json --output /tmp/gesamt.json. Ohne Quellen liest es knowledge/*.json außer seiner Ausgabe train.json. Vollständig gleiche Beispiele werden entfernt. Alle Quellen müssen gültig sein, bevor die Ausgabe ersetzt wird. --include-embedded fügt ausdrücklich Beispieldaten hinzu. Neue id/text-Einträge lädt Engine::from_json.",
+    "weight": 1.0
+  },
+  {
+    "input": "Is AIRust free?",
+    "output": "Yes! AIRust is open source under the MIT License. You can use it freely for personal and commercial projects. No API keys, no subscriptions, no hidden costs. 100% local, 100% free.",
+    "weight": 1.0
+  },
+  {
+    "input": "Ist AIRust kostenlos?",
+    "output": "Ja! AIRust ist Open Source unter der MIT-Lizenz. Du kannst es frei fuer persoenliche und kommerzielle Projekte nutzen. Keine API-Keys, keine Abos, keine versteckten Kosten. 100% lokal, 100% kostenlos.",
+    "weight": 1.0
+  },
+  {
+    "input": "AIRust ucretsiz mi?",
+    "output": "Evet! AIRust, MIT Lisansi altinda acik kaynaktir. Kisisel ve ticari projeler icin ozgurce kullanabilirsiniz. API anahtari yok, abonelik yok, gizli maliyet yok. %100 yerel, %100 ucretsiz.",
+    "weight": 1.0
+  },
+  {
+    "input": "What version is AIRust?",
+    "output": "This source version is AIRust 0.1.8. It introduces the common knowledge index, generic entries, search, matching, explicit filters, and lexical relation proposals. Version 0.1.7 is preserved in the original Git history. Available package versions are listed at https://crates.io/crates/airust.",
+    "weight": 1.0
+  },
+  {
+    "input": "Welche Version ist AIRust?",
+    "output": "Dieser Quellstand ist AIRust 0.1.8. Neu sind der gemeinsame Wissensindex, allgemeine Einträge, Suche, Textvergleich, ausdrückliche Filter und begründete Verbindungsvorschläge. 0.1.7 bleibt in der ursprünglichen Git-Historie erhalten. Verfügbare Paketversionen stehen unter https://crates.io/crates/airust.",
+    "weight": 1.0
+  },
+  {
+    "input": "help",
+    "output": "Welcome to AIRust! Here's how to get started:\n\n1. Ask questions in the Chat tab — I'll answer based on my training data\n2. Add knowledge in the Brain tab — manually, via JSON, PDF, or web scraping\n3. Choose agents in Settings — TF-IDF (default), Exact, Fuzzy, or Context\n4. Use the Console at the bottom for server commands\n5. Check the Guide tab for the full documentation\n\nTry asking: 'What is AIRust?', 'How do I add training data?', 'What agents are available?'",
+    "weight": 3.0
+  },
+  {
+    "input": "hilfe",
+    "output": "Willkommen bei AIRust! So startest du:\n\n1. Stelle Fragen im Chat Tab — Ich antworte basierend auf meinen Trainingsdaten\n2. Fuege Wissen im Brain Tab hinzu — manuell, per JSON, PDF oder Web-Scraping\n3. Waehle Agenten in Settings — TF-IDF (Standard), Exact, Fuzzy oder Context\n4. Nutze die Console unten fuer Server-Befehle\n5. Schau im Guide Tab fuer die vollstaendige Dokumentation\n\nProbier: 'Was ist AIRust?', 'Wie fuege ich Trainingsdaten hinzu?', 'Welche Agenten gibt es?'",
+    "weight": 3.0
+  },
+  {
+    "input": "yardim",
+    "output": "AIRust'a hosgeldiniz! Nasil baslanir:\n\n1. Chat sekmesinde sorular sorun — egitim verilerime gore yanitlarim\n2. Brain sekmesinde bilgi ekleyin — manuel, JSON, PDF veya web kazima ile\n3. Settings'de ajan secin — TF-IDF (varsayilan), Exact, Fuzzy veya Context\n4. Alttaki Konsolu sunucu komutlari icin kullanin\n5. Tam dokumantasyon icin Guide sekmesini kontrol edin",
+    "weight": 3.0
+  },
+  {
+    "input": "What can you do?",
+    "output": "AIRust finds knowledge, compares text, groups duplicates, and proposes lexical connections. The optional dashboard can return stored training answers. It does not generate new answers or infer meaning using a built-in language model. Applications own their data, UI, and relationships.",
+    "weight": 2.0
+  },
+  {
+    "input": "Was kannst du?",
+    "output": "AIRust findet Wissen, vergleicht Texte, sammelt Duplikate und schlägt mögliche Verbindungen vor. Das optionale Dashboard kann gespeicherte Trainingsantworten ausgeben. AIRust erzeugt keine neuen Antworten mit einem eingebauten Sprachmodell. Deine Anwendung besitzt Daten, Darstellung und Beziehungen.",
+    "weight": 2.0
+  },
+  {
+    "input": "Ne yapabilirsin?",
+    "output": "AIRust bilgi bulur, metin karşılaştırır, kopyaları gruplar ve ortak kelimelere dayalı bağlantılar önerir. İsteğe bağlı panel kayıtlı yanıtları verir. Yerleşik bir dil modeliyle yeni yanıtlar üretmez. Veriler ve ilişkiler uygulamaya aittir.",
+    "weight": 2.0
+  },
+  {
+    "input": "How do smart settings work?",
+    "output": "You can change settings by typing naturally in the chat:\n\nTheme:\n- 'Make it dark' / 'Mach die Seite dunkel' → Dark mode\n- 'Make it light' / 'Mach es hell' → Light mode\n\nColors:\n- 'Color green' / 'Farbe gruen' → Green accent\n- 'Background blue' / 'Hintergrund blau' → Blue background\n\nLanguage:\n- 'Switch to English' / 'Sprache Deutsch' / 'Turkce yap'\n\nWorks in English, German, and Turkish. The system detects keywords and applies the setting automatically.",
+    "weight": 1.0
+  },
+  {
+    "input": "Wie funktionieren Smart Settings?",
+    "output": "Du kannst Einstellungen aendern, indem du natuerlich im Chat tippst:\n\nTheme:\n- 'Mach die Seite dunkel' / 'Make it dark' → Dark Mode\n- 'Mach es hell' / 'Make it light' → Light Mode\n\nFarben:\n- 'Farbe gruen' / 'Color green' → Gruene Akzentfarbe\n- 'Hintergrund blau' / 'Background blue' → Blauer Hintergrund\n\nSprache:\n- 'Sprache Deutsch' / 'Switch to English' / 'Turkce yap'\n\nFunktioniert auf Deutsch, Englisch und Tuerkisch.",
+    "weight": 1.0
+  },
+  {
+    "input": "What are the use cases for AIRust?",
+    "output": "Popular use cases:\n- Customer support bot — Train with FAQ data, deploy as web widget\n- Internal knowledge base — Company wiki searchable via chat\n- Document search — Upload PDFs, search content with natural language\n- Language learning — Import Tatoeba translation pairs\n- Personal assistant — Train with your own notes and references\n- Data collection pipeline — Bots scrape, you review, KB grows automatically\n- Embedded AI — Use as Rust library in your own applications\n- Offline AI — Works without internet, perfect for air-gapped systems",
+    "weight": 1.0
+  },
+  {
+    "input": "Wofuer kann man AIRust nutzen?",
+    "output": "Beliebte Anwendungsfaelle:\n- Kundensupport-Bot — Mit FAQ-Daten trainieren, als Web-Widget einsetzen\n- Interne Wissensdatenbank — Firmenwiki durchsuchbar per Chat\n- Dokumentensuche — PDFs hochladen, Inhalte mit natuerlicher Sprache durchsuchen\n- Sprachenlernen — Tatoeba-Uebersetzungspaare importieren\n- Persoenlicher Assistent — Mit eigenen Notizen und Referenzen trainieren\n- Datensammlungs-Pipeline — Bots scrapen, du pruefst, KB waechst automatisch\n- Eingebettete KI — Als Rust-Bibliothek in eigenen Anwendungen\n- Offline-KI — Funktioniert ohne Internet",
+    "weight": 1.0
+  },
+  {
+    "input": "What is pattern matching?",
+    "output": "AIRust offers exact normalized comparison, fuzzy spelling comparison using Levenshtein distance, and token overlap using Jaccard similarity. These are lexical methods. BM25 and TF-IDF rank search terms separately. They are not automatic synonym or semantic matching.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist Pattern Matching?",
+    "output": "AIRust bietet exakten normalisierten Vergleich, Zeichenvergleich mit Levenshtein und Wortüberschneidung mit Jaccard. Das sind lexikalische Verfahren. BM25 und TF-IDF ordnen separat Suchtreffer. Ein automatischer Synonym- oder Bedeutungsvergleich ist damit nicht verbunden.",
+    "weight": 1.5
+  },
+  {
+    "input": "Oruntu eslestirme nedir?",
+    "output": "AIRust tam normalleştirilmiş karşılaştırma, Levenshtein ile yazım benzerliği ve Jaccard ile ortak kelimeleri ölçer. Bunlar sözcüksel yöntemlerdir. BM25 ve TF-IDF arama sıralaması sağlar; otomatik anlam veya eş anlamlı eşleştirme değildir.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is fuzzy search?",
+    "output": "Fuzzy search (Close Enough agent) uses the Levenshtein distance algorithm to find matches even when you make typos.\n\nHow it works:\n- Counts the minimum number of character edits (insert, delete, replace) to transform one string into another\n- Example: 'cat' → 'car' = distance 1 (replace t with r)\n- Default threshold: 30% of input length\n- If the distance is within threshold, it's considered a match\n\nPerfect for: Users who often mistype, command-line input, search with spelling errors.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist Fuzzy-Suche?",
+    "output": "Fuzzy-Suche (Close Enough Agent) nutzt den Levenshtein-Distanz-Algorithmus um Treffer auch bei Tippfehlern zu finden.\n\nSo funktioniert es:\n- Zaehlt die minimale Anzahl an Zeichenaenderungen (einfuegen, loeschen, ersetzen) um einen String in einen anderen umzuwandeln\n- Beispiel: 'Katze' → 'Matze' = Distanz 1 (K durch M ersetzen)\n- Standard-Schwellwert: 30% der Eingabelaenge\n- Wenn die Distanz innerhalb des Schwellwerts liegt, gilt es als Treffer\n\nIdeal fuer: Benutzer die oft tippen, Kommandozeilen-Eingaben, Suche mit Rechtschreibfehlern.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is semantic similarity?",
+    "output": "Semantic similarity compares meaning, including synonyms. AIRust 0.1.8 does not implement a semantic model. Its BM25 and TF-IDF search rank shared tokens, while fuzzy matching measures spelling. To compare meanings, an application may supply optional semantic embeddings or an external language model.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist semantische Aehnlichkeit?",
+    "output": "Semantische Ähnlichkeit vergleicht Bedeutung, auch bei anderen Wörtern. AIRust 0.1.8 enthält dafür kein eigenes Modell. BM25 und TF-IDF bewerten gemeinsame Wörter. Fuzzy Matching misst Schreibweisen. Für Bedeutungsvergleiche kann eine Anwendung optional semantische Embeddings oder ein externes Sprachmodell einsetzen.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is BM25?",
+    "output": "BM25 (Best Matching 25) is the ranking algorithm used by AIRust's Smart Search agent. It's the same algorithm used by search engines like Elasticsearch.\n\nIt improves on basic TF-IDF by adding:\n- Term saturation: After a word appears many times, additional occurrences matter less (controlled by k1, default 1.2)\n- Length normalization: Shorter documents aren't unfairly penalized vs longer ones (controlled by b, default 0.75)\n\nIn AIRust: Each training Q&A is a 'document'. Your query is scored against all documents, and the highest-scoring one becomes the answer.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist BM25?",
+    "output": "BM25 (Best Matching 25) ist der Ranking-Algorithmus des Smart Search Agenten. Es ist derselbe Algorithmus wie in Suchmaschinen wie Elasticsearch.\n\nVerbesserungen gegenueber einfachem TF-IDF:\n- Term-Saettigung: Nach vielen Vorkommen eines Wortes bringen weitere weniger (gesteuert durch k1, Standard 1.2)\n- Laengennormalisierung: Kuerzere Dokumente werden nicht unfair benachteiligt (gesteuert durch b, Standard 0.75)\n\nIn AIRust: Jedes Trainings-Q&A ist ein 'Dokument'. Deine Query wird gegen alle Dokumente bewertet, das hoechstbewertete wird zur Antwort.",
+    "weight": 1.0
+  },
+  {
+    "input": "What is Rust?",
+    "output": "Rust is a systems programming language created by Graydon Hoare at Mozilla. It focuses on safety, speed, and concurrency. AIRust is written entirely in Rust, which means it compiles to a fast native binary with no runtime dependencies.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist Rust?",
+    "output": "Rust ist eine Systemprogrammiersprache, die von Graydon Hoare bei Mozilla entwickelt wurde. Sie fokussiert auf Sicherheit, Geschwindigkeit und Nebenlaeufigkeit. AIRust ist komplett in Rust geschrieben — das bedeutet es kompiliert zu einem schnellen nativen Binary ohne Runtime-Abhaengigkeiten.",
+    "weight": 1.0
+  },
+  {
+    "input": "Rust nedir?",
+    "output": "Rust, Mozilla'da Graydon Hoare tarafindan olusturulan bir sistem programlama dilidir. Guvenlik, hiz ve es zamanliliga odaklanir. AIRust tamamen Rust ile yazilmistir.",
+    "weight": 1.0
+  },
+  {
+    "input": "What is cosine similarity?",
+    "output": "Cosine similarity measures how similar two text vectors are by calculating the cosine of the angle between them. A score of 1.0 means identical, 0.0 means completely different.\n\nUsed in AIRust's VectorDB: When you search, your query and all stored entries are converted to TF-IDF vectors, then cosine similarity finds the closest matches.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist Cosine-Similarity?",
+    "output": "Cosine-Similarity misst die Aehnlichkeit zweier Textvektoren, indem sie den Kosinus des Winkels zwischen ihnen berechnet. 1.0 = identisch, 0.0 = voellig unterschiedlich.\n\nVerwendung in AIRusts VectorDB: Bei einer Suche werden Query und alle gespeicherten Eintraege in TF-IDF-Vektoren umgewandelt, dann findet Cosine-Similarity die naechsten Treffer.",
+    "weight": 1.0
+  },
+  {
+    "input": "What is a knowledge base?",
+    "output": "In the new AIRust core, knowledge entries contain an application-owned ID, text, and optional metadata. Engine indexes them. The historical KnowledgeBase stores input/output training examples for the old agents. Embedded example data is optional and disabled in the default library.",
+    "weight": 1.5
+  },
+  {
+    "input": "Was ist eine Knowledge Base?",
+    "output": "Im neuen Kern haben Wissenseinträge eine ID deiner Anwendung, einen Text und optionale Metadaten. Engine macht sie durchsuchbar. Die bisherige KnowledgeBase speichert weiterhin input/output-Trainingsbeispiele für die alten Agenten. Eingebaute Beispieldaten sind in der Standardbibliothek ausgeschaltet.",
+    "weight": 1.5
+  },
+  {
+    "input": "What is SQLite?",
+    "output": "SQLite is a lightweight, file-based database engine. AIRust uses it to store everything persistently in a single file: airust.db\n\nStored in SQLite:\n- Chat history (conversations, messages)\n- Settings (theme, language, colors)\n- Training data (manually added or imported)\n- Bot configurations and run history\n- Approved/rejected scraped data\n- Vector collections and entries\n- UI translations\n\nYou can inspect the database through Tools > Files > click airust.db.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist SQLite?",
+    "output": "SQLite ist eine leichtgewichtige, dateibasierte Datenbank-Engine. AIRust nutzt sie um alles persistent in einer einzigen Datei zu speichern: airust.db\n\nIn SQLite gespeichert:\n- Chat-History (Gespraeche, Nachrichten)\n- Einstellungen (Theme, Sprache, Farben)\n- Trainingsdaten (manuell oder importiert)\n- Bot-Konfigurationen und Lauf-Historie\n- Genehmigte/abgelehnte gecrawlte Daten\n- Vector-Collections und Eintraege\n- UI-Uebersetzungen\n\nDu kannst die Datenbank inspizieren: Tools > Files > airust.db anklicken.",
+    "weight": 1.0
+  },
+  {
+    "input": "What is a WebSocket?",
+    "output": "A WebSocket is a persistent two-way connection between the browser and the server. Unlike HTTP (request-response), WebSocket stays open for real-time communication.\n\nAIRust uses WebSocket for the Console:\n- Server logs stream to your browser in real-time\n- You can send commands back to the server\n- Multiple browser tabs all receive the same logs\n- Auto-reconnects if disconnected\n- Runs on port 7071 (main server port + 1)",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist ein WebSocket?",
+    "output": "Ein WebSocket ist eine persistente Zwei-Wege-Verbindung zwischen Browser und Server. Anders als HTTP (Request-Response) bleibt die Verbindung fuer Echtzeit-Kommunikation offen.\n\nAIRust nutzt WebSocket fuer die Console:\n- Server-Logs streamen in Echtzeit zum Browser\n- Du kannst Befehle an den Server senden\n- Mehrere Browser-Tabs erhalten alle die gleichen Logs\n- Automatische Wiederverbindung bei Unterbrechung\n- Laeuft auf Port 7071 (Hauptport + 1)",
+    "weight": 1.0
+  },
+  {
+    "input": "What is REST API?",
+    "output": "A REST API is a way to control AIRust programmatically using HTTP requests. Instead of using the web dashboard, you can send commands via curl, Python, JavaScript, or any programming language.\n\nExample:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"What is Rust?\"}'\n\nAIRust has 50+ API endpoints for querying, training, bot management, file operations, and more. See the Guide tab for the full list.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist eine REST API?",
+    "output": "Eine REST API ist ein Weg, AIRust programmatisch ueber HTTP-Requests zu steuern. Statt das Web-Dashboard zu benutzen, kannst du Befehle per curl, Python, JavaScript oder jeder Programmiersprache senden.\n\nBeispiel:\n  curl -X POST http://localhost:7070/api/query \\\n    -H 'Content-Type: application/json' \\\n    -d '{\"input\": \"Was ist Rust?\"}'\n\nAIRust hat 50+ API-Endpoints fuer Abfragen, Training, Bot-Verwaltung, Dateioperationen und mehr.",
+    "weight": 1.0
+  },
+  {
+    "input": "What is web scraping?",
+    "output": "Web scraping means automatically downloading and extracting text content from websites. AIRust's bot system does this for you.\n\nWorkflow:\n1. Create a bot with a target URL\n2. Bot downloads the page and extracts text\n3. Raw data is saved as 'pending' for your review\n4. You approve or reject each entry\n5. Approved data is added to the knowledge base\n6. Agents are retrained with the new data\n\nThis creates a self-improving AI pipeline: bots collect, you curate, the AI learns.",
+    "weight": 1.0
+  },
+  {
+    "input": "Was ist Web Scraping?",
+    "output": "Web Scraping bedeutet, automatisch Text-Inhalte von Webseiten herunterzuladen und zu extrahieren. AIRusts Bot-System macht das fuer dich.\n\nWorkflow:\n1. Bot mit einer Ziel-URL erstellen\n2. Bot laedt die Seite herunter und extrahiert Text\n3. Rohdaten werden als 'pending' zur Pruefung gespeichert\n4. Du genehmigst oder lehnst jeden Eintrag ab\n5. Genehmigte Daten werden in die Knowledge Base uebernommen\n6. Agenten werden mit den neuen Daten neu trainiert\n\nDas schafft eine selbstverbessernde KI-Pipeline.",
+    "weight": 1.0
+  },
+  {
+    "input": "How do I train the AI?",
+    "output": "Training means adding question-answer pairs so the AI can learn to answer.\n\n5 ways to train:\n1. Manual: Brain tab > Add Example > fill in question + answer\n2. JSON import: Brain tab > Import > paste JSON array or upload file\n3. PDF upload: Brain tab > Import > drag & drop PDF\n4. Tatoeba: Brain tab > Import > upload TSV translation file\n5. Bots: Tools tab > create a web scraper bot > review collected data > add to KB\n\nAfter any addition, all agents are automatically retrained. The more data you add, the smarter the AI gets!",
+    "weight": 2.0
+  },
+  {
+    "input": "Wie trainiere ich die KI?",
+    "output": "Training bedeutet Frage-Antwort-Paare hinzuzufuegen, damit die KI lernt zu antworten.\n\n5 Wege zum Trainieren:\n1. Manuell: Brain Tab > Add Example > Frage + Antwort ausfuellen\n2. JSON Import: Brain Tab > Import > JSON-Array einfuegen oder Datei hochladen\n3. PDF Upload: Brain Tab > Import > PDF per Drag & Drop\n4. Tatoeba: Brain Tab > Import > TSV-Uebersetzungsdatei hochladen\n5. Bots: Tools Tab > Web-Scraper-Bot erstellen > gesammelte Daten pruefen > in KB uebernehmen\n\nNach jeder Aenderung werden alle Agenten automatisch neu trainiert. Je mehr Daten du hinzufuegst, desto schlauer wird die KI!",
+    "weight": 2.0
+  },
+  {
+    "input": "Yapay zeka nasil egitilir?",
+    "output": "Egitim, yapay zekanin yanitlamayi ogrenmesi icin soru-cevap ciftleri eklemek demektir.\n\n5 egitim yolu:\n1. Manuel: Brain sekmesi > Add Example\n2. JSON iceri aktarma: Brain sekmesi > Import > JSON yapistirin veya dosya yukleyin\n3. PDF yukleme: Brain sekmesi > Import > PDF surukleyip birakin\n4. Tatoeba: Brain sekmesi > Import > TSV ceviri dosyasi yukleyin\n5. Botlar: Tools sekmesi > web kaziyici bot olusturun > toplanan verileri inceleyin\n\nHer eklemeden sonra tum ajanlar otomatik olarak yeniden egitilir!",
+    "weight": 2.0
+  }
 ]

@@ -14,10 +14,7 @@ pub struct QAPair {
 
 impl ProcessorBot {
     /// Process approved raw_data into Q&A pairs and store in approved_data
-    pub fn process(
-        db: &Arc<Database>,
-        config: &BotConfig,
-    ) -> Result<(i64, i64), String> {
+    pub fn process(db: &Arc<Database>, config: &BotConfig) -> Result<(i64, i64), String> {
         let pending = db.get_pending_raw_data()?;
         let mut items_found: i64 = 0;
         let mut items_added: i64 = 0;
@@ -90,11 +87,25 @@ impl ProcessorBot {
             return true;
         }
         // Count non-printable characters (excluding normal whitespace)
-        let non_printable = text.chars().filter(|c| {
-            !c.is_alphanumeric() && !c.is_whitespace() && !c.is_ascii_punctuation()
-                && *c != 'ä' && *c != 'ö' && *c != 'ü' && *c != 'Ä' && *c != 'Ö' && *c != 'Ü' && *c != 'ß'
-                && *c != 'é' && *c != 'è' && *c != 'à' && *c != 'ñ'
-        }).count();
+        let non_printable = text
+            .chars()
+            .filter(|c| {
+                !c.is_alphanumeric()
+                    && !c.is_whitespace()
+                    && !c.is_ascii_punctuation()
+                    && *c != 'ä'
+                    && *c != 'ö'
+                    && *c != 'ü'
+                    && *c != 'Ä'
+                    && *c != 'Ö'
+                    && *c != 'Ü'
+                    && *c != 'ß'
+                    && *c != 'é'
+                    && *c != 'è'
+                    && *c != 'à'
+                    && *c != 'ñ'
+            })
+            .count();
         // Count Unicode replacement chars
         let replacements = text.chars().filter(|&c| c == '\u{FFFD}').count();
         non_printable as f64 / total as f64 > 0.10 || replacements as f64 / total as f64 > 0.10
@@ -143,10 +154,13 @@ impl ProcessorBot {
         let lower = h.to_lowercase();
 
         if lower.starts_with("über ") || lower == "über uns" {
-            return format!("Was kann man über {} erfahren?", &h[5..].trim_end_matches(':'));
+            return format!(
+                "Was kann man über {} erfahren?",
+                h[5..].trim_end_matches(':')
+            );
         }
         if lower.starts_with("about ") || lower == "about us" {
-            return format!("What is {}?", &h[6..].trim_end_matches(':'));
+            return format!("What is {}?", h[6..].trim_end_matches(':'));
         }
         if lower.starts_with("how to") || lower.starts_with("wie ") {
             return format!("{}?", h.trim_end_matches(':'));
@@ -158,7 +172,10 @@ impl ProcessorBot {
             return format!("Wie erreicht man {}?", h.trim_end_matches(':'));
         }
         if lower.starts_with("faq") || lower.starts_with("häufige fragen") {
-            return format!("Welche häufigen Fragen gibt es zu {}?", h.trim_end_matches(':'));
+            return format!(
+                "Welche häufigen Fragen gibt es zu {}?",
+                h.trim_end_matches(':')
+            );
         }
 
         // Default: "Was ist {heading}?"
@@ -204,10 +221,9 @@ impl ProcessorBot {
 
         // Common abbreviations that shouldn't split
         let abbrevs = [
-            "Dr.", "Mr.", "Mrs.", "Ms.", "Prof.", "Nr.", "St.", "Str.",
-            "z.B.", "d.h.", "u.a.", "o.ä.", "etc.", "bzw.", "inkl.", "zzgl.",
-            "ca.", "max.", "min.", "tel.", "Tel.", "Fax.", "Abs.",
-            "e.V.", "i.d.R.", "u.U.", "z.T.",
+            "Dr.", "Mr.", "Mrs.", "Ms.", "Prof.", "Nr.", "St.", "Str.", "z.B.", "d.h.", "u.a.",
+            "o.ä.", "etc.", "bzw.", "inkl.", "zzgl.", "ca.", "max.", "min.", "tel.", "Tel.",
+            "Fax.", "Abs.", "e.V.", "i.d.R.", "u.U.", "z.T.",
         ];
 
         while i < len {
@@ -243,7 +259,11 @@ impl ProcessorBot {
 
     /// Generate question from a sentence (reformulate first sentence into a question)
     fn sentence_to_question(sentence: &str) -> String {
-        let s = sentence.trim().trim_end_matches('.').trim_end_matches('!').trim();
+        let s = sentence
+            .trim()
+            .trim_end_matches('.')
+            .trim_end_matches('!')
+            .trim();
         if s.ends_with('?') {
             return s.to_string();
         }
@@ -252,7 +272,12 @@ impl ProcessorBot {
         }
         // "Was ist/bedeutet {first_sentence}?"
         let lower = s.to_lowercase();
-        if lower.starts_with("wir ") || lower.starts_with("unser") || lower.starts_with("die ") || lower.starts_with("das ") || lower.starts_with("der ") {
+        if lower.starts_with("wir ")
+            || lower.starts_with("unser")
+            || lower.starts_with("die ")
+            || lower.starts_with("das ")
+            || lower.starts_with("der ")
+        {
             format!("Was bedeutet: {}?", s)
         } else {
             format!("Was ist {}?", s)
@@ -272,7 +297,11 @@ impl ProcessorBot {
             let is_heading = !line.is_empty()
                 && line.len() < 100
                 && !line.ends_with('.')
-                && (line.chars().next().map(|c| c.is_uppercase()).unwrap_or(false));
+                && (line
+                    .chars()
+                    .next()
+                    .map(|c| c.is_uppercase())
+                    .unwrap_or(false));
 
             if is_heading && i + 1 < lines.len() {
                 // Collect following paragraph text
@@ -345,10 +374,7 @@ impl ProcessorBot {
     fn strategy_sentence(content: &str, min_length: usize) -> Vec<QAPair> {
         let mut pairs = Vec::new();
         let sentences = Self::split_sentences(content);
-        let filtered: Vec<&String> = sentences
-            .iter()
-            .filter(|s| s.len() >= min_length)
-            .collect();
+        let filtered: Vec<&String> = sentences.iter().filter(|s| s.len() >= min_length).collect();
 
         for chunk in filtered.chunks(2) {
             if chunk.len() == 2 {
@@ -377,11 +403,7 @@ impl ProcessorBot {
         }
 
         // Get first paragraph as answer (max 500 chars, sentence boundary)
-        let first_para = content
-            .split("\n\n")
-            .next()
-            .unwrap_or(content)
-            .trim();
+        let first_para = content.split("\n\n").next().unwrap_or(content).trim();
 
         let answer = if first_para.len() >= 20 {
             Self::truncate_at_sentence(first_para, 500)

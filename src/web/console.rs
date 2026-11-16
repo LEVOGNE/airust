@@ -154,7 +154,9 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
         }
         "status" => {
             let running = console.server_running.load(Ordering::SeqCst);
-            console.push_log("info", &format!("AIRust v{}", env!("CARGO_PKG_VERSION"))).await;
+            console
+                .push_log("info", &format!("AIRust v{}", env!("CARGO_PKG_VERSION")))
+                .await;
             console
                 .push_log(
                     if running { "info" } else { "warn" },
@@ -162,7 +164,9 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
                 )
                 .await;
             if let Ok(cwd) = std::env::current_dir() {
-                console.push_log("info", &format!("CWD: {}", cwd.display())).await;
+                console
+                    .push_log("info", &format!("CWD: {}", cwd.display()))
+                    .await;
             }
             return;
         }
@@ -190,5 +194,13 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
         }
     }
 
-    console.push_log("warn", &format!("Unknown command: {}. Type 'help' for available commands.", trimmed)).await;
+    console
+        .push_log(
+            "warn",
+            &format!(
+                "Unknown command: {}. Type 'help' for available commands.",
+                trimmed
+            ),
+        )
+        .await;
 }
