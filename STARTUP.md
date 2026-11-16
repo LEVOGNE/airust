@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.2.1 adds optional hybrid retrieval over lexical and semantic rankings. Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.2.2 adds an optional generic graph alongside lexical, semantic, and hybrid retrieval. Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
 
 ## Try the core
 
@@ -111,13 +111,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.2.1 .
+docker build -t airust:0.2.2 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.2.1
+  airust:0.2.2
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.

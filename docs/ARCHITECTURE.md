@@ -30,6 +30,7 @@ The arrows represent possible library calls. No external application is integrat
 | `semantic` | Optional provider interface, validated vectors, model-space identity, and exact semantic retrieval. |
 | `semantic::local` | Optional CPU E5 adapter using explicit model files and a dynamic native runtime. |
 | `hybrid` | Optional weighted reciprocal-rank fusion using existing lexical and semantic results. |
+| `graph` | Optional stable ID graph using petgraph, shared endpoint IDs, bounded queries, and iterative mixed-cycle analysis. |
 
 `Engine` is an alias for `KnowledgeIndex`. Search, comparison, and relation suggestions use the same source entries.
 
@@ -86,6 +87,10 @@ The older `ContextAgent` retains its existing behavior: it appends formatted con
 Each suggestion contains source ID, target ID, `RelationKind::Related`, a Jaccard score, and shared terms. The source entry is excluded from its own targets. An unknown source ID is an error. Suggestions are computed on demand and are not stored as facts.
 
 Opposite claims can share words. Hierarchy, prerequisites, causality, and contradictions need additional evidence. Cosine similarity from an embedding provider does not by itself classify those logical relationships.
+
+## Optional graph
+
+The independent `KnowledgeGraph` stores only IDs and explicit relationships. It does not own knowledge entries or synchronize them automatically. petgraph provides stable adjacency storage; shared strings avoid repeated endpoint allocations. Bounded ordered traversals enforce generic direction, relation-type, and allowed-ID policies. Mixed cycle detection contracts undirected forest components and checks the directed quotient with iterative topological sorting. Existing lexical proposals do not automatically become graph facts.
 
 ## Compatibility adapters
 

@@ -122,3 +122,7 @@ The `local-embeddings` feature adds `semantic::local::FastEmbedProvider`, which 
 ## Optional hybrid API
 
 The `hybrid` feature adds `SemanticIndex::hybrid_search()` and `airust::hybrid::{HybridSearchOptions, HybridOutcome, HybridResult, HybridError, SemanticFailurePolicy}`. It reuses both lexical modes, exact semantic retrieval, source entries, scope filters, and result ordering. The outcome explains weighted reciprocal ranks and explicit provider-error fallback. See [HYBRID.md](HYBRID.md) for configuration, evidence, candidate budgets, and limits.
+
+## Optional graph API
+
+The independent `graph` feature exposes `airust::graph::{KnowledgeGraph, Relation, RelationType, RelationDirection, TraversalDirection, TraversalOptions, Neighbor, GraphVisit, GraphError}`. It stores stable IDs, typed explicit relationships, and relation metadata without storing knowledge text. The [graph guide](GRAPH.md) defines update validation, neighbors, deterministic bounded BFS/DFS, allowlists, mixed-cycle semantics, and memory limits.

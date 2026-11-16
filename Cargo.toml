@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.1"
+version = "0.2.2"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -35,11 +35,13 @@ url = { version = "2", optional = true }
 tempfile = { version = "3", optional = true }
 fastembed = { version = "=7.7.1", optional = true, default-features = false, features = ["ort-load-dynamic"] }
 ort = { version = "=2.0.0-rc.15", optional = true, default-features = false, features = ["load-dynamic"] }
+petgraph = { version = "0.8.3", optional = true, default-features = false, features = ["std", "stable_graph"] }
 
 [features]
 default = []
 embeddings = []
 hybrid = ["embeddings"]
+graph = ["dep:petgraph", "serde/rc"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
 pdf = ["dep:pdf_oxide"]
@@ -103,3 +105,11 @@ required-features = ["hybrid", "local-embeddings"]
 [[example]]
 name = "hybrid_benchmark"
 required-features = ["hybrid"]
+
+[[example]]
+name = "graph"
+required-features = ["graph"]
+
+[[example]]
+name = "graph_benchmark"
+required-features = ["graph"]

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.2 — Optional generic graph — November 16, 2026
+
+- Reuse petgraph's stable storage, union-find, and iterative topological sorting behind an independent `graph` feature.
+- Add shared stable IDs, typed directed/undirected relations, metadata, neighbors, and coordinated node/edge removal.
+- Add deterministic iterative BFS/DFS with depth/node budgets, relation filters, and explicit allowed-ID sets.
+- Detect mixed cycles and support checking selected relation types.
+- Fix a long-chain stack overflow found in the initial upstream recursive cycle-check path by selecting iterative topological sorting.
+- Add exhaustive small-graph reference checks, mutation tests, long-chain/high-degree regressions, and measurements through 100,000 nodes.
+
+See the [0.2.2 report](docs/CHANGES-0.2.2.md) and [graph API](docs/GRAPH.md).
+
 ## 0.2.1 — Optional hybrid retrieval — November 16, 2026
 
 - Reuse BM25, TF-IDF, exact semantic ranking, metadata filters, source entries, and deterministic top-result selection.
