@@ -73,11 +73,13 @@ pub async fn ws_console(
     ws: WebSocketUpgrade,
     Extension(console): Extension<ConsoleState>,
 ) -> impl IntoResponse {
-    ws.on_upgrade(move |socket| handle_socket(socket, console))
+    ws.protocols(["airust"])
+        .max_message_size(4096)
+        .max_frame_size(4096)
+        .on_upgrade(move |socket| handle_socket(socket, console))
 }
 
 async fn handle_socket(mut socket: WebSocket, console: ConsoleState) {
-    // Send full history on connect
     {
         let hist = console.history.lock().await;
         let entries: Vec<&LogEntry> = hist.iter().collect();
@@ -124,6 +126,9 @@ async fn handle_socket(mut socket: WebSocket, console: ConsoleState) {
 
 async fn handle_console_command(command: &str, console: &ConsoleState) {
     let trimmed = command.trim();
+    if trimmed.len() > 1024 {
+        return;
+    }
     console.push_log("cmd", &format!("$ {}", trimmed)).await;
 
     let lower = trimmed.to_lowercase();
@@ -145,7 +150,7 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
                 "  clear      Clear console output",
                 "  status     Show server status",
                 "  restart    Restart the web server",
-                "  reset      Delete DB + restart (fresh start)",
+                "  reset      Delete DB + restart (requires AIRUST_ENABLE_ADMIN=1)",
             ];
             for line in help_lines {
                 console.push_log("info", line).await;
@@ -175,7 +180,7 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
             let _ = console.cmd_tx.send(ServerCommand::Restart).await;
             return;
         }
-        "reset" => {
+        "reset" if std::env::var("AIRUST_ENABLE_ADMIN").as_deref() == Ok("1") => {
             console.push_log("warn", "Resetting...").await;
             let _ = console.cmd_tx.send(ServerCommand::Reset).await;
             return;
@@ -183,7 +188,6 @@ async fn handle_console_command(command: &str, console: &ConsoleState) {
         _ => {}
     }
 
-    // Unknown command — suggest built-in if close match
     let builtins = ["help", "clear", "status", "restart", "reset"];
     for b in &builtins {
         if strsim::jaro_winkler(&lower, b) > 0.85 && lower != *b {

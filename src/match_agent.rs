@@ -1,8 +1,6 @@
-//! Compatibility adapter for exact and fuzzy question-answer matching.
 use crate::agent::{
     Agent, ConfidenceAgent, PredictionResult, ResponseFormat, TrainableAgent, TrainingExample,
 };
-use crate::matching::levenshtein_distance;
 
 #[derive(Debug, Clone)]
 pub enum MatchingStrategy {
@@ -13,7 +11,7 @@ pub enum MatchingStrategy {
 #[derive(Debug, Clone)]
 pub struct FuzzyOptions {
     pub max_distance: Option<usize>,
-    /// Maximum edits as a fraction of query character count, not UTF-8 bytes.
+
     pub threshold_factor: Option<f32>,
 }
 
@@ -56,8 +54,6 @@ impl MatchAgent {
     }
 
     fn ranked_matches(&self, input: &str) -> Vec<(usize, usize, f32)> {
-        // Preserve the old exact-match whitespace policy. The new Engine API uses
-        // Unicode normalization and collapsed whitespace for generic documents.
         let input = input.to_lowercase();
         let input_len = input.chars().count();
         let mut matches = Vec::new();
@@ -78,12 +74,12 @@ impl MatchAgent {
                         Some(_) => continue,
                         None => usize::MAX,
                     };
-                    let distance = levenshtein_distance(&input, &candidate);
-                    if distance > threshold
-                        || options.max_distance.is_some_and(|max| distance > max)
-                    {
+                    let maximum = threshold.min(options.max_distance.unwrap_or(usize::MAX));
+                    let Some(distance) =
+                        crate::matching::bounded_distance(&input, &candidate, maximum)
+                    else {
                         continue;
-                    }
+                    };
                     let max_len = input_len.max(candidate.chars().count()).max(1);
                     (distance, (1.0 - distance as f32 / max_len as f32).max(0.0))
                 }
@@ -173,8 +169,6 @@ mod tests {
         ]
     }
 
-    // === Exact Matching Tests ===
-
     #[test]
     fn test_exact_basic_match() {
         let mut agent = MatchAgent::new_exact();
@@ -209,7 +203,7 @@ mod tests {
     fn test_exact_whitespace_sensitivity() {
         let mut agent = MatchAgent::new_exact();
         agent.train(&sample_data());
-        // " hello" != "hello" in exact match
+
         let result = String::from(agent.predict(" hello"));
         assert!(result.contains("No matching answer found"));
     }
@@ -269,8 +263,6 @@ mod tests {
         }
     }
 
-    // === Fuzzy Matching Tests ===
-
     #[test]
     fn test_fuzzy_exact_input() {
         let mut agent = MatchAgent::new_fuzzy();
@@ -282,7 +274,7 @@ mod tests {
     fn test_fuzzy_close_match() {
         let mut agent = MatchAgent::new_fuzzy();
         agent.train(&sample_data());
-        // "helo" is 1 edit from "hello"
+
         assert_eq!(String::from(agent.predict("helo")), "Hi there!");
     }
 
@@ -290,10 +282,10 @@ mod tests {
     fn test_fuzzy_threshold_rejection() {
         let mut agent = MatchAgent::new(MatchingStrategy::Fuzzy(FuzzyOptions {
             max_distance: None,
-            threshold_factor: Some(0.1), // Very strict threshold
+            threshold_factor: Some(0.1),
         }));
         agent.train(&sample_data());
-        // "xxxxxxxxx" is very far from everything
+
         let result = String::from(agent.predict("xxxxxxxxx"));
         assert!(result.contains("No matching answer found"));
     }
@@ -305,9 +297,9 @@ mod tests {
             threshold_factor: None,
         }));
         agent.train(&sample_data());
-        // "helo" is distance 1 from "hello" -> should match
+
         assert_eq!(String::from(agent.predict("helo")), "Hi there!");
-        // "hxxxxxxx" is far from everything -> should not match
+
         let result = String::from(agent.predict("hxxxxxxx"));
         assert!(result.contains("No matching answer found"));
     }
@@ -320,10 +312,8 @@ mod tests {
             make_example("car", "vehicle"),
             make_example("bat", "animal"),
         ]);
-        // "cat" exactly matches "cat" (distance 0)
+
         assert_eq!(String::from(agent.predict("cat")), "feline");
-        // "cas" is distance 1 from "cat" and "car"
-        // both are equally close, first one wins
     }
 
     #[test]
@@ -350,8 +340,6 @@ mod tests {
         assert_eq!(options.threshold_factor, Some(0.5));
     }
 
-    // === Constructor Tests ===
-
     #[test]
     fn test_new_exact_constructor() {
         let agent = MatchAgent::new_exact();
@@ -377,12 +365,10 @@ mod tests {
     fn test_default_strategy_is_fuzzy() {
         let strategy = MatchingStrategy::default();
         match strategy {
-            MatchingStrategy::Fuzzy(_) => {} // expected
+            MatchingStrategy::Fuzzy(_) => {}
             MatchingStrategy::Exact => panic!("Default should be Fuzzy"),
         }
     }
-
-    // === Train Behavior Tests ===
 
     #[test]
     fn test_train_replaces_all_data() {
@@ -390,7 +376,6 @@ mod tests {
         agent.train(&sample_data());
         assert_eq!(String::from(agent.predict("hello")), "Hi there!");
 
-        // Train with new data replaces old
         agent.train(&[make_example("rust", "A language")]);
         let result = String::from(agent.predict("hello"));
         assert!(result.contains("No matching answer found"));
@@ -402,7 +387,6 @@ mod tests {
         let mut agent = MatchAgent::new_exact();
         agent.train(&sample_data());
 
-        // train_single now appends (does not replace)
         agent.train_single(&make_example("new", "added"));
         assert_eq!(String::from(agent.predict("hello")), "Hi there!");
         assert_eq!(String::from(agent.predict("new")), "added");
@@ -422,12 +406,10 @@ mod tests {
         let mut agent = MatchAgent::new_exact();
         agent.train(&sample_data());
         agent.add_example("rust", "A language", 1.0);
-        // Old data still there
+
         assert_eq!(String::from(agent.predict("hello")), "Hi there!");
         assert_eq!(String::from(agent.predict("rust")), "A language");
     }
-
-    // === Confidence / can_answer Tests ===
 
     #[test]
     fn test_confidence_match() {
@@ -457,8 +439,6 @@ mod tests {
         assert!(!agent.can_answer("unknown"));
     }
 
-    // === ConfidenceAgent Tests ===
-
     #[test]
     fn test_exact_calculate_confidence_match() {
         let mut agent = MatchAgent::new_exact();
@@ -483,7 +463,7 @@ mod tests {
     fn test_fuzzy_calculate_confidence_exact() {
         let mut agent = MatchAgent::new_fuzzy();
         agent.train(&sample_data());
-        // Exact match -> distance 0 -> confidence 1.0
+
         assert_eq!(agent.calculate_confidence("hello"), 1.0);
     }
 
@@ -491,7 +471,7 @@ mod tests {
     fn test_fuzzy_calculate_confidence_close() {
         let mut agent = MatchAgent::new_fuzzy();
         agent.train(&sample_data());
-        // "helo" is distance 1 from "hello" -> confidence = 1 - 1/4 = 0.75
+
         let conf = agent.calculate_confidence("helo");
         assert!(conf > 0.5 && conf < 1.0);
     }
@@ -527,7 +507,7 @@ mod tests {
         let results = agent.predict_top_n("hello", 2);
         assert!(!results.is_empty());
         assert!(results.len() <= 2);
-        // First result should have highest confidence
+
         if results.len() > 1 {
             assert!(results[0].confidence >= results[1].confidence);
         }

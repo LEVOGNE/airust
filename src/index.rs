@@ -1,8 +1,7 @@
-//! Incremental in-memory knowledge index. No network, database, or LLM is required.
-
 use crate::context::Context;
 use crate::knowledge::{KnowledgeEntry, RelationKind, RelationSuggestion};
 use crate::matching::{MatchError, MatchOptions, MatchResult, MatchStrategy, Similarity};
+use crate::ranking::TopK;
 use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
 use std::collections::{BTreeMap, BTreeSet};
@@ -38,8 +37,6 @@ pub struct IndexStats {
     pub tokens: usize,
 }
 
-/// Owns source entries, inverted postings, and normalized duplicate groups.
-/// Immutable access ensures changes cannot bypass the index.
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
     documents: BTreeMap<String, IndexedEntry>,
@@ -53,7 +50,6 @@ impl KnowledgeIndex {
         Self::default()
     }
 
-    /// Build a new index. Repeated IDs are rejected; use upsert for replacements.
     pub fn from_entries(
         entries: impl IntoIterator<Item = KnowledgeEntry>,
     ) -> Result<Self, IndexError> {
@@ -67,7 +63,6 @@ impl KnowledgeIndex {
         Ok(index)
     }
 
-    /// Validate, then insert or replace only this entry's index records.
     pub fn upsert(&mut self, entry: KnowledgeEntry) -> Result<Option<KnowledgeEntry>, IndexError> {
         if entry.id.trim().is_empty() {
             return Err(IndexError::EmptyId);
@@ -104,7 +99,6 @@ impl KnowledgeIndex {
         Ok(previous)
     }
 
-    /// Remove the entry, its postings, and its duplicate-group references.
     pub fn remove(&mut self, id: &str) -> Option<KnowledgeEntry> {
         let document = self.documents.remove(id)?;
         self.total_tokens -= document.length;
@@ -148,7 +142,6 @@ impl KnowledgeIndex {
         }
     }
 
-    /// BM25 retrieval. No lexical overlap means no result; ties use ascending ID.
     pub fn search(&self, query: &str, limit: usize) -> Vec<SearchResult<'_>> {
         self.search_with_options(
             query,
@@ -159,7 +152,6 @@ impl KnowledgeIndex {
         )
     }
 
-    /// Restrict eligible entries without appending history to the query.
     pub fn search_in_context(
         &self,
         query: &str,
@@ -176,8 +168,6 @@ impl KnowledgeIndex {
         )
     }
 
-    /// Rank only documents found in the inverted postings. Corpus statistics
-    /// are updated on mutation; TF-IDF norms use current document frequencies.
     pub fn search_with_options(
         &self,
         query: &str,
@@ -202,7 +192,7 @@ impl KnowledgeIndex {
         } else {
             0.0
         };
-        let mut results = Vec::new();
+        let mut results = TopK::new(options.limit);
         for id in candidates {
             let document = &self.documents[id];
             if options
@@ -261,16 +251,9 @@ impl KnowledgeIndex {
                 });
             }
         }
-        results.sort_by(|a, b| {
-            b.score
-                .total_cmp(&a.score)
-                .then_with(|| a.entry.id.cmp(&b.entry.id))
-        });
-        results.truncate(options.limit);
-        results
+        results.finish()
     }
 
-    /// Normalized Levenshtein similarity >= 0.8.
     pub fn find_matches(&self, text: &str, limit: usize) -> Vec<MatchResult<'_>> {
         self.match_validated(
             text,
@@ -281,7 +264,6 @@ impl KnowledgeIndex {
         )
     }
 
-    /// Rust spells the reserved word `match` as the raw identifier `r#match`.
     pub fn r#match(&self, text: &str, limit: usize) -> Vec<MatchResult<'_>> {
         self.find_matches(text, limit)
     }
@@ -303,20 +285,21 @@ impl KnowledgeIndex {
         let query_terms: BTreeSet<&str> = text::tokens_normalized(&normalized).collect();
         let query_len = normalized.chars().count();
         let exact_ids = self.normalized_ids.get(&normalized);
-        let candidates: Vec<&IndexedEntry> = match options.strategy {
-            MatchStrategy::Exact => exact_ids
-                .into_iter()
-                .flatten()
-                .map(|id| &self.documents[id])
-                .collect(),
-            MatchStrategy::TokenOverlap => self
-                .candidates(query_terms.iter().copied())
-                .into_iter()
-                .map(|id| &self.documents[id])
-                .collect(),
-            MatchStrategy::Fuzzy => self.documents.values().collect(),
+        let candidates: Box<dyn Iterator<Item = &IndexedEntry> + '_> = match options.strategy {
+            MatchStrategy::Exact => Box::new(
+                exact_ids
+                    .into_iter()
+                    .flatten()
+                    .map(|id| &self.documents[id]),
+            ),
+            MatchStrategy::TokenOverlap => Box::new(
+                self.candidates(query_terms.iter().copied())
+                    .into_iter()
+                    .map(|id| &self.documents[id]),
+            ),
+            MatchStrategy::Fuzzy => Box::new(self.documents.values()),
         };
-        let mut results = Vec::new();
+        let mut results = TopK::new(options.limit);
         for document in candidates {
             let shared = query_terms
                 .iter()
@@ -340,15 +323,26 @@ impl KnowledgeIndex {
             {
                 continue;
             }
+            let character = if normalized == document.normalized {
+                1.0
+            } else {
+                let distance = if options.strategy == MatchStrategy::Fuzzy {
+                    let Some(distance) = crate::matching::bounded_distance(
+                        &normalized,
+                        &document.normalized,
+                        crate::matching::distance_limit(max_len, options.min_similarity),
+                    ) else {
+                        continue;
+                    };
+                    distance
+                } else {
+                    crate::matching::levenshtein_distance(&normalized, &document.normalized)
+                };
+                1.0 - distance as f64 / max_len as f64
+            };
             let similarity = Similarity {
                 exact: normalized == document.normalized,
-                character: if normalized == document.normalized {
-                    1.0
-                } else {
-                    1.0 - crate::matching::levenshtein_distance(&normalized, &document.normalized)
-                        as f64
-                        / max_len as f64
-                },
+                character,
                 token: token_score,
             };
             let score = match options.strategy {
@@ -370,16 +364,9 @@ impl KnowledgeIndex {
                 });
             }
         }
-        results.sort_by(|a, b| {
-            b.score
-                .total_cmp(&a.score)
-                .then_with(|| a.entry.id.cmp(&b.entry.id))
-        });
-        results.truncate(options.limit);
-        results
+        results.finish()
     }
 
-    /// Exact duplicate groups after normalization; original entries remain intact.
     pub fn duplicates(&self) -> Vec<Vec<&KnowledgeEntry>> {
         self.normalized_ids
             .values()
@@ -388,9 +375,6 @@ impl KnowledgeIndex {
             .collect()
     }
 
-    /// Propose lexical relatedness using shared non-stopword tokens.
-    /// Never infers hierarchy, causality, prerequisites, or contradictions.
-    /// Suggestions are computed on demand and never saved as relationships.
     pub fn relate(&self, id: &str, limit: usize) -> Result<Vec<RelationSuggestion>, IndexError> {
         let source = self
             .documents
@@ -405,7 +389,7 @@ impl KnowledgeIndex {
             .filter(|term| !text::is_stopword(term))
             .collect();
         let candidates = self.candidates(source_terms.iter().map(|term| term.as_str()));
-        let mut suggestions = Vec::new();
+        let mut suggestions = TopK::new(limit);
         for target_id in candidates {
             if target_id == id {
                 continue;
@@ -430,16 +414,9 @@ impl KnowledgeIndex {
                 });
             }
         }
-        suggestions.sort_by(|a, b| {
-            b.score
-                .total_cmp(&a.score)
-                .then_with(|| a.target_id.cmp(&b.target_id))
-        });
-        suggestions.truncate(limit);
-        Ok(suggestions)
+        Ok(suggestions.finish())
     }
 
-    /// Serialize source entries only. Derived indexes are rebuilt on import.
     pub fn to_json(&self) -> Result<String, IndexError> {
         Ok(serde_json::to_string_pretty(
             &self.entries().collect::<Vec<_>>(),

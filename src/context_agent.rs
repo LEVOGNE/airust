@@ -1,35 +1,30 @@
-// src/context_agent.rs - Revised ContextAgent
 use crate::agent::{
     Agent, ContextualAgent, PredictionResult, ResponseFormat, TrainableAgent, TrainingExample,
 };
 use std::collections::VecDeque;
 
-/// Context agent wraps another agent and provides context-aware responses
 pub struct ContextAgent<A: Agent> {
     base_agent: A,
-    context_history: VecDeque<(String, ResponseFormat)>, // (Question, Answer)
+    context_history: VecDeque<(String, ResponseFormat)>,
     max_context_items: usize,
     context_format: ContextFormat,
 }
 
 type ContextFormatFn = Box<dyn Fn(&[(String, ResponseFormat)]) -> String + Send + Sync>;
 
-/// Configurable context formatting strategies
 #[derive(Default)]
 pub enum ContextFormat {
-    /// Format: "Q: question A: answer Q: question A: answer ..."
     #[default]
     QAPairs,
-    /// Format: "[question -> answer, question -> answer, ...]"
+
     List,
-    /// Format: "Previous questions and answers: question - answer; question - answer; ..."
+
     Sentence,
-    /// Custom format with formatting function
+
     Custom(ContextFormatFn),
 }
 
 impl<A: Agent> ContextAgent<A> {
-    /// Creates a new context agent with a base agent and maximum context items
     pub fn new(base_agent: A, max_context_items: usize) -> Self {
         Self {
             base_agent,
@@ -39,13 +34,11 @@ impl<A: Agent> ContextAgent<A> {
         }
     }
 
-    /// Sets the context format for generating context strings
     pub fn with_context_format(mut self, format: ContextFormat) -> Self {
         self.context_format = format;
         self
     }
 
-    /// Creates a context string from the conversation history
     fn get_context_string(&self) -> String {
         match &self.context_format {
             ContextFormat::QAPairs => {
@@ -99,7 +92,6 @@ impl<A: Agent> ContextAgent<A> {
 }
 
 impl<A: Agent> Agent for ContextAgent<A> {
-    /// Generates a response with context added to the input
     fn predict(&self, input: &str) -> ResponseFormat {
         self.base_agent.predict(&self.enhanced_input(input))
     }
@@ -115,29 +107,24 @@ impl<A: Agent> Agent for ContextAgent<A> {
 }
 
 impl<A: TrainableAgent> TrainableAgent for ContextAgent<A> {
-    /// Trains the base agent with the provided training data (replaces all)
     fn train(&mut self, data: &[TrainingExample]) {
         self.base_agent.train(data);
     }
 
-    /// Appends training data to the base agent without replacing
     fn append(&mut self, data: &[TrainingExample]) {
         self.base_agent.append(data);
     }
 }
 
 impl<A: Agent> ContextualAgent for ContextAgent<A> {
-    /// Adds a new context item to the conversation history
     fn add_context(&mut self, question: String, answer: ResponseFormat) {
         self.context_history.push_back((question, answer));
 
-        // Keeps size under maximum
         while self.context_history.len() > self.max_context_items {
             self.context_history.pop_front();
         }
     }
 
-    /// Clears the entire context history
     fn clear_context(&mut self) {
         self.context_history.clear();
     }
@@ -167,13 +154,11 @@ mod tests {
         agent
     }
 
-    // === No-Context Passthrough ===
-
     #[test]
     fn test_no_context_passthrough() {
         let base = trained_match_agent();
         let ctx = ContextAgent::new(base, 5);
-        // Without context, input goes through unchanged
+
         assert_eq!(String::from(ctx.predict("hello")), "Hi there!");
     }
 
@@ -182,13 +167,10 @@ mod tests {
         let base = trained_match_agent();
         let mut ctx = ContextAgent::new(base, 5);
         ctx.add_context("prev".to_string(), ResponseFormat::Text("ans".to_string()));
-        // With context, the input gets "[Context: ...]" appended
-        // so exact match on "hello" should fail
+
         let result = String::from(ctx.predict("hello"));
         assert!(result.contains("No matching answer found"));
     }
-
-    // === FIFO Eviction ===
 
     #[test]
     fn test_fifo_eviction() {
@@ -199,7 +181,6 @@ mod tests {
         ctx.add_context("q2".to_string(), ResponseFormat::Text("a2".to_string()));
         ctx.add_context("q3".to_string(), ResponseFormat::Text("a3".to_string()));
 
-        // Only q2 and q3 should remain (FIFO: q1 evicted)
         let context_str = ctx.get_context_string();
         assert!(!context_str.contains("q1"));
         assert!(context_str.contains("q2"));
@@ -215,7 +196,7 @@ mod tests {
 
         let context_str = ctx.get_context_string();
         assert!(context_str.is_empty());
-        // After clearing, passthrough should work again
+
         assert_eq!(String::from(ctx.predict("hello")), "Hi there!");
     }
 
@@ -229,8 +210,6 @@ mod tests {
         assert!(context_str.contains("question"));
         assert!(context_str.contains("answer"));
     }
-
-    // === Context Format Tests ===
 
     #[test]
     fn test_format_qa_pairs() {
@@ -296,27 +275,22 @@ mod tests {
         assert!(context_str.contains("q2 -> a2"));
     }
 
-    // === Edge Cases ===
-
     #[test]
     fn test_max_context_items_zero() {
         let base = trained_match_agent();
         let mut ctx = ContextAgent::new(base, 0);
         ctx.add_context("q1".to_string(), ResponseFormat::Text("a1".to_string()));
 
-        // With max 0, all context is evicted immediately
         let context_str = ctx.get_context_string();
         assert!(context_str.is_empty());
     }
-
-    // === Train Delegation ===
 
     #[test]
     fn test_train_delegates_to_base() {
         let base = MatchAgent::new_exact();
         let mut ctx = ContextAgent::new(base, 5);
         ctx.train(&[make_example("hello", "Hi!")]);
-        // Without context, the base agent should respond
+
         assert_eq!(String::from(ctx.predict("hello")), "Hi!");
     }
 
@@ -329,8 +303,6 @@ mod tests {
         assert_eq!(String::from(ctx.predict("hello")), "Hi!");
         assert_eq!(String::from(ctx.predict("bye")), "Goodbye!");
     }
-
-    // === ContextAgent wrapping TfidfAgent ===
 
     #[test]
     fn test_context_agent_with_tfidf() {

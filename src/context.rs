@@ -1,12 +1,8 @@
-//! Explicit search scope, independent of UI state or conversation formatting.
-
 use crate::knowledge::KnowledgeEntry;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
-/// IDs are ORed; metadata conditions are ANDed. Empty filters accept every entry.
-/// Metadata filters compare exact top-level JSON values and never alter the query.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Context {
     #[serde(default)]

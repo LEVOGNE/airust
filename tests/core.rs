@@ -44,11 +44,8 @@ fn comparison_is_symmetric_and_lexical() {
     assert!(compare(" Café ", "cafe\u{301}").exact);
     assert_eq!(compare("", "").character, 0.0);
     assert!(!compare(" ", " ").exact);
-    // Different meanings and synonyms require evidence beyond these algorithms.
-    assert_eq!(
-        compare("Auto anmelden", "Kfz-Zulassung durchführen").token,
-        0.0
-    );
+
+    assert_eq!(compare("Car registration", "Vehicle licensing").token, 0.0);
 }
 
 #[test]
@@ -77,7 +74,7 @@ fn tfidf_is_cosine_similarity_with_smoothed_idf() {
     let results = index.search_with_options("rust", &options);
     assert_eq!(results[0].entry.id, "a");
     assert!((results[0].score - 1.0).abs() < 1e-12);
-    // Both terms have df=2. Their IDF values cancel: dot([1,0],[1,2]) / sqrt(5).
+
     assert!((results[1].score - 1.0 / 5.0_f64.sqrt()).abs() < 1e-12);
     assert!(results.iter().all(|hit| (0.0..=1.0).contains(&hit.score)));
     assert!(index.search_with_options("unknown", &options).is_empty());
@@ -309,9 +306,9 @@ fn configuration_rejects_nan_infinity_and_invalid_ranges() {
 #[test]
 fn relations_are_explained_proposals_and_never_invent_logical_types() {
     let mut index = Engine::from_entries([
-        KnowledgeEntry::new("a", "Rust ist sicher"),
-        KnowledgeEntry::new("b", "Rust ist unsicher"),
-        KnowledgeEntry::new("c", "Python ist praktisch"),
+        KnowledgeEntry::new("a", "Rust is safe"),
+        KnowledgeEntry::new("b", "Rust is unsafe"),
+        KnowledgeEntry::new("c", "Python is practical"),
     ])
     .unwrap();
     let before = index.to_json().unwrap();
@@ -400,5 +397,62 @@ fn match_candidate_pruning_agrees_with_full_pairwise_comparison() {
                 );
             }
         }
+    }
+}
+
+#[test]
+fn bounded_rankings_preserve_full_order_and_large_limits_do_not_preallocate() {
+    let index = Engine::from_entries((0..200).rev().map(|id| {
+        KnowledgeEntry::new(
+            format!("{id:04}"),
+            format!("shared rust {}", "rust ".repeat(id % 5)),
+        )
+    }))
+    .unwrap();
+    for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+        let all = index.search_with_options(
+            "rust",
+            &SearchOptions {
+                algorithm,
+                limit: usize::MAX,
+                ..Default::default()
+            },
+        );
+        for limit in [0, 1, 3, 17, 200, 300] {
+            let subset = index.search_with_options(
+                "rust",
+                &SearchOptions {
+                    algorithm,
+                    limit,
+                    ..Default::default()
+                },
+            );
+            assert_eq!(
+                subset
+                    .iter()
+                    .map(|hit| (&hit.entry.id, hit.score))
+                    .collect::<Vec<_>>(),
+                all.iter()
+                    .take(limit)
+                    .map(|hit| (&hit.entry.id, hit.score))
+                    .collect::<Vec<_>>()
+            );
+        }
+    }
+    for limit in [1, 7, 200] {
+        let all = index.find_matches("shared rust rust", usize::MAX);
+        let subset = index.find_matches("shared rust rust", limit);
+        assert_eq!(
+            subset.iter().map(|hit| &hit.entry.id).collect::<Vec<_>>(),
+            all.iter()
+                .take(limit)
+                .map(|hit| &hit.entry.id)
+                .collect::<Vec<_>>()
+        );
+        let all = index.relate("0000", usize::MAX).unwrap();
+        assert_eq!(
+            index.relate("0000", limit).unwrap(),
+            all.into_iter().take(limit).collect::<Vec<_>>()
+        );
     }
 }

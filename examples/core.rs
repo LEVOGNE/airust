@@ -1,4 +1,3 @@
-//! Run with: cargo run --example core
 use airust::{
     Context, Engine, KnowledgeEntry, MatchOptions, MatchStrategy, SearchAlgorithm, SearchOptions,
 };
@@ -8,26 +7,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut engine = Engine::from_entries([
         KnowledgeEntry::new(
             "note-1",
-            "Rust schützt den Speicher ohne Garbage Collector.",
+            "Rust provides memory safety without a garbage collector.",
         )
-        .with_metadata(json!({"project": "DenkMaps", "source": "Meine Notizen"})),
-        KnowledgeEntry::new("note-2", "Rust eignet sich für schnelle Suchwerkzeuge."),
-        KnowledgeEntry::new("note-3", "Python eignet sich für Skripte."),
-        KnowledgeEntry::new("note-4", "  RUST eignet sich für schnelle Suchwerkzeuge.  "),
+        .with_metadata(json!({"project": "research", "source": "Personal notes"})),
+        KnowledgeEntry::new("note-2", "Rust is useful for fast search tools."),
+        KnowledgeEntry::new("note-3", "Python is useful for scripts."),
+        KnowledgeEntry::new("note-4", "  RUST is useful for fast search tools.  "),
     ])?;
 
-    println!("Wissen finden:");
-    for hit in engine.search("Rust Speicher", 3) {
+    println!("Find knowledge:");
+    for hit in engine.search("Rust memory", 3) {
         println!(
-            "  {} ({:.3}): {} — Begriffe: {:?}",
+            "  {} ({:.3}): {} — terms: {:?}",
             hit.entry.id, hit.score, hit.entry.text, hit.matched_terms
         );
     }
 
-    println!("Ähnliche Texte:");
-    for hit in engine.find_matches("Rust eignet sich für schnelle Suchwerkzeug.", 3) {
+    println!("Similar text:");
+    for hit in engine.find_matches("Rust is useful for fast search tool.", 3) {
         println!(
-            "  {}: {:.1}% Zeichenähnlichkeit",
+            "  {}: {:.1}% character similarity",
             hit.entry.id,
             hit.score * 100.0
         );
@@ -38,24 +37,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..Default::default()
     };
     println!(
-        "Exakte Treffer: {}",
+        "Exact matches: {}",
         engine
-            .match_with_options("Rust eignet sich für schnelle Suchwerkzeuge.", &exact)?
+            .match_with_options("Rust is useful for fast search tools.", &exact)?
             .len()
     );
-    println!("Duplikatgruppen: {}", engine.duplicates().len());
+    println!("Duplicate groups: {}", engine.duplicates().len());
 
-    println!("Mögliche Verbindungen:");
+    println!("Suggested connections:");
     for proposal in engine.relate("note-1", 3)? {
         println!(
-            "  {} → {}: gemeinsame Begriffe {:?}",
+            "  {} → {}: shared terms {:?}",
             proposal.source_id, proposal.target_id, proposal.shared_terms
         );
     }
 
-    let context = Context::new().with_metadata("project", "DenkMaps");
+    let context = Context::new().with_metadata("project", "research");
     println!(
-        "Treffer im Projekt: {}",
+        "Matches in project: {}",
         engine.search_in_context("Rust", &context, 10).len()
     );
     let options = SearchOptions {
@@ -63,19 +62,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..Default::default()
     };
     println!(
-        "TF-IDF-Treffer: {}",
+        "TF-IDF matches: {}",
         engine.search_with_options("Rust", &options).len()
     );
 
     engine.upsert(KnowledgeEntry::new(
         "note-3",
-        "Python eignet sich für Automatisierung.",
+        "Python is useful for automation.",
     ))?;
     engine.remove("note-4");
     let restored = Engine::from_json(&engine.to_json()?)?;
-    println!(
-        "Gespeichert und wieder geladen: {} Einträge",
-        restored.len()
-    );
+    println!("Saved and restored: {} entries", restored.len());
     Ok(())
 }

@@ -1,297 +1,151 @@
-// src/bin/pdf2kb.rs - CLI tool for converting PDFs to Knowledge Bases
 use airust::pdf_loader::{PdfLoader, PdfLoaderConfig};
-use std::env;
-use std::fs;
-use std::path::PathBuf;
-use std::process;
-
-fn print_help() {
-    println!("pdf2kb - PDF to Knowledge Base Converter");
-    println!();
-    println!("Usage:");
-    println!("  pdf2kb <pdf-file>              - Converts PDF to a Knowledge Base JSON file in the knowledge/ folder");
-    println!("  pdf2kb <pdf-file> [output]     - Converts PDF and saves the JSON file to the specified path");
-    println!("  pdf2kb --help                  - Shows this help");
-    println!();
-    println!("Options:");
-    println!("  --min-chunk <number>     - Minimum chunk size (default: 50)");
-    println!("  --max-chunk <number>     - Maximum chunk size (default: 1000)");
-    println!("  --overlap <number>       - Overlap between chunks (default: 200)");
-    println!("  --weight <number>        - Weight for training examples (default: 1.0)");
-    println!("  --no-metadata            - No metadata in training examples");
-    println!("  --no-sentence-split      - Don't split text at sentence boundaries");
-    println!("  --paragraph-split        - Split primarily at paragraph boundaries (default)");
-    println!("  --no-paragraph-split     - Don't split at paragraph boundaries");
-    println!("  --no-clean               - Disable text cleaning pipeline");
-    println!("  --no-dehyphenate         - Disable dehyphenation");
-    println!("  --keep-page-numbers      - Keep page number lines");
-    println!("  --verbose                - Show extracted text before/after cleaning");
-}
+use std::{env, fs, path::PathBuf};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 || args[1] == "--help" || args[1] == "-h" {
-        print_help();
-        return;
+    if let Err(error) = run() {
+        eprintln!("PDF conversion failed: {error}");
+        std::process::exit(1);
     }
+}
 
-    // Create default configuration
+fn print_help() {
+    println!("pdf2kb INPUT.pdf [OUTPUT.json] [OPTIONS]");
+    println!("Default output: knowledge/<input-name>.json");
+    println!("--min-chunk N        Preferred minimum character count (default 50)");
+    println!("--max-chunk N        Maximum character count (default 1000)");
+    println!("--overlap N          Overlap character count (default 200)");
+    println!("--weight N           Finite nonnegative example weight (default 1)");
+    println!("--no-metadata        Omit import provenance");
+    println!("--no-sentence-split  Disable sentence boundary splitting");
+    println!("--paragraph-split    Prefer paragraph boundaries (default)");
+    println!("--no-paragraph-split Disable paragraph boundary splitting");
+    println!("--no-clean           Disable text cleaning");
+    println!("--no-dehyphenate     Keep hyphenated line breaks");
+    println!("--keep-page-numbers  Keep standalone page-number lines");
+    println!("--verbose           Show bounded text previews");
+    println!("--overwrite         Explicitly replace an existing output file");
+    println!("--                  End options; remaining arguments are file paths");
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = PdfLoaderConfig::default();
-    let mut pdf_path = String::new();
-    let mut output_path = String::new();
+    let mut paths = Vec::new();
     let mut verbose = false;
-
-    // Parse arguments
-    let mut i = 1;
-    while i < args.len() {
-        match args[i].as_str() {
+    let mut overwrite = false;
+    let mut positional_only = false;
+    let mut args = env::args().skip(1);
+    while let Some(arg) = args.next() {
+        if positional_only {
+            paths.push(PathBuf::from(arg));
+            continue;
+        }
+        match arg.as_str() {
+            "--help" | "-h" => {
+                print_help();
+                return Ok(());
+            }
+            "--version" | "-V" => {
+                println!("pdf2kb {}", airust::VERSION);
+                return Ok(());
+            }
             "--min-chunk" => {
-                if i + 1 < args.len() {
-                    if let Ok(value) = args[i + 1].parse::<usize>() {
-                        config.min_chunk_size = value;
-                    } else {
-                        eprintln!("Error: --min-chunk requires a number");
-                        process::exit(1);
-                    }
-                    i += 2;
-                } else {
-                    eprintln!("Error: --min-chunk requires a value");
-                    process::exit(1);
-                }
+                config.min_chunk_size =
+                    args.next().ok_or("--min-chunk requires a value")?.parse()?
             }
             "--max-chunk" => {
-                if i + 1 < args.len() {
-                    if let Ok(value) = args[i + 1].parse::<usize>() {
-                        config.max_chunk_size = value;
-                    } else {
-                        eprintln!("Error: --max-chunk requires a number");
-                        process::exit(1);
-                    }
-                    i += 2;
-                } else {
-                    eprintln!("Error: --max-chunk requires a value");
-                    process::exit(1);
-                }
+                config.max_chunk_size =
+                    args.next().ok_or("--max-chunk requires a value")?.parse()?
             }
             "--overlap" => {
-                if i + 1 < args.len() {
-                    if let Ok(value) = args[i + 1].parse::<usize>() {
-                        config.chunk_overlap = value;
-                    } else {
-                        eprintln!("Error: --overlap requires a number");
-                        process::exit(1);
-                    }
-                    i += 2;
-                } else {
-                    eprintln!("Error: --overlap requires a value");
-                    process::exit(1);
-                }
+                config.chunk_overlap = args.next().ok_or("--overlap requires a value")?.parse()?
             }
             "--weight" => {
-                if i + 1 < args.len() {
-                    if let Ok(value) = args[i + 1].parse::<f32>() {
-                        config.default_weight = value;
-                    } else {
-                        eprintln!("Error: --weight requires a decimal number");
-                        process::exit(1);
-                    }
-                    i += 2;
-                } else {
-                    eprintln!("Error: --weight requires a value");
-                    process::exit(1);
-                }
+                config.default_weight = args.next().ok_or("--weight requires a value")?.parse()?
             }
-            "--no-metadata" => {
-                config.include_metadata = false;
-                i += 1;
+            "--no-metadata" => config.include_metadata = false,
+            "--no-sentence-split" => config.split_by_sentence = false,
+            "--paragraph-split" => config.split_by_paragraph = true,
+            "--no-paragraph-split" => config.split_by_paragraph = false,
+            "--no-clean" => config.clean_text = false,
+            "--no-dehyphenate" => config.dehyphenate = false,
+            "--keep-page-numbers" => config.remove_page_numbers = false,
+            "--verbose" => verbose = true,
+            "--overwrite" => overwrite = true,
+            "--" => positional_only = true,
+            value if value.starts_with('-') => {
+                return Err(format!("Unknown option: {value}").into())
             }
-            "--no-sentence-split" => {
-                config.split_by_sentence = false;
-                i += 1;
-            }
-            "--paragraph-split" => {
-                config.split_by_paragraph = true;
-                i += 1;
-            }
-            "--no-paragraph-split" => {
-                config.split_by_paragraph = false;
-                i += 1;
-            }
-            "--no-clean" => {
-                config.clean_text = false;
-                i += 1;
-            }
-            "--no-dehyphenate" => {
-                config.dehyphenate = false;
-                i += 1;
-            }
-            "--keep-page-numbers" => {
-                config.remove_page_numbers = false;
-                i += 1;
-            }
-            "--verbose" => {
-                verbose = true;
-                i += 1;
-            }
-            _ => {
-                // If it's not an option, it should be a file path
-                if pdf_path.is_empty() {
-                    pdf_path = args[i].clone();
-                } else if output_path.is_empty() {
-                    output_path = args[i].clone();
-                } else {
-                    eprintln!("Unknown argument: {}", args[i]);
-                    print_help();
-                    process::exit(1);
-                }
-                i += 1;
-            }
+            value => paths.push(PathBuf::from(value)),
         }
     }
-
-    // Check if PDF path was specified
-    if pdf_path.is_empty() {
-        eprintln!("Error: No PDF file specified");
-        print_help();
-        process::exit(1);
+    if paths.is_empty() {
+        return Err("A PDF input path is required; use --help for usage".into());
     }
-
-    // If no output path was specified, use the PDF name and save in the knowledge/ folder
-    if output_path.is_empty() {
-        let pdf_path_buf = PathBuf::from(&pdf_path);
-        let file_stem = pdf_path_buf.file_stem().unwrap_or_default();
-
-        // Create knowledge/ directory if it doesn't exist
-        let knowledge_dir = PathBuf::from("knowledge");
-        if !knowledge_dir.exists() {
-            match fs::create_dir_all(&knowledge_dir) {
-                Ok(_) => println!("Directory 'knowledge/' created."),
-                Err(e) => {
-                    eprintln!("Error creating 'knowledge/' directory: {}", e);
-                    process::exit(1);
-                }
-            }
-        }
-
-        // Create the output path in the knowledge/ directory
-        let mut output_path_buf = knowledge_dir.clone();
-        output_path_buf.push(file_stem);
-        output_path_buf.set_extension("json");
-        output_path = output_path_buf.to_string_lossy().to_string();
+    if paths.len() > 2 {
+        return Err("Expected one input path and at most one output path".into());
     }
-
-    println!("Converting PDF: {}", pdf_path);
-    println!("Output: {}", output_path);
-    println!("Configuration:");
-    println!("  Min. chunk size: {} characters", config.min_chunk_size);
-    println!("  Max. chunk size: {} characters", config.max_chunk_size);
-    println!("  Chunk overlap: {} characters", config.chunk_overlap);
-    println!("  Weight: {}", config.default_weight);
-    println!(
-        "  Metadata: {}",
-        if config.include_metadata { "Yes" } else { "No" }
-    );
-    println!(
-        "  Sentence boundary split: {}",
-        if config.split_by_sentence {
-            "Yes"
-        } else {
-            "No"
-        }
-    );
-    println!(
-        "  Paragraph split: {}",
-        if config.split_by_paragraph {
-            "Yes"
-        } else {
-            "No"
-        }
-    );
-    println!(
-        "  Text cleaning: {}",
-        if config.clean_text { "Yes" } else { "No" }
-    );
-    println!(
-        "  Dehyphenation: {}",
-        if config.dehyphenate { "Yes" } else { "No" }
-    );
-    println!(
-        "  Remove page numbers: {}",
-        if config.remove_page_numbers {
-            "Yes"
-        } else {
-            "No"
-        }
-    );
-
-    // Verbose: show raw text before cleaning
+    config.validate()?;
+    let input = &paths[0];
+    if !input.is_file() {
+        return Err(format!("Input is not a regular file: {}", input.display()).into());
+    }
+    let output = paths.get(1).cloned().unwrap_or_else(|| {
+        PathBuf::from("knowledge")
+            .join(input.file_stem().unwrap_or_default())
+            .with_extension("json")
+    });
+    if input == &output
+        || input
+            .canonicalize()
+            .ok()
+            .zip(output.canonicalize().ok())
+            .is_some_and(|(a, b)| a == b)
+    {
+        return Err("Input and output must be different files".into());
+    }
+    if output.exists() && !overwrite {
+        return Err("Output already exists; pass --overwrite to replace it".into());
+    }
     if verbose {
-        println!("\n--- Extracting raw text ---");
-        let loader_raw = PdfLoader::with_config(PdfLoaderConfig {
-            clean_text: false,
-            ..PdfLoaderConfig::default()
-        });
-        match loader_raw.pdf_to_training_examples(&pdf_path) {
-            Ok(examples) => {
-                let raw_text: String = examples
-                    .iter()
-                    .map(|e| e.input.as_str())
-                    .collect::<Vec<_>>()
-                    .join("\n---\n");
-                let preview: String = raw_text.chars().take(2000).collect();
-                println!("[RAW] First 2000 chars:\n{}", preview);
-                if raw_text.chars().count() > 2000 {
-                    println!("... ({} total chars)", raw_text.chars().count());
-                }
-            }
-            Err(e) => {
-                eprintln!("Error extracting raw text: {}", e);
-            }
+        let mut raw_config = config.clone();
+        raw_config.clean_text = false;
+        let pages = PdfLoader::with_config(raw_config).extract_pages_from_pdf(input)?;
+        println!("Raw preview:");
+        for page in pages.iter().take(3) {
+            println!("Page {}: {}", page.page_number, preview(&page.text, 300));
         }
-        println!("--- End raw text ---\n");
     }
-
-    // Convert PDF to Knowledge Base
     let loader = PdfLoader::with_config(config);
-    match loader.pdf_to_knowledge_base(&pdf_path) {
-        Ok(kb) => {
-            let example_count = kb.get_examples().len();
-            println!(
-                "PDF successfully converted. {} training examples extracted.",
-                example_count
-            );
-
-            // Verbose: show cleaned text
-            if verbose {
-                println!("\n--- Cleaned text ---");
-                for (i, ex) in kb.get_examples().iter().enumerate().take(5) {
-                    println!("[Chunk {}] {}", i, &ex.input[..ex.input.len().min(300)]);
-                    println!();
-                }
-                if example_count > 5 {
-                    println!("... ({} more chunks)", example_count - 5);
-                }
-                println!("--- End cleaned text ---\n");
-            }
-
-            // Save Knowledge Base
-            match loader.save_knowledge_base(&kb, &output_path) {
-                Ok(_) => {
-                    println!("Knowledge Base successfully saved: {}", output_path);
-                    println!(
-                        "\nTest the base with: cargo run --bin airust -- query tfidf \"Question about the content\""
-                    );
-                }
-                Err(e) => {
-                    eprintln!("Error saving the Knowledge Base: {}", e);
-                    process::exit(1);
-                }
-            }
+    let knowledge = loader.pdf_to_knowledge_base(input)?;
+    if verbose {
+        println!("Cleaned preview:");
+        for (index, example) in knowledge.get_examples().iter().take(5).enumerate() {
+            println!("Chunk {index}: {}", preview(&example.input, 300));
         }
-        Err(e) => {
-            eprintln!("Error converting the PDF: {}", e);
-            process::exit(1);
-        }
+    }
+    if let Some(parent) = output.parent().filter(|path| !path.as_os_str().is_empty()) {
+        fs::create_dir_all(parent)?;
+    }
+    loader.save_knowledge_base(&knowledge, &output)?;
+    println!(
+        "Saved {} training examples to {}",
+        knowledge.get_examples().len(),
+        output.display()
+    );
+    Ok(())
+}
+
+fn preview(text: &str, limit: usize) -> String {
+    text.chars().take(limit).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn previews_do_not_split_utf8_characters() {
+        let text = format!("{}尾", "ä😀".repeat(200));
+        assert_eq!(preview(&text, 300).chars().count(), 300);
+        assert_eq!(preview(&text, usize::MAX), text);
     }
 }

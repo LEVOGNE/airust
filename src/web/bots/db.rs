@@ -2,8 +2,6 @@ use super::models::{ApprovedData, Bot, BotConfig, BotRun, RawData};
 use rusqlite::params;
 
 impl crate::web::db::Database {
-    // ── Bots CRUD ─────────────────────────────────────────────────────────────
-
     pub fn create_bot(
         &self,
         name: &str,
@@ -110,7 +108,7 @@ impl crate::web::db::Database {
 
     pub fn delete_bot(&self, id: i64) -> Result<(), String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        // Delete dependent data first (foreign key constraints)
+
         conn.execute(
             "DELETE FROM raw_data WHERE bot_run_id IN (SELECT id FROM bot_runs WHERE bot_id = ?1)",
             params![id],
@@ -122,8 +120,6 @@ impl crate::web::db::Database {
             .map_err(|e| format!("Delete bot error: {}", e))?;
         Ok(())
     }
-
-    // ── Bot Runs ──────────────────────────────────────────────────────────────
 
     pub fn create_bot_run(&self, bot_id: i64) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
@@ -178,8 +174,6 @@ impl crate::web::db::Database {
         Ok(result)
     }
 
-    // ── Raw Data ──────────────────────────────────────────────────────────────
-
     pub fn insert_raw_data(
         &self,
         bot_run_id: i64,
@@ -189,7 +183,7 @@ impl crate::web::db::Database {
         content_hash: &str,
     ) -> Result<i64, String> {
         let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        // Check for duplicate hash
+
         let exists: bool = conn
             .query_row(
                 "SELECT COUNT(*) > 0 FROM raw_data WHERE content_hash = ?1",
@@ -198,7 +192,7 @@ impl crate::web::db::Database {
             )
             .map_err(|e| format!("Hash check error: {}", e))?;
         if exists {
-            return Ok(-1); // Duplicate
+            return Ok(-1);
         }
         conn.execute(
             "INSERT INTO raw_data (bot_run_id, url, title, content, content_hash) VALUES (?1, ?2, ?3, ?4, ?5)",
@@ -316,8 +310,6 @@ impl crate::web::db::Database {
         }
     }
 
-    // ── Approved Data ─────────────────────────────────────────────────────────
-
     pub fn insert_approved_data(
         &self,
         raw_data_id: Option<i64>,
@@ -396,8 +388,6 @@ impl crate::web::db::Database {
         .map_err(|e| format!("Mark added error: {}", e))?;
         Ok(())
     }
-
-    // ── Vectors ───────────────────────────────────────────────────────────────
 
     pub fn insert_vector(
         &self,

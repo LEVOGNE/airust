@@ -1,108 +1,142 @@
-# AIRust 0.1.8 starten
+# Start AIRust
 
-AIRust ist zuerst eine Rust-Bibliothek. Der Webserver ist eine optionale Erweiterung. Führe die Befehle in diesem Projektordner aus. Verwende Rust 1.89 oder neuer.
+AIRust is a Rust library with optional tools. Use Rust 1.89 or newer and run these commands from the source checkout. The current development version is 0.1.9; the published baseline is 0.1.8.
 
-## 1. Den Kern ausprobieren
+## Try the core
 
 ```bash
 cargo run --locked --example core
 ```
 
-Du siehst Suchtreffer, ähnliche Texte und mögliche Verbindungen. Es werden keine vorhandenen Wissensdateien oder Datenbanken verändert.
+The example demonstrates retrieval and comparison without changing existing knowledge files or databases.
 
-## 2. Die bisherigen Agenten verwenden
+## Use the existing agents
 
 ```bash
 cargo run --locked --features cli --bin airust -- --version
-cargo run --locked --features cli --bin airust -- cli query simple "Was ist AIRust?"
-cargo run --locked --features cli --bin airust -- cli query fuzzy "Was ist AIRust?"
-cargo run --locked --features cli --bin airust -- cli query tfidf "Was ist AIRust?"
+cargo run --locked --features cli --bin airust -- cli query simple "What is AIRust?"
+cargo run --locked --features cli --bin airust -- cli query fuzzy "What is AIRust?"
+cargo run --locked --features cli --bin airust -- cli query tfidf "What is AIRust?"
 cargo run --locked --features cli --bin airust -- cli interactive
 ```
 
-`simple` vergleicht exakt, `fuzzy` toleriert Tippfehler und `tfidf` verwendet BM25. Die Agenten geben gespeicherte Antworten aus. Sie erzeugen keine neuen Antworten mit einem Sprachmodell.
+`simple` compares exact text, `fuzzy` tolerates spelling changes, and the historical `tfidf` agent uses BM25. These adapters return stored answers.
 
-`cli` bettet die vorhandenen Beispiele aus `knowledge/train.json` ein. Ändert sich diese Datei, berücksichtigt Cargo sie beim nächsten Build. Ohne `embedded-knowledge` enthält die Bibliothek keine eingebauten Beispieldaten.
+`cli` enables sample knowledge from `knowledge/train.json`. Cargo rebuilds the embedded data when that file changes. The default library embeds no sample knowledge.
 
-## 3. Eine PDF importieren
+## Import a PDF
 
 ```bash
 cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json
 ```
 
-Das schreibt eine neue Trainingsdatei nach `/tmp`. Jede Textstelle erhält Herkunftsdaten mit Datei, Seite und Abschnitt. PDF-Dateien mit reinen Bildern benötigen eine separate Texterkennung. AIRust enthält keine OCR.
+The output is a training file. Existing output files require the explicit `--overwrite` flag. Unknown flags, invalid chunk settings, and using the same file as input and output are rejected. Use `--` before a filename that begins with a dash. Each passage includes its source filename, page number, and chunk position. Image-only PDFs require separate optical character recognition; AIRust has no OCR engine.
 
-Weitere Einstellungen:
+To see the available options:
 
 ```bash
 cargo run --locked --features cli,pdf --bin pdf2kb -- --help
 ```
 
-Die maximale Textlänge muss größer als null sein. Der bevorzugte Mindestwert darf nicht größer als der Maximalwert sein. Die Überlappung muss kleiner als die maximale Textlänge sein. Ein letzter kurzer Textrest bleibt erhalten.
+The maximum chunk length must be positive. The preferred minimum must not exceed the maximum. Overlap must be smaller than the maximum. A final short chunk is retained.
 
-## 4. Trainingsdateien zusammenfügen
+## Merge training files
 
 ```bash
-cargo run --locked --features cli --bin merge_kb -- quelle-a.json quelle-b.json --output /tmp/airust-gesamt.json
+cargo run --locked --features cli --bin merge_kb -- source-a.json source-b.json --output /tmp/airust-merged.json
 ```
 
-Das Werkzeug liest zuerst alle Quellen. Erst danach schreibt es die Ausgabe. Vollständig identische Beispiele werden nur einmal übernommen. Unterschiedliche Metadaten, Antworten oder Gewichte bleiben erhalten.
+The tool validates all source files before replacing the output. Completely identical examples are included once. Examples with different answers, weights, or metadata remain distinct.
 
-Ohne Dateiangaben verwendet es `knowledge/*.json` und schreibt `knowledge/train.json`. Die Zieldatei wird dabei nicht wieder als Quelle eingelesen. Gibt es keine Quellen oder ist eine Quelle fehlerhaft, bleibt eine vorhandene Ausgabe bestehen. `--include-embedded` fügt auf ausdrücklichen Wunsch die eingebetteten Beispiele hinzu.
+With no source paths, it reads `knowledge/*.json` and writes `knowledge/train.json`. It excludes the output from the input list. No sources or an invalid source leaves an existing output untouched. `--include-embedded` explicitly includes embedded samples.
 
-Das Werkzeug verarbeitet das bisherige Format mit `input` und `output`. Das neue Format mit `id` und `text` lädt eine Anwendung mit `Engine::from_json()`.
+This tool reads the existing `input`/`output` training format. Generic `id`/`text` knowledge entries are loaded by `Engine::from_json()`.
 
-## 5. Das Dashboard starten
+## Start the dashboard
 
 ```bash
 cargo run --locked --features web --bin airust
 ```
 
-Öffne `http://127.0.0.1:7070`. Die Konsole verwendet `ws://127.0.0.1:7071/ws/console`.
+Open `http://127.0.0.1:7070`. The console endpoint is `ws://127.0.0.1:7071/ws/console`.
+
+Use another port:
 
 ```bash
-# Anderer Port: Die Konsole verwendet dann Port 8081.
 cargo run --locked --features web --bin airust -- --port 8080
+```
 
-# Im Hintergrund starten und später beenden.
+The console then uses port 8081. Valid main ports range from 1 through 65534.
+
+Start and stop a background process:
+
+```bash
 cargo run --locked --features web --bin airust -- -d
 cargo run --locked --features web --bin airust -- stop
+```
 
-# Mit der Produktübersicht starten.
+Show the product overview with the dashboard:
+
+```bash
 cargo run --locked --features web --bin airust -- --landingpage
 ```
 
-Erlaubt sind Ports von 1 bis 65534. `--help` zeigt weitere Befehle. Die Konsole kennt `help`, `clear`, `status`, `restart` und `reset`. `reset` löscht die Dashboard-Datenbank. Freie Shell-Befehle werden nicht ausgeführt.
+`--help` lists supported commands. The console provides `help`, `clear`, `status`, `restart`, and `reset`. `reset` removes the dashboard database. Use the documented controls only when you intend their effect on local data.
 
-Das Dashboard verwendet `airust.db` im aktuellen Arbeitsordner. Die bestehende Datei wurde bei dieser Überarbeitung nicht geändert. Tests verwenden eigene temporäre Datenbanken.
+Runtime state uses `AIRUST_RUNTIME_DIR`, an absolute private directory that defaults to `$HOME/.local/state/airust`. Its Unix mode is `0700`; insecure or symlink directories are rejected. The directory contains private `server.json` process identity and `airust.log` files. `stop` checks the recorded process identity before signaling.
 
-Standardmäßig sind Webserver und Konsole nur lokal erreichbar. `AIRUST_BIND_ADDR` legt die Bindeadresse fest. Beispiel für eine ausdrücklich gewünschte Netzwerkfreigabe:
+The dashboard stores its database as `airust.db` in the current working directory. Keep a backup before changing an existing installation. Repository tests use separate temporary databases.
+
+The default bind address is `127.0.0.1`. `AIRUST_BIND_ADDR` selects another IP address. Non-loopback operation requires `AIRUST_API_TOKEN`; a configured token also protects a loopback instance. The value needs 32 through 256 ASCII letters, digits, hyphens, or underscores.
+
+For a token-protected local instance, generate and export a token before starting:
 
 ```bash
-AIRUST_BIND_ADDR=0.0.0.0 cargo run --locked --features web --bin airust
+export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
+cargo run --locked --features web --bin airust
 ```
 
-Das Dashboard hat keine Benutzeranmeldung und kann Dateien und Datenbanken verwalten. Für eine öffentliche Bereitstellung benötigt es einen geschützten Zugang außerhalb von AIRust. Beliebige fremde Browser-Seiten erhalten keine pauschale CORS-Freigabe mehr.
-
-## 6. Docker verwenden
+The browser prompts for that token and retains it only in page memory. An HTTP client supplies it in a header:
 
 ```bash
-docker build -t airust:0.1.8 .
+curl -H "Authorization: Bearer $AIRUST_API_TOKEN" http://127.0.0.1:7070/api/status
+```
+
+`AIRUST_ALLOWED_HOSTS` accepts explicit comma-separated hostnames without ports or wildcards. Host and Origin must match the expected host and service ports. A reverse proxy must be configured for these checks deliberately.
+
+Administration is disabled by default. `AIRUST_ENABLE_ADMIN=1` enables file administration, knowledge load/save, and console reset. Enabled filesystem access remains confined to the working directory and rejects hidden, parent, absolute, and symlink paths. Read the [security guide](docs/SECURITY.md) before enabling it.
+
+Ordinary queries do not change settings through keyword detection. Use the explicit `/settings` command prefix or the `/api/settings` endpoint.
+
+## Use Docker
+
+```bash
+docker build -t airust:0.1.9 .
+export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
+  -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.1.8
+  airust:0.1.9
 ```
 
-Der Container baut ausdrücklich die Web-Erweiterung. Die Ports bleiben durch diese Zuordnung auf dem Host lokal. Das Image enthält weder deine vorhandene Datenbank noch das Sicherungsarchiv. Die Anleitung wird mitkopiert, weil der Server sie für seinen Guide benötigt.
+The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.
 
-Ohne eigenes Datenvolume lebt eine neu angelegte Datenbank nur im Container. Der Docker-Build benötigt Zugang zur Paketregistrierung.
+A database created inside a container lasts only as long as that container unless you provide persistent storage. Building the image requires access to the package registry.
 
-## 7. Qualität prüfen
+## Run validation
 
 ```bash
 ./test.sh
 cargo run --locked --release --example benchmark -- 1000 100
 ```
 
-Der Laufzeitvergleich misst einen kleinen festgelegten Fall. Seine Zeiten hängen vom Rechner ab. Die durchgeführten lokalen Prüfungen stehen im [Änderungsbericht](docs/AENDERUNGEN-0.1.8.md).
+For a configurable index workload:
+
+```bash
+cargo run --locked --release --example index_benchmark -- 10000 300
+```
+
+This reports JSON with build, search percentiles, update, and delete timings. The entry and query counts are explicit. Larger benchmark methodology and evidence requirements are in [ROADMAP.md](ROADMAP.md).
+
+The older benchmark measures a small fixed workload. Results depend on the host. Historical 0.1.8 results are recorded in [CHANGES-0.1.8.md](docs/CHANGES-0.1.8.md). Current development results belong in [CHANGES-0.1.9.md](docs/CHANGES-0.1.9.md).

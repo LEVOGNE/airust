@@ -30,7 +30,6 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);height:auto;overflow-x:hidden;overflow-y:auto;font-size:13px}
 .layout{display:grid;grid-template-columns:240px 1fr;grid-template-rows:1fr auto;height:100vh}
 
-/* Sidebar - glass */
 .sidebar{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-right:1px solid var(--glass-border);display:flex;flex-direction:column;overflow:hidden}
 .sidebar-header{padding:var(--sp-13) var(--sp-13);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:var(--sp-8)}
 .sidebar-header .logo{font-weight:700;font-size:15px;color:var(--primary)}
@@ -59,21 +58,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .archive-toggle:hover{color:var(--primary)}
 .chat-item.archived .chat-title{color:var(--text3);font-style:italic}
 
-/* Main Content */
 .main-content{display:flex;flex-direction:column;overflow:hidden;font-size:var(--font-size)}
 
-/* Status Bar - glass */
 .status-bar{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid var(--glass-border);padding:8px 24px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:var(--sp-13);flex-shrink:0}
 .status-bar .status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 4px var(--success)}
 .status-bar .sep{color:var(--text3)}
 .status-bar .lvl{font-weight:600;font-size:11px}
 .status-bar .lvl.info{color:var(--success)}
 
-/* View container */
 .view{display:none;flex:1;flex-direction:column;overflow:hidden}
 .view.active{display:flex}
 
-/* Sub-tabs (pill style) */
 .sub-tabs{display:flex;gap:var(--sp-3);padding:var(--sp-8) var(--sp-21);border-bottom:1px solid var(--border);flex-shrink:0}
 .sub-tab{padding:8px 20px;border-radius:var(--r-3);font-size:14px;font-weight:500;color:var(--text2);background:none;border:1px solid transparent;cursor:pointer;transition:all 120ms ease}
 .sub-tab:hover{background:var(--surface2);color:var(--text)}
@@ -81,7 +76,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .sub-view{display:none;flex:1;flex-direction:column;overflow:hidden}
 .sub-view.active{display:flex}
 
-/* Chat View */
 .chat-panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .messages{flex:1;overflow-y:auto;padding:var(--sp-21);display:flex;flex-direction:column;gap:var(--sp-13)}
 .messages-inner{max-width:700px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--sp-13)}
@@ -96,7 +90,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .chat-input-area input{flex:1;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-3);color:var(--text);font-size:15px}
 .chat-input-area input:focus{outline:none;border-color:var(--primary)}
 
-/* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-5);padding:8px 18px;border:none;border-radius:var(--r-3);font-size:14px;font-weight:500;cursor:pointer;transition:background 120ms ease,border-color 120ms ease,box-shadow 120ms ease;color:var(--btn-text)}
 .btn-sm{padding:6px 12px;font-size:13px}
 .btn-primary{background:var(--primary)}
@@ -115,7 +108,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .send-btn{padding:12px 28px;background:var(--primary);color:var(--btn-text);border:none;border-radius:var(--r-3);font-size:15px;font-weight:600;cursor:pointer;transition:background 120ms ease}
 .send-btn:hover{background:var(--primary-hover)}
 
-/* Inputs */
 input[type=text],input[type=number],input[type=url]{width:100%;padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-3);color:var(--text);font-size:14px;margin-bottom:var(--sp-3);transition:border-color 120ms ease}
 input:focus{outline:none;border-color:var(--primary)}
 select{width:100%;padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-3);color:var(--text);font-size:14px;margin-bottom:var(--sp-3);cursor:pointer}
@@ -123,11 +115,9 @@ select:focus{outline:none;border-color:var(--primary)}
 textarea{width:100%;padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-3);color:var(--text);font-size:14px;resize:vertical;min-height:60px}
 textarea:focus{outline:none;border-color:var(--primary)}
 
-/* Section */
 .section{padding:var(--sp-21);border-bottom:1px solid var(--border)}
 .section-title{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:var(--sp-13);font-weight:600}
 
-/* Knowledge All - table */
 .kb-toolbar{display:flex;gap:var(--sp-8);padding:var(--sp-8) var(--sp-21);border-bottom:1px solid var(--border);align-items:center;flex-shrink:0;flex-wrap:wrap}
 .kb-toolbar input{flex:1;margin-bottom:0;min-width:120px}
 .t-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -144,7 +134,6 @@ textarea:focus{outline:none;border-color:var(--primary)}
 .pager button:hover{border-color:var(--primary);color:var(--text)}
 .pager button:disabled{opacity:.3;cursor:default}
 
-/* Categories grid */
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--sp-13);padding:var(--sp-21)}
 .cat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-4);padding:18px;cursor:pointer;transition:border-color 150ms ease}
 .cat-card:hover{border-color:var(--primary)}
@@ -156,7 +145,6 @@ textarea:focus{outline:none;border-color:var(--primary)}
 .cat-add-bar{padding:var(--sp-13) var(--sp-21);border-bottom:1px solid var(--border);display:flex;gap:var(--sp-8);align-items:center;flex-shrink:0}
 .cat-add-bar input{margin-bottom:0}
 
-/* Import */
 .import-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-21);padding:var(--sp-21)}
 .drop-zone{border:2px dashed var(--border);border-radius:var(--r-4);padding:32px;text-align:center;color:var(--text2);font-size:14px;cursor:pointer;transition:border-color 200ms ease,background 200ms ease}
 .drop-zone:hover,.drop-zone.dragover{border-color:var(--primary);background:var(--primary-soft)}
@@ -170,7 +158,6 @@ textarea:focus{outline:none;border-color:var(--primary)}
 .kb-path-bar button:first-of-type{background:var(--primary);color:#fff}
 .kb-path-bar button:last-of-type{background:var(--surface2);color:var(--text)}
 
-/* Guide */
 .guide-content{padding:var(--sp-21);overflow-y:auto;height:100%;line-height:1.7;color:var(--text)}
 .guide-content h1{font-size:1.6em;font-weight:700;margin:0 0 .8em;padding-bottom:.4em;border-bottom:2px solid var(--border)}
 .guide-content h2{font-size:1.3em;font-weight:600;margin:1.5em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--border)}
@@ -188,7 +175,6 @@ textarea:focus{outline:none;border-color:var(--primary)}
 .guide-content strong{color:var(--primary)}
 .guide-content a{color:var(--primary);text-decoration:none}
 
-/* Agent cards (Settings) */
 .agent-option{display:flex;align-items:center;gap:var(--sp-8);padding:12px 16px;border-radius:var(--r-3);cursor:pointer;margin-bottom:var(--sp-5);transition:all 120ms ease;border:1px solid transparent}
 .agent-option:hover{background:var(--surface2)}
 .agent-option input[type=checkbox]{accent-color:var(--primary);margin:0}
@@ -196,7 +182,6 @@ textarea:focus{outline:none;border-color:var(--primary)}
 .agent-name{font-size:14px;font-weight:600}
 .agent-tech{font-size:13px;color:var(--text3);margin-top:var(--sp-1)}
 
-/* Settings */
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-8) 0;gap:var(--sp-13)}
 .setting-label{font-size:14px;font-weight:500}
 .theme-toggle{display:flex;gap:var(--sp-3);background:var(--bg);border-radius:var(--r-3);padding:var(--sp-2);border:1px solid var(--border)}
@@ -206,7 +191,6 @@ input[type=color]{width:44px;height:36px;border:1px solid var(--border);border-r
 input[type=range]{width:140px;accent-color:var(--primary)}
 .font-size-display{font-size:11px;color:var(--text2);min-width:24px;text-align:right}
 
-/* Bots */
 .bot-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-4);padding:18px;margin-bottom:var(--sp-8);transition:border-color 150ms ease}
 .bot-card:hover{border-color:var(--text3)}
 .bot-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-5)}
@@ -255,7 +239,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 .run-data-item .rdi-badge.approved{background:rgba(68,215,168,.15);color:var(--success)}
 .run-data-item .rdi-badge.rejected{background:rgba(224,85,102,.15);color:var(--danger)}
 
-/* Data Review */
 .data-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-4);padding:18px;margin-bottom:var(--sp-8)}
 .data-card-url{font-size:11px;color:var(--primary);margin-bottom:var(--sp-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .data-card-title{font-size:14px;font-weight:600;margin-bottom:var(--sp-3)}
@@ -267,7 +250,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 .approved-toggle{padding:var(--sp-8) var(--sp-21);font-size:11px;color:var(--text2);cursor:pointer;border-top:1px solid var(--border)}
 .approved-toggle:hover{color:var(--primary)}
 
-/* Files */
 .files-layout{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden}
 .files-browser{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
 .files-editor{display:flex;flex-direction:column;overflow:hidden}
@@ -290,7 +272,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 .editor-header .editor-path{flex:1;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .editor-area{flex:1;width:100%;padding:var(--sp-13);background:var(--bg);color:var(--text);border:none;font-family:'SF Mono',Monaco,'Cascadia Code',monospace;font-size:12px;resize:none;outline:none;line-height:1.5}
 
-/* DB Viewer */
 .db-viewer{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .db-toolbar{display:flex;gap:var(--sp-5);padding:var(--sp-8) var(--sp-13);border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
 .db-toolbar select{width:auto;margin-bottom:0}
@@ -303,7 +284,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 .db-table td[contenteditable]:focus{outline:2px solid var(--primary);outline-offset:-2px;background:var(--bg);white-space:normal;overflow:visible}
 .db-table td.modified{background:rgba(255,231,214,.12)}
 
-/* VectorDB */
 .vecdb-layout{display:grid;grid-template-columns:200px 1fr;flex:1;overflow:hidden}
 .vecdb-sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .vecdb-main{display:flex;flex-direction:column;overflow:hidden}
@@ -327,7 +307,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 .col-add-form{padding:var(--sp-8);border-top:1px solid var(--border)}
 .col-add-form input{width:100%;margin-bottom:var(--sp-3)}
 
-/* Console — dynamic theme colors, compact */
 .console-panel{grid-column:1/-1;height:100px;min-height:24px;max-height:40vh;display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--border);font-family:'SF Mono',Monaco,'Cascadia Code','Fira Code',monospace;font-size:9px !important;color:var(--text)}
 .console-header{display:flex;align-items:center;gap:var(--sp-5);padding:2px var(--sp-8);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid var(--border);cursor:ns-resize;flex-shrink:0;user-select:none;height:24px;box-sizing:border-box}
 .console-status-dot{width:5px;height:5px;border-radius:50%;background:var(--success);box-shadow:0 0 3px var(--success);flex-shrink:0}
@@ -354,7 +333,7 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-/* Landing Page */
+
 .landing{background:var(--bg);color:var(--text)}
 .landing-hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:var(--sp-34);position:relative;background:radial-gradient(ellipse at 50% 40%,var(--primary-soft) 0%,transparent 60%)}
 .landing-logo{font-size:64px;font-weight:800;color:var(--primary);letter-spacing:-2px;margin-bottom:var(--sp-8)}
@@ -421,16 +400,13 @@ input[type=range]{width:140px;accent-color:var(--primary)}
 </head>
 <body>
 
-<!-- Landing Page -->
 <div class="landing" id="landing">
 
-  <!-- Hero -->
   <section class="landing-hero">
     <div class="landing-logo">AIRust</div>
     <div class="landing-lang-picker">
       <span class="lang-flag active" onclick="setLanguage('en')" title="English">EN</span>
-      <span class="lang-flag" onclick="setLanguage('de')" title="Deutsch">DE</span>
-      <span class="lang-flag" onclick="setLanguage('tr')" title="Türkçe">TR</span>
+
     </div>
     <div class="landing-tagline" data-t="landing.tagline">A Modular Knowledge Intelligence Engine</div>
     <div class="landing-desc" data-t="landing.desc">Find knowledge, compare text, and propose connections. This optional dashboard uses the AIRust Rust library.</div>
@@ -446,7 +422,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
     </div>
   </section>
 
-  <!-- Features -->
   <section class="landing-section" id="landing-features">
     <div class="landing-section-title" data-t="landing.features.title">Features</div>
     <div class="landing-section-sub" data-t="landing.features.sub">Optional tools around the AIRust knowledge library</div>
@@ -458,7 +433,7 @@ input[type=range]{width:140px;accent-color:var(--primary)}
       <div class="feature-card"><div class="feature-icon">&#129302;</div><div class="feature-name" data-t="landing.feat.bots.name">Bot Ecosystem</div><div class="feature-desc" data-t="landing.feat.bots.desc">Automated web scraping with review workflow</div></div>
       <div class="feature-card"><div class="feature-icon">&#128200;</div><div class="feature-name" data-t="landing.feat.vectordb.name">Vector Database</div><div class="feature-desc" data-t="landing.feat.vectordb.desc">Embedding storage and similarity search</div></div>
       <div class="feature-card"><div class="feature-icon">&#128172;</div><div class="feature-name" data-t="landing.feat.chat.name">Chat History</div><div class="feature-desc" data-t="landing.feat.chat.desc">Persistent conversations with archiving</div></div>
-      <div class="feature-card"><div class="feature-icon">&#127760;</div><div class="feature-name" data-t="landing.feat.multilang.name">Multi-Language UI</div><div class="feature-desc" data-t="landing.feat.multilang.desc">English, German, Turkish</div></div>
+      <div class="feature-card"><div class="feature-icon">&#127760;</div><div class="feature-name" data-t="landing.feat.multilang.name">English Interface</div><div class="feature-desc" data-t="landing.feat.multilang.desc">Clear English labels and documentation</div></div>
       <div class="feature-card"><div class="feature-icon">&#128268;</div><div class="feature-name" data-t="landing.feat.api.name">REST API</div><div class="feature-desc" data-t="landing.feat.api.desc">50+ endpoints for full programmatic control</div></div>
       <div class="feature-card"><div class="feature-icon">&#128187;</div><div class="feature-name" data-t="landing.feat.console.name">WebSocket Console</div><div class="feature-desc" data-t="landing.feat.console.desc">Live terminal with server logs, shell access, built-in commands</div></div>
       <div class="feature-card"><div class="feature-icon">&#128230;</div><div class="feature-name" data-t="landing.feat.docker.name">Docker Support</div><div class="feature-desc" data-t="landing.feat.docker.desc">One-command deployment with containers</div></div>
@@ -466,7 +441,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
     </div>
   </section>
 
-  <!-- Architecture -->
   <section class="landing-section">
     <div class="landing-section-title" data-t="landing.arch.title">Architecture</div>
     <div class="landing-section-sub" data-t="landing.arch.sub">A layered architecture: agents do the thinking, the knowledge base stores the data, and the web server provides the interface</div>
@@ -504,7 +478,6 @@ input[type=range]{width:140px;accent-color:var(--primary)}
     </table>
   </section>
 
-  <!-- Agent Types -->
   <section class="landing-section">
     <div class="landing-section-title" data-t="landing.agents.title">Agent Types</div>
     <div class="landing-section-sub" data-t="landing.agents.sub">The brain of AIRust &mdash; choose the right agent for your use case</div>
@@ -536,7 +509,6 @@ let answer = agent.predict("and this?");</pre>
     </div>
   </section>
 
-  <!-- Benchmarks -->
   <section class="landing-section">
     <div class="landing-section-title" data-t="landing.bench.title">By the Numbers</div>
     <div class="landing-section-sub" data-t="landing.bench.sub">Built for performance, privacy, and simplicity</div>
@@ -548,7 +520,6 @@ let answer = agent.predict("and this?");</pre>
     </div>
   </section>
 
-  <!-- Installation -->
   <section class="landing-section">
     <div class="landing-section-title" data-t="landing.install.title">Get Started</div>
     <div class="landing-section-sub" data-t="landing.install.sub">Up and running in seconds</div>
@@ -579,7 +550,6 @@ cargo run --locked --release --features web --bin airust</pre>
     </div>
   </section>
 
-  <!-- Showroom Divider -->
   <div class="showroom-divider">
     <span class="showroom-label" data-t="landing.showroom">SHOWROOM</span>
   </div>
@@ -588,7 +558,6 @@ cargo run --locked --release --features web --bin airust</pre>
 
 <div class="layout" id="app">
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <span class="logo">AIRust</span>
@@ -610,7 +579,6 @@ cargo run --locked --release --features web --bin airust</pre>
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
     <div class="status-bar">
       <span class="status-dot"></span>
@@ -621,7 +589,6 @@ cargo run --locked --release --features web --bin airust</pre>
       <span id="st-version"></span>
     </div>
 
-    <!-- Chat View -->
     <div class="view active" id="view-chat">
       <div class="chat-panel">
         <div class="messages" id="messages"><div class="messages-inner" id="messages-inner"><div class="empty-chat" id="empty-chat">AIRust</div></div></div>
@@ -632,14 +599,13 @@ cargo run --locked --release --features web --bin airust</pre>
       </div>
     </div>
 
-    <!-- Knowledge View -->
     <div class="view" id="view-knowledge">
       <div class="sub-tabs">
         <button class="sub-tab active" onclick="switchSubView('knowledge','kb-all')" data-t="kb.all">All</button>
         <button class="sub-tab" onclick="switchSubView('knowledge','kb-categories')" data-t="kb.categories">Categories</button>
         <button class="sub-tab" onclick="switchSubView('knowledge','kb-import')" data-t="kb.import">Import</button>
       </div>
-      <!-- All -->
+
       <div class="sub-view active" id="sv-kb-all">
         <div class="kb-toolbar">
           <input type="text" id="kb-search" placeholder="Search..." oninput="kbSearchChanged()" data-t-placeholder="kb.search">
@@ -672,7 +638,7 @@ cargo run --locked --release --features web --bin airust</pre>
           <button onclick="tdPage(1)" id="td-next" disabled>&raquo;</button>
         </div>
       </div>
-      <!-- Categories -->
+
       <div class="sub-view" id="sv-kb-categories">
         <div class="cat-add-bar">
           <input type="text" id="new-cat-name" data-t-placeholder="training.category_name" placeholder="Category Name" style="flex:1">
@@ -681,7 +647,7 @@ cargo run --locked --release --features web --bin airust</pre>
         </div>
         <div class="cat-grid" id="cat-grid"></div>
       </div>
-      <!-- Import -->
+
       <div class="sub-view" id="sv-kb-import">
         <div class="import-grid">
           <div class="import-section">
@@ -717,7 +683,6 @@ cargo run --locked --release --features web --bin airust</pre>
       </div>
     </div>
 
-    <!-- Tools View -->
     <div class="view" id="view-tools">
       <div class="sub-tabs">
         <button class="sub-tab active" onclick="switchSubView('tools','tools-bots')" data-t="bot.title">Bots</button>
@@ -725,7 +690,7 @@ cargo run --locked --release --features web --bin airust</pre>
         <button class="sub-tab" onclick="switchSubView('tools','tools-files')" data-t="tab.files">Files</button>
         <button class="sub-tab" onclick="switchSubView('tools','tools-vecdb')" data-t="tab.vectordb">VectorDB</button>
       </div>
-      <!-- Bots -->
+
       <div class="sub-view active" id="sv-tools-bots">
         <div style="padding:var(--sp-8) var(--sp-21);border-bottom:1px solid var(--border);display:flex;gap:var(--sp-8);flex-shrink:0">
           <button class="btn btn-primary" onclick="toggleBotForm()" data-t="bot.new">+ New Bot</button>
@@ -746,7 +711,7 @@ cargo run --locked --release --features web --bin airust</pre>
           <div id="bot-runs-section" style="display:none;padding:0 var(--sp-21)"><div class="section-title" style="margin-top:var(--sp-13)">Runs</div><div id="bot-runs-list"></div><div id="run-data-panel"></div></div>
         </div>
       </div>
-      <!-- Review -->
+
       <div class="sub-view" id="sv-tools-review">
         <div style="padding:var(--sp-8) var(--sp-21);border-bottom:1px solid var(--border);display:flex;gap:var(--sp-8);flex-shrink:0">
           <button class="btn btn-success btn-sm" onclick="approveAllData()" data-t="data.approve_all">Approve All</button>
@@ -762,7 +727,7 @@ cargo run --locked --release --features web --bin airust</pre>
           </div>
         </div>
       </div>
-      <!-- Files -->
+
       <div class="sub-view" id="sv-tools-files">
         <div class="files-layout">
           <div class="files-browser">
@@ -797,7 +762,7 @@ cargo run --locked --release --features web --bin airust</pre>
           </div>
         </div>
       </div>
-      <!-- VectorDB -->
+
       <div class="sub-view" id="sv-tools-vecdb">
         <div class="vecdb-layout">
           <div class="vecdb-sidebar">
@@ -826,7 +791,6 @@ cargo run --locked --release --features web --bin airust</pre>
       </div>
     </div>
 
-    <!-- Settings View -->
     <div class="view" id="view-settings">
       <div class="scroll-area">
         <div class="section">
@@ -849,19 +813,17 @@ cargo run --locked --release --features web --bin airust</pre>
         </div>
         <div class="section">
           <div class="section-title" data-t="settings.language">Language</div>
-          <div class="setting-row"><span class="setting-label" data-t="settings.language">Language</span><select id="lang-select" onchange="setLanguage(this.value)" style="width:auto;margin-bottom:0"><option value="en">English</option><option value="de">Deutsch</option><option value="tr">Turkce</option></select></div>
+          <div class="setting-row"><span class="setting-label" data-t="settings.language">Language</span><select id="lang-select" onchange="setLanguage(this.value)" style="width:auto;margin-bottom:0"><option value="en">English</option></select></div>
           <div class="setting-row"><span class="setting-label" data-t="settings.font_size">Text Size</span><input type="range" id="font-size-slider" min="11" max="20" value="13" oninput="setFontSize(this.value)"><span class="font-size-display" id="font-size-display">13</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Guide View -->
     <div class="view" id="view-guide">
       <div class="guide-content" id="guide-content"></div>
     </div>
   </div>
 
-  <!-- Console -->
   <div class="console-panel" id="console-panel">
     <div class="console-header" id="console-header">
       <span class="console-status-dot" id="console-dot"></span>
@@ -875,7 +837,6 @@ cargo run --locked --release --features web --bin airust</pre>
 </div>
 
 <script>
-// Install tab switcher
 function switchInstall(id,el){
   document.querySelectorAll('.install-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.install-block').forEach(b=>b.classList.remove('active'));
@@ -883,9 +844,25 @@ function switchInstall(id,el){
   document.getElementById('install-'+id).classList.add('active');
 }
 
+let apiToken='';
+let tokenPrompt=null;
+let tokenPromptDismissed=false;
+function requestApiToken(){return new Promise(resolve=>{const dialog=document.createElement('dialog');dialog.style.cssText='margin:auto;padding:24px;border:1px solid #777;border-radius:8px';dialog.innerHTML='<form><label>AIRust API token <input name="token" type="password" autocomplete="off" maxlength="256" required></label><button type="submit">Connect</button><button type="button" id="cancel-token">Cancel</button></form>';const finish=value=>{dialog.close();dialog.remove();resolve(value)};dialog.querySelector('form').onsubmit=event=>{event.preventDefault();finish(dialog.querySelector('input').value)};dialog.querySelector('#cancel-token').onclick=()=>{tokenPromptDismissed=true;finish('')};dialog.oncancel=event=>{event.preventDefault();tokenPromptDismissed=true;finish('')};document.body.appendChild(dialog);dialog.showModal();dialog.querySelector('input').focus()})}
+const nativeFetch=window.fetch.bind(window);
+window.fetch=async function(input,options={}){
+ const target=new URL(typeof input==='string'?input:input.url,location.href);
+ const secured=target.origin===location.origin&&target.pathname.startsWith('/api/');
+ const perform=()=>{const headers=new Headers(options.headers||{});if(secured&&apiToken)headers.set('Authorization','Bearer '+apiToken);return nativeFetch(input,{...options,headers})};
+ let response=await perform();
+ if(secured&&response.status===401&&!tokenPromptDismissed){
+  if(!tokenPrompt)tokenPrompt=requestApiToken().finally(()=>tokenPrompt=null);
+  apiToken=await tokenPrompt;
+  if(apiToken)response=await perform();
+ }
+ return response;
+};
 const API='';let currentChatId=null;let showArchived=false;let translations={};let currentLang='en';let bgAutoEnabled=true;let textAutoEnabled=true;let currentTheme='dark';let currentView='chat';let allCategories=[];
 
-// View System
 function switchView(id){
   currentView=id;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.getAttribute('data-view')===id));
@@ -913,8 +890,7 @@ function switchSubView(parent,sub){
   if(sub==='tools-vecdb'){loadCollections()}
 }
 
-// Settings
-async function loadSettings(){try{const r=await fetch(API+'/api/settings');const s=await r.json();if(s.theme){currentTheme=s.theme;applyTheme(s.theme)}const p=currentTheme+'.';const ba=s[p+'bg_auto'];if(ba!==undefined)applyBgAuto(ba==='true');const ta=s[p+'text_auto'];if(ta!==undefined)applyTextAuto(ta==='true');const ac=s[p+'accent_color'];if(ac)applyAccentColor(ac);const bg=s[p+'bg_color'];if(bg&&!bgAutoEnabled)applyBgColor(bg);const tc=s[p+'text_color'];if(tc&&!textAutoEnabled)applyTextColor(tc);if(s.language){currentLang=s.language;document.getElementById('lang-select').value=s.language;await loadTranslations(s.language)}if(s.font_size)applyFontSize(s.font_size)}catch(e){console.error('Settings error',e)}}
+async function loadSettings(){try{const r=await fetch(API+'/api/settings');const s=await r.json();if(s.theme){currentTheme=s.theme;applyTheme(s.theme)}const p=currentTheme+'.';const ba=s[p+'bg_auto'];if(ba!==undefined)applyBgAuto(ba==='true');const ta=s[p+'text_auto'];if(ta!==undefined)applyTextAuto(ta==='true');const ac=s[p+'accent_color'];if(ac)applyAccentColor(ac);const bg=s[p+'bg_color'];if(bg&&!bgAutoEnabled)applyBgColor(bg);const tc=s[p+'text_color'];if(tc&&!textAutoEnabled)applyTextColor(tc);currentLang='en';await loadTranslations('en');if(s.font_size)applyFontSize(s.font_size)}catch(e){console.error('Settings error',e)}}
 
 async function saveSetting(k,v){try{const b={};b[k]=v;await fetch(API+'/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})}catch(e){console.error('Save setting error',e)}}
 
@@ -940,24 +916,20 @@ function setTextAuto(v){textAutoEnabled=v;saveSetting(currentTheme+'.text_auto',
 function applyTextAuto(v){textAutoEnabled=v;document.getElementById('text-auto').checked=v;document.getElementById('text-color').disabled=v}
 function applyComplementaryText(c){const r=255-parseInt(c.slice(1,3),16),g=255-parseInt(c.slice(3,5),16),b=255-parseInt(c.slice(5,7),16);applyTextColor('#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join(''))}
 
-function setLanguage(l){currentLang=l;saveSetting('language',l);loadTranslations(l)}
+function setLanguage(){currentLang='en';loadTranslations('en')}
 function setFontSize(s){applyFontSize(s);saveSetting('font_size',s)}
 function applyFontSize(s){document.querySelector('.main-content').style.fontSize=s+'px';document.getElementById('font-size-slider').value=s;document.getElementById('font-size-display').textContent=s}
 
-// Translations
-async function loadTranslations(l){try{const r=await fetch(API+'/api/translations/'+l);translations=await r.json();applyTranslations()}catch(e){console.error('Translation error',e)}}
+async function loadTranslations(l){try{const r=await fetch(API+'/api/translations/en');translations=await r.json();applyTranslations()}catch(e){console.error('Translation error',e)}}
 function applyTranslations(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t');if(translations[k])el.textContent=translations[k]});document.querySelectorAll('[data-t-placeholder]').forEach(el=>{const k=el.getAttribute('data-t-placeholder');if(translations[k])el.placeholder=translations[k]});document.querySelectorAll('.lang-flag').forEach(f=>f.classList.toggle('active',f.textContent.trim().toLowerCase()===currentLang));const ls=document.getElementById('lang-select');if(ls)ls.value=currentLang}
 function t(k){return translations[k]||k}
 
-// Status
 async function refreshStatus(){try{const r=await fetch(API+'/api/status');const d=await r.json();const agents=d.active_agents||[d.agent];const names=agents.map(a=>translations['agent.'+a+'.name']||a);document.getElementById('st-agent').textContent='('+names.join(' + ')+')';document.getElementById('st-examples').textContent=d.examples.toLocaleString();document.getElementById('st-version').textContent='v'+d.version;document.getElementById('version-tag').textContent='v'+d.version;updateAgentCheckboxes(agents)}catch(e){console.error('Status error',e)}}
 function updateAgentCheckboxes(active){document.querySelectorAll('input[name=agent]').forEach(cb=>{const isActive=active.includes(cb.value);cb.checked=isActive;cb.closest('.agent-option').classList.toggle('active',isActive)})}
 
-// Agent Switching
 document.querySelectorAll('input[name=agent]').forEach(cb=>{cb.addEventListener('change',async()=>{const checked=Array.from(document.querySelectorAll('input[name=agent]:checked')).map(c=>c.value);if(checked.length===0){cb.checked=true;return}document.querySelectorAll('.agent-option').forEach(o=>{const inp=o.querySelector('input[name=agent]');o.classList.toggle('active',inp&&inp.checked)});try{await fetch(API+'/api/agent/switch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_types:checked})});refreshStatus()}catch(e){console.error('Switch error',e)}})});
 
-// Chat
-async function loadChats(){try{const r=await fetch(API+'/api/chats'+(showArchived?'?include_archived=true':''));const chats=await r.json();const list=document.getElementById('chat-list');list.innerHTML='';chats.forEach(c=>{const d=document.createElement('div');d.className='chat-item'+(c.id===currentChatId?' active':'')+(c.archived?' archived':'');d.innerHTML=`<div class="chat-title">${esc(c.title||'New Chat')}</div><div class="chat-actions">${!c.archived?`<button class="chat-action-btn" onclick="event.stopPropagation();archiveChat(${c.id})" title="${t('chat.archive')}">&#128230;</button>`:''}<button class="chat-action-btn danger" onclick="event.stopPropagation();deleteChat(${c.id})" title="${t('chat.delete')}">&#10005;</button></div>`;d.onclick=()=>selectChat(c.id);list.appendChild(d)})}catch(e){console.error('Load chats error',e)}}
+async function loadChats(){try{const r=await fetch(API+'/api/chats'+(showArchived?'?include_archived=true':''));const chats=await r.json();const list=document.getElementById('chat-list');list.innerHTML='';chats.forEach(c=>{const d=document.createElement('div');d.className='chat-item'+(c.id===currentChatId?' active':'')+(c.archived?' archived':'');d.innerHTML=`<div class="chat-title">${esc(c.title||'New Chat')}</div><div class="chat-actions">${!c.archived?`<button class="chat-action-btn" onclick="event.stopPropagation();archiveChat(${c.id})" title="${esc(t('chat.archive'))}">&#128230;</button>`:''}<button class="chat-action-btn danger" onclick="event.stopPropagation();deleteChat(${c.id})" title="${esc(t('chat.delete'))}">&#10005;</button></div>`;d.onclick=()=>selectChat(c.id);list.appendChild(d)})}catch(e){console.error('Load chats error',e)}}
 
 async function newChat(){try{const r=await fetch(API+'/api/chats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:''})});const d=await r.json();currentChatId=d.id;document.getElementById('messages-inner').innerHTML='';switchView('chat');loadChats()}catch(e){console.error('New chat error',e)}}
 
@@ -973,9 +945,8 @@ function addMessage(text,type,confidence){const empty=document.getElementById('e
 
 async function sendMsg(){const inp=document.getElementById('chat-input');const text=inp.value.trim();if(!text)return;inp.value='';if(!currentChatId){try{const r=await fetch(API+'/api/chats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:text.substring(0,50)})});const d=await r.json();currentChatId=d.id;loadChats()}catch(e){console.error('Auto-create chat error',e)}}addMessage(text,'user');const isCtx=Array.from(document.querySelectorAll('input[name=agent]:checked')).some(c=>c.value==='context');try{const r=await fetch(API+'/api/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:text,add_context:isCtx,chat_id:currentChatId})});const d=await r.json();addMessage(d.response,'bot',d.confidence);if(d.settings_changed&&d.settings_changed.length>0){await loadSettings();refreshStatus()}}catch(e){addMessage('Error: '+e.message,'bot')}}
 
-function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
-// Knowledge - Training Data (paginated, primary data source for All tab)
 let selectedCategoryId=null;let tdOffset=0;const tdLimit=30;let kbSearchTimer=null;
 
 async function loadTrainingDataPaged(){
@@ -1031,16 +1002,13 @@ async function addTrainingData(){
 
 async function deleteTrainingData(id){try{await fetch(API+'/api/training/data/'+id,{method:'DELETE'});loadTrainingDataPaged();refreshStatus()}catch(e){console.error('Delete training data error',e)}}
 
-// Categories
 async function loadCategories(){
   try{const r=await fetch(API+'/api/training/categories');allCategories=await r.json()}catch(e){console.error('Load categories error',e)}
 }
 
 async function loadCategoryCards(){
   await loadCategories();
-  // Also get counts
   const grid=document.getElementById('cat-grid');grid.innerHTML='';
-  // "All" card
   const allCard=document.createElement('div');allCard.className='cat-card'+(selectedCategoryId===null?' active':'');
   allCard.innerHTML='<div class="cat-dot" style="background:var(--text3)"></div><div class="cat-name">All</div>';
   allCard.onclick=()=>{selectedCategoryId=null;loadCategoryCards();switchSubView('knowledge','kb-all')};
@@ -1056,7 +1024,6 @@ async function loadCategoryCards(){
 async function createCategory(){const n=document.getElementById('new-cat-name').value.trim();const c=document.getElementById('new-cat-color').value;if(!n)return;try{await fetch(API+'/api/training/categories',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,color:c})});document.getElementById('new-cat-name').value='';loadCategories();loadCategoryCards()}catch(e){console.error('Create category error',e)}}
 async function deleteCategory(id){try{await fetch(API+'/api/training/categories/'+id,{method:'DELETE'});if(selectedCategoryId===id)selectedCategoryId=null;loadCategories();loadCategoryCards()}catch(e){console.error('Delete category error',e)}}
 
-// Import functions
 function importTrainingJSON(){const i=prompt('Paste JSON array:\n[{"input":"...","output":"...","weight":1.0}]');if(!i)return;try{const items=JSON.parse(i);fetch(API+'/api/training/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(items)}).then(r=>r.json()).then(d=>{alert('Imported: '+d.imported);loadTrainingDataPaged();refreshStatus()})}catch(e){alert('Invalid JSON: '+e.message)}}
 async function exportTrainingJSON(){try{const r=await fetch(API+'/api/training/export');const d=await r.json();const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='training_data.json';a.click();URL.revokeObjectURL(url)}catch(e){console.error('Export error',e)}}
 async function handleJSONUpload(inp){if(!inp.files.length)return;const fd=new FormData();fd.append('file',inp.files[0]);try{const r=await fetch(API+'/api/upload/json',{method:'POST',body:fd});const d=await r.json();alert('Imported: '+d.imported+' examples');loadTrainingDataPaged();refreshStatus()}catch(e){console.error('Upload JSON error',e)}inp.value=''}
@@ -1064,27 +1031,23 @@ async function handleJSONUpload(inp){if(!inp.files.length)return;const fd=new Fo
 async function saveKB(){const p=document.getElementById('kb-path').value.trim();if(!p)return alert('Enter a path');try{const r=await fetch(API+'/api/knowledge/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:p})});if(r.ok)alert('OK!');else alert('Error: '+(await r.text()))}catch(e){alert('Error: '+e.message)}}
 async function loadKB(){const p=document.getElementById('kb-path').value.trim();if(!p)return alert('Enter a path');try{const r=await fetch(API+'/api/knowledge/load',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:p})});if(r.ok){loadTrainingDataPaged();alert('OK!')}else alert('Error: '+(await r.text()))}catch(e){alert('Error: '+e.message)}}
 
-// Guide — simple markdown to HTML
 function mdToHtml(md){
   let html='';const lines=md.split('\n');let i=0;
   while(i<lines.length){
     const l=lines[i];
-    // code block
     if(l.startsWith('```')){
       let code='';i++;
       while(i<lines.length&&!lines[i].startsWith('```')){code+=lines[i]+'\n';i++}
       i++;html+='<pre><code>'+code.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre>';continue
     }
-    // table
     if(l.includes('|')&&l.trim().startsWith('|')){
       let rows=[];
       while(i<lines.length&&lines[i].includes('|')&&lines[i].trim().startsWith('|')){rows.push(lines[i]);i++}
-      // filter separator rows
       const data=rows.filter(r=>!/^\|[\s\-:|]+\|$/.test(r.trim()));
       if(data.length>0){
         html+='<table>';
         const hcells=data[0].split('|').filter(c=>c.trim());
-        html+='<tr>'+hcells.map(c=>'<th>'+c.trim()+'</th>').join('')+'</tr>';
+        html+='<tr>'+hcells.map(c=>'<th>'+esc(c.trim())+'</th>').join('')+'</tr>';
         for(let j=1;j<data.length;j++){
           const cells=data[j].split('|').filter(c=>c.trim());
           html+='<tr>'+cells.map(c=>'<td>'+inlineMd(c.trim())+'</td>').join('')+'</tr>';
@@ -1093,13 +1056,10 @@ function mdToHtml(md){
       }
       continue
     }
-    // heading
     if(l.startsWith('# ')){html+='<h1>'+inlineMd(l.slice(2))+'</h1>';i++;continue}
     if(l.startsWith('## ')){html+='<h2>'+inlineMd(l.slice(3))+'</h2>';i++;continue}
     if(l.startsWith('### ')){html+='<h3>'+inlineMd(l.slice(4))+'</h3>';i++;continue}
-    // hr
     if(/^---+$/.test(l.trim())){html+='<hr>';i++;continue}
-    // list
     if(/^(\s*)[-*]\s/.test(l)){
       html+='<ul>';
       while(i<lines.length&&/^(\s*)[-*]\s/.test(lines[i])){
@@ -1114,9 +1074,7 @@ function mdToHtml(md){
       }
       html+='</ol>';continue
     }
-    // empty
     if(!l.trim()){i++;continue}
-    // paragraph
     html+='<p>'+inlineMd(l)+'</p>';i++
   }
   return html
@@ -1125,7 +1083,7 @@ function inlineMd(s){
   return s.replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/`(.+?)`/g,'<code>$1</code>')
-    .replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g,(_,label)=>label)
 }
 let guideLoaded=false;
 async function loadGuide(){
@@ -1133,7 +1091,6 @@ async function loadGuide(){
   try{const r=await fetch(API+'/api/guide');const md=await r.text();document.getElementById('guide-content').innerHTML=mdToHtml(md);guideLoaded=true}catch(e){document.getElementById('guide-content').innerHTML='<p>Error loading guide</p>'}
 }
 
-// PDF Upload
 const dropZone=document.getElementById('drop-zone');const pdfInput=document.getElementById('pdf-input');
 dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover')});
 dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
@@ -1141,7 +1098,6 @@ dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remov
 pdfInput.addEventListener('change',()=>{if(pdfInput.files.length)uploadPdf(pdfInput.files[0])});
 async function uploadPdf(file){const span=dropZone.querySelector('span');if(span)span.textContent='Uploading...';const fd=new FormData();fd.append('file',file);try{const r=await fetch(API+'/api/pdf/upload',{method:'POST',body:fd});const d=await r.json();if(d.success&&span){span.textContent='+'+d.added+' (total: '+d.total+')';refreshStatus()}else if(span)span.textContent='Upload failed'}catch(e){if(span)span.textContent='Error: '+e.message}setTimeout(()=>{if(span)span.textContent=t('pdf.drop')},3000)}
 
-// Tatoeba TSV
 const tsvDropZone=document.getElementById('tsv-drop-zone');const tsvInput=document.getElementById('tsv-input');
 tsvDropZone.addEventListener('dragover',e=>{e.preventDefault();tsvDropZone.classList.add('dragover')});
 tsvDropZone.addEventListener('dragleave',()=>tsvDropZone.classList.remove('dragover'));
@@ -1149,13 +1105,36 @@ tsvDropZone.addEventListener('drop',e=>{e.preventDefault();tsvDropZone.classList
 tsvInput.addEventListener('change',()=>{if(tsvInput.files.length)uploadTsv(tsvInput.files[0])});
 async function uploadTsv(file){const span=tsvDropZone.querySelector('span');if(span)span.textContent=t('import.importing');const fd=new FormData();fd.append('file',file);try{const r=await fetch(API+'/api/import/tatoeba',{method:'POST',body:fd});const d=await r.json();if(d.success&&span){span.textContent='+'+d.imported+' (skipped: '+d.skipped+', total: '+d.total+')';refreshStatus()}else if(span)span.textContent='Import failed'}catch(e){if(span)span.textContent='Error: '+e.message}setTimeout(()=>{if(span)span.textContent=t('import.drop')},4000)}
 
-// Files
 let currentFilePath=null;
 const BINARY_EXTS=new Set(['db','sqlite','sqlite3','jpg','jpeg','png','gif','bmp','ico','webp','svg','mp3','mp4','avi','mov','mkv','wav','flac','ogg','zip','tar','gz','bz2','xz','7z','rar','exe','dll','so','dylib','o','a','wasm','pdf','doc','docx','xls','xlsx','ppt','pptx','class','pyc','DS_Store','lock']);
 const DB_EXTS=new Set(['db','sqlite','sqlite3']);
 function isDbFile(name){const ext=name.split('.').pop().toLowerCase();return DB_EXTS.has(ext)}
 function isBinaryFile(name){const n=name.toLowerCase();if(n==='.ds_store')return true;const ext=n.split('.').pop();return BINARY_EXTS.has(ext)}
-async function loadFiles(){const path=document.getElementById('files-path').value.trim()||'.';try{const r=await fetch(API+'/api/files?path='+encodeURIComponent(path));const d=await r.json();const list=document.getElementById('file-list');list.innerHTML='';if(path!=='.'&&path!=='/'){const p=document.createElement('div');p.className='file-item';p.innerHTML='<span class="file-icon">..</span><span class="file-name">..</span>';p.onclick=()=>{const parts=path.replace(/\/$/,'').split('/');parts.pop();document.getElementById('files-path').value=parts.join('/')||'.';loadFiles()};list.appendChild(p)}d.entries.forEach(e=>{const fp=path+'/'+e.name;const binary=!e.is_dir&&isBinaryFile(e.name)&&!isDbFile(e.name);const isDb=!e.is_dir&&isDbFile(e.name);const div=document.createElement('div');div.className='file-item'+(currentFilePath===fp?' active':'')+(binary?' disabled':'');const icon=e.is_dir?'&#128193;':isDb?'&#128202;':binary?'&#128683;':'&#128196;';const sz=e.is_dir?'':formatSize(e.size);div.innerHTML=`<span class="file-icon">${icon}</span><span class="file-name">${esc(e.name)}</span><span class="file-size">${sz}</span><span class="file-date">${esc(e.modified)}</span>${!binary?`<span class="file-actions"><button class="file-act-btn" onclick="event.stopPropagation();renameFileUI('${esc(fp)}')" title="Rename">R</button><button class="file-act-btn" onclick="event.stopPropagation();deleteFileUI('${esc(fp)}')" title="Delete">&#10005;</button></span>`:''}`;if(!binary){div.onclick=()=>{if(e.is_dir){document.getElementById('files-path').value=fp;loadFiles()}else if(isDb){openDbFile(fp)}else{openFile(fp)}}}list.appendChild(div)})}catch(e){console.error('Load files error',e)}}
+async function loadFiles(){
+ const path=document.getElementById('files-path').value.trim()||'.';
+ try{
+  const response=await fetch(API+'/api/files?path='+encodeURIComponent(path));
+  if(!response.ok)throw new Error('File administration is unavailable');
+  const data=await response.json(),list=document.getElementById('file-list');list.replaceChildren();
+  if(path!=='.'){
+   const parent=document.createElement('div');parent.className='file-item';parent.textContent='..';
+   parent.onclick=()=>{const parts=path.replace(/\/$/,'').split('/');parts.pop();document.getElementById('files-path').value=parts.join('/')||'.';loadFiles()};list.appendChild(parent);
+  }
+  for(const entry of data.entries){
+   const fullPath=path+'/'+entry.name,binary=!entry.is_dir&&isBinaryFile(entry.name)&&!isDbFile(entry.name),row=document.createElement('div');
+   row.className='file-item'+(currentFilePath===fullPath?' active':'')+(binary?' disabled':'');
+   const label=document.createElement('span');label.className='file-name';label.textContent=entry.name;row.appendChild(label);
+   const size=document.createElement('span');size.className='file-size';size.textContent=entry.is_dir?'':formatSize(entry.size);row.appendChild(size);
+   const date=document.createElement('span');date.className='file-date';date.textContent=entry.modified;row.appendChild(date);
+   if(!binary){
+    for(const [title,action] of [['Rename',renameFileUI],['Delete',deleteFileUI]]){const button=document.createElement('button');button.className='file-act-btn';button.textContent=title;button.onclick=event=>{event.stopPropagation();action(fullPath)};row.appendChild(button)}
+    row.onclick=()=>{if(entry.is_dir){document.getElementById('files-path').value=fullPath;loadFiles()}else if(isDbFile(entry.name)){openDbFile(fullPath)}else{openFile(fullPath)}};
+   }
+   list.appendChild(row);
+  }
+ }catch(error){document.getElementById('file-list').textContent=error.message}
+}
+
 function formatSize(b){if(b<1024)return b+' B';if(b<1024*1024)return(b/1024).toFixed(1)+' KB';return(b/1024/1024).toFixed(1)+' MB'}
 function showTextEditor(){document.getElementById('text-editor-panel').style.display='';document.getElementById('db-viewer-panel').style.display='none'}
 function showDbViewer(){document.getElementById('text-editor-panel').style.display='none';document.getElementById('db-viewer-panel').style.display='flex'}
@@ -1166,7 +1145,6 @@ function createFile(){const b=document.getElementById('files-path').value.trim()
 function deleteFileUI(path){if(!confirm('Delete '+path+'?'))return;fetch(API+'/api/files?path='+encodeURIComponent(path),{method:'DELETE'}).then(()=>{if(currentFilePath===path){currentFilePath=null;document.getElementById('editor-path').textContent='No file selected';document.getElementById('editor-area').value=''}loadFiles()})}
 function renameFileUI(path){const n=prompt('New name:',path.split('/').pop());if(!n)return;const parts=path.split('/');parts.pop();fetch(API+'/api/files/rename',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:path,to:parts.join('/')+'/'+n})}).then(()=>loadFiles())}
 
-// SQLite DB Viewer
 let dbFilePath=null;let dbCurrentTable=null;let dbOffset=0;const dbLimit=100;let dbColumns=[];let dbOriginalRows=[];let dbModifiedCells={};
 async function openDbFile(path){showDbViewer();dbFilePath=path;dbOffset=0;dbModifiedCells={};currentFilePath=path;document.getElementById('db-path').textContent=path;try{const r=await fetch(API+'/api/files/db/tables?path='+encodeURIComponent(path));const d=await r.json();const sel=document.getElementById('db-table-select');sel.innerHTML='';if(d.tables.length===0){sel.innerHTML='<option>No tables</option>';document.getElementById('db-table-wrap').innerHTML='<div style="color:var(--text3);padding:var(--sp-21);text-align:center">Empty database</div>';return}d.tables.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o)});dbCurrentTable=d.tables[0];loadDbTable();loadFiles()}catch(e){console.error('Open DB error',e)}}
 async function loadDbTable(){if(!dbFilePath)return;dbCurrentTable=document.getElementById('db-table-select').value;dbModifiedCells={};try{const r=await fetch(API+'/api/files/db/query?path='+encodeURIComponent(dbFilePath)+'&table='+encodeURIComponent(dbCurrentTable)+'&limit='+dbLimit+'&offset='+dbOffset);const d=await r.json();dbColumns=d.columns;dbOriginalRows=d.rows;const wrap=document.getElementById('db-table-wrap');const tbl=document.createElement('table');tbl.className='db-table';const thead=document.createElement('thead');const hrow=document.createElement('tr');hrow.innerHTML='<th>#</th>';d.columns.forEach(c=>{const th=document.createElement('th');th.textContent=c.name;th.title=c.type;hrow.appendChild(th)});thead.appendChild(hrow);tbl.appendChild(thead);const tbody=document.createElement('tbody');d.rows.forEach((row,ri)=>{const tr=document.createElement('tr');const numTd=document.createElement('td');numTd.textContent=dbOffset+ri+1;numTd.style.cssText='color:var(--text3);font-size:10px;width:36px;text-align:right';tr.appendChild(numTd);row.forEach((val,ci)=>{const td=document.createElement('td');td.contentEditable='true';td.textContent=val===null?'NULL':String(val);td.title=d.columns[ci].name+' ('+d.columns[ci].type+')';if(val===null)td.style.color='var(--text3)';td.addEventListener('input',()=>{const key=ri+','+ci;const orig=dbOriginalRows[ri][ci];const cur=td.textContent;if(String(orig===null?'NULL':orig)===cur){delete dbModifiedCells[key];td.classList.remove('modified')}else{dbModifiedCells[key]={row:ri,col:ci,value:cur};td.classList.add('modified')}});tr.appendChild(td)});tbody.appendChild(tr)});tbl.appendChild(tbody);wrap.innerHTML='';wrap.appendChild(tbl);const page=Math.floor(dbOffset/dbLimit)+1;const tp=Math.max(1,Math.ceil(d.total/dbLimit));document.getElementById('db-pager-info').textContent=page+' / '+tp+' ('+d.total+')';document.getElementById('db-prev').disabled=dbOffset===0;document.getElementById('db-next').disabled=dbOffset+dbLimit>=d.total}catch(e){console.error('Load DB table error',e)}}
@@ -1174,7 +1152,6 @@ function dbPage(dir){dbOffset=Math.max(0,dbOffset+dir*dbLimit);loadDbTable()}
 async function saveDbChanges(){const keys=Object.keys(dbModifiedCells);if(keys.length===0)return;let ok=0;let fail=0;for(const k of keys){const m=dbModifiedCells[k];const row=dbOriginalRows[m.row];const pkCol=dbColumns[0].name;const pkVal=row[0];const colName=dbColumns[m.col].name;const newVal=m.value==='NULL'?'NULL':"'"+m.value.replace(/'/g,"''")+"'";const sql=`UPDATE "${dbCurrentTable}" SET "${colName}"=${newVal} WHERE "${pkCol}"=${typeof pkVal==='number'?pkVal:"'"+String(pkVal).replace(/'/g,"''")+"'"} LIMIT 1`;try{const r=await fetch(API+'/api/files/db/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:dbFilePath,sql:sql})});const d=await r.json();if(d.success)ok++;else fail++}catch(e){fail++}}dbModifiedCells={};loadDbTable();if(fail>0)alert('Saved: '+ok+', Failed: '+fail)}
 function discardDbChanges(){dbModifiedCells={};loadDbTable()}
 
-// VectorDB
 let selectedCollectionId=null;
 async function loadCollections(){try{const r=await fetch(API+'/api/vectors/collections');const cols=await r.json();const list=document.getElementById('col-list');list.innerHTML='';cols.forEach(c=>{const d=document.createElement('div');d.className='col-item'+(selectedCollectionId===c.id?' active':'');d.innerHTML=`<span class="col-name">${esc(c.name)}</span><button class="col-del" onclick="event.stopPropagation();deleteCollection(${c.id})">&#10005;</button>`;d.onclick=()=>selectCollection(c.id);list.appendChild(d)})}catch(e){console.error('Load collections error',e)}}
 function selectCollection(id){selectedCollectionId=id;loadCollections();loadVectorEntries()}
@@ -1185,7 +1162,6 @@ async function addVectorEntry(){if(!selectedCollectionId)return alert('Select a 
 async function deleteVectorEntry(id){try{await fetch(API+'/api/vectors/entries/'+id,{method:'DELETE'});loadVectorEntries()}catch(e){console.error('Delete entry error',e)}}
 async function vectorSearch(){if(!selectedCollectionId)return alert('Select a collection first');const q=document.getElementById('vec-search-input').value.trim();if(!q)return;try{const r=await fetch(API+'/api/vectors/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({collection_id:selectedCollectionId,query:q,top_k:5})});const res=await r.json();const div=document.getElementById('vec-results');div.style.display='';div.innerHTML='';if(res.length===0){div.innerHTML='<div style="color:var(--text3);font-size:12px;padding:var(--sp-13)">No results</div>';return}res.forEach(r=>{const item=document.createElement('div');item.className='vecdb-result-item';item.innerHTML=`<div class="score">Score: ${r.score.toFixed(4)}</div><div class="content">${esc(r.content.substring(0,200))}</div><div class="meta">${esc(r.metadata_json)}</div>`;div.appendChild(item)})}catch(e){console.error('Search error',e)}}
 
-// Bots
 let botAutoRefreshTimer=null;let activeRunId=null;let activeRunBotId=null;
 
 function toggleBotForm(){document.getElementById('bot-form').classList.toggle('open');updateBotFormFields()}
@@ -1232,7 +1208,7 @@ function renderBotList(bots){
         `</div>`;
     }
     const d=document.createElement('div');d.className='bot-card';
-    d.innerHTML=`<div class="bot-card-header"><div><span class="bot-status-led ${sc}"></span><span class="bot-card-name">${esc(b.name)}</span></div><span class="bot-card-type">${tl}</span></div>${cfgHtml}<div class="bot-card-actions">${b.running?`<button class="btn btn-danger btn-sm" onclick="stopBot(${b.id})">${t('bot.stop')}</button>`:`<button class="btn btn-success btn-sm" onclick="startBot(${b.id})">${t('bot.start')}</button>`}<button class="btn btn-secondary btn-sm" onclick="showBotRuns(${b.id})">Runs</button><button class="btn btn-danger btn-sm" onclick="deleteBot(${b.id})">&#10005;</button></div>`;
+    d.innerHTML=`<div class="bot-card-header"><div><span class="bot-status-led ${sc}"></span><span class="bot-card-name">${esc(b.name)}</span></div><span class="bot-card-type">${esc(tl)}</span></div>${cfgHtml}<div class="bot-card-actions">${b.running?`<button class="btn btn-danger btn-sm" onclick="stopBot(${b.id})">${esc(t('bot.stop'))}</button>`:`<button class="btn btn-success btn-sm" onclick="startBot(${b.id})">${esc(t('bot.start'))}</button>`}<button class="btn btn-secondary btn-sm" onclick="showBotRuns(${b.id})">Runs</button><button class="btn btn-danger btn-sm" onclick="deleteBot(${b.id})">&#10005;</button></div>`;
     list.appendChild(d);
   });
   if(anyRunning&&!botAutoRefreshTimer)startBotAutoRefresh();
@@ -1279,7 +1255,7 @@ async function showBotRuns(bid){
     const dur=calcDuration(run.started_at,run.finished_at);
     const d=document.createElement('div');d.className='run-item';d.setAttribute('data-run-id',run.id);
     d.onclick=()=>loadRunData(bid,run.id,d);
-    d.innerHTML=`<span class="run-status ${run.status}">${run.status}</span>`+
+    d.innerHTML=`<span class="run-status ${esc(run.status)}">${esc(run.status)}</span>`+
       `<span style="flex:1;color:var(--text2)">${run.started_at}${run.finished_at?' &rarr; '+run.finished_at:''}</span>`+
       `<div class="run-stats">`+
         `<span class="stat"><span class="cfg-label">found</span> <span class="stat-val">${run.items_found}</span></span>`+
@@ -1292,7 +1268,6 @@ async function showBotRuns(bid){
 }
 
 async function loadRunData(botId,runId,el){
-  // Toggle active state
   document.querySelectorAll('.run-item.active').forEach(r=>r.classList.remove('active'));
   if(activeRunId===runId){activeRunId=null;document.getElementById('run-data-panel').innerHTML='';return}
   activeRunId=runId;
@@ -1308,14 +1283,13 @@ async function loadRunData(botId,runId,el){
       (item.url?`<div class="rdi-url">${esc(item.url)}</div>`:'')+
       (item.title?`<div class="rdi-title">${esc(item.title)}</div>`:'')+
       `<div class="rdi-preview">${esc(preview)}</div>`+
-      `<div class="rdi-meta"><span class="rdi-badge ${item.status}">${item.status}</span><span style="font-size:10px;color:var(--text3)">${item.created_at}</span></div>`+
+      `<div class="rdi-meta"><span class="rdi-badge ${esc(item.status)}">${esc(item.status)}</span><span style="font-size:10px;color:var(--text3)">${esc(item.created_at)}</span></div>`+
       `</div>`;
   });
   html+='</div>';panel.innerHTML=html}catch(e){panel.innerHTML='<div class="run-data-panel"><div style="color:var(--danger);font-size:11px">Failed to load run data</div></div>';console.error('Load run data error',e)}
 }
 
-// Data Review
-async function loadPendingData(){try{const r=await fetch(API+'/api/data/pending');const data=await r.json();const list=document.getElementById('pending-data-list');list.innerHTML='';if(data.length===0){list.innerHTML='<div style="color:var(--text3);font-size:12px">No pending data</div>';return}data.forEach(item=>{const d=document.createElement('div');d.className='data-card';d.innerHTML=`${item.url?`<div class="data-card-url">${esc(item.url)}</div>`:''}${item.title?`<div class="data-card-title">${esc(item.title)}</div>`:''}<div class="data-card-preview">${esc(item.content.substring(0,200))}${item.content.length>200?'...':''}</div><div class="data-card-actions"><button class="btn btn-success btn-sm" onclick="approveData(${item.id})">${t('data.approve')}</button><button class="btn btn-danger btn-sm" onclick="rejectData(${item.id})">${t('data.reject')}</button></div>`;list.appendChild(d)})}catch(e){console.error('Load pending error',e)}}
+async function loadPendingData(){try{const r=await fetch(API+'/api/data/pending');const data=await r.json();const list=document.getElementById('pending-data-list');list.innerHTML='';if(data.length===0){list.innerHTML='<div style="color:var(--text3);font-size:12px">No pending data</div>';return}data.forEach(item=>{const d=document.createElement('div');d.className='data-card';d.innerHTML=`${item.url?`<div class="data-card-url">${esc(item.url)}</div>`:''}${item.title?`<div class="data-card-title">${esc(item.title)}</div>`:''}<div class="data-card-preview">${esc(item.content.substring(0,200))}${item.content.length>200?'...':''}</div><div class="data-card-actions"><button class="btn btn-success btn-sm" onclick="approveData(${item.id})">${esc(t('data.approve'))}</button><button class="btn btn-danger btn-sm" onclick="rejectData(${item.id})">${esc(t('data.reject'))}</button></div>`;list.appendChild(d)})}catch(e){console.error('Load pending error',e)}}
 async function loadApprovedData(){try{const r=await fetch(API+'/api/data/approved');const data=await r.json();const list=document.getElementById('approved-data-list');list.innerHTML='';if(data.length===0){list.innerHTML='<div style="color:var(--text3);font-size:12px">No approved data</div>';return}data.slice(0,50).forEach(item=>{const d=document.createElement('div');d.className='data-card';const kb=item.added_to_kb?'<span style="color:var(--success);font-size:10px;font-weight:600">IN KB</span>':'';d.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div class="data-card-title">${esc(item.input.substring(0,60))}</div>${kb}</div><div class="data-card-preview">${esc(item.output.substring(0,150))}</div>`;list.appendChild(d)})}catch(e){console.error('Load approved error',e)}}
 async function approveData(id){try{await fetch(API+'/api/data/'+id+'/approve',{method:'POST'});loadPendingData();loadApprovedData()}catch(e){console.error('Approve error',e)}}
 async function rejectData(id){try{await fetch(API+'/api/data/'+id+'/reject',{method:'POST'});loadPendingData()}catch(e){console.error('Reject error',e)}}
@@ -1323,13 +1297,12 @@ async function approveAllData(){try{await fetch(API+'/api/data/approve-all',{met
 async function addToKB(){try{const r=await fetch(API+'/api/data/add-to-kb',{method:'POST'});const d=await r.json();if(d.success){loadTrainingDataPaged();loadApprovedData()}}catch(e){console.error('Add to KB error',e)}}
 function toggleApproved(){document.getElementById('review-approved').classList.toggle('open')}
 
-// Console
 let consoleWs=null;let consoleCmdHistory=[];let consoleCmdIndex=-1;const CONSOLE_MAX_LINES=1000;
 function initConsole(){
   const proto=location.protocol==='https:'?'wss:':'ws:';
   const consolePort=parseInt(location.port||'80')+1;
   const url=proto+'//'+location.hostname+':'+consolePort+'/ws/console';
-  consoleWs=new WebSocket(url);
+  consoleWs=new WebSocket(url,apiToken?['airust','token.'+apiToken]:['airust']);
   consoleWs.onopen=()=>{document.getElementById('console-dot').classList.remove('disconnected')};
   consoleWs.onclose=()=>{document.getElementById('console-dot').classList.add('disconnected');setTimeout(initConsole,2000)};
   consoleWs.onerror=()=>{};
@@ -1343,7 +1316,6 @@ function consoleClear(){if(consoleWs&&consoleWs.readyState===WebSocket.OPEN)cons
 function consoleToggleSize(){const panel=document.getElementById('console-panel');panel.classList.toggle('minimized');document.getElementById('console-toggle-btn').textContent=panel.classList.contains('minimized')?'\u25B2':'_'}
 (function(){const header=document.getElementById('console-header');const panel=document.getElementById('console-panel');let dragging=false,startY=0,startH=0;header.addEventListener('mousedown',(e)=>{if(e.target.tagName==='BUTTON')return;dragging=true;startY=e.clientY;startH=panel.offsetHeight;document.body.style.cursor='ns-resize';document.body.style.userSelect='none'});document.addEventListener('mousemove',(e)=>{if(!dragging)return;const newH=startH+(startY-e.clientY);const maxH=window.innerHeight*0.5;panel.style.height=Math.max(36,Math.min(maxH,newH))+'px';panel.classList.remove('minimized');document.getElementById('console-toggle-btn').textContent='_'});document.addEventListener('mouseup',()=>{if(dragging){dragging=false;document.body.style.cursor='';document.body.style.userSelect=''}})})();
 
-// Init
 (async function init(){await loadSettings();refreshStatus();loadChats();loadCategories();initConsole();document.getElementById('console-panel').classList.add('minimized');document.getElementById('console-toggle-btn').textContent='\u25B2'})();
 </script>
 </body>

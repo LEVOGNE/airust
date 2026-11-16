@@ -6,12 +6,10 @@ use crate::web::db::Database;
 pub struct VectorDB;
 
 impl VectorDB {
-    /// Tokenize text into terms (lowercase, split on whitespace/punctuation)
     fn tokenize(text: &str) -> Vec<String> {
         crate::text::tokenize(text)
     }
 
-    /// Compute TF (term frequency) for a document
     fn compute_tf(terms: &[String]) -> HashMap<String, f64> {
         let mut tf = HashMap::new();
         let total = terms.len() as f64;
@@ -24,7 +22,6 @@ impl VectorDB {
         tf
     }
 
-    /// Build vectors for all approved_data that haven't been vectorized yet
     pub fn rebuild_all(db: &Arc<Database>) -> Result<(usize, usize), String> {
         db.clear_all_vectors()?;
 
@@ -33,7 +30,6 @@ impl VectorDB {
             return Ok((0, 0));
         }
 
-        // Compute IDF across all documents
         let total_docs = all_data.len() as f64;
         let mut doc_freq: HashMap<String, f64> = HashMap::new();
 
@@ -53,7 +49,6 @@ impl VectorDB {
             idf.insert(term.clone(), (total_docs / df).ln() + 1.0);
         }
 
-        // Store TF-IDF vectors
         let mut total_vectors = 0usize;
         for (i, item) in all_data.iter().enumerate() {
             let tf = Self::compute_tf(&doc_terms[i]);
@@ -69,7 +64,6 @@ impl VectorDB {
         Ok((all_data.len(), total_vectors))
     }
 
-    /// Search for similar content using cosine-like similarity via the DB
     pub fn search(
         db: &Arc<Database>,
         query: &str,

@@ -1,5 +1,3 @@
-//! Reproducible smoke benchmark, not a general performance guarantee.
-//! cargo run --release --example benchmark -- 1000 100
 use airust::{Agent, ResponseFormat, TfidfAgent, TrainableAgent, TrainingExample};
 use std::{env, hint::black_box, time::Instant};
 

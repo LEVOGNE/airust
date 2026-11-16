@@ -1,4 +1,3 @@
-//! Compatibility adapter: the historical TfidfAgent name uses the shared BM25 index.
 use crate::agent::{
     Agent, ConfidenceAgent, PredictionResult, ResponseFormat, TrainableAgent, TrainingExample,
 };
@@ -21,8 +20,6 @@ impl TfidfAgent {
         }
     }
 
-    /// Set valid parameters. Invalid values leave the existing configuration unchanged.
-    /// Use try_with_bm25_params when invalid configuration must be reported.
     pub fn with_bm25_params(mut self, k1: f32, b: f32) -> Self {
         if Bm25Config::new(k1 as f64, b as f64).is_ok() {
             self.bm25_k1 = k1;
@@ -84,7 +81,6 @@ impl Agent for TfidfAgent {
 }
 
 impl ConfidenceAgent for TfidfAgent {
-    /// Historical confidence heuristic, not a calibrated probability.
     fn calculate_confidence(&self, input: &str) -> f32 {
         self.predict_top_n(input, 1)
             .first()
@@ -118,7 +114,7 @@ impl TrainableAgent for TfidfAgent {
     fn append(&mut self, data: &[TrainingExample]) {
         for example in data {
             let id = self.docs.len().to_string();
-            // Empty historical training inputs remain stored but cannot match terms.
+
             if !example.input.trim().is_empty() {
                 self.index
                     .upsert(KnowledgeEntry::new(id, &example.input))
@@ -161,8 +157,6 @@ mod tests {
             ),
         ]
     }
-
-    // === Basic Query Tests ===
 
     #[test]
     fn test_exact_query() {
@@ -207,8 +201,7 @@ mod tests {
     fn test_stopwords_in_query() {
         let mut agent = TfidfAgent::new();
         agent.train(&tech_data());
-        // "the" and "is" and "a" are filtered by tokenizer (alphabetic only)
-        // but "rust" should still match
+
         let result = String::from(agent.predict("the rust language"));
         assert!(result.contains("Rust"));
     }
@@ -233,12 +226,10 @@ mod tests {
     fn test_punctuation_handling() {
         let mut agent = TfidfAgent::new();
         agent.train(&tech_data());
-        // Punctuation gets stripped by tokenizer
+
         let result = String::from(agent.predict("rust!!! programming???"));
         assert!(result.contains("Rust"));
     }
-
-    // === BM25 Parameter Tests ===
 
     #[test]
     fn test_bm25_default_params() {
@@ -258,12 +249,10 @@ mod tests {
     fn test_bm25_b_zero_no_length_norm() {
         let mut agent = TfidfAgent::new().with_bm25_params(1.2, 0.0);
         agent.train(&tech_data());
-        // Should still produce results (no length normalization)
+
         let result = String::from(agent.predict("rust"));
         assert!(result.contains("Rust"));
     }
-
-    // === Weight Tests ===
 
     #[test]
     fn test_weight_affects_ranking() {
@@ -300,13 +289,10 @@ mod tests {
             make_example("python scripting", "Python answer"),
         ];
         agent.train(&data);
-        // "rust systems" has weight 0.0, so score * 0.0 = 0.0
-        // "python scripting" shares no terms with query, so score = 0.0
+
         let result = String::from(agent.predict("rust systems"));
         assert!(result.contains("No matching answer found"));
     }
-
-    // === Train Behavior Tests ===
 
     #[test]
     fn test_train_replaces_data() {
@@ -314,7 +300,6 @@ mod tests {
         agent.train(&tech_data());
         assert!(String::from(agent.predict("rust")).contains("Rust"));
 
-        // Retrain with different data
         agent.train(&[make_example("golang concurrency", "Go uses goroutines")]);
         let result = String::from(agent.predict("rust"));
         assert!(result.contains("No matching answer found"));
@@ -353,8 +338,6 @@ mod tests {
         assert_eq!(agent.bm25_b, 0.75);
     }
 
-    // === ConfidenceAgent Tests ===
-
     #[test]
     fn test_calculate_confidence_match() {
         let mut agent = TfidfAgent::new();
@@ -392,7 +375,7 @@ mod tests {
         let results = agent.predict_top_n("programming language", 3);
         assert!(!results.is_empty());
         assert!(results.len() <= 3);
-        // Results should be sorted by confidence descending
+
         for window in results.windows(2) {
             assert!(window[0].confidence >= window[1].confidence);
         }

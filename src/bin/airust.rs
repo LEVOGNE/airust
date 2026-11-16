@@ -1,9 +1,6 @@
-// src/bin/airust.rs – Docker-style CLI
 use airust::agent::{Agent, ContextualAgent, ResponseFormat, TrainableAgent, TrainingExample};
-use airust::context_agent::ContextAgent;
-use airust::knowledge::KnowledgeBase;
-use airust::match_agent::MatchAgent;
-use airust::tfidf_agent::TfidfAgent;
+use airust::{ContextAgent, KnowledgeBase, MatchAgent, TfidfAgent};
+use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::io::{self, Write};
@@ -11,223 +8,318 @@ use std::path::PathBuf;
 use std::process;
 
 const DEFAULT_PORT: u16 = 7070;
-const PID_FILE: &str = "/tmp/airust.pid";
+type CliResult = Result<(), Box<dyn std::error::Error>>;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args
-        .get(1)
-        .is_some_and(|arg| matches!(arg.as_str(), "--version" | "-V"))
-    {
-        println!("{}", airust::version_info());
-        return;
+    if let Err(error) = run() {
+        eprintln!("Error: {error}");
+        process::exit(1);
     }
+}
 
-    let mut port: u16 = DEFAULT_PORT;
+fn run() -> CliResult {
+    let args: Vec<String> = env::args().skip(1).collect();
+    let mut port = DEFAULT_PORT;
     let mut detached = false;
-    let mut is_daemon = false;
-    let mut show_landing = false;
-    let mut command: Option<String> = None;
-    let mut cli_args_start = args.len();
-    let mut i = 1;
-
+    let mut daemon = false;
+    let mut landing = false;
+    let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
-            "--_daemon" => is_daemon = true,
-            "-d" => detached = true,
-            "--landingpage" => show_landing = true,
+            "--version" | "-V" if args.len() == 1 => {
+                println!("{}", airust::version_info());
+                return Ok(());
+            }
+            "help" | "--help" | "-h" => {
+                print_help();
+                return Ok(());
+            }
+            "cli" => return handle_cli(&args[i + 1..]),
+            "stop" if args.len() == 1 => return stop_server(),
             "--port" => {
-                if i + 1 < args.len() {
-                    port = args[i + 1].parse().unwrap_or_else(|_| {
-                        eprintln!("Invalid port: {}", args[i + 1]);
-                        process::exit(1);
-                    });
-                    if port == 0 || port == u16::MAX {
-                        eprintln!("Port must be between 1 and 65534 (console uses port+1)");
-                        process::exit(1);
-                    }
-                    i += 1;
-                } else {
-                    eprintln!("--port requires a value");
-                    process::exit(1);
+                i += 1;
+                port = args
+                    .get(i)
+                    .ok_or("--port requires a value")?
+                    .parse::<u16>()?;
+                if port == 0 || port == u16::MAX {
+                    return Err("Port must be between 1 and 65534".into());
                 }
             }
-            "stop" | "cli" | "help" if command.is_none() => {
-                command = Some(args[i].clone());
-                cli_args_start = i + 1;
-            }
-            "-h" | "--help" => {
-                command = Some("help".to_string());
-            }
-            _ => {
-                if command.is_none() {
-                    eprintln!("Unknown command: {}", args[i]);
-                    print_help();
-                    return;
-                }
-            }
+            "-d" => detached = true,
+            "--_daemon" => daemon = true,
+            "--landingpage" => landing = true,
+            value => return Err(format!("Unknown command or option: {value}").into()),
         }
         i += 1;
     }
-
-    #[cfg(not(feature = "web"))]
-    let _ = (port, detached, show_landing);
-
-    // Internal daemon mode (used by -d to respawn)
-    if is_daemon {
-        #[cfg(feature = "web")]
-        run_web_server(port, show_landing);
-        return;
-    }
-
-    match command.as_deref() {
-        Some("stop") => stop_server(),
-        Some("cli") => handle_cli(&args[cli_args_start..]),
-        Some("help") => print_help(),
-        None => {
-            #[cfg(feature = "web")]
-            {
-                if detached {
-                    start_detached(port, show_landing);
-                } else {
-                    run_web_server(port, show_landing);
-                }
-            }
-            #[cfg(not(feature = "web"))]
-            {
-                print_help();
-            }
+    #[cfg(feature = "web")]
+    {
+        let bind_ip = env::var("AIRUST_BIND_ADDR")
+            .unwrap_or_else(|_| "127.0.0.1".to_owned())
+            .parse::<std::net::IpAddr>()?;
+        airust::web::security::SecurityConfig::from_environment(bind_ip, port)?;
+        if detached && !daemon {
+            start_detached(port, landing)
+        } else {
+            run_web_server(port, landing)
         }
-        _ => print_help(),
+    }
+    #[cfg(not(feature = "web"))]
+    {
+        let _ = (port, detached, daemon, landing);
+        if args.is_empty() {
+            print_help();
+            Ok(())
+        } else {
+            Err("Web support requires --features web".into())
+        }
     }
 }
 
-// ── Web Server ────────────────────────────────────────────────────────────────
+#[derive(Serialize, Deserialize)]
+struct ServerRecord {
+    pid: u32,
+    executable: PathBuf,
+    identity: String,
+}
 
-#[cfg(feature = "web")]
-fn run_web_server(port: u16, show_landing: bool) {
-    if is_server_running() {
-        eprintln!("AIRust is already running. Use 'airust stop' first.");
-        process::exit(1);
+fn runtime_directory() -> io::Result<PathBuf> {
+    let path = match env::var_os("AIRUST_RUNTIME_DIR") {
+        Some(path) if !path.is_empty() => PathBuf::from(path),
+        _ => PathBuf::from(
+            env::var_os("HOME")
+                .ok_or_else(|| io::Error::other("HOME or AIRUST_RUNTIME_DIR is required"))?,
+        )
+        .join(".local/state/airust"),
+    };
+    if !path.is_absolute() {
+        return Err(io::Error::other(
+            "AIRUST_RUNTIME_DIR must be an absolute path",
+        ));
     }
+    if !path.exists() {
+        let mut builder = fs::DirBuilder::new();
+        builder.recursive(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            builder.mode(0o700);
+        }
+        builder.create(&path)?;
+    }
+    let metadata = fs::symlink_metadata(&path)?;
+    if !metadata.is_dir() || metadata.file_type().is_symlink() {
+        return Err(io::Error::other(
+            "Runtime directory must be a real directory",
+        ));
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if metadata.permissions().mode() & 0o077 != 0 {
+            return Err(io::Error::other(
+                "Runtime directory must have private permissions (0700)",
+            ));
+        }
+    }
+    Ok(path)
+}
 
-    let pid = process::id();
-    fs::write(PID_FILE, pid.to_string()).ok();
+fn record_path() -> io::Result<PathBuf> {
+    Ok(runtime_directory()?.join("server.json"))
+}
 
-    tokio::runtime::Runtime::new()
-        .expect("Failed to create Tokio runtime")
-        .block_on(airust::web::start_server(port, show_landing));
+fn read_record() -> Result<Option<ServerRecord>, Box<dyn std::error::Error>> {
+    let path = record_path()?;
+    match fs::symlink_metadata(&path) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error.into()),
+        Ok(metadata) if !metadata.is_file() || metadata.len() > 4096 => {
+            return Err("Invalid server state file".into())
+        }
+        Ok(_) => {}
+    }
+    Ok(Some(serde_json::from_slice(&fs::read(path)?)?))
+}
 
-    fs::remove_file(PID_FILE).ok();
+fn process_identity(pid: u32) -> io::Result<String> {
+    if pid <= 1 {
+        return Err(io::Error::other("Invalid process ID"));
+    }
+    let output = process::Command::new("ps")
+        .env("LC_ALL", "C")
+        .args([
+            "-ww",
+            "-p",
+            &pid.to_string(),
+            "-o",
+            "lstart=",
+            "-o",
+            "comm=",
+        ])
+        .output()?;
+    let value = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+    if !output.status.success() || value.is_empty() {
+        return Err(io::Error::other("Process is not running"));
+    }
+    Ok(value)
+}
+
+fn record_is_running(record: &ServerRecord) -> bool {
+    if env::current_exe().ok().as_ref() != Some(&record.executable)
+        || process_identity(record.pid).ok().as_ref() != Some(&record.identity)
+    {
+        return false;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        fs::read_link(format!("/proc/{}/exe", record.pid))
+            .ok()
+            .as_ref()
+            == Some(&record.executable)
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        process::Command::new("ps")
+            .env("LC_ALL", "C")
+            .args(["-ww", "-p", &record.pid.to_string(), "-o", "comm="])
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .is_some_and(|output| {
+                let name = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+                let path = PathBuf::from(name);
+                if path.is_absolute() {
+                    path == record.executable
+                } else {
+                    path.file_name() == record.executable.file_name()
+                }
+            })
+    }
+}
+
+fn stop_server() -> CliResult {
+    let record = read_record()?.ok_or("No AIRust server state found")?;
+    if !record_is_running(&record) {
+        return Err("Server identity does not match; no process was signaled".into());
+    }
+    let status = process::Command::new("kill")
+        .args(["-TERM", &record.pid.to_string()])
+        .status()?;
+    if !status.success() {
+        return Err("Failed to stop AIRust".into());
+    }
+    fs::remove_file(record_path()?)?;
+    println!("AIRust stopped (PID: {})", record.pid);
+    Ok(())
 }
 
 #[cfg(feature = "web")]
-fn start_detached(port: u16, show_landing: bool) {
-    if is_server_running() {
-        eprintln!("AIRust is already running. Use 'airust stop' first.");
-        process::exit(1);
+fn run_web_server(port: u16, landing: bool) -> CliResult {
+    if let Some(record) = read_record()? {
+        if record_is_running(&record) {
+            return Err("AIRust is already running. Use 'airust stop' first.".into());
+        }
+        fs::remove_file(record_path()?)?;
     }
+    let record = ServerRecord {
+        pid: process::id(),
+        executable: env::current_exe()?,
+        identity: process_identity(process::id())?,
+    };
+    let mut options = fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let path = record_path()?;
+    let mut file = options.open(&path)?;
+    file.write_all(&serde_json::to_vec(&record)?)?;
+    file.sync_all()?;
+    let runtime = tokio::runtime::Runtime::new()?;
+    runtime.block_on(airust::web::start_server(port, landing));
+    if read_record()?.is_some_and(|current| current.pid == record.pid) {
+        fs::remove_file(path)?;
+    }
+    Ok(())
+}
 
-    let exe = env::current_exe().expect("Failed to get executable path");
-
-    let log_file = fs::File::create("/tmp/airust.log").expect("Failed to create log file");
-    let err_file = log_file.try_clone().expect("Failed to clone log file");
-
-    let mut daemon_args = vec![
-        "--_daemon".to_string(),
-        "--port".to_string(),
+#[cfg(feature = "web")]
+fn start_detached(port: u16, landing: bool) -> CliResult {
+    if read_record()?.is_some_and(|record| record_is_running(&record)) {
+        return Err("AIRust is already running".into());
+    }
+    let path = runtime_directory()?.join("airust.log");
+    if fs::symlink_metadata(&path).is_ok_and(|metadata| !metadata.is_file()) {
+        return Err("Log path must be a regular file".into());
+    }
+    let mut options = fs::OpenOptions::new();
+    options.create(true).append(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let log = options.open(&path)?;
+    let mut args = vec![
+        "--_daemon".to_owned(),
+        "--port".to_owned(),
         port.to_string(),
     ];
-    if show_landing {
-        daemon_args.push("--landingpage".to_string());
+    if landing {
+        args.push("--landingpage".to_owned());
     }
-
-    let mut child = process::Command::new(exe)
-        .args(&daemon_args)
-        .stdout(log_file)
-        .stderr(err_file)
+    let mut child = process::Command::new(env::current_exe()?)
+        .args(args)
+        .stdout(log.try_clone()?)
+        .stderr(log)
         .stdin(process::Stdio::null())
-        .spawn()
-        .expect("Failed to start server");
-
-    let pid = child.id();
-    // Detach child so it doesn't become a zombie
-    std::thread::spawn(move || {
-        let _ = child.wait();
-    });
-    fs::write(PID_FILE, pid.to_string()).ok();
-
-    println!("AIRust running at http://localhost:{}", port);
-    println!("  PID:  {}", pid);
-    println!("  Logs: /tmp/airust.log");
-    println!("  Stop: airust stop");
-}
-
-fn stop_server() {
-    match fs::read_to_string(PID_FILE) {
-        Ok(pid_str) => {
-            let pid = pid_str.trim().to_string();
-            match process::Command::new("kill").arg(&pid).status() {
-                Ok(s) if s.success() => {
-                    fs::remove_file(PID_FILE).ok();
-                    println!("AIRust stopped (PID: {})", pid);
-                }
-                _ => {
-                    fs::remove_file(PID_FILE).ok();
-                    eprintln!("Process {} not found (cleaned up)", pid);
-                }
-            }
+        .spawn()?;
+    for _ in 0..100 {
+        if child.try_wait()?.is_some() {
+            return Err(format!("Server failed to start; see {}", path.display()).into());
         }
-        Err(_) => eprintln!("No running AIRust server found."),
-    }
-}
-
-#[cfg(feature = "web")]
-fn is_server_running() -> bool {
-    if let Ok(pid_str) = fs::read_to_string(PID_FILE) {
-        let pid = pid_str.trim();
-        // Don't consider our own process as "already running"
-        if pid == process::id().to_string() {
-            return false;
-        }
-        if let Ok(status) = process::Command::new("kill")
-            .args(["-0", pid])
-            .stderr(process::Stdio::null())
-            .status()
+        if read_record()?
+            .is_some_and(|record| record.pid == child.id() && record_is_running(&record))
         {
-            if status.success() {
-                return true;
-            }
+            println!(
+                "AIRust process started (PID: {}). Logs: {}",
+                child.id(),
+                path.display()
+            );
+            std::thread::spawn(move || {
+                let _ = child.wait();
+            });
+            return Ok(());
         }
-        fs::remove_file(PID_FILE).ok();
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
-    false
+    let _ = child.kill();
+    let _ = child.wait();
+    Err("Server startup timed out".into())
 }
 
-// ── CLI Mode ──────────────────────────────────────────────────────────────────
-
-fn handle_cli(args: &[String]) {
+fn handle_cli(args: &[String]) -> CliResult {
     if args.is_empty() {
         run_interactive_mode();
-        return;
+        return Ok(());
     }
-
     match args[0].as_str() {
-        "query" => {
-            if args.len() < 3 {
-                eprintln!("Usage: airust cli query <agent> <question>");
-                eprintln!("Agents: simple, fuzzy, tfidf, context");
-                return;
+        "query" if args.len() >= 3 => {
+            if !matches!(args[1].as_str(), "simple" | "fuzzy" | "tfidf" | "context") {
+                return Err(format!("Unknown agent type: {}", args[1]).into());
             }
             handle_query(&args[1], &args[2..].join(" "));
         }
-        "interactive" => run_interactive_mode(),
-        "knowledge" => run_knowledge_management(),
-        _ => {
-            eprintln!("Unknown CLI command: {}", args[0]);
-            eprintln!("Available: query, interactive, knowledge");
-        }
+        "query" => return Err("Usage: airust cli query <agent> <question>".into()),
+        "interactive" if args.len() == 1 => run_interactive_mode(),
+        "knowledge" if args.len() == 1 => run_knowledge_management(),
+        value => return Err(format!("Unknown CLI command or arguments: {value}").into()),
     }
+    Ok(())
 }
 
 fn print_help() {
@@ -257,8 +349,6 @@ fn print_help() {
     println!();
     println!("Agents: simple, fuzzy, tfidf, context");
 }
-
-// ── Query & Interactive ───────────────────────────────────────────────────────
 
 fn handle_query(agent_type: &str, question: &str) {
     let kb = KnowledgeBase::from_embedded();
@@ -381,8 +471,6 @@ fn interactive_loop_context(examples: &[TrainingExample]) {
     }
 }
 
-// ── Knowledge Management ──────────────────────────────────────────────────────
-
 fn run_knowledge_management() {
     println!("=== Knowledge Base Management ===");
     println!("1. Create new knowledge base");
@@ -438,7 +526,13 @@ fn create_knowledge_base() {
         let weight = if weight_str.is_empty() {
             1.0
         } else {
-            weight_str.parse::<f32>().unwrap_or(1.0)
+            match weight_str.parse::<f32>() {
+                Ok(weight) if weight.is_finite() && weight >= 0.0 => weight,
+                _ => {
+                    eprintln!("Weight must be a finite, nonnegative number.");
+                    continue;
+                }
+            }
         };
 
         kb.add_example(
@@ -570,7 +664,7 @@ fn test_loop(agent: &impl Agent) {
         let _ = io::stdin().read_line(&mut input);
         let input = input.trim();
 
-        if input.to_lowercase() == "exit" {
+        if input.is_empty() || input.eq_ignore_ascii_case("exit") {
             break;
         }
 
@@ -613,7 +707,13 @@ fn add_examples_to_kb(mut kb: KnowledgeBase) {
         let weight = if weight_str.is_empty() {
             1.0
         } else {
-            weight_str.parse::<f32>().unwrap_or(1.0)
+            match weight_str.parse::<f32>() {
+                Ok(weight) if weight.is_finite() && weight >= 0.0 => weight,
+                _ => {
+                    eprintln!("Weight must be a finite, nonnegative number.");
+                    continue;
+                }
+            }
         };
 
         kb.add_example(

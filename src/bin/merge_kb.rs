@@ -1,14 +1,12 @@
-//! Merge legacy training JSON without reading the destination back into itself.
 use airust::KnowledgeBase;
 use std::collections::BTreeSet;
 use std::env;
-use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 fn main() {
     if let Err(error) = run() {
-        eprintln!("Zusammenfügen fehlgeschlagen: {error}");
+        eprintln!("Merge failed: {error}");
         std::process::exit(1);
     }
 }
@@ -17,47 +15,67 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut output = PathBuf::from("knowledge/train.json");
     let mut inputs = Vec::new();
     let mut include_embedded = false;
+    let mut positional_only = false;
     let mut args = env::args().skip(1);
     while let Some(arg) = args.next() {
+        if positional_only {
+            inputs.push(PathBuf::from(arg));
+            continue;
+        }
         match arg.as_str() {
             "--help" | "-h" => {
-                println!("merge_kb [QUELLE.json ...] [--output ZIEL.json] [--include-embedded]");
-                println!("Ohne Quellen: knowledge/*.json, ohne die Zieldatei. Exakte Duplikate werden entfernt.");
+                println!("merge_kb [SOURCE.json ...] [--output TARGET.json] [--include-embedded]");
+                println!("Without sources: knowledge/*.json excluding the destination. Exact duplicates are removed.");
                 return Ok(());
             }
-            "--output" => output = args.next().ok_or("--output benötigt einen Pfad")?.into(),
+            "--output" => {
+                let value = args
+                    .next()
+                    .filter(|value| !value.starts_with('-'))
+                    .ok_or("--output requires a path")?;
+                output = value.into();
+            }
+            "--" => positional_only = true,
             "--include-embedded" => include_embedded = true,
             value if value.starts_with('-') => {
-                return Err(format!("Unbekannte Option: {value}").into())
+                return Err(format!("Unknown option: {value}").into())
             }
             value => inputs.push(PathBuf::from(value)),
         }
     }
     if inputs.is_empty() {
-        for entry in fs::read_dir("knowledge")? {
-            let path = entry?.path();
-            if path.is_file()
-                && path.extension().is_some_and(|ext| ext == "json")
-                && !same_path(&path, &output)
-            {
-                inputs.push(path);
+        match fs::read_dir("knowledge") {
+            Ok(entries) => {
+                for entry in entries {
+                    let path = entry?.path();
+                    if path.is_file()
+                        && path.extension().is_some_and(|ext| ext == "json")
+                        && !same_path(&path, &output)
+                    {
+                        inputs.push(path);
+                    }
+                }
             }
+            Err(error) if include_embedded && error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error.into()),
         }
     }
     inputs.sort();
     inputs.dedup();
     if inputs.is_empty() && !include_embedded {
-        return Err(
-            "Keine Quelldateien gefunden. Die Zieldatei wird nicht als Quelle eingelesen.".into(),
-        );
+        return Err("No source files found. The output file is never read as a source.".into());
     }
     let mut examples = Vec::new();
     let mut seen = BTreeSet::new();
     for path in &inputs {
         if same_path(path, &output) {
-            return Err(format!("Quelle und Ziel sind dieselbe Datei: {}", path.display()).into());
+            return Err(format!(
+                "Source and destination are the same file: {}",
+                path.display()
+            )
+            .into());
         }
-        // Read and validate every source before touching the output.
+
         let kb = KnowledgeBase::load(path.clone())?;
         for example in kb.get_examples() {
             if seen.insert(serde_json::to_string(example)?) {
@@ -72,35 +90,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
-    let data = serde_json::to_string_pretty(&examples)?;
+    let count = examples.len();
     let parent = output
         .parent()
-        .filter(|p| !p.as_os_str().is_empty())
+        .filter(|path| !path.as_os_str().is_empty())
         .unwrap_or(Path::new("."));
     fs::create_dir_all(parent)?;
-    let filename = output
-        .file_name()
-        .ok_or("Ziel benötigt einen Dateinamen")?
-        .to_string_lossy();
-    let temporary = parent.join(format!(".{filename}.{}.tmp", std::process::id()));
-    let mut file = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&temporary)?;
-    let result = (|| -> std::io::Result<()> {
-        file.write_all(data.as_bytes())?;
-        file.sync_all()?;
-        drop(file);
-        fs::rename(&temporary, &output)
-    })();
-    if result.is_err() {
-        let _ = fs::remove_file(&temporary);
-    }
-    result?;
+    KnowledgeBase::from_examples(examples).save(Some(output.clone()))?;
     println!(
-        "{} Quellen, {} eindeutige Beispiele → {}",
+        "{} sources, {} unique examples -> {}",
         inputs.len(),
-        examples.len(),
+        count,
         output.display()
     );
     Ok(())

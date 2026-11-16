@@ -13,21 +13,18 @@ pub struct QAPair {
 }
 
 impl ProcessorBot {
-    /// Process approved raw_data into Q&A pairs and store in approved_data
     pub fn process(db: &Arc<Database>, config: &BotConfig) -> Result<(i64, i64), String> {
         let pending = db.get_pending_raw_data()?;
         let mut items_found: i64 = 0;
         let mut items_added: i64 = 0;
 
         for raw in &pending {
-            // Binary content check: skip garbage data
             if Self::is_binary_content(&raw.content) {
                 eprintln!("Skipping binary content for raw_data id={}", raw.id);
                 db.approve_raw_data(raw.id)?;
                 continue;
             }
 
-            // Auto-approve for processing
             db.approve_raw_data(raw.id)?;
 
             let cleaned = Self::clean_content(&raw.content);
@@ -41,7 +38,6 @@ impl ProcessorBot {
                 _ => Self::strategy_heading_content(&cleaned, config.min_length),
             };
 
-            // Generate page summary Q&A for every page (if title exists)
             if let Some(ref title) = raw.title {
                 let summary_pairs = Self::generate_page_summary_qa(title, &cleaned);
                 pairs.extend(summary_pairs);
@@ -50,12 +46,10 @@ impl ProcessorBot {
             items_found += pairs.len() as i64;
 
             for pair in pairs {
-                // Deduplicate
                 let mut hasher = Sha256::new();
                 hasher.update(format!("{}:{}", pair.input, pair.output).as_bytes());
                 let hash = format!("{:x}", hasher.finalize());
 
-                // Check if we already have this exact Q&A
                 let existing = db.insert_raw_data(
                     raw.bot_run_id,
                     raw.url.as_deref(),
@@ -80,13 +74,12 @@ impl ProcessorBot {
         Ok((items_found, items_added))
     }
 
-    /// Check if content is binary garbage (PDF loaded as text, etc.)
     fn is_binary_content(text: &str) -> bool {
         let total = text.chars().count();
         if total == 0 {
             return true;
         }
-        // Count non-printable characters (excluding normal whitespace)
+
         let non_printable = text
             .chars()
             .filter(|c| {
@@ -106,17 +99,16 @@ impl ProcessorBot {
                     && *c != 'ñ'
             })
             .count();
-        // Count Unicode replacement chars
+
         let replacements = text.chars().filter(|&c| c == '\u{FFFD}').count();
         non_printable as f64 / total as f64 > 0.10 || replacements as f64 / total as f64 > 0.10
     }
 
-    /// Clean content: normalize whitespace, remove junk
     fn clean_content(text: &str) -> String {
         if Self::is_binary_content(text) {
             return String::new();
         }
-        // Normalize whitespace: collapse multiple spaces, trim lines
+
         let lines: Vec<String> = text
             .lines()
             .map(|line| {
@@ -141,21 +133,18 @@ impl ProcessorBot {
         lines.join("\n")
     }
 
-    /// Generate a proper question from a heading
     fn heading_to_question(heading: &str) -> String {
         let h = heading.trim();
 
-        // Already a question
         if h.ends_with('?') {
             return h.to_string();
         }
 
-        // Common heading patterns and their question forms
         let lower = h.to_lowercase();
 
         if lower.starts_with("über ") || lower == "über uns" {
             return format!(
-                "Was kann man über {} erfahren?",
+                "What can be learned about {}?",
                 h[5..].trim_end_matches(':')
             );
         }
@@ -169,27 +158,25 @@ impl ProcessorBot {
             return format!("{}?", h.trim_end_matches(':'));
         }
         if lower.starts_with("kontakt") || lower.starts_with("contact") {
-            return format!("Wie erreicht man {}?", h.trim_end_matches(':'));
+            return format!("How can {} be contacted?", h.trim_end_matches(':'));
         }
         if lower.starts_with("faq") || lower.starts_with("häufige fragen") {
             return format!(
-                "Welche häufigen Fragen gibt es zu {}?",
+                "What frequently asked questions concern {}?",
                 h.trim_end_matches(':')
             );
         }
 
-        // Default: "Was ist {heading}?"
-        format!("Was ist {}?", h.trim_end_matches(':'))
+        format!("What is {}?", h.trim_end_matches(':'))
     }
 
-    /// Truncate text at a sentence boundary, max `max_len` characters
     fn truncate_at_sentence(text: &str, max_len: usize) -> String {
         if text.len() <= max_len {
             return text.to_string();
         }
 
         let truncated = &text[..max_len];
-        // Find last sentence end within the limit
+
         let last_period = truncated.rfind(". ");
         let last_excl = truncated.rfind("! ");
         let last_quest = truncated.rfind("? ");
@@ -201,17 +188,13 @@ impl ProcessorBot {
 
         match best {
             Some(pos) => text[..=pos].trim().to_string(),
-            None => {
-                // No sentence boundary found, cut at last space
-                match truncated.rfind(' ') {
-                    Some(pos) => format!("{}...", text[..pos].trim()),
-                    None => format!("{}...", truncated),
-                }
-            }
+            None => match truncated.rfind(' ') {
+                Some(pos) => format!("{}...", text[..pos].trim()),
+                None => format!("{}...", truncated),
+            },
         }
     }
 
-    /// Smart sentence splitting that doesn't break on abbreviations
     fn split_sentences(text: &str) -> Vec<String> {
         let mut sentences = Vec::new();
         let mut current = String::new();
@@ -219,7 +202,6 @@ impl ProcessorBot {
         let len = chars.len();
         let mut i = 0;
 
-        // Common abbreviations that shouldn't split
         let abbrevs = [
             "Dr.", "Mr.", "Mrs.", "Ms.", "Prof.", "Nr.", "St.", "Str.", "z.B.", "d.h.", "u.a.",
             "o.ä.", "etc.", "bzw.", "inkl.", "zzgl.", "ca.", "max.", "min.", "tel.", "Tel.",
@@ -233,7 +215,6 @@ impl ProcessorBot {
                 && i + 1 < len
                 && chars[i + 1].is_whitespace()
             {
-                // Check if this period is part of an abbreviation
                 let current_trimmed = current.trim();
                 let is_abbrev = abbrevs.iter().any(|a| current_trimmed.ends_with(a));
 
@@ -248,7 +229,6 @@ impl ProcessorBot {
             i += 1;
         }
 
-        // Remaining text
         let remainder = current.trim().to_string();
         if !remainder.is_empty() {
             sentences.push(remainder);
@@ -257,7 +237,6 @@ impl ProcessorBot {
         sentences
     }
 
-    /// Generate question from a sentence (reformulate first sentence into a question)
     fn sentence_to_question(sentence: &str) -> String {
         let s = sentence
             .trim()
@@ -270,7 +249,7 @@ impl ProcessorBot {
         if s.is_empty() {
             return String::new();
         }
-        // "Was ist/bedeutet {first_sentence}?"
+
         let lower = s.to_lowercase();
         if lower.starts_with("wir ")
             || lower.starts_with("unser")
@@ -278,13 +257,12 @@ impl ProcessorBot {
             || lower.starts_with("das ")
             || lower.starts_with("der ")
         {
-            format!("Was bedeutet: {}?", s)
+            format!("What does this mean: {}?", s)
         } else {
-            format!("Was ist {}?", s)
+            format!("What is {}?", s)
         }
     }
 
-    /// Strategy: Use headings as questions, following text as answers
     fn strategy_heading_content(content: &str, min_length: usize) -> Vec<QAPair> {
         let mut pairs = Vec::new();
         let lines: Vec<&str> = content.lines().collect();
@@ -293,7 +271,6 @@ impl ProcessorBot {
         while i < lines.len() {
             let line = lines[i].trim();
 
-            // Detect heading-like lines (short, no period at end, capitalized or all caps)
             let is_heading = !line.is_empty()
                 && line.len() < 100
                 && !line.ends_with('.')
@@ -304,7 +281,6 @@ impl ProcessorBot {
                     .unwrap_or(false));
 
             if is_heading && i + 1 < lines.len() {
-                // Collect following paragraph text
                 let mut body = Vec::new();
                 let mut j = i + 1;
                 while j < lines.len() {
@@ -322,7 +298,6 @@ impl ProcessorBot {
                 let answer = Self::truncate_at_sentence(&full_answer, 500);
 
                 if line.len() >= min_length && answer.len() >= min_length {
-                    // Generate a proper question from the heading
                     let question = Self::heading_to_question(line);
                     pairs.push(QAPair {
                         input: question,
@@ -338,7 +313,6 @@ impl ProcessorBot {
         pairs
     }
 
-    /// Strategy: Each paragraph becomes a Q&A pair
     fn strategy_paragraph(content: &str, min_length: usize) -> Vec<QAPair> {
         let mut pairs = Vec::new();
         let paragraphs: Vec<&str> = content.split("\n\n").collect();
@@ -370,7 +344,6 @@ impl ProcessorBot {
         pairs
     }
 
-    /// Strategy: Each sentence pair becomes Q&A
     fn strategy_sentence(content: &str, min_length: usize) -> Vec<QAPair> {
         let mut pairs = Vec::new();
         let sentences = Self::split_sentences(content);
@@ -392,8 +365,6 @@ impl ProcessorBot {
         pairs
     }
 
-    /// Generate page summary Q&A from page title and content
-    /// Makes pages findable by their title (e.g. "LE Signs" → finds the page)
     fn generate_page_summary_qa(title: &str, content: &str) -> Vec<QAPair> {
         let mut pairs = Vec::new();
         let title = title.trim();
@@ -402,13 +373,11 @@ impl ProcessorBot {
             return pairs;
         }
 
-        // Get first paragraph as answer (max 500 chars, sentence boundary)
         let first_para = content.split("\n\n").next().unwrap_or(content).trim();
 
         let answer = if first_para.len() >= 20 {
             Self::truncate_at_sentence(first_para, 500)
         } else {
-            // First paragraph too short, use more content
             Self::truncate_at_sentence(content, 500)
         };
 
@@ -416,13 +385,11 @@ impl ProcessorBot {
             return pairs;
         }
 
-        // "Was ist {title}?"
         pairs.push(QAPair {
-            input: format!("Was ist {}?", title),
+            input: format!("What is {}?", title),
             output: answer.clone(),
         });
 
-        // Also add title directly as question (for direct search matches)
         if !title.ends_with('?') {
             pairs.push(QAPair {
                 input: format!("{}?", title),

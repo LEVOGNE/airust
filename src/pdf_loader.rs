@@ -1,4 +1,3 @@
-// src/pdf_loader.rs - PDF to Training Data Converter (pdf_oxide backend)
 use crate::agent::{ResponseFormat, TrainingExample};
 use crate::knowledge::KnowledgeBase;
 use once_cell::sync::Lazy;
@@ -13,7 +12,6 @@ static SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r" {2,}").unwrap());
 static NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n{3,}").unwrap());
 static PAGE_NUMBER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*-?\s*\d{1,4}\s*-?\s*$").unwrap());
 
-// Define a custom error type for PDF operations
 #[derive(Debug)]
 pub enum PdfError {
     IoError(std::io::Error),
@@ -41,42 +39,31 @@ impl From<std::io::Error> for PdfError {
     }
 }
 
-/// Extracted content from a single PDF page
 pub struct PageContent {
     pub page_number: usize,
     pub text: String,
 }
 
-/// Structure for configuring how PDFs are converted to training data
+#[derive(Debug, Clone)]
 pub struct PdfLoaderConfig {
-    /// Preferred minimum length (in characters); a final shorter chunk is retained
     pub min_chunk_size: usize,
 
-    /// Maximum length of a chunk (in characters)
     pub max_chunk_size: usize,
 
-    /// Overlap between chunks (in characters)
     pub chunk_overlap: usize,
 
-    /// Default weight for generated training examples
     pub default_weight: f32,
 
-    /// Whether metadata like page number and position in the document should be added
     pub include_metadata: bool,
 
-    /// Whether chunks should be split at sentence boundaries
     pub split_by_sentence: bool,
 
-    /// Whether to primarily split at paragraph boundaries (\n\n)
     pub split_by_paragraph: bool,
 
-    /// Whether to apply the text cleaning pipeline
     pub clean_text: bool,
 
-    /// Whether to remove page number lines
     pub remove_page_numbers: bool,
 
-    /// Whether to rejoin hyphenated words across line breaks
     pub dehyphenate: bool,
 }
 
@@ -129,19 +116,16 @@ impl Default for PdfLoader {
 }
 
 impl PdfLoader {
-    /// Creates a new PDF loader with default configuration
     pub fn new() -> Self {
         Self {
             config: PdfLoaderConfig::default(),
         }
     }
 
-    /// Creates a new PDF loader with custom configuration
     pub fn with_config(config: PdfLoaderConfig) -> Self {
         Self { config }
     }
 
-    /// Loads a PDF and converts it to a KnowledgeBase
     pub fn pdf_to_knowledge_base<P: AsRef<Path>>(
         &self,
         path: P,
@@ -151,14 +135,13 @@ impl PdfLoader {
         Ok(KnowledgeBase::from_examples(examples))
     }
 
-    /// Loads a PDF and converts it to TrainingExamples
     pub fn pdf_to_training_examples<P: AsRef<Path>>(
         &self,
         path: P,
     ) -> Result<Vec<TrainingExample>, PdfError> {
         self.config.validate()?;
         let path = path.as_ref();
-        if !path.exists() {
+        if !path.is_file() {
             return Err(PdfError::InvalidPath(path.to_string_lossy().to_string()));
         }
 
@@ -181,7 +164,6 @@ impl PdfLoader {
         Ok(examples)
     }
 
-    /// Extracts pages individually with metadata
     pub fn extract_pages_from_pdf(&self, path: &Path) -> Result<Vec<PageContent>, PdfError> {
         self.config.validate()?;
         let doc =
@@ -219,9 +201,6 @@ impl PdfLoader {
         Ok(pages)
     }
 
-    /// Detects binary garbage / non-text content from scanned or image-only pages.
-    /// Returns true if the text has a high ratio of non-printable, replacement,
-    /// or private-use characters. Valid Unicode letters remain readable.
     fn is_garbage_text(text: &str) -> bool {
         let trimmed = text.trim();
         if trimmed.is_empty() {
@@ -233,23 +212,18 @@ impl PdfLoader {
             return false;
         }
 
-        // Count characters that are "garbage" indicators:
-        // - Unicode replacement char (U+FFFD)
-        // - Private Use Area (U+E000..U+F8FF)
-        // - Non-printable controls (excluding \n \t \r \x20)
         let garbage_count = trimmed
             .chars()
             .filter(|c| {
                 let cp = *c as u32;
-                *c == '\u{FFFD}'                           // replacement char
-                    || (0xE000..=0xF8FF).contains(&cp)     // private use area
+                *c == '\u{FFFD}'
+                    || (0xE000..=0xF8FF).contains(&cp)
                     || (c.is_control() && *c != '\n' && *c != '\t' && *c != '\r')
             })
             .count();
 
         let garbage_ratio = garbage_count as f64 / total as f64;
 
-        // Also check: ratio of printable ASCII + common Unicode (letters, digits, punctuation)
         let readable_count = trimmed
             .chars()
             .filter(|c| c.is_alphanumeric() || c.is_ascii_punctuation() || c.is_ascii_whitespace())
@@ -257,16 +231,12 @@ impl PdfLoader {
 
         let readable_ratio = readable_count as f64 / total as f64;
 
-        // Garbage if >15% garbage chars OR <30% readable chars
         garbage_ratio > 0.15 || readable_ratio < 0.30
     }
 
-    /// 6-stage text cleaning pipeline
     pub fn clean_text(&self, raw: &str) -> String {
-        // 1. Unicode NFC normalization
         let mut text: String = raw.nfc().collect();
 
-        // 2. Ligature expansion
         text = text
             .replace('\u{FB00}', "ff")
             .replace('\u{FB01}', "fi")
@@ -274,25 +244,21 @@ impl PdfLoader {
             .replace('\u{FB03}', "ffi")
             .replace('\u{FB04}', "ffl");
 
-        // 3. Remove control characters (keep \n \t \r)
         text = text
             .chars()
             .filter(|c| !c.is_control() || *c == '\n' || *c == '\t' || *c == '\r')
             .collect();
 
-        // 4. Dehyphenation: word-\n -> word (rejoin hyphenated line breaks)
         if self.config.dehyphenate {
             text = DEHYPHEN.replace_all(&text, "$1$2").to_string();
         }
 
-        // 5. Whitespace normalization
         text = text.replace('\t', " ").replace("\r\n", "\n");
 
         text = SPACES.replace_all(&text, " ").to_string();
 
         text = NEWLINES.replace_all(&text, "\n\n").to_string();
 
-        // 6. Remove page-number-only lines
         if self.config.remove_page_numbers {
             text = text
                 .lines()
@@ -304,7 +270,6 @@ impl PdfLoader {
         text.trim().to_string()
     }
 
-    /// Splits text into chunks and creates TrainingExamples with extended metadata
     fn text_to_training_examples(&self, text: &str, source_file: &str) -> Vec<TrainingExample> {
         let mut examples = Vec::new();
         let chunks = self.split_text_into_chunks(text);
@@ -331,7 +296,6 @@ impl PdfLoader {
         examples
     }
 
-    /// Splits text into overlapping chunks while respecting UTF-8 characters
     fn split_text_into_chunks(&self, text: &str) -> Vec<String> {
         if self.config.validate().is_err() || text.trim().is_empty() {
             return Vec::new();
@@ -380,13 +344,12 @@ impl PdfLoader {
             if end == chars.len() {
                 break;
             }
-            // Every iteration advances, including overlap=max-1 and Unicode text.
+
             start = end - self.config.chunk_overlap;
         }
         chunks
     }
 
-    /// Splits text into paragraph segments, then sub-splits large paragraphs by sentence
     fn split_into_paragraph_segments(&self, text: &str) -> Vec<String> {
         let paragraphs: Vec<&str> = text.split("\n\n").collect();
         let mut segments = Vec::new();
@@ -397,11 +360,9 @@ impl PdfLoader {
                 continue;
             }
 
-            // If paragraph fits in a chunk, keep it as one segment
             if trimmed.chars().count() <= self.config.max_chunk_size {
                 segments.push(format!("{}\n\n", trimmed));
             } else if self.config.split_by_sentence {
-                // Large paragraph: sub-split by sentence
                 let sentences = self.split_into_sentences(trimmed);
                 segments.extend(sentences);
                 segments.push("\n\n".to_string());
@@ -413,7 +374,6 @@ impl PdfLoader {
         segments
     }
 
-    /// Abbreviation-aware sentence splitting
     fn split_into_sentences(&self, text: &str) -> Vec<String> {
         let abbreviations = [
             "Dr", "Mr", "Mrs", "Ms", "Prof", "Inc", "Ltd", "Co", "Jr", "Sr", "St", "etc", "vs",
@@ -423,8 +383,6 @@ impl PdfLoader {
             "Sat", "Sun",
         ];
 
-        // Build regex: sentence-ending punctuation followed by space + uppercase or end-of-string
-        // But NOT preceded by a known abbreviation
         let mut sentences = Vec::new();
         let mut current = String::new();
         let chars: Vec<char> = text.chars().collect();
@@ -435,7 +393,6 @@ impl PdfLoader {
             current.push(chars[i]);
 
             if chars[i] == '.' || chars[i] == '!' || chars[i] == '?' {
-                // Check for ellipsis: "..."
                 if chars[i] == '.' && i + 2 < len && chars[i + 1] == '.' && chars[i + 2] == '.' {
                     current.push(chars[i + 1]);
                     current.push(chars[i + 2]);
@@ -443,7 +400,6 @@ impl PdfLoader {
                     continue;
                 }
 
-                // Check if inside parentheses (simple heuristic)
                 let open_parens = current.chars().filter(|c| *c == '(').count();
                 let close_parens = current.chars().filter(|c| *c == ')').count();
                 if open_parens > close_parens {
@@ -451,7 +407,6 @@ impl PdfLoader {
                     continue;
                 }
 
-                // Check for number context: "3.14", "100.000"
                 if chars[i] == '.' {
                     let has_digit_before = i > 0 && chars[i - 1].is_ascii_digit();
                     let has_digit_after = i + 1 < len && chars[i + 1].is_ascii_digit();
@@ -461,24 +416,23 @@ impl PdfLoader {
                     }
                 }
 
-                // Check for abbreviation
                 if chars[i] == '.' {
                     let word_before = extract_word_before(&chars, i);
                     if abbreviations.iter().any(|a| *a == word_before) {
                         i += 1;
                         continue;
                     }
-                    // Single-letter abbreviation like "U.S.A." or "z.B."
-                    if word_before.len() <= 2 && !word_before.is_empty() {
-                        // Check if next char is also a letter (continuing abbreviation)
-                        if i + 1 < len && chars[i + 1].is_alphabetic() {
-                            i += 1;
-                            continue;
-                        }
+
+                    if !word_before.is_empty()
+                        && word_before.chars().count() <= 2
+                        && i + 1 < len
+                        && chars[i + 1].is_alphabetic()
+                    {
+                        i += 1;
+                        continue;
                     }
                 }
 
-                // Now check if next non-space char is uppercase or end of text
                 let next_pos = skip_whitespace(&chars, i + 1);
                 if next_pos >= len || chars[next_pos].is_uppercase() || chars[next_pos] == '\n' {
                     let trimmed = current.trim().to_string();
@@ -492,7 +446,6 @@ impl PdfLoader {
             i += 1;
         }
 
-        // Add the last incomplete sentence
         let trimmed = current.trim().to_string();
         if !trimmed.is_empty() {
             sentences.push(trimmed);
@@ -501,7 +454,6 @@ impl PdfLoader {
         sentences
     }
 
-    /// Saves a KnowledgeBase to a file
     pub fn save_knowledge_base<P: AsRef<Path>>(
         &self,
         kb: &KnowledgeBase,
@@ -512,15 +464,14 @@ impl PdfLoader {
     }
 }
 
-/// Extract the word immediately before position `pos` in the char array
 fn extract_word_before(chars: &[char], pos: usize) -> String {
     if pos == 0 {
         return String::new();
     }
     let mut end = pos;
-    // Skip back past the punctuation
+
     end = end.saturating_sub(1);
-    // Collect alphabetic characters going backwards
+
     let mut word = String::new();
     let mut j = end;
     loop {
@@ -537,7 +488,6 @@ fn extract_word_before(chars: &[char], pos: usize) -> String {
     word.chars().rev().collect()
 }
 
-/// Skip whitespace characters starting from `pos`
 fn skip_whitespace(chars: &[char], pos: usize) -> usize {
     let mut p = pos;
     while p < chars.len() && (chars[p] == ' ' || chars[p] == '\t') {
@@ -546,7 +496,6 @@ fn skip_whitespace(chars: &[char], pos: usize) -> usize {
     p
 }
 
-// Helper functions for easier usage
 pub fn pdf_to_knowledge_base<P: AsRef<Path>>(path: P) -> Result<KnowledgeBase, PdfError> {
     PdfLoader::new().pdf_to_knowledge_base(path)
 }
@@ -610,7 +559,7 @@ mod tests {
         assert!(!result.contains("   "));
         assert!(!result.contains("\t"));
         assert!(!result.contains("\r"));
-        // Max 2 consecutive newlines
+
         assert!(!result.contains("\n\n\n"));
     }
 
@@ -638,10 +587,9 @@ mod tests {
     fn test_improved_sentence_split() {
         let loader = PdfLoader::new();
 
-        // Abbreviations should NOT cause a split
         let text = "Dr. Smith went to Washington. He met Prof. Jones there.";
         let sentences = loader.split_into_sentences(text);
-        // "Dr." should not cause a split, nor "Prof."
+
         assert!(
             sentences.len() == 2,
             "Expected 2 sentences, got {}: {:?}",
@@ -649,7 +597,6 @@ mod tests {
             sentences
         );
 
-        // Numbers should NOT cause a split
         let text2 = "The value is 3.14 approximately. That is correct.";
         let sentences2 = loader.split_into_sentences(text2);
         assert!(
@@ -659,7 +606,6 @@ mod tests {
             sentences2
         );
 
-        // Ellipsis should NOT cause multiple splits
         let text3 = "Wait... What happened? Nothing.";
         let sentences3 = loader.split_into_sentences(text3);
         assert!(
@@ -685,7 +631,6 @@ mod tests {
         let text = "First paragraph with some text.\n\nSecond paragraph with more text.\n\nThird paragraph here.";
         let chunks = loader.split_text_into_chunks(text);
 
-        // All three paragraphs should fit in one chunk (< 200 chars)
         assert!(!chunks.is_empty(), "Should produce at least one chunk");
     }
 
@@ -727,10 +672,9 @@ mod tests {
             ..Default::default()
         };
         let loader = PdfLoader::with_config(config);
-        // With clean_text disabled, dehyphenation should still not happen
-        // because clean_text gates the whole pipeline in pdf_to_training_examples
+
         let raw = "incor-\nporated";
-        // Direct clean_text call with dehyphenate=false
+
         let result = loader.clean_text(raw);
         assert!(
             result.contains("incor-"),
@@ -740,7 +684,6 @@ mod tests {
 
     #[test]
     fn test_garbage_detection_binary() {
-        // Simulated binary garbage like from image-only PDF pages
         let garbage = "v>It\u{FFFD}<\u{FFFD}o\u{FFFD}\u{FFFD}\u{FFFD}.\u{FFFD}\u{FFFD};d\u{FFFD}a\u{FFFD}P\u{FFFD}1\u{FFFD}W<\u{FFFD}\u{FFFD}\u{FFFD}R";
         assert!(
             PdfLoader::is_garbage_text(garbage),
@@ -760,7 +703,6 @@ mod tests {
 
     #[test]
     fn test_garbage_detection_private_use_area() {
-        // Text dominated by Private Use Area characters
         let pua: String = (0..50)
             .map(|i| char::from_u32(0xE000 + i).unwrap())
             .collect();
@@ -772,7 +714,6 @@ mod tests {
 
     #[test]
     fn test_garbage_detection_mixed() {
-        // Mostly readable with a few odd chars — should pass
         let mostly_ok = "Hello world. Some text here with a \u{FFFD} or two.";
         assert!(
             !PdfLoader::is_garbage_text(mostly_ok),

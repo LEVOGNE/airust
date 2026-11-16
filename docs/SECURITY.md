@@ -1,0 +1,84 @@
+# Security and operating boundaries
+
+AIRust's default knowledge core is an in-memory library. The optional dashboard, file administration, crawler, and process controls add separate operating boundaries. This guide describes the 0.1.9 development behavior; validation results belong in [CHANGES-0.1.9.md](CHANGES-0.1.9.md).
+
+## Bind address and authentication
+
+The web listener defaults to `127.0.0.1`. The console uses the following port. `AIRUST_BIND_ADDR` explicitly selects another IP address.
+
+`AIRUST_API_TOKEN` is optional on loopback and required for a non-loopback bind address. A token must contain 32 through 256 ASCII letters, digits, hyphens, or underscores. Once configured, it protects `/api` requests and the console WebSocket.
+
+HTTP clients send `Authorization: Bearer <token>`. The browser prompts for the token and retains it only in JavaScript memory. It must be supplied again after the page's state is discarded. WebSocket clients offer `airust` and `token.<token>` as subprotocols. The credential is not a URL query parameter.
+
+The token grants one shared level of service access. It is not a multi-user account model. Use transport encryption when a deployment crosses an untrusted network, and configure infrastructure independently for that environment.
+
+## Host and origin checks
+
+Requests require an allowed Host header and the receiving service's port. The main server checks its configured port; the console checks the next port.
+
+`AIRUST_ALLOWED_HOSTS` accepts comma-separated explicit hostnames, without ports or wildcards. Defaults include localhost, loopback addresses, and the selected bind IP.
+
+A browser Origin must use the same hostname and either the main or console port, allowing the main interface to connect to its console. Cross-site fetches are rejected. Ordinary command-line clients without an Origin header are accepted if their Host and any configured token are valid.
+
+A reverse proxy must deliberately preserve or rewrite headers to the expected service Host. Public-origin port rewriting is not implicitly supported. A forwarded connection alone does not establish an approved origin.
+
+## Administrative operations
+
+`AIRUST_ENABLE_ADMIN=1` opts into file-administration endpoints, knowledge load/save operations, and console reset. They are disabled by default. Enabling the flag does not remove authentication or origin checks.
+
+Enabled filesystem administration is confined to the server's working directory. It rejects absolute paths, parent traversal, hidden path components, and symlink components. Administrative reads are bounded to 1 MiB.
+
+These path checks address HTTP-supplied paths. A separate local process that can change the same directories can race a path check. The interface is not an operating-system sandbox or a substitute for filesystem ownership controls.
+
+The SQL administration interface is a trusted administrative capability. Enable it only for an operator who is intended to control the application's database.
+
+## Request and message limits
+
+| Boundary | Limit |
+| --- | ---: |
+| API token | 32–256 permitted ASCII characters |
+| HTTP request body | 8 MiB |
+| Query input | 1–4,096 UTF-8 bytes, with non-whitespace content |
+| Training input or serialized output | 1 MiB each; input must be nonempty |
+| Training import batch | 1,000 items |
+| Administrative file read | 1 MiB |
+| Console WebSocket frame or message | 4 KiB |
+| Trimmed console command | 1 KiB |
+| SQL query pagination | 1–1,000 rows; nonnegative offset |
+| Crawler response body | 2 MiB |
+| Crawler traversal depth | 5 |
+| Crawler pages per run | 100 |
+
+Training imports validate the complete batch before writing it in one SQL transaction. Invalid input does not partially add a batch.
+
+Multipart uploads share the total request limit with their framing overhead. These boundaries limit individual requests and runs; they are not an aggregate service-throughput guarantee.
+
+## Crawler destinations
+
+The crawler accepts public HTTP and HTTPS destinations. It rejects embedded URL credentials, localhost, and nonpublic resolved addresses. All returned addresses are checked, the selected address is pinned for the request, proxy discovery is disabled, and redirects are disabled.
+
+DNS resolution is bounded to five seconds and a request to 30 seconds. Inter-request delay is clamped to 100 through 30,000 milliseconds.
+
+A URL that redirects to another site is not automatically followed. The operator must supply an eligible final destination explicitly. Network restrictions apply to the optional crawler rather than to library ingestion of application-owned text.
+
+## Local runtime files
+
+`AIRUST_RUNTIME_DIR` must be an absolute path to a real private directory. The default is `$HOME/.local/state/airust`. Existing symlink or insecure runtime directories are rejected. The Unix directory mode is `0700`.
+
+`server.json` records PID, executable, and process-start identity. The stop command verifies that identity before sending a signal. Logs are stored in private `airust.log` files. These controls prevent a stale PID file from authorizing a signal to an unrelated process.
+
+## Persistence
+
+Training weights must be finite and nonnegative when a collection is loaded or saved. Saving rejects symlink and non-file destinations. It validates and serializes before replacing an existing destination.
+
+A save uses an exclusively created private temporary file, flushes and synchronizes its content, then replaces the destination. Existing file permissions are retained. A rejected operation must not truncate the existing training file.
+
+Atomic replacement preserves complete file content. It does not merge concurrent changes or provide database transaction isolation. Callers that need coordinated updates must serialize them or supply a separate storage layer.
+
+The CLI process-control commands currently depend on Unix-style `ps` and `kill`. They were tested on macOS in this development pass. Windows process control has not been validated.
+
+## Scope of assurance
+
+The changes have targeted regression cases for their boundaries. They are not a comprehensive independent production security audit. No arbitrary user content should be treated as executable instructions, and lexical results should not bypass the calling application's access rules.
+
+Release validation must check the exact final source, all relevant feature combinations, minimum supported Rust, package contents, and deployment-specific configuration. Report untested environments explicitly rather than implying a complete certification.

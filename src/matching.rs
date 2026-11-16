@@ -1,22 +1,78 @@
-//! Explainable lexical comparison. Scores do not measure semantic equivalence.
-
 use crate::{knowledge::KnowledgeEntry, text};
 use serde::Serialize;
 use thiserror::Error;
 
 pub use strsim::levenshtein as levenshtein_distance;
 
-/// The lexical evidence for comparing two nonempty texts.
+pub(crate) fn bounded_distance(a: &str, b: &str, limit: usize) -> Option<usize> {
+    let a: Vec<char> = a.chars().collect();
+    let b: Vec<char> = b.chars().collect();
+    if a.len().abs_diff(b.len()) > limit {
+        return None;
+    }
+    if a.is_empty() {
+        return (b.len() <= limit).then_some(b.len());
+    }
+    if b.is_empty() {
+        return (a.len() <= limit).then_some(a.len());
+    }
+    let limit = limit.min(a.len().max(b.len()));
+    let unreachable = limit + 1;
+    let mut previous = vec![unreachable; b.len() + 1];
+    let mut current = vec![unreachable; b.len() + 1];
+    for (i, cell) in previous
+        .iter_mut()
+        .enumerate()
+        .take(limit.saturating_add(1))
+    {
+        *cell = i;
+    }
+    for (row, left) in a.iter().enumerate() {
+        let row = row + 1;
+        let start = row.saturating_sub(limit).max(1);
+        let end = row.saturating_add(limit).min(b.len());
+        current[0] = if row <= limit { row } else { unreachable };
+        if start > 1 {
+            current[start - 1] = unreachable;
+        }
+        let mut best = current[0];
+        for column in start..=end {
+            current[column] = (previous[column] + 1)
+                .min(current[column - 1] + 1)
+                .min(previous[column - 1] + usize::from(*left != b[column - 1]));
+            best = best.min(current[column]);
+        }
+        if end < b.len() {
+            current[end + 1] = unreachable;
+        }
+        if best > limit {
+            return None;
+        }
+        std::mem::swap(&mut previous, &mut current);
+    }
+    (previous[b.len()] <= limit).then_some(previous[b.len()])
+}
+
+pub(crate) fn distance_limit(length: usize, threshold: f64) -> usize {
+    let mut limit = ((1.0 - threshold) * length as f64) as usize;
+    while limit < length && 1.0 - (limit + 1) as f64 / length as f64 >= threshold {
+        limit += 1;
+    }
+    while limit > 0 && (1.0 - limit as f64 / length as f64) < threshold {
+        limit -= 1;
+    }
+    limit
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub struct Similarity {
     pub exact: bool,
-    /// Normalized Levenshtein similarity, using Unicode scalar values, in 0..=1.
+
     pub character: f64,
-    /// Jaccard similarity of unique tokens, in 0..=1.
+
     pub token: f64,
 }
 
-/// Compare normalized text. Empty text has zero similarity, including to itself.
 pub fn compare(a: &str, b: &str) -> Similarity {
     compare_normalized(&text::normalize(a), &text::normalize(b))
 }
@@ -82,7 +138,49 @@ impl MatchOptions {
     }
 }
 
-/// A matching entry and the evidence used to rank it.
+#[cfg(test)]
+mod bounded_tests {
+    use super::*;
+
+    #[test]
+    fn bounded_distance_agrees_with_full_unicode_distance() {
+        let mut words = vec![String::new()];
+        let mut frontier = vec![String::new()];
+        for _ in 0..4 {
+            frontier = frontier
+                .iter()
+                .flat_map(|word| ['a', 'b', 'ä'].map(|letter| format!("{word}{letter}")))
+                .collect();
+            words.extend(frontier.iter().cloned());
+        }
+        for left in &words {
+            for right in &words {
+                let actual = levenshtein_distance(left, right);
+                for limit in 0..=4 {
+                    assert_eq!(
+                        bounded_distance(left, right, limit),
+                        (actual <= limit).then_some(actual),
+                        "{left:?} {right:?} {limit}"
+                    );
+                }
+            }
+        }
+        assert_eq!(bounded_distance("a", "bbb", usize::MAX), Some(3));
+    }
+
+    #[test]
+    fn distance_threshold_preserves_floating_point_boundaries() {
+        for length in 1..=100 {
+            for distance in 0..=length {
+                let threshold = 1.0 - distance as f64 / length as f64;
+                let limit = distance_limit(length, threshold);
+                assert!(1.0 - limit as f64 / length as f64 >= threshold);
+                assert!(limit == length || 1.0 - (limit + 1) as f64 / (length as f64) < threshold);
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct MatchResult<'a> {
     pub entry: &'a KnowledgeEntry,

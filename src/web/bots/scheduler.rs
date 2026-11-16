@@ -26,32 +26,20 @@ impl BotScheduler {
             .get_bot(bot_id)?
             .ok_or_else(|| "Bot not found".to_string())?;
 
-        // Check if already running
-        {
-            let running = self.running.lock().await;
-            if running.contains_key(&bot_id) {
-                return Err("Bot is already running".to_string());
-            }
+        let mut running_guard = self.running.lock().await;
+        if running_guard.contains_key(&bot_id) {
+            return Err("Bot is already running".to_owned());
         }
-
+        let run_id = self.db.create_bot_run(bot_id)?;
         let db = self.db.clone();
         let running = self.running.clone();
         let config = bot.config.clone();
         let bot_type = bot.bot_type.clone();
 
         let handle = tokio::spawn(async move {
-            let run_id = match db.create_bot_run(bot_id) {
-                Ok(id) => id,
-                Err(e) => {
-                    eprintln!("Failed to create bot run: {}", e);
-                    return;
-                }
-            };
-
             let result = match bot_type.as_str() {
                 "crawler" => CrawlerBot::run(&config, &db, run_id).await,
                 "processor" => {
-                    // Processor runs synchronously in a blocking task
                     let db2 = db.clone();
                     let config2 = config.clone();
                     tokio::task::spawn_blocking(move || ProcessorBot::process(&db2, &config2))
@@ -71,13 +59,11 @@ impl BotScheduler {
                 }
             }
 
-            // Remove from running map
             let mut running = running.lock().await;
             running.remove(&bot_id);
         });
 
-        let mut running = self.running.lock().await;
-        running.insert(bot_id, handle);
+        running_guard.insert(bot_id, handle);
 
         Ok(())
     }

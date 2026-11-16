@@ -1,5 +1,3 @@
-//! Lexical ranking shared by the core and the legacy BM25 agent.
-
 use crate::{context::Context, knowledge::KnowledgeEntry};
 use serde::Serialize;
 use thiserror::Error;
@@ -11,7 +9,6 @@ pub enum SearchAlgorithm {
     Tfidf,
 }
 
-/// Validated Okapi BM25 parameters. k1 must be positive; b is in 0..=1.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Bm25Config {
     k1: f64,
@@ -43,7 +40,6 @@ impl Bm25Config {
         self.b
     }
 
-    /// Score a single term. Empty documents and missing terms contribute zero.
     pub(crate) fn term_score(
         self,
         tf: usize,
@@ -57,7 +53,7 @@ impl Bm25Config {
         }
         let idf = (1.0 + (count as f64 - df as f64 + 0.5) / (df as f64 + 0.5)).ln();
         let tf = tf as f64;
-        // Divide first so even very large, valid k1 values do not overflow.
+
         let norm = 1.0 - self.b + self.b * length as f64 / average;
         if self.k1 >= 1.0 {
             idf * tf * (1.0 + 1.0 / self.k1) / (norm + tf / self.k1)
@@ -72,7 +68,7 @@ pub struct SearchOptions {
     pub limit: usize,
     pub algorithm: SearchAlgorithm,
     pub bm25: Bm25Config,
-    /// Restrict eligible entries. Corpus statistics still refer to the full index.
+
     pub context: Option<Context>,
 }
 
@@ -87,8 +83,6 @@ impl Default for SearchOptions {
     }
 }
 
-/// A positive relevance score, its source entry, and the shared query terms.
-/// BM25 scores are unbounded relevance values, not probabilities.
 #[derive(Debug, Clone, Serialize)]
 pub struct SearchResult<'a> {
     pub entry: &'a KnowledgeEntry,

@@ -1,14 +1,10 @@
-// src/knowledge.rs - Unified Knowledge Base
 use crate::agent::{AgentError, ResponseFormat, TrainingExample};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::fs::{self, File};
-use std::io::Write;
+use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-/// An application-owned identifier, searchable text, and optional application data.
-/// The index validates entries on insertion; original text and metadata are retained.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct KnowledgeEntry {
     pub id: String,
@@ -32,31 +28,27 @@ impl KnowledgeEntry {
     }
 }
 
-/// Only lexical relatedness is inferred. Logical or causal types require external evidence.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RelationKind {
     Related,
 }
 
-/// A proposal, never an automatically stored relationship or a statement of fact.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RelationSuggestion {
     pub source_id: String,
     pub target_id: String,
     pub kind: RelationKind,
-    /// Jaccard similarity after removing the small English/German stopword list.
+
     pub score: f64,
     pub shared_terms: Vec<String>,
 }
 
-/// Represents a flexible knowledge base for storing and managing training examples
 #[derive(Clone)]
 pub struct KnowledgeBase {
     examples: Vec<TrainingExample>,
     file_path: Option<PathBuf>,
 }
 
-/// Compile-time embedded training data
 pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
     let raw = include_str!(concat!(env!("OUT_DIR"), "/train.json"));
 
@@ -70,7 +62,6 @@ pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
 });
 
 impl KnowledgeBase {
-    /// Creates an empty knowledge base
     pub fn new() -> Self {
         Self {
             examples: Vec::new(),
@@ -78,8 +69,6 @@ impl KnowledgeBase {
         }
     }
 
-    /// Creates a knowledge base from embedded data. Without the
-    /// `embedded-knowledge` feature this is empty, so library users embed no demo data.
     pub fn from_embedded() -> Self {
         Self {
             examples: EMBEDDED_DATA.to_vec(),
@@ -87,42 +76,43 @@ impl KnowledgeBase {
         }
     }
 
-    /// Loads a knowledge base from a JSON file
     pub fn load(path: PathBuf) -> Result<Self, AgentError> {
         let data = fs::read_to_string(&path)?;
 
+        let examples: Vec<TrainingExample> = serde_json::from_str(&data)?;
+        for example in &examples {
+            example.validate()?;
+        }
         Ok(Self {
-            examples: serde_json::from_str(&data)?,
+            examples,
             file_path: Some(path),
         })
     }
 
-    /// Saves the knowledge base to a JSON file
     pub fn save(&self, path: Option<PathBuf>) -> Result<(), AgentError> {
         let path = path
             .or_else(|| self.file_path.clone())
             .ok_or_else(|| AgentError::InvalidInputError("No path provided".to_string()))?;
 
+        for example in &self.examples {
+            example.validate()?;
+        }
         let json = serde_json::to_string_pretty(&self.examples)?;
-
-        let mut file = File::create(&path)?;
-        file.write_all(json.as_bytes())?;
+        crate::persistence::atomic_write(&path, json.as_bytes())?;
 
         Ok(())
     }
 
-    /// Adds a new training example to the knowledge base
     pub fn add_example(&mut self, input: String, output: impl Into<ResponseFormat>, weight: f32) {
         let example = TrainingExample {
             input,
             output: output.into(),
             weight,
-            metadata: None, // Standardmäßig keine Metadaten
+            metadata: None,
         };
         self.examples.push(example);
     }
 
-    /// Removes a training example by its index
     pub fn remove_example(&mut self, index: usize) -> Result<TrainingExample, AgentError> {
         if index < self.examples.len() {
             Ok(self.examples.remove(index))
@@ -131,12 +121,10 @@ impl KnowledgeBase {
         }
     }
 
-    /// Returns a reference to all training examples
     pub fn get_examples(&self) -> &[TrainingExample] {
         &self.examples
     }
 
-    /// Preserve complete examples, including import provenance and custom metadata.
     pub fn from_examples(examples: Vec<TrainingExample>) -> Self {
         Self {
             examples,
@@ -144,23 +132,19 @@ impl KnowledgeBase {
         }
     }
 
-    /// Append a complete training example without discarding metadata.
     pub fn push_example(&mut self, example: TrainingExample) {
         self.examples.push(example);
     }
 
-    /// Merges another knowledge base into the current one
     pub fn merge(&mut self, other: &KnowledgeBase) {
         self.examples.extend_from_slice(&other.examples);
     }
 
-    /// Merges embedded data into the current knowledge base
     pub fn merge_embedded(&mut self) {
         self.examples.extend_from_slice(&EMBEDDED_DATA);
     }
 }
 
-// Default implementation for creating a new knowledge base
 impl Default for KnowledgeBase {
     fn default() -> Self {
         Self::new()
@@ -172,8 +156,6 @@ mod tests {
     use super::*;
     use std::io::Write;
     use tempfile::NamedTempFile;
-
-    // === Constructor Tests ===
 
     #[test]
     fn test_new_creates_empty() {
@@ -190,12 +172,9 @@ mod tests {
     #[test]
     fn test_from_embedded() {
         let kb = KnowledgeBase::from_embedded();
-        // from_embedded should load data (may be empty if build has no training data)
-        // Just verify it doesn't panic and returns a valid KnowledgeBase
+
         let _ = kb.get_examples();
     }
-
-    // === CRUD Tests ===
 
     #[test]
     fn test_add_example() {
@@ -248,8 +227,6 @@ mod tests {
         assert_eq!(kb.get_examples()[1].input, "second");
         assert_eq!(kb.get_examples()[2].input, "third");
     }
-
-    // === Merge Tests ===
 
     #[test]
     fn test_merge_into_empty() {
@@ -304,8 +281,6 @@ mod tests {
             .collect();
         assert_eq!(inputs, vec!["a", "b", "c", "d"]);
     }
-
-    // === File I/O Tests ===
 
     #[test]
     fn test_save_load_roundtrip() {

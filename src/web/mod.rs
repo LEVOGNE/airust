@@ -2,6 +2,7 @@ pub mod bots;
 pub mod console;
 pub mod db;
 pub mod routes;
+pub mod security;
 pub mod state;
 pub mod vectordb;
 
@@ -214,21 +215,26 @@ pub async fn start_server(port: u16, show_landing: bool) {
             return;
         }
     };
-    // Console command channel
+    let security = match security::SecurityConfig::from_environment(bind_ip, port) {
+        Ok(config) => Arc::new(config),
+        Err(error) => {
+            eprintln!("Invalid server security configuration: {error}");
+            return;
+        }
+    };
+
     let (cmd_tx, mut cmd_rx) = tokio::sync::mpsc::channel::<console::ServerCommand>(8);
     let server_running = Arc::new(AtomicBool::new(false));
 
     let console = ConsoleState::new(cmd_tx, server_running.clone());
     console.push_log("info", "Initializing AIRust...").await;
 
-    // Initialize database
     let database = Database::open("airust.db").expect("Failed to open database");
     let db = Arc::new(database);
     console
         .push_log("info", "Database loaded (airust.db)")
         .await;
 
-    // Initialize default state
     let kb = KnowledgeBase::from_embedded();
     let kb_size = kb.get_examples().len();
 
@@ -262,7 +268,6 @@ pub async fn start_server(port: u16, show_landing: bool) {
         show_landing,
     }));
 
-    // Load persistent training data
     {
         let mut s = state.write().await;
         if let Err(e) = routes::rebuild_kb_from_db_public(&mut s) {
@@ -277,12 +282,16 @@ pub async fn start_server(port: u16, show_landing: bool) {
         .push_log("info", &format!("Knowledge base: {} examples", kb_size))
         .await;
 
-    // ── Start console WebSocket server on port+1 (always running) ──
     let console_for_ws = console.clone();
+    let console_security = security.clone();
     tokio::spawn(async move {
         let console_app = axum::Router::new()
             .route("/ws/console", axum::routing::get(console::ws_console))
-            .layer(axum::Extension(console_for_ws));
+            .layer(axum::Extension(console_for_ws))
+            .layer(axum::middleware::from_fn_with_state(
+                (console_security, true),
+                security::protect,
+            ));
 
         let addr = std::net::SocketAddr::new(bind_ip, console_port);
         let listener = match tokio::net::TcpListener::bind(addr).await {
@@ -302,12 +311,16 @@ pub async fn start_server(port: u16, show_landing: bool) {
         )
         .await;
 
-    // ── Main server control loop ──
     let mut should_start = true;
 
     loop {
         if should_start {
-            let app = build_main_router(state.clone());
+            let app = build_main_router(state.clone())
+                .layer(axum::extract::DefaultBodyLimit::max(8 * 1024 * 1024))
+                .layer(axum::middleware::from_fn_with_state(
+                    (security.clone(), false),
+                    security::protect,
+                ));
 
             let addr = std::net::SocketAddr::new(bind_ip, port);
             let listener = match tokio::net::TcpListener::bind(addr).await {
@@ -331,7 +344,6 @@ pub async fn start_server(port: u16, show_landing: bool) {
                 .await;
             println!("AIRust web server running at http://localhost:{}", port);
 
-            // Shutdown signal for graceful shutdown
             let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel::<()>();
             let mut shutdown_tx = Some(shutdown_tx);
 
@@ -343,7 +355,6 @@ pub async fn start_server(port: u16, show_landing: bool) {
                     .await
             });
 
-            // Wait for command OR server crash
             loop {
                 tokio::select! {
                     cmd = cmd_rx.recv() => {
@@ -361,11 +372,9 @@ pub async fn start_server(port: u16, show_landing: bool) {
                                 let _ = server_handle.await;
                                 server_running.store(false, Ordering::SeqCst);
 
-                                // 1. Delete DB
                                 console.push_log("warn", "Deleting airust.db...").await;
                                 let _ = std::fs::remove_file("airust.db");
 
-                                // 2. Reopen DB + rebuild state
                                 console.push_log("info", "Reinitializing...").await;
                                 let new_database = Database::open("airust.db").expect("Failed to open database");
                                 let new_db = Arc::new(new_database);
@@ -399,7 +408,6 @@ pub async fn start_server(port: u16, show_landing: bool) {
                                 console.push_log("info", &format!("Knowledge base: {} examples", state.read().await.knowledge_base.get_examples().len())).await;
                                 console.push_log("info", "Reset complete, restarting server...").await;
 
-                                // Send refresh signal to clients
                                 let _ = console.tx.send(console::LogEntry {
                                     timestamp: chrono::Utc::now().format("%H:%M:%S").to_string(),
                                     level: "info".to_string(),
@@ -425,7 +433,6 @@ pub async fn start_server(port: u16, show_landing: bool) {
                 }
             }
         } else {
-            // Server stopped — wait for command
             match cmd_rx.recv().await {
                 Some(console::ServerCommand::Restart) => {
                     should_start = true;

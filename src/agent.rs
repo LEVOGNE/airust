@@ -1,54 +1,40 @@
-// src/agent.rs - Erweiterte Trait-Hierarchie und Basistypen
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use thiserror::Error;
 
-/// Fehlertypen für Agent-Operationen
 #[derive(Error, Debug)]
 pub enum AgentError {
-    /// Keine passende Antwort in der Wissensbasis gefunden
-    #[error("Keine passende Antwort gefunden")]
+    #[error("No matching answer found")]
     NoMatchError,
 
-    /// Keine Trainingsdaten vorhanden
-    #[error("Keine Trainingsdaten verfügbar")]
+    #[error("No training data available")]
     NoTrainingDataError,
 
-    /// Trainingsfehler
-    #[error("Trainingsfehler: {0}")]
+    #[error("Training error: {0}")]
     TrainingError(String),
 
-    /// Ungültige Eingabe
-    #[error("Ungültige Eingabe: {0}")]
+    #[error("Invalid input: {0}")]
     InvalidInputError(String),
 
-    /// Interner Fehler
-    #[error("Interner Fehler: {0}")]
+    #[error("Internal error: {0}")]
     InternalError(String),
 
-    /// I/O-Fehler beim Lesen oder Schreiben von Dateien
-    #[error("I/O-Fehler: {0}")]
+    #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
 
-    /// Serialisierungs-/Deserialisierungsfehler
-    #[error("Serialisierungsfehler: {0}")]
+    #[error("Serialization error: {0}")]
     SerializationError(#[from] serde_json::Error),
 
-    /// Index außerhalb des gültigen Bereichs
-    #[error("Index {0} außerhalb des gültigen Bereichs")]
+    #[error("Index {0} is out of bounds")]
     IndexOutOfBounds(usize),
 }
 
-/// Repräsentiert die möglichen Antwortformate eines Agenten
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ResponseFormat {
-    /// Einfacher Textstring ohne Formatierung
     Text(String),
 
-    /// Text im Markdown-Format mit Unterstützung für Formatierung
     Markdown(String),
 
-    /// Strukturierte Daten im JSON-Format
     Json(serde_json::Value),
 }
 
@@ -68,7 +54,6 @@ impl fmt::Display for ResponseFormat {
     }
 }
 
-// Konvertierung von ResponseFormat zu String für Rückwärtskompatibilität
 impl From<ResponseFormat> for String {
     fn from(format: ResponseFormat) -> Self {
         match format {
@@ -91,23 +76,29 @@ impl From<&str> for ResponseFormat {
     }
 }
 
-/// Training Example - Die Grundeinheit für das Training von Agenten
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct TrainingExample {
-    /// Die Eingabe (z.B. eine Frage oder ein Prompt)
     pub input: String,
 
-    /// Die erwartete Ausgabe
     #[serde(deserialize_with = "deserialize_response")]
     pub output: ResponseFormat,
 
-    /// Gewichtung des Beispiels (höhere Werte bedeuten höhere Priorität)
     #[serde(default = "default_weight")]
     pub weight: f32,
 
-    /// Optionale Metadaten für das Beispiel
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metadata: Option<serde_json::Value>,
+}
+
+impl TrainingExample {
+    pub fn validate(&self) -> Result<(), AgentError> {
+        if !self.weight.is_finite() || self.weight < 0.0 {
+            return Err(AgentError::InvalidInputError(
+                "training weight must be finite and nonnegative".to_owned(),
+            ));
+        }
+        Ok(())
+    }
 }
 
 fn deserialize_response<'de, D: serde::Deserializer<'de>>(
@@ -125,7 +116,6 @@ fn deserialize_response<'de, D: serde::Deserializer<'de>>(
     })
 }
 
-/// Für die Rückwärtskompatibilität mit älteren Versionen
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct LegacyTrainingExample {
     pub input: String,
@@ -145,21 +135,16 @@ impl From<LegacyTrainingExample> for TrainingExample {
     }
 }
 
-/// Standardgewicht für Trainingsbeispiele
 pub fn default_weight() -> f32 {
     1.0
 }
 
-/// Ergebnis einer Vorhersage mit zusätzlichen Metadaten
 #[derive(Debug, Clone)]
 pub struct PredictionResult {
-    /// Die vorhergesagte Antwort
     pub response: ResponseFormat,
 
-    /// Konfidenz der Vorhersage (0.0 - 1.0)
     pub confidence: f32,
 
-    /// Optionale Metadaten zur Vorhersage
     pub metadata: Option<serde_json::Value>,
 }
 
@@ -179,12 +164,9 @@ impl From<PredictionResult> for ResponseFormat {
     }
 }
 
-/// Haupttrait für alle Agenten - definiert die grundlegende Funktionalität
 pub trait Agent {
-    /// Verarbeitet eine Eingabe und gibt eine passende Antwort zurück
     fn predict(&self, input: &str) -> ResponseFormat;
 
-    /// Erweiterte Vorhersage mit Metadaten und Konfidenz
     fn predict_with_metadata(&self, input: &str) -> PredictionResult {
         PredictionResult {
             response: self.predict(input),
@@ -193,7 +175,6 @@ pub trait Agent {
         }
     }
 
-    /// Bestimmt die Konfidenz des Agenten für eine bestimmte Eingabe (0.0 - 1.0)
     fn confidence(&self, input: &str) -> f32 {
         let response = self.predict(input);
         match response {
@@ -207,31 +188,24 @@ pub trait Agent {
         }
     }
 
-    /// Prüft, ob der Agent die Eingabe beantworten kann
     fn can_answer(&self, input: &str) -> bool {
         self.confidence(input) > 0.5
     }
 
-    /// Hilfsmethode für Rückwärtskompatibilität
     fn predict_text(&self, input: &str) -> String {
         self.predict(input).into()
     }
 }
 
-/// Trait für Agenten, die mit Beispielen trainiert werden können
 pub trait TrainableAgent: Agent {
-    /// Trainiert den Agenten mit einer Liste von Beispielen (ersetzt alle vorherigen Daten)
     fn train(&mut self, data: &[TrainingExample]);
 
-    /// Fügt Beispiele hinzu ohne vorherige Daten zu ersetzen
     fn append(&mut self, data: &[TrainingExample]);
 
-    /// Fügt ein einzelnes Beispiel hinzu (ohne vorherige Daten zu ersetzen)
     fn train_single(&mut self, example: &TrainingExample) {
         self.append(std::slice::from_ref(example));
     }
 
-    /// Hilfsmethode für das Training mit Legacy-Daten
     fn train_legacy(&mut self, data: &[LegacyTrainingExample]) {
         let converted: Vec<TrainingExample> = data
             .iter()
@@ -246,7 +220,6 @@ pub trait TrainableAgent: Agent {
         self.train(&converted);
     }
 
-    /// Fügt ein neues Trainingsbeispiel hinzu (ohne vorherige Daten zu ersetzen)
     fn add_example(&mut self, input: &str, output: impl Into<ResponseFormat>, weight: f32) {
         let example = TrainingExample {
             input: input.to_string(),
@@ -258,39 +231,29 @@ pub trait TrainableAgent: Agent {
     }
 }
 
-/// Trait für Agenten, die Kontextinformationen nutzen können
 pub trait ContextualAgent: Agent {
-    /// Fügt eine Frage-Antwort-Paar zum Kontext hinzu
     fn add_context(&mut self, question: String, answer: ResponseFormat);
 
-    /// Hilfsmethode für Textantworten
     fn add_text_context(&mut self, question: String, answer: String) {
         self.add_context(question, ResponseFormat::Text(answer));
     }
 
-    /// Leert den Kontext
     fn clear_context(&mut self);
 }
 
-/// Trait für Agenten, die Konfidenzwerte für ihre Vorhersagen bereitstellen
 pub trait ConfidenceAgent: Agent {
-    /// Berechnet einen detaillierten Konfidenzwert für eine Eingabe
     fn calculate_confidence(&self, input: &str) -> f32;
 
-    /// Gibt mehrere Antworten mit Konfidenzwerten zurück
     fn predict_top_n(&self, input: &str, n: usize) -> Vec<PredictionResult>;
 }
 
-/// Allgemeine Textverarbeitungsfunktionen
 pub mod text_utils {
     use once_cell::sync::Lazy;
     use regex::Regex;
     use std::collections::HashSet;
 
-    /// Regulärer Ausdruck zur Identifizierung von Wortzeichen
     pub static WORD_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[^\p{L}\p{N}]").unwrap());
 
-    /// Stopwörter für verschiedene Sprachen
     pub static STOPWORDS_DE: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         [
             "der", "die", "das", "und", "in", "ist", "von", "mit", "zum", "zur", "zu", "ein",
@@ -310,21 +273,18 @@ pub mod text_utils {
         .collect()
     });
 
-    /// Tokenisiert Text in einzelne Wörter
     pub fn tokenize(text: &str) -> Vec<String> {
         crate::text::tokenize(text)
     }
 
-    /// Findet eindeutige Begriffe in einem Text
     pub fn unique_terms(text: &str) -> HashSet<String> {
         tokenize(text).into_iter().collect()
     }
 
-    /// Entfernt Stoppwörter aus einer Liste von Tokens
     pub fn remove_stopwords(tokens: Vec<String>, lang: &str) -> Vec<String> {
         let stopwords = match lang.to_lowercase().as_str() {
             "de" | "deu" | "german" => &STOPWORDS_DE,
-            _ => &STOPWORDS_EN, // Standardmäßig Englisch
+            _ => &STOPWORDS_EN,
         };
 
         tokens
@@ -333,12 +293,10 @@ pub mod text_utils {
             .collect()
     }
 
-    /// Berechnet Levenshtein-Distanz zwischen zwei Strings
     pub fn levenshtein_distance(a: &str, b: &str) -> usize {
         crate::matching::levenshtein_distance(a, b)
     }
 
-    /// Berechnet die Jaccard-Ähnlichkeit zwischen zwei Strings
     pub fn jaccard_similarity(a: &str, b: &str) -> f32 {
         let set_a: HashSet<_> = tokenize(a).into_iter().collect();
         let set_b: HashSet<_> = tokenize(b).into_iter().collect();
@@ -353,7 +311,6 @@ pub mod text_utils {
         }
     }
 
-    /// Erstellt N-Gramme aus einem Text
     pub fn create_ngrams(text: &str, n: usize) -> Vec<String> {
         if text.is_empty() || n == 0 {
             return Vec::new();
@@ -369,7 +326,6 @@ pub mod text_utils {
             .collect()
     }
 
-    /// Normalisiert Text für verschiedene Verarbeitungsschritte
     pub fn normalize_text(text: &str) -> String {
         crate::text::normalize(text)
     }
@@ -378,8 +334,6 @@ pub mod text_utils {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // === ResponseFormat Tests ===
 
     #[test]
     fn test_response_format_conversion() {
@@ -435,8 +389,6 @@ mod tests {
         assert_eq!(s, "**bold**");
     }
 
-    // === LegacyTrainingExample Tests ===
-
     #[test]
     fn test_legacy_conversion() {
         let legacy = LegacyTrainingExample {
@@ -463,8 +415,6 @@ mod tests {
         assert!(modern.metadata.is_none());
     }
 
-    // === PredictionResult Tests ===
-
     #[test]
     fn test_prediction_result_from_response_format() {
         let rf = ResponseFormat::Text("answer".to_string());
@@ -484,8 +434,6 @@ mod tests {
         let rf: ResponseFormat = pr.into();
         assert_eq!(String::from(rf), "result");
     }
-
-    // === Tokenize Tests ===
 
     #[test]
     fn test_text_utils() {
@@ -532,8 +480,6 @@ mod tests {
         assert_eq!(tokens, vec!["hello", "world"]);
     }
 
-    // === unique_terms Tests ===
-
     #[test]
     fn test_unique_terms_empty() {
         assert!(text_utils::unique_terms("").is_empty());
@@ -545,8 +491,6 @@ mod tests {
         assert_eq!(unique.len(), 1);
         assert!(unique.contains("hello"));
     }
-
-    // === remove_stopwords Tests ===
 
     #[test]
     fn test_remove_stopwords_english() {
@@ -571,7 +515,7 @@ mod tests {
     #[test]
     fn test_remove_stopwords_german_variants() {
         let tokens = vec!["hund".to_string()];
-        // "deu" and "german" should also use German stopwords
+
         let filtered_deu = text_utils::remove_stopwords(tokens.clone(), "deu");
         assert_eq!(filtered_deu, vec!["hund"]);
         let filtered_german = text_utils::remove_stopwords(tokens, "german");
@@ -594,8 +538,6 @@ mod tests {
         let filtered = text_utils::remove_stopwords(tokens, "en");
         assert!(filtered.is_empty());
     }
-
-    // === levenshtein_distance Tests ===
 
     #[test]
     fn test_levenshtein_identical() {
@@ -635,8 +577,6 @@ mod tests {
         assert_eq!(text_utils::levenshtein_distance("über", "uber"), 1);
     }
 
-    // === jaccard_similarity Tests ===
-
     #[test]
     fn test_jaccard_identical() {
         assert_eq!(
@@ -654,7 +594,7 @@ mod tests {
     fn test_jaccard_partial() {
         let sim = text_utils::jaccard_similarity("hello world", "hello");
         assert!(sim > 0.0 && sim < 1.0);
-        // intersection = {hello}, union = {hello, world} => 1/2
+
         assert!((sim - 0.5).abs() < f32::EPSILON);
     }
 
@@ -670,8 +610,6 @@ mod tests {
         assert_eq!(s1, s2);
         assert_eq!(s1, 1.0);
     }
-
-    // === create_ngrams Tests ===
 
     #[test]
     fn test_ngrams_basic() {
@@ -707,8 +645,6 @@ mod tests {
         assert_eq!(ngrams, vec!["abc"]);
     }
 
-    // === normalize_text Tests ===
-
     #[test]
     fn test_normalize_text_lowercase() {
         assert_eq!(text_utils::normalize_text("HELLO"), "hello");
@@ -721,7 +657,6 @@ mod tests {
 
     #[test]
     fn test_normalize_text_nfkd() {
-        // NFKD decomposes characters, e.g. "ﬁ" (U+FB01) -> "fi"
         let normalized = text_utils::normalize_text("ﬁle");
         assert_eq!(normalized, "file");
     }

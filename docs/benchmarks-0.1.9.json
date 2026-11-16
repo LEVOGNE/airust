@@ -1,0 +1,209 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "memory_bytes": 68719476736,
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "profile": "release",
+  "corpus": "Short synthetic records with 10,000 bucket terms; 300 warm selective queries per run; top 10 results. No relevance-quality labels.",
+  "command": "/usr/bin/time -l target/release/examples/index_benchmark ENTRY_COUNT 300",
+  "runs": [
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 20.100709000000002,
+      "delete_total_ms": 0.7919999999999999,
+      "entries": 10000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 1.334,
+      "search_p95_us": 2.0,
+      "search_p99_us": 2.5,
+      "stats_after_delete": {
+        "entries": 9000,
+        "terms": 9040,
+        "tokens": 45000
+      },
+      "total_hits": 300,
+      "update_total_ms": 2.534291,
+      "repeat": 1,
+      "peak_rss_bytes": 26132480
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 19.533208,
+      "delete_total_ms": 0.7595,
+      "entries": 10000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 1.167,
+      "search_p95_us": 1.666,
+      "search_p99_us": 2.375,
+      "stats_after_delete": {
+        "entries": 9000,
+        "terms": 9040,
+        "tokens": 45000
+      },
+      "total_hits": 300,
+      "update_total_ms": 2.532458,
+      "repeat": 2,
+      "peak_rss_bytes": 26148864
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 19.429291000000003,
+      "delete_total_ms": 0.762625,
+      "entries": 10000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 1.208,
+      "search_p95_us": 1.75,
+      "search_p99_us": 2.167,
+      "stats_after_delete": {
+        "entries": 9000,
+        "terms": 9040,
+        "tokens": 45000
+      },
+      "total_hits": 300,
+      "update_total_ms": 2.40575,
+      "repeat": 3,
+      "peak_rss_bytes": 26116096
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 221.44033399999998,
+      "delete_total_ms": 0.996208,
+      "entries": 100000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 12.542,
+      "search_p95_us": 28.708,
+      "search_p99_us": 38.75,
+      "stats_after_delete": {
+        "entries": 99000,
+        "terms": 10040,
+        "tokens": 495000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.604042,
+      "repeat": 1,
+      "peak_rss_bytes": 189726720
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 223.014042,
+      "delete_total_ms": 0.6880000000000001,
+      "entries": 100000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 12.708,
+      "search_p95_us": 25.416,
+      "search_p99_us": 38.083,
+      "stats_after_delete": {
+        "entries": 99000,
+        "terms": 10040,
+        "tokens": 495000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.675583,
+      "repeat": 2,
+      "peak_rss_bytes": 189710336
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 226.697542,
+      "delete_total_ms": 0.830792,
+      "entries": 100000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 11.625,
+      "search_p95_us": 20.25,
+      "search_p99_us": 28.875,
+      "stats_after_delete": {
+        "entries": 99000,
+        "terms": 10040,
+        "tokens": 495000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.981042,
+      "repeat": 3,
+      "peak_rss_bytes": 189792256
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 2544.711042,
+      "delete_total_ms": 0.822541,
+      "entries": 1000000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 195.625,
+      "search_p95_us": 359.625,
+      "search_p99_us": 456.25,
+      "stats_after_delete": {
+        "entries": 999000,
+        "terms": 10040,
+        "tokens": 4995000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.872792,
+      "repeat": 1,
+      "peak_rss_bytes": 1605140480
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 2617.330958,
+      "delete_total_ms": 0.799459,
+      "entries": 1000000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 195.584,
+      "search_p95_us": 323.042,
+      "search_p99_us": 400.541,
+      "stats_after_delete": {
+        "entries": 999000,
+        "terms": 10040,
+        "tokens": 4995000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.9957920000000002,
+      "repeat": 2,
+      "peak_rss_bytes": 1605058560
+    },
+    {
+      "airust_version": "0.1.9",
+      "bucket_count": 10000,
+      "build_ms": 2467.303917,
+      "delete_total_ms": 0.8294170000000001,
+      "entries": 1000000,
+      "mutations": 1000,
+      "queries": 300,
+      "result_limit": 10,
+      "search_p50_us": 204.25,
+      "search_p95_us": 354.583,
+      "search_p99_us": 421.292,
+      "stats_after_delete": {
+        "entries": 999000,
+        "terms": 10040,
+        "tokens": 4995000
+      },
+      "total_hits": 3000,
+      "update_total_ms": 2.837417,
+      "repeat": 3,
+      "peak_rss_bytes": 1605124096
+    }
+  ]
+}

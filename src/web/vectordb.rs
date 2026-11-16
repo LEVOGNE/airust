@@ -11,7 +11,6 @@ pub struct SearchResult {
     pub score: f64,
 }
 
-/// Build vocabulary from a list of documents (all unique terms)
 pub fn build_vocabulary(docs: &[&str]) -> Vec<String> {
     let mut vocab_set: std::collections::HashSet<String> = std::collections::HashSet::new();
     for doc in docs {
@@ -24,7 +23,6 @@ pub fn build_vocabulary(docs: &[&str]) -> Vec<String> {
     vocab
 }
 
-/// Compute document frequencies: how many documents each term appears in
 pub fn compute_doc_frequencies(docs: &[&str]) -> HashMap<String, f64> {
     let mut df: HashMap<String, f64> = HashMap::new();
     for doc in docs {
@@ -36,7 +34,6 @@ pub fn compute_doc_frequencies(docs: &[&str]) -> HashMap<String, f64> {
     df
 }
 
-/// Compute TF-IDF vector for a text given vocabulary, document frequencies, and total doc count
 pub fn tfidf_vector(
     text: &str,
     vocab: &[String],
@@ -49,7 +46,6 @@ pub fn tfidf_vector(
         return vec![0.0; vocab.len()];
     }
 
-    // Compute term frequencies
     let mut tf: HashMap<String, f64> = HashMap::new();
     for token in &tokens {
         *tf.entry(token.clone()).or_insert(0.0) += 1.0;
@@ -70,7 +66,6 @@ pub fn tfidf_vector(
         .collect()
 }
 
-/// Cosine similarity between two vectors
 pub fn cosine_similarity(a: &[f64], b: &[f64]) -> f64 {
     if a.len() != b.len() || a.is_empty() {
         return 0.0;
@@ -84,7 +79,6 @@ pub fn cosine_similarity(a: &[f64], b: &[f64]) -> f64 {
     dot / (mag_a * mag_b)
 }
 
-/// Perform similarity search across entries in a collection
 pub fn similarity_search(
     query: &str,
     entries: &[VectorEntryRow],
@@ -94,16 +88,13 @@ pub fn similarity_search(
         return Vec::new();
     }
 
-    // Build docs list from entries
     let docs: Vec<&str> = entries.iter().map(|e| e.content.as_str()).collect();
     let vocab = build_vocabulary(&docs);
     let df = compute_doc_frequencies(&docs);
     let total_docs = docs.len() as f64;
 
-    // Compute query vector
     let query_vec = tfidf_vector(query, &vocab, &df, total_docs);
 
-    // Compute similarity for each entry
     let mut scored: Vec<SearchResult> = entries
         .iter()
         .map(|entry| {
@@ -118,7 +109,6 @@ pub fn similarity_search(
         })
         .collect();
 
-    // Sort by score descending
     scored.sort_by(|a, b| {
         b.score
             .partial_cmp(&a.score)
@@ -126,11 +116,9 @@ pub fn similarity_search(
     });
     scored.truncate(top_k);
 
-    // Filter out zero-score results
     scored.into_iter().filter(|r| r.score > 0.0).collect()
 }
 
-/// Compute embedding for storage (JSON-serialized TF-IDF vector)
 pub fn compute_embedding_for_storage(content: &str, existing_entries: &[VectorEntryRow]) -> String {
     let mut docs: Vec<&str> = existing_entries
         .iter()

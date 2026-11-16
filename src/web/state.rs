@@ -8,7 +8,6 @@ use crate::web::db::Database;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// Wraps all agent types into a single enum for dynamic dispatch in web state
 pub enum AgentWrapper {
     Exact(MatchAgent),
     Fuzzy(MatchAgent),
@@ -71,7 +70,6 @@ pub struct AppState {
 }
 
 impl AppState {
-    /// Query all active agents, return the result with highest confidence.
     pub fn query_best(&self, input: &str) -> (PredictionResult, String) {
         let mut best_result: Option<PredictionResult> = None;
         let mut best_agent = String::new();
@@ -89,7 +87,6 @@ impl AppState {
             }
         }
 
-        // Fallback: if no active agent matched, use first agent
         if best_result.is_none() {
             if let Some(agent) = self.agents.first() {
                 let result = agent.predict_with_metadata(input);
@@ -111,14 +108,12 @@ impl AppState {
         }
     }
 
-    /// Train all agents with the given examples.
     pub fn train_all(&mut self, data: &[TrainingExample]) {
         for agent in &mut self.agents {
             agent.train(data);
         }
     }
 
-    /// Add context to the context agent (if active).
     pub fn add_context_to_agents(&mut self, question: String, answer: ResponseFormat) {
         for agent in &mut self.agents {
             if self.active_agents.contains(&agent.name().to_string()) {
@@ -127,7 +122,6 @@ impl AppState {
         }
     }
 
-    /// Get a display name for active agents.
     pub fn active_agents_display(&self) -> String {
         self.active_agents.join(", ")
     }

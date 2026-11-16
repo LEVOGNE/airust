@@ -1,162 +1,166 @@
-# AIRust 0.1.8
+# AIRust 0.1.9
 
 **A Modular Knowledge Intelligence Engine**
 
-AIRust ist eine kleine Wissensbibliothek für Rust. Sie findet passende Texte, erkennt ähnliche Inhalte und schlägt mögliche Verbindungen vor. Anwendungen wie DenkMaps oder MCP-Agenten können sie direkt verwenden.
+AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Du gibst AIRust Einträge mit einer ID, einem Text und optionalen Zusatzdaten. AIRust liefert Ergebnisse zurück. Deine Anwendung entscheidet, wie sie diese anzeigt und speichert.
+Version 0.1.9 adds English documentation and interfaces, safer persistence and process controls, and hardened optional web tools. See the [release notes](https://github.com/LEVOGNE/airust/releases/tag/v0.1.9) and [crates.io package](https://crates.io/crates/airust/0.1.9).
 
-## Die drei Aufgaben
+## What it does
 
-| Aufgabe | Was passiert? | Wozu ist das gut? |
+| Operation | Result | Useful for |
 | --- | --- | --- |
-| `search()` | Findet Texte mit passenden Suchbegriffen. BM25 ordnet die Treffer. TF-IDF ist als weiterer Suchmodus verfügbar. | Notizen, Dokumentabschnitte und Wissen schnell wiederfinden. |
-| `find_matches()` | Vergleicht Schreibweisen und Wörter. Erkennt gleiche Texte und Tippfehler. In Rust geht auch `r#match()`. | Doppelte oder ähnliche Einträge entdecken. |
-| `relate()` | Schlägt Einträge mit gemeinsamen Begriffen vor. Jeder Vorschlag nennt diese Begriffe. | Mögliche Verbindungen prüfen und anschließend selbst übernehmen. |
+| `search()` | Relevant entries ranked with BM25. TF-IDF is also available. | Finding notes and document passages. |
+| `find_matches()` | Exact matches, spelling similarity, or shared words. Rust also accepts `r#match()`. | Reviewing duplicates and similar content. |
+| `relate()` | Suggested connections with the shared terms that explain them. | Helping users review possible links. |
 
-BM25 und Textvergleich arbeiten mit Wörtern und Zeichen. Sie erkennen nicht automatisch, dass „Auto anmelden“ und „Kfz-Zulassung durchführen“ dasselbe bedeuten. Dafür kann eine Anwendung später ein Sprachmodell oder semantische Embeddings ergänzen. AIRust selbst benötigt kein LLM.
+These methods compare words and characters. They do not automatically recognize synonyms or infer meaning. A calling application can add a language model or semantic embeddings when it needs those capabilities. AIRust has no required LLM dependency.
 
-`relate()` erkennt in dieser Version keine Voraussetzungen, Unterthemen oder Widersprüche. Es speichert auch keine Beziehungen als Tatsachen.
+A relationship suggestion is evidence of shared words. The application must decide whether that evidence supports a useful connection, hierarchy, prerequisite, or contradiction.
 
-## Direkt ausprobieren
+## Try the source checkout
 
-Du brauchst Rust und Cargo. Das Projekt verlangt mindestens Rust 1.89. Der lokale Prüfstand verwendet Rust 1.98.0.
-
-Im Projektordner:
+Use Rust 1.89 or newer. From the project directory:
 
 ```bash
 cargo run --locked --example core
 ```
 
-Das Beispiel zeigt Suche, ähnliche Texte, Duplikate, Verbindungsvorschläge, Filter und das Speichern als JSON. Es startet keinen Webserver und benötigt keine Zugangsdaten.
+The example demonstrates search, text comparison, duplicates, relation suggestions, filters, and JSON round trips.
 
-## In deine Anwendung einbauen
+## Add AIRust to an application
 
-Füge AIRust als Abhängigkeit in deine `Cargo.toml` ein:
+Add AIRust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = "0.1.8"
+airust = "0.1.9"
 ```
 
-Für die Arbeit am Quellcode kannst du stattdessen den lokalen Ordner mit `airust = { path = "../airust-master" }` einbinden. Versionen und Downloads findest du auf [crates.io](https://crates.io/crates/airust).
+For local source development, use the checkout path instead:
 
-Ein vollständiges Beispiel:
+```toml
+[dependencies]
+airust = { path = "../airust-master" }
+```
+
+A complete example:
 
 ```rust
 use airust::{Engine, KnowledgeEntry};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut wissen = Engine::new();
-    wissen.upsert(KnowledgeEntry::new(
-        "notiz-1",
-        "Rust schützt den Speicher ohne Garbage Collector.",
+    let mut knowledge = Engine::new();
+    knowledge.upsert(KnowledgeEntry::new(
+        "note-1",
+        "Rust provides memory safety without a garbage collector.",
     ))?;
-    wissen.upsert(KnowledgeEntry::new(
-        "notiz-2",
-        "Python eignet sich für Skripte.",
+    knowledge.upsert(KnowledgeEntry::new(
+        "note-2",
+        "Python is useful for scripting.",
     ))?;
 
-    let treffer = wissen.search("Rust Speicher", 5);
-    assert_eq!(treffer[0].entry.id, "notiz-1");
-    println!("{}", treffer[0].entry.text);
+    let results = knowledge.search("Rust memory", 5);
+    assert_eq!(results[0].entry.id, "note-1");
+    println!("{}", results[0].entry.text);
 
-    let aehnlich = wissen.find_matches(
-        "Rust schützt den Speicher ohne Garbage Collector.",
+    let matches = knowledge.find_matches(
+        "Rust provides memory safety without a garbage collector.",
         5,
     );
-    assert_eq!(aehnlich[0].score, 1.0);
+    assert_eq!(matches[0].score, 1.0);
 
-    // Dieselbe ID ersetzt einen Eintrag. Der Index wird dabei aktualisiert.
-    wissen.upsert(KnowledgeEntry::new("notiz-2", "Python hilft bei Automatisierung."))?;
-    wissen.remove("notiz-2");
+    knowledge.upsert(KnowledgeEntry::new("note-2", "Python helps with automation."))?;
+    knowledge.remove("note-2");
 
-    // JSON enthält die Einträge. Der Suchindex wird beim Laden neu aufgebaut.
-    let geladen = Engine::from_json(&wissen.to_json()?)?;
-    assert_eq!(geladen.len(), 1);
+    let restored = Engine::from_json(&knowledge.to_json()?)?;
+    assert_eq!(restored.len(), 1);
     Ok(())
 }
 ```
 
-Die IDs gehören deiner Anwendung. Verwende zum Beispiel bestehende Knoten-IDs aus DenkMaps. AIRust kennt weder Mindmaps noch deren Darstellung.
+Your application owns the IDs, storage model, and presentation. AIRust accepts the same entry format from document tools, graph applications, and agent services.
 
-Suchtreffer enthalten den ursprünglichen Eintrag, seinen Rangwert und die passenden Begriffe. Kein Treffer ergibt eine leere Liste. BM25-Werte sind Rangwerte, keine Wahrscheinlichkeiten. Bei gleichem Rang entscheidet die ID, damit die Reihenfolge nachvollziehbar bleibt.
+Search results contain the original entry, a relevance score, and matching terms. A query without a match returns an empty list. BM25 scores are relevance values, not probabilities. Equal scores use ascending entry IDs for a stable order.
 
-## Der Kern bleibt klein
+## Optional integrations
 
-Standardmäßig wird nur die Bibliothek gebaut. PDF, Webserver, Datenbank, Bots und Beispielwissen sind ausgeschaltet.
+The default build is the library. PDF processing, HTTP, SQLite, bots, command-line programs, and embedded sample knowledge are enabled explicitly.
 
-| Cargo-Funktion | Schaltet ein |
+| Cargo feature | Enables |
 | --- | --- |
-| Keine | Wissensindex, BM25, TF-IDF, Textvergleich, Duplikate, Filter und Beziehungsvorschläge |
-| `cli` | Die bisherigen Kommandozeilenprogramme und eingebettetes Beispielwissen |
-| `pdf` | PDF-Textextraktion und Aufteilung in Textstücke |
-| `web` | Das bisherige Dashboard mit HTTP, SQLite, Bots, PDF und CLI |
-| `bots` | Kompatibler Name für die Web- und Bot-Integration |
-| `embedded-knowledge` | Die Beispieldaten aus `knowledge/train.json` beim Kompilieren einbetten |
+| None | Knowledge index, BM25, TF-IDF, matching, duplicates, filters, and relation suggestions. |
+| `cli` | The existing command-line programs and embedded sample knowledge. |
+| `pdf` | PDF text extraction and chunking. |
+| `web` | The existing dashboard, HTTP, SQLite, bots, PDF, and CLI. |
+| `bots` | A compatibility name for the existing web and bot integration. |
+| `embedded-knowledge` | Sample data from `knowledge/train.json` at build time. |
 
-Die alten Agenten `MatchAgent`, `TfidfAgent`, `ContextAgent` und `KnowledgeBase` bleiben verfügbar. `TfidfAgent` verwendet aus Kompatibilitätsgründen weiterhin diesen Namen; intern verwendet er die gemeinsame BM25-Suche.
+The existing `MatchAgent`, `TfidfAgent`, `ContextAgent`, and `KnowledgeBase` adapters remain available. The historical `TfidfAgent` name uses the shared BM25 index. The actual TF-IDF search mode is `SearchAlgorithm::Tfidf`.
 
-## Die bisherigen Werkzeuge starten
+## Run the tools
+
+Run a stored-answer query:
 
 ```bash
-# Eine Frage mit den bisherigen Trainingsbeispielen beantworten
-cargo run --locked --features cli --bin airust -- cli query tfidf "Was ist AIRust?"
+cargo run --locked --features cli --bin airust -- cli query tfidf "What is AIRust?"
+```
 
-# Eine PDF-Datei in Trainingsdaten umwandeln
+Convert a sample PDF into training data:
+
+```bash
 cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json
+```
 
-# Das optionale Dashboard starten
+Start the optional dashboard:
+
+```bash
 cargo run --locked --features web --bin airust
 ```
 
-Das Dashboard öffnest du unter `http://127.0.0.1:7070`. Seine Konsole verwendet Port 7071. Es bindet standardmäßig nur an den eigenen Rechner. Die Web-Erweiterung enthält Verwaltungsfunktionen für Dateien und Datenbank. Mehr zu Start, Docker und Netzwerk steht in [STARTUP.md](STARTUP.md).
+The default dashboard address is `http://127.0.0.1:7070`. The console uses port 7071. Administration is disabled by default; network-facing operation requires a configured API token. Follow [STARTUP.md](STARTUP.md) and the [security guide](docs/SECURITY.md) for configuration.
 
-## Was wurde verbessert?
+## Project layout
 
-- Ein gemeinsamer Index ersetzt die getrennte BM25-Implementierung. Eine Ergänzung baut den vorhandenen Index nicht mehr vollständig neu auf.
-- Die Suche bewertet nur Einträge mit passenden Begriffen. Dokumentlängen werden beim Einfügen erfasst.
-- Die Textverarbeitung behandelt Unicode, Zahlen und Wortgrenzen einheitlich. Umlaute zählen beim Vergleich als Zeichen.
-- Einträge lassen sich über ihre ID gezielt ersetzen und löschen. Duplikatgruppen werden mit aktualisiert.
-- Herkunftsdaten bleiben bei PDF-Importen und Agentenantworten erhalten. PDF-Textstücke überschreiten ihre Grenze nicht mehr; der letzte kurze Rest bleibt erhalten.
-- Das Zusammenfügen von Wissensdateien ist wiederholbar. Eine fehlerhafte Quelle lässt die vorhandene Zieldatei bestehen.
-- Anleitung, Versionsanzeigen, Startbefehle und Paketinhalt sind auf den Bibliothekskern ausgerichtet.
-
-Der genaue Vorher-Nachher-Bericht steht unter [Änderungen 0.1.8](docs/AENDERUNGEN-0.1.8.md). Die [Bestandsaufnahme](docs/ANALYSE-0.1.7.md) beschreibt den Ausgangsstand und seine Grenzen. Für bestehende Anwendungen gibt es eine [Umstellungsanleitung](docs/MIGRATION-0.1.8.md).
-
-## Was liegt wo?
-
-| Ort | Inhalt |
+| Location | Purpose |
 | --- | --- |
-| `src/text.rs` | Gemeinsame Textzerlegung und Normalisierung |
-| `src/matching.rs` | Zeichenabstand und Wortüberschneidung |
-| `src/search.rs` | Suchmodi, BM25-Einstellungen und Treffer |
-| `src/context.rs` | Suchbereich nach IDs und Zusatzdaten einschränken |
-| `src/knowledge.rs` | Allgemeine Wissenseinträge und die bisherige Trainingssammlung |
-| `src/index.rs` | Gemeinsamer Index mit den drei Kernaufgaben |
-| `src/*_agent.rs`, `src/agent.rs` | Kompatibilität mit der bisherigen Agenten-API |
-| `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Optionale Import- und Bedienwerkzeuge |
-| `examples/` | Ausführbares Beispiel und ein einfacher Laufzeitvergleich |
-| `tests/` | Tests für Kern, Integrationen und behobene Fehler |
-| `docs/` | Analyse, Architektur, Umstellung und Änderungsbericht |
-| `knowledge/`, `data/pdf/` | Vorhandene Beispieldaten |
-| `airust.db` | Vorhandene lokale Dashboard-Datenbank; kein Bestandteil der veröffentlichten Crate |
-| `backups/` | Gesichertes Original 0.1.7; kein Bestandteil der Crate |
-| `build.rs` | Kopiert optionales Beispielwissen nur in das Build-Verzeichnis |
-| `Dockerfile`, `.dockerignore` | Bauanleitung für das optionale Dashboard |
-| `test.sh`, `.github/workflows/ci.yml` | Wiederholbare Qualitätsprüfungen |
+| `src/text.rs` | Shared tokenization and Unicode normalization. |
+| `src/matching.rs` | Character and token comparisons. |
+| `src/search.rs` | Search modes, BM25 settings, and result types. |
+| `src/context.rs` | Search filters for IDs and metadata. |
+| `src/knowledge.rs` | Generic knowledge entries and the existing training collection. |
+| `src/index.rs` | Shared storage and retrieval operations. |
+| `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
+| `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
+| `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
+| `tests/` | Cross-module tests and regression cases. |
+| `docs/` | API contracts, architecture, migration, and change reports. |
+| `knowledge/`, `data/pdf/` | Sample knowledge and a PDF fixture. |
+| `airust.db` | Existing local dashboard database, excluded from the crate package. |
+| `backups/` | The preserved original archive, excluded from the crate package. |
+| `build.rs` | Copies optional sample knowledge into the build directory. |
+| `Dockerfile`, `.dockerignore` | Container configuration for the dashboard. |
+| `test.sh`, `.github/workflows/ci.yml` | Repeatable validation. |
 
-Technische Details und weitere API-Beispiele stehen in der [Architekturbeschreibung](docs/ARCHITEKTUR.md). [CHANGELOG.md](CHANGELOG.md) fasst die Versionen zusammen.
+The [API guide](docs/API.md) describes the public contracts. The [architecture guide](docs/ARCHITECTURE.md) explains how the modules work together. Source code is kept free of comments; explanations live in these documents and executable examples.
 
-## Selbst prüfen
+## Changes and compatibility
+
+See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide](docs/MIGRATION-0.1.9.md) for the English-language and hardening work.
+
+The [roadmap](ROADMAP.md) describes optional semantic providers, evidence-based relations, persistence, and generic structural context as future work. External application integration follows a tested engine release.
+
+The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
+
+## Validate a change
 
 ```bash
 ./test.sh
 cargo doc --locked --no-deps --open
 ```
 
-Das Prüfskript kontrolliert Formatierung, Kern, optionale Funktionen, Dokumentationsbeispiele und Clippy. Die Bibliothek darf dabei keinen Webserver benötigen.
+The script checks formatting, the default library, optional integrations, documentation examples, and Clippy. Validation results for a particular version belong in its change report.
 
-## Lizenz
+## License
 
-MIT. Siehe [LICENSE](./LICENSE).
+MIT. See [LICENSE](./LICENSE).

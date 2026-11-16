@@ -9,8 +9,6 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-// ── GET / ─────────────────────────────────────────────────────────────────────
-
 pub async fn index(State(state): State<SharedState>) -> Html<String> {
     let s = state.read().await;
     let html = include_str!("static/index.html").replace("{{AIRUST_VERSION}}", crate::VERSION);
@@ -23,8 +21,6 @@ pub async fn index(State(state): State<SharedState>) -> Html<String> {
         ))
     }
 }
-
-// ── GET /api/status ───────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct StatusResponse {
@@ -43,8 +39,6 @@ pub async fn status(State(state): State<SharedState>) -> Json<StatusResponse> {
         version: crate::VERSION.to_string(),
     })
 }
-
-// ── POST /api/query ───────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct QueryRequest {
@@ -80,121 +74,50 @@ struct SettingsCommand {
 }
 
 fn detect_settings_command(input: &str, current_theme: &str) -> Option<SettingsCommand> {
-    let lower = input.to_lowercase();
-
-    // Trigger on action words OR page/site references with color words
-    let action_words = [
-        "make",
-        "mach",
-        "yap",
-        "set",
-        "change",
-        "switch",
-        "stelle",
-        "ändere",
-        "değiştir",
-        "seite",
-        "page",
-        "sayfa",
-        "site",
-        "webseite",
-        "website",
-        "mode",
-    ];
-    let has_action = action_words.iter().any(|w| lower.contains(w));
-    if !has_action {
-        return None;
-    }
-
+    let lower = input.strip_prefix("/settings ")?.to_ascii_lowercase();
     let mut changes = Vec::new();
     let mut descriptions = Vec::new();
-    let theme = current_theme.to_string();
-
-    // Theme detection
-    if lower.contains("dark") || lower.contains("dunkel") || lower.contains("koyu") {
-        changes.push(("theme".to_string(), "dark".to_string()));
-        descriptions.push("Dark Mode");
-    } else if lower.contains("light")
-        || lower.contains("hell")
-        || lower.contains("açık")
-        || lower.contains("bright")
-    {
-        changes.push(("theme".to_string(), "light".to_string()));
-        descriptions.push("Light Mode");
+    if lower.split_whitespace().any(|word| word == "dark") {
+        changes.push(("theme".to_owned(), "dark".to_owned()));
+        descriptions.push("Dark theme");
+    } else if lower.split_whitespace().any(|word| word == "light") {
+        changes.push(("theme".to_owned(), "light".to_owned()));
+        descriptions.push("Light theme");
     }
-
-    // Detect if user wants background color specifically
-    let is_bg = lower.contains("background")
-        || lower.contains("hintergrund")
-        || lower.contains("arka plan");
-
-    // Color detection
-    let colors = [
-        ("green", "#44d7a8", "Green"),
-        ("grün", "#44d7a8", "Grün"),
-        ("yeşil", "#44d7a8", "Yeşil"),
-        ("red", "#e05566", "Red"),
-        ("rot", "#e05566", "Rot"),
-        ("kırmızı", "#e05566", "Kırmızı"),
-        ("blue", "#4488ee", "Blue"),
-        ("blau", "#4488ee", "Blau"),
-        ("mavi", "#4488ee", "Mavi"),
-        ("purple", "#7c6ef0", "Purple"),
-        ("lila", "#7c6ef0", "Lila"),
-        ("mor", "#7c6ef0", "Mor"),
-        ("orange", "#e08844", "Orange"),
-        ("turuncu", "#e08844", "Turuncu"),
-        ("pink", "#e055aa", "Pink"),
-        ("rosa", "#e055aa", "Rosa"),
-        ("pembe", "#e055aa", "Pembe"),
-        ("yellow", "#e0c844", "Yellow"),
-        ("gelb", "#e0c844", "Gelb"),
-        ("sarı", "#e0c844", "Sarı"),
-        ("cyan", "#44c8d7", "Cyan"),
-        ("türkis", "#44c8d7", "Türkis"),
-        ("black", "#0a0a0a", "Black"),
-        ("schwarz", "#0a0a0a", "Schwarz"),
-        ("siyah", "#0a0a0a", "Siyah"),
-        ("white", "#f5f5f5", "White"),
-        ("weiß", "#f5f5f5", "Weiß"),
-        ("beyaz", "#f5f5f5", "Beyaz"),
-    ];
-    for (name, hex, label) in &colors {
-        if lower.contains(name) {
-            if is_bg {
-                let key = format!("{}.bg_color", theme);
-                changes.push((key, hex.to_string()));
-                changes.push((format!("{}.bg_auto", theme), "false".to_string()));
-                descriptions.push(label);
+    let theme = if current_theme == "light" {
+        "light"
+    } else {
+        "dark"
+    };
+    for (name, hex) in [
+        ("green", "#44d7a8"),
+        ("red", "#e05566"),
+        ("blue", "#4488ee"),
+        ("purple", "#7c6ef0"),
+        ("orange", "#e08844"),
+        ("pink", "#e055aa"),
+        ("yellow", "#e0c844"),
+        ("cyan", "#44c8d7"),
+        ("black", "#0a0a0a"),
+        ("white", "#f5f5f5"),
+    ] {
+        if lower.split_whitespace().any(|word| word == name) {
+            if lower.split_whitespace().any(|word| word == "background") {
+                changes.push((format!("{theme}.bg_color"), hex.to_owned()));
+                changes.push((format!("{theme}.bg_auto"), "false".to_owned()));
             } else {
-                let key = format!("{}.accent_color", theme);
-                changes.push((key, hex.to_string()));
-                descriptions.push(label);
+                changes.push((format!("{theme}.accent_color"), hex.to_owned()));
             }
+            descriptions.push(name);
             break;
         }
     }
-
-    // Language detection
-    if lower.contains("english") || lower.contains("englisch") || lower.contains("ingilizce") {
-        changes.push(("language".to_string(), "en".to_string()));
-        descriptions.push("English");
-    } else if lower.contains("german") || lower.contains("deutsch") || lower.contains("almanca") {
-        changes.push(("language".to_string(), "de".to_string()));
-        descriptions.push("Deutsch");
-    } else if lower.contains("turkish") || lower.contains("türkisch") || lower.contains("türkçe")
-    {
-        changes.push(("language".to_string(), "tr".to_string()));
-        descriptions.push("Türkçe");
-    }
-
     if changes.is_empty() {
         None
     } else {
-        let desc = format!("OK! {}", descriptions.join(", "));
         Some(SettingsCommand {
             changes,
-            description: desc,
+            description: format!("Settings updated: {}", descriptions.join(", ")),
         })
     }
 }
@@ -202,16 +125,20 @@ fn detect_settings_command(input: &str, current_theme: &str) -> Option<SettingsC
 pub async fn query(
     State(state): State<SharedState>,
     Json(req): Json<QueryRequest>,
-) -> Json<QueryResponse> {
+) -> Result<Json<QueryResponse>, (StatusCode, String)> {
+    if req.input.trim().is_empty() || req.input.len() > 4096 {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Query must contain 1 to 4096 bytes".to_owned(),
+        ));
+    }
     let mut s = state.write().await;
 
-    // Get current theme for per-theme settings
     let current_theme =
         s.db.get_setting("theme")
             .unwrap_or(None)
             .unwrap_or_else(|| "dark".to_string());
 
-    // Detect settings commands
     let settings_cmd = detect_settings_command(&req.input, &current_theme);
 
     if let Some(ref cmd) = settings_cmd {
@@ -220,7 +147,6 @@ pub async fn query(
         }
     }
 
-    // Use custom response for settings commands, otherwise use agent(s)
     let (response_str, confidence, agent_name, agents_used, metadata) =
         if let Some(ref cmd) = settings_cmd {
             (
@@ -241,7 +167,6 @@ pub async fn query(
             (resp, conf, winning_agent, Some(used), result.metadata)
         };
 
-    // Save messages to DB if chat_id provided
     if let Some(chat_id) = req.chat_id {
         let _ = s.db.add_message(chat_id, "user", &req.input, None);
         let _ =
@@ -255,17 +180,15 @@ pub async fn query(
             .collect()
     });
 
-    Json(QueryResponse {
+    Ok(Json(QueryResponse {
         response: response_str,
         confidence,
         agent: agent_name,
         agents_used,
         settings_changed: sc,
         metadata,
-    })
+    }))
 }
-
-// ── POST /api/agent/switch ────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct SwitchRequest {
@@ -288,7 +211,6 @@ pub async fn switch_agent(
 ) -> Result<Json<SwitchResponse>, (StatusCode, String)> {
     let mut s = state.write().await;
 
-    // Support both old single agent_type and new agent_types array
     let requested: Vec<String> = if let Some(types) = req.agent_types {
         types
     } else if let Some(t) = req.agent_type {
@@ -300,7 +222,6 @@ pub async fn switch_agent(
         ));
     };
 
-    // Validate all requested types
     let valid_types = ["exact", "fuzzy", "tfidf", "context"];
     for t in &requested {
         if !valid_types.contains(&t.as_str()) {
@@ -326,8 +247,6 @@ pub async fn switch_agent(
         examples: s.knowledge_base.get_examples().len(),
     }))
 }
-
-// ── GET /api/knowledge ────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct KnowledgeEntry {
@@ -371,7 +290,6 @@ pub async fn list_knowledge(
     let all = s.knowledge_base.get_examples();
     let total = all.len();
 
-    // Filter by search term
     let filtered_entries: Vec<(usize, &crate::agent::TrainingExample)> =
         if let Some(ref search) = q.search {
             let lower = search.to_lowercase();
@@ -389,7 +307,6 @@ pub async fn list_knowledge(
         };
     let filtered = filtered_entries.len();
 
-    // Paginate
     let entries: Vec<KnowledgeEntry> = filtered_entries
         .into_iter()
         .skip(q.offset)
@@ -411,8 +328,6 @@ pub async fn list_knowledge(
     })
 }
 
-// ── POST /api/knowledge/add ───────────────────────────────────────────────────
-
 #[derive(Deserialize)]
 pub struct AddKnowledgeRequest {
     input: String,
@@ -433,21 +348,24 @@ pub struct AddKnowledgeResponse {
 pub async fn add_knowledge(
     State(state): State<SharedState>,
     Json(req): Json<AddKnowledgeRequest>,
-) -> Json<AddKnowledgeResponse> {
+) -> Result<Json<AddKnowledgeResponse>, (StatusCode, String)> {
+    validate_web_example(&crate::TrainingExample {
+        input: req.input.clone(),
+        output: req.output.clone().into(),
+        weight: req.weight,
+        metadata: None,
+    })?;
     let mut s = state.write().await;
     s.knowledge_base
         .add_example(req.input, ResponseFormat::Text(req.output), req.weight);
 
-    // Retrain agent with updated KB
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
 
-    Json(AddKnowledgeResponse {
+    Ok(Json(AddKnowledgeResponse {
         examples: examples.len(),
-    })
+    }))
 }
-
-// ── DELETE /api/knowledge/:index ──────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct DeleteKnowledgeResponse {
@@ -466,7 +384,6 @@ pub async fn delete_knowledge(
         .remove_example(index)
         .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
 
-    // Retrain agent with updated KB
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
     let count = examples.len();
@@ -476,8 +393,6 @@ pub async fn delete_knowledge(
         examples: count,
     }))
 }
-
-// ── POST /api/knowledge/save ──────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct SaveRequest {
@@ -496,7 +411,7 @@ pub async fn save_knowledge(
 ) -> Result<Json<SaveResponse>, (StatusCode, String)> {
     let s = state.read().await;
     s.knowledge_base
-        .save(Some(std::path::PathBuf::from(&req.path)))
+        .save(Some(safe_path(&req.path)?))
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     Ok(Json(SaveResponse {
@@ -504,8 +419,6 @@ pub async fn save_knowledge(
         path: req.path,
     }))
 }
-
-// ── POST /api/knowledge/load ──────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct LoadRequest {
@@ -522,14 +435,13 @@ pub async fn load_knowledge(
     State(state): State<SharedState>,
     Json(req): Json<LoadRequest>,
 ) -> Result<Json<LoadResponse>, (StatusCode, String)> {
-    let kb = KnowledgeBase::load(std::path::PathBuf::from(&req.path))
+    let kb = KnowledgeBase::load(safe_path(&req.path)?)
         .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
 
     let mut s = state.write().await;
     let count = kb.get_examples().len();
     s.knowledge_base = kb;
 
-    // Retrain agent with new KB
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
 
@@ -538,8 +450,6 @@ pub async fn load_knowledge(
         examples: count,
     }))
 }
-
-// ── POST /api/pdf/upload ──────────────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct PdfUploadResponse {
@@ -552,29 +462,48 @@ pub async fn upload_pdf(
     State(state): State<SharedState>,
     mut multipart: Multipart,
 ) -> Result<Json<PdfUploadResponse>, (StatusCode, String)> {
-    // Read the first file field from multipart
     let field = multipart
         .next_field()
         .await
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("Multipart error: {}", e)))?
         .ok_or((StatusCode::BAD_REQUEST, "No file uploaded".to_string()))?;
 
+    let filename = field
+        .file_name()
+        .and_then(|name| std::path::Path::new(name).file_name())
+        .map(|name| name.to_string_lossy().chars().take(255).collect::<String>())
+        .unwrap_or_else(|| "upload.pdf".to_owned());
     let data = field
         .bytes()
         .await
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("Read error: {}", e)))?;
 
-    // Write to temp file and process with spawn_blocking (PDF extraction is blocking)
     let pdf_kb = tokio::task::spawn_blocking(move || -> Result<KnowledgeBase, String> {
-        let tmp_dir = std::env::temp_dir();
-        let tmp_path = tmp_dir.join("airust_upload.pdf");
-        std::fs::write(&tmp_path, &data)
-            .map_err(|e| format!("Failed to write temp file: {}", e))?;
+        let mut temporary = tempfile::Builder::new()
+            .prefix("airust-upload-")
+            .suffix(".pdf")
+            .tempfile()
+            .map_err(|error| format!("Temporary upload: {error}"))?;
+        std::io::Write::write_all(&mut temporary, &data)
+            .map_err(|error| format!("Temporary upload: {error}"))?;
         let loader = PdfLoader::new();
         let kb = loader
-            .pdf_to_knowledge_base(&tmp_path)
-            .map_err(|e| format!("PDF processing error: {}", e))?;
-        let _ = std::fs::remove_file(&tmp_path);
+            .pdf_to_knowledge_base(temporary.path())
+            .map_err(|error| format!("PDF processing: {error}"))?;
+        let mut examples = kb.get_examples().to_vec();
+        for example in &mut examples {
+            if let Some(metadata) = example
+                .metadata
+                .as_mut()
+                .and_then(serde_json::Value::as_object_mut)
+            {
+                metadata.insert(
+                    "source_file".to_owned(),
+                    serde_json::Value::String(filename.clone()),
+                );
+            }
+        }
+        let kb = KnowledgeBase::from_examples(examples);
         Ok(kb)
     })
     .await
@@ -590,15 +519,17 @@ pub async fn upload_pdf(
 
     let mut s = state.write().await;
 
-    // Persist each chunk to the DB so data survives server restarts
-    for example in pdf_kb.get_examples() {
-        s.db.add_training_example(None, example)
-            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
-    }
+    let batch = pdf_kb
+        .get_examples()
+        .iter()
+        .cloned()
+        .map(|example| (None, example))
+        .collect::<Vec<_>>();
+    s.db.add_training_batch(&batch)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
 
     s.knowledge_base.merge(&pdf_kb);
 
-    // Retrain agent
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
     let total = examples.len();
@@ -610,8 +541,6 @@ pub async fn upload_pdf(
     }))
 }
 
-// ── GET /api/settings ─────────────────────────────────────────────────────────
-
 pub async fn get_settings(
     State(state): State<SharedState>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
@@ -619,17 +548,22 @@ pub async fn get_settings(
     let settings =
         s.db.get_all_settings()
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    let map: HashMap<String, String> = settings.into_iter().collect();
+    let mut map: HashMap<String, String> = settings.into_iter().collect();
+    map.insert("language".to_owned(), "en".to_owned());
     Ok(Json(map))
 }
-
-// ── POST /api/settings ────────────────────────────────────────────────────────
 
 pub async fn update_settings(
     State(state): State<SharedState>,
     Json(req): Json<HashMap<String, String>>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
     let s = state.read().await;
+    if req.get("language").is_some_and(|language| language != "en") {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "The interface language is English".to_owned(),
+        ));
+    }
     for (key, value) in &req {
         s.db.set_setting(key, value)
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
@@ -637,31 +571,26 @@ pub async fn update_settings(
     let settings =
         s.db.get_all_settings()
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    let map: HashMap<String, String> = settings.into_iter().collect();
+    let mut map: HashMap<String, String> = settings.into_iter().collect();
+    map.insert("language".to_owned(), "en".to_owned());
     Ok(Json(map))
 }
-
-// ── GET /api/guide ────────────────────────────────────────────────────────────
 
 pub async fn get_guide() -> String {
     include_str!("../../STARTUP.md").to_string()
 }
 
-// ── GET /api/translations/{lang} ──────────────────────────────────────────────
-
 pub async fn get_translations(
     State(state): State<SharedState>,
-    Path(lang): Path<String>,
+    Path(_lang): Path<String>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
     let s = state.read().await;
     let translations =
-        s.db.get_translations(&lang)
+        s.db.get_translations("en")
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let map: HashMap<String, String> = translations.into_iter().collect();
     Ok(Json(map))
 }
-
-// ── GET /api/chats ────────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct ChatsQuery {
@@ -679,8 +608,6 @@ pub async fn list_chats(
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(chats))
 }
-
-// ── POST /api/chats ───────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct CreateChatRequest {
@@ -710,8 +637,6 @@ pub async fn create_chat(
     Ok(Json(CreateChatResponse { id, title }))
 }
 
-// ── GET /api/chats/{id}/messages ──────────────────────────────────────────────
-
 pub async fn get_chat_messages(
     State(state): State<SharedState>,
     Path(id): Path<i64>,
@@ -722,8 +647,6 @@ pub async fn get_chat_messages(
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(messages))
 }
-
-// ── DELETE /api/chats/{id} ────────────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct DeleteChatResponse {
@@ -740,8 +663,6 @@ pub async fn delete_chat(
     Ok(Json(DeleteChatResponse { success: true }))
 }
 
-// ── POST /api/chats/{id}/archive ──────────────────────────────────────────────
-
 #[derive(Serialize)]
 pub struct ArchiveChatResponse {
     success: bool,
@@ -756,10 +677,6 @@ pub async fn archive_chat(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(ArchiveChatResponse { success: true }))
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// ── Training Categories ──────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
 
 pub async fn list_categories(
     State(state): State<SharedState>,
@@ -804,8 +721,6 @@ pub async fn delete_category(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     Ok(Json(serde_json::json!({"success": true})))
 }
-
-// ── Training Data ────────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct TrainingDataQuery {
@@ -857,6 +772,7 @@ pub async fn add_training_data(
         weight: req.weight as f32,
         metadata: req.metadata,
     };
+    validate_web_example(&example)?;
     let id =
         s.db.add_training_example(req.category_id, &example)
             .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
@@ -875,15 +791,13 @@ pub async fn delete_training_data(
     let mut s = state.write().await;
     s.db.delete_training_data(id)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
-    // Rebuild KB from DB + embedded
+
     rebuild_kb_from_db(&mut s).map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
     let count = s.knowledge_base.get_examples().len();
     Ok(Json(
         serde_json::json!({"success": true, "examples": count}),
     ))
 }
-
-// ── Training Import / Export ─────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 pub struct TrainingImportItem {
@@ -900,23 +814,58 @@ pub struct TrainingImportItem {
     pub metadata: Option<serde_json::Value>,
 }
 
+fn validate_web_example(example: &crate::TrainingExample) -> Result<(), (StatusCode, String)> {
+    example
+        .validate()
+        .map_err(|error| (StatusCode::BAD_REQUEST, error.to_string()))?;
+    if example.input.trim().is_empty()
+        || example.input.len() > 1024 * 1024
+        || example.output.to_string().len() > 1024 * 1024
+    {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Training input and output are limited to 1 MiB; input must be nonempty".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+type TrainingBatch = Vec<(Option<i64>, crate::TrainingExample)>;
+type WebError = (StatusCode, String);
+
+fn validated_import(items: Vec<TrainingImportItem>) -> Result<TrainingBatch, WebError> {
+    if items.len() > 1000 {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Training imports are limited to 1000 items".to_owned(),
+        ));
+    }
+    items
+        .into_iter()
+        .map(|item| {
+            let example = crate::TrainingExample {
+                input: item.input,
+                output: crate::web::db::decode_response(item.output, &item.format),
+                weight: item.weight as f32,
+                metadata: item.metadata,
+            };
+            validate_web_example(&example)?;
+            Ok((item.category_id, example))
+        })
+        .collect()
+}
+
 pub async fn import_training(
     State(state): State<SharedState>,
     Json(items): Json<Vec<TrainingImportItem>>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    let batch = validated_import(items)?;
+    let imported = batch.len();
     let mut s = state.write().await;
-    let mut imported = 0;
-    for item in &items {
-        let example = crate::TrainingExample {
-            input: item.input.clone(),
-            output: crate::web::db::decode_response(item.output.clone(), &item.format),
-            weight: item.weight as f32,
-            metadata: item.metadata.clone(),
-        };
-        s.db.add_training_example(item.category_id, &example)
-            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    s.db.add_training_batch(&batch)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    for (_, example) in batch {
         s.knowledge_base.push_example(example);
-        imported += 1;
     }
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
@@ -953,19 +902,13 @@ pub async fn upload_json(
     let items: Vec<TrainingImportItem> = serde_json::from_slice(&data)
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("JSON parse error: {}", e)))?;
 
+    let batch = validated_import(items)?;
+    let imported = batch.len();
     let mut s = state.write().await;
-    let mut imported = 0;
-    for item in &items {
-        let example = crate::TrainingExample {
-            input: item.input.clone(),
-            output: crate::web::db::decode_response(item.output.clone(), &item.format),
-            weight: item.weight as f32,
-            metadata: item.metadata.clone(),
-        };
-        s.db.add_training_example(item.category_id, &example)
-            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    s.db.add_training_batch(&batch)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    for (_, example) in batch {
         s.knowledge_base.push_example(example);
-        imported += 1;
     }
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
@@ -973,8 +916,6 @@ pub async fn upload_json(
         serde_json::json!({"imported": imported, "examples": examples.len()}),
     ))
 }
-
-// ── Rebuild KB Helper ────────────────────────────────────────────────────────
 
 fn rebuild_kb_from_db(s: &mut crate::web::state::AppState) -> Result<(), String> {
     let mut examples = KnowledgeBase::from_embedded().get_examples().to_vec();
@@ -989,51 +930,48 @@ fn rebuild_kb_from_db(s: &mut crate::web::state::AppState) -> Result<(), String>
     Ok(())
 }
 
-/// Public version callable from mod.rs during startup
 pub fn rebuild_kb_from_db_public(s: &mut crate::web::state::AppState) -> Result<(), String> {
     rebuild_kb_from_db(s)
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ── File Manager ─────────────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
-
-/// Validate that a path stays within CWD. Rejects `..`, absolute paths, symlink escapes.
 fn safe_path(input: &str) -> Result<std::path::PathBuf, (StatusCode, String)> {
-    let input = input.trim();
-    // Block absolute paths
-    if input.starts_with('/') || input.starts_with('\\') {
-        return Err((
-            StatusCode::FORBIDDEN,
-            "Absolute paths not allowed".to_string(),
-        ));
+    let root = std::env::current_dir()
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
+    confined_path(&root, input)
+}
+
+pub(crate) fn confined_path(
+    root: &std::path::Path,
+    input: &str,
+) -> Result<std::path::PathBuf, (StatusCode, String)> {
+    use std::path::Component;
+    let reject = || {
+        (StatusCode::FORBIDDEN, "Path must stay inside the workspace and cannot contain hidden or symbolic-link components".to_owned())
+    };
+    if input.is_empty() || input.contains('\\') || input.contains('\0') {
+        return Err(reject());
     }
-    // Block any component that is ".."
+    let root = root.canonicalize().map_err(|_| reject())?;
+    let mut resolved = root.clone();
     for component in std::path::Path::new(input).components() {
-        if matches!(component, std::path::Component::ParentDir) {
-            return Err((
-                StatusCode::FORBIDDEN,
-                "Path traversal not allowed".to_string(),
-            ));
+        match component {
+            Component::CurDir => {}
+            Component::Normal(name) if !name.to_string_lossy().starts_with('.') => {
+                resolved.push(name)
+            }
+            _ => return Err(reject()),
+        }
+        match std::fs::symlink_metadata(&resolved) {
+            Ok(metadata) if metadata.file_type().is_symlink() => return Err(reject()),
+            Ok(_) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(_) => return Err(reject()),
         }
     }
-    let cwd = std::env::current_dir().map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("CWD error: {}", e),
-        )
-    })?;
-    let resolved = cwd.join(input);
-    // Canonicalize to resolve any remaining symlinks, then verify it's inside CWD
-    let canonical = resolved.canonicalize().unwrap_or(resolved.clone());
-    let canonical_cwd = cwd.canonicalize().unwrap_or(cwd);
-    if !canonical.starts_with(&canonical_cwd) {
-        return Err((
-            StatusCode::FORBIDDEN,
-            "Access outside working directory not allowed".to_string(),
-        ));
+    if !resolved.starts_with(&root) {
+        return Err(reject());
     }
-    Ok(canonical)
+    Ok(resolved)
 }
 
 #[derive(Deserialize)]
@@ -1080,6 +1018,15 @@ pub async fn list_files(
                 format!("Entry error: {}", e),
             )
         })?;
+        let filename = entry.file_name();
+        if filename.to_string_lossy().starts_with('.')
+            || entry
+                .file_type()
+                .map(|kind| kind.is_symlink())
+                .unwrap_or(true)
+        {
+            continue;
+        }
         let metadata = entry.metadata().map_err(|e| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -1127,6 +1074,16 @@ pub async fn read_file(
     if !path.is_file() {
         return Err((StatusCode::BAD_REQUEST, "Not a file".to_string()));
     }
+    if std::fs::metadata(&path)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?
+        .len()
+        > 1024 * 1024
+    {
+        return Err((
+            StatusCode::PAYLOAD_TOO_LARGE,
+            "Text files are limited to 1 MiB".to_owned(),
+        ));
+    }
     let content = std::fs::read_to_string(&path).map_err(|e| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -1147,51 +1104,32 @@ pub struct FileWriteRequest {
 pub async fn write_file(
     Json(req): Json<FileWriteRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
-    // For new files, parent may not exist yet — validate parent path first
-    let p = std::path::Path::new(&req.path);
-    if let Some(parent_str) = p.parent() {
-        let parent_s = parent_str.to_string_lossy().to_string();
-        if !parent_s.is_empty() {
-            let safe_parent = safe_path(&parent_s)?;
-            if !safe_parent.exists() {
-                std::fs::create_dir_all(&safe_parent).map_err(|e| {
-                    (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Mkdir error: {}", e),
-                    )
-                })?;
-            }
-        }
-    }
-    // Now validate the full path (file may not exist yet, so check components)
-    let input = req.path.trim();
-    if input.starts_with('/') || input.starts_with('\\') {
+    if req.content.len() > 1024 * 1024 {
         return Err((
-            StatusCode::FORBIDDEN,
-            "Absolute paths not allowed".to_string(),
+            StatusCode::PAYLOAD_TOO_LARGE,
+            "Text files are limited to 1 MiB".to_owned(),
         ));
     }
-    for component in std::path::Path::new(input).components() {
-        if matches!(component, std::path::Component::ParentDir) {
-            return Err((
-                StatusCode::FORBIDDEN,
-                "Path traversal not allowed".to_string(),
-            ));
-        }
+    let path = safe_path(&req.path)?;
+    if path.is_dir() {
+        return Err((StatusCode::BAD_REQUEST, "Expected a file path".to_owned()));
     }
-    let cwd = std::env::current_dir().map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("CWD error: {}", e),
-        )
-    })?;
-    let resolved = cwd.join(input);
-    std::fs::write(&resolved, &req.content).map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Write error: {}", e),
-        )
-    })?;
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
+    }
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create(true).truncate(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let mut file = options
+        .open(&path)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
+    std::io::Write::write_all(&mut file, req.content.as_bytes())
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
     Ok(Json(serde_json::json!({"success": true, "path": req.path})))
 }
 
@@ -1203,35 +1141,9 @@ pub struct MkdirRequest {
 pub async fn mkdir(
     Json(req): Json<MkdirRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
-    // Validate parent exists in CWD, then create target
-    let input = req.path.trim();
-    if input.starts_with('/') || input.starts_with('\\') {
-        return Err((
-            StatusCode::FORBIDDEN,
-            "Absolute paths not allowed".to_string(),
-        ));
-    }
-    for component in std::path::Path::new(input).components() {
-        if matches!(component, std::path::Component::ParentDir) {
-            return Err((
-                StatusCode::FORBIDDEN,
-                "Path traversal not allowed".to_string(),
-            ));
-        }
-    }
-    let cwd = std::env::current_dir().map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("CWD error: {}", e),
-        )
-    })?;
-    let resolved = cwd.join(input);
-    std::fs::create_dir_all(&resolved).map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Mkdir error: {}", e),
-        )
-    })?;
+    let path = safe_path(&req.path)?;
+    std::fs::create_dir_all(&path)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
     Ok(Json(serde_json::json!({"success": true, "path": req.path})))
 }
 
@@ -1247,7 +1159,7 @@ pub async fn delete_file(
     if !path.exists() {
         return Err((StatusCode::NOT_FOUND, "Path not found".to_string()));
     }
-    // Prevent deleting CWD itself
+
     let cwd = std::env::current_dir()
         .unwrap_or_default()
         .canonicalize()
@@ -1286,32 +1198,8 @@ pub async fn rename_file(
     Json(req): Json<RenameRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let from = safe_path(&req.from)?;
-    let _to = safe_path(&req.to).or_else(|_| {
-        // Target may not exist yet — validate components only
-        let input = req.to.trim();
-        if input.starts_with('/') || input.starts_with('\\') {
-            return Err((
-                StatusCode::FORBIDDEN,
-                "Absolute paths not allowed".to_string(),
-            ));
-        }
-        for component in std::path::Path::new(input).components() {
-            if matches!(component, std::path::Component::ParentDir) {
-                return Err((
-                    StatusCode::FORBIDDEN,
-                    "Path traversal not allowed".to_string(),
-                ));
-            }
-        }
-        let cwd = std::env::current_dir().map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("CWD error: {}", e),
-            )
-        })?;
-        Ok(cwd.join(input))
-    })?;
-    std::fs::rename(&from, &_to).map_err(|e| {
+    let destination = safe_path(&req.to)?;
+    std::fs::rename(&from, &destination).map_err(|e| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             format!("Rename error: {}", e),
@@ -1336,30 +1224,7 @@ pub async fn copy_file(
             "Cannot copy directories".to_string(),
         ));
     }
-    let to = safe_path(&req.to).or_else(|_| {
-        let input = req.to.trim();
-        if input.starts_with('/') || input.starts_with('\\') {
-            return Err((
-                StatusCode::FORBIDDEN,
-                "Absolute paths not allowed".to_string(),
-            ));
-        }
-        for component in std::path::Path::new(input).components() {
-            if matches!(component, std::path::Component::ParentDir) {
-                return Err((
-                    StatusCode::FORBIDDEN,
-                    "Path traversal not allowed".to_string(),
-                ));
-            }
-        }
-        let cwd = std::env::current_dir().map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("CWD error: {}", e),
-            )
-        })?;
-        Ok(cwd.join(input))
-    })?;
+    let to = safe_path(&req.to)?;
     std::fs::copy(&from, &to).map_err(|e| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -1368,10 +1233,6 @@ pub async fn copy_file(
     })?;
     Ok(Json(serde_json::json!({"success": true})))
 }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// ── VectorDB (Collections) ───────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
 
 pub async fn list_vector_collections(
     State(state): State<SharedState>,
@@ -1411,8 +1272,6 @@ pub async fn delete_vector_collection(
     Ok(Json(serde_json::json!({"success": true})))
 }
 
-// ── VectorDB (Entries) ──────────────────────────────────────────────────────
-
 #[derive(Deserialize)]
 pub struct VectorEntriesQuery {
     pub collection_id: i64,
@@ -1446,7 +1305,7 @@ pub async fn add_vector_entry(
     Json(req): Json<AddVectorEntryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let s = state.read().await;
-    // Compute embedding
+
     let existing =
         s.db.list_vector_entries(req.collection_id)
             .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e))?;
@@ -1472,8 +1331,6 @@ pub async fn delete_vector_entry(
     Ok(Json(serde_json::json!({"success": true})))
 }
 
-// ── VectorDB (Search) ───────────────────────────────────────────────────────
-
 #[derive(Deserialize)]
 pub struct VectorSearchRequest {
     pub collection_id: i64,
@@ -1498,16 +1355,11 @@ pub async fn vector_search(
     Ok(Json(results))
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ── SQLite Browser ──────────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
-
 #[derive(Deserialize)]
 pub struct DbPathQuery {
     pub path: String,
 }
 
-/// GET /api/files/db/tables?path=  — list tables in a .db file
 pub async fn db_tables(
     Query(q): Query<DbPathQuery>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
@@ -1553,7 +1405,6 @@ fn default_db_limit() -> i64 {
     100
 }
 
-/// GET /api/files/db/query — read rows from a table
 pub async fn db_query(
     Query(q): Query<DbQueryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
@@ -1567,12 +1418,17 @@ pub async fn db_query(
                 )
             })?;
 
-    // Validate table name (prevent SQL injection)
+    if !(1..=1000).contains(&q.limit) || q.offset < 0 {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Limit must be 1..=1000 and offset must be nonnegative".to_owned(),
+        ));
+    }
+
     if !q.table.chars().all(|c| c.is_alphanumeric() || c == '_') {
         return Err((StatusCode::BAD_REQUEST, "Invalid table name".to_string()));
     }
 
-    // Get column info
     let mut pragma = conn
         .prepare(&format!("PRAGMA table_info(\"{}\")", q.table))
         .map_err(|e| {
@@ -1598,7 +1454,6 @@ pub async fn db_query(
         return Err((StatusCode::NOT_FOUND, "Table not found".to_string()));
     }
 
-    // Get total count
     let total: i64 = conn
         .query_row(
             &format!("SELECT COUNT(*) FROM \"{}\"", q.table),
@@ -1612,7 +1467,6 @@ pub async fn db_query(
             )
         })?;
 
-    // Query rows
     let sql = format!(
         "SELECT * FROM \"{}\" LIMIT {} OFFSET {}",
         q.table, q.limit, q.offset
@@ -1679,12 +1533,11 @@ pub struct DbExecuteRequest {
     pub sql: String,
 }
 
-/// POST /api/files/db/execute — execute INSERT/UPDATE/DELETE on a .db file
 pub async fn db_execute(
     Json(req): Json<DbExecuteRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let sql_upper = req.sql.trim().to_uppercase();
-    // Only allow INSERT, UPDATE, DELETE
+
     if !sql_upper.starts_with("INSERT")
         && !sql_upper.starts_with("UPDATE")
         && !sql_upper.starts_with("DELETE")
@@ -1715,10 +1568,6 @@ pub async fn db_execute(
     ))
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// ── Tatoeba TSV Import ──────────────────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════════════════
-
 #[derive(Serialize)]
 pub struct TatoebaImportResponse {
     success: bool,
@@ -1745,7 +1594,6 @@ pub async fn import_tatoeba(
     let text = String::from_utf8(data.to_vec())
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid UTF-8: {}", e)))?;
 
-    // Parse TSV: each line is "source\ttarget\tattribution" (attribution optional)
     let mut pairs: Vec<(String, String)> = Vec::new();
     let mut skipped = 0;
 
@@ -1770,7 +1618,6 @@ pub async fn import_tatoeba(
 
     let imported = pairs.len();
 
-    // Bulk-add to knowledge base and training_data DB
     let mut s = state.write().await;
     for (input, output) in &pairs {
         s.knowledge_base
@@ -1778,7 +1625,6 @@ pub async fn import_tatoeba(
         let _ = s.db.add_training_data(None, input, output, "text", 1.0);
     }
 
-    // Retrain agent
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
     let total = examples.len();
@@ -1789,4 +1635,58 @@ pub async fn import_tatoeba(
         skipped,
         total,
     }))
+}
+
+#[cfg(test)]
+mod security_tests {
+    use super::*;
+
+    #[test]
+    fn file_paths_reject_traversal_hidden_names_and_existing_symlink_ancestors() {
+        let workspace = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        assert!(confined_path(workspace.path(), "notes/new.txt").is_ok());
+        for path in [
+            "../outside",
+            "/tmp/outside",
+            "notes/../../outside",
+            ".git/config",
+            "notes/.env",
+            "notes\\secret",
+        ] {
+            assert!(confined_path(workspace.path(), path).is_err(), "{path}");
+        }
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(outside.path(), workspace.path().join("link")).unwrap();
+            assert!(confined_path(workspace.path(), "link/new.txt").is_err());
+            assert!(confined_path(workspace.path(), "link/new-directory/file.txt").is_err());
+            assert!(confined_path(workspace.path(), "link").is_err());
+        }
+    }
+
+    #[test]
+    fn ordinary_queries_cannot_change_interface_settings() {
+        assert!(detect_settings_command("How do I make a light Rust package?", "dark").is_none());
+        let command = detect_settings_command("/settings theme light", "dark").unwrap();
+        assert_eq!(
+            command.changes,
+            vec![("theme".to_owned(), "light".to_owned())]
+        );
+    }
+    #[test]
+    fn training_requests_validate_weights_and_bounds_before_mutation() {
+        let make = |weight| TrainingImportItem {
+            input: "valid".to_owned(),
+            output: "answer".to_owned(),
+            format: "text".to_owned(),
+            weight,
+            category_id: None,
+            metadata: None,
+        };
+        assert!(validated_import(vec![make(1.0), make(f64::MAX)]).is_err());
+        assert!(validated_import(vec![make(-1.0)]).is_err());
+        assert!(validated_import((0..1001).map(|_| make(1.0)).collect()).is_err());
+        assert!(validated_import(vec![make(0.0)]).is_ok());
+    }
 }

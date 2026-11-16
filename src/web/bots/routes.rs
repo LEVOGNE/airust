@@ -6,8 +6,6 @@ use axum::http::StatusCode;
 use axum::Json;
 use serde::{Deserialize, Serialize};
 
-// ── Bot Management ────────────────────────────────────────────────────────────
-
 #[derive(Serialize)]
 pub struct BotResponse {
     pub id: i64,
@@ -162,8 +160,6 @@ pub async fn get_run_data(
     Ok(Json(data))
 }
 
-// ── Data Review ───────────────────────────────────────────────────────────────
-
 pub async fn get_pending_data(
     State(state): State<SharedState>,
 ) -> Result<Json<Vec<super::models::RawData>>, (StatusCode, String)> {
@@ -238,7 +234,6 @@ pub async fn add_to_kb(
         added += 1;
     }
 
-    // Retrain all agents
     let examples = s.knowledge_base.get_examples().to_vec();
     s.train_all(&examples);
 
@@ -246,8 +241,6 @@ pub async fn add_to_kb(
         serde_json::json!({"success": true, "added": added, "total": examples.len()}),
     ))
 }
-
-// ── Vector DB ─────────────────────────────────────────────────────────────────
 
 pub async fn vector_stats(
     State(state): State<SharedState>,
