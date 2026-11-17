@@ -82,3 +82,6 @@ pub mod reranking;
 
 #[cfg(feature = "advanced-search")]
 pub mod text_search;
+
+#[cfg(feature = "storage")]
+pub mod storage;

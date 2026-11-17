@@ -156,3 +156,5 @@ Reranking is a library operation, not a new dashboard or MCP endpoint. Run the m
 ## Optional phrase and word-form search
 
 Run `cargo run --locked --features advanced-search --example advanced_search`. The [text-search guide](docs/TEXT-SEARCH.md) documents required quoted phrases, German stemming, Unicode tokenization and budgets. This is a library-only feature and changes no existing dashboard or application search automatically.
+
+Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](docs/STORAGE.md).

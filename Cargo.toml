@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.10"
+version = "0.2.11"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -43,8 +43,12 @@ hnsw_rs = { version = "=0.3.5", optional = true, default-features = false }
 unicode-segmentation = { version = "=1.13.3", optional = true }
 rust-stemmers = { version = "=1.2.0", optional = true }
 
+getrandom = { version = "=0.4.3", optional = true }
+
 [features]
 default = []
+storage = ["dep:getrandom"]
+sqlite-storage = ["storage", "dep:rusqlite"]
 advanced-search = ["dep:unicode-segmentation", "dep:rust-stemmers"]
 embeddings = []
 hnsw = ["embeddings", "dep:hnsw_rs", "serde/rc"]
@@ -204,3 +208,11 @@ required-features = ["advanced-search"]
 [[example]]
 name = "text_search_benchmark"
 required-features = ["advanced-search"]
+
+[[example]]
+name = "storage"
+required-features = ["storage"]
+
+[[example]]
+name = "storage_benchmark"
+required-features = ["sqlite-storage"]

@@ -100,3 +100,5 @@ Token reduction is `1 - retrieved_prompt_tokens / baseline_prompt_tokens`. Repor
 An example ratio derived from assumed input sizes is illustrative. It must not be labeled a measurement. No 99.8% reduction, universal cost saving, or fixed answer-quality claim is established by the current repository.
 
 Acceptance: reproducible token counts, comparable prompts, identified tokenizer, query-level distributions, and a clear separation between measured results and illustrative calculations.
+
+0.2.11 delivers the optional record Storage Backend API. 0.2.12 will add a compact transport-neutral Knowledge Retrieval API. Application and MCP integration remain separate.

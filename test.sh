@@ -42,3 +42,7 @@ cargo run --locked --features reranking --example reranking
 cargo run --locked --features hnsw,cache,context-assembly,provenance,quality,reranking --example knowledge_pipeline
 python3 -B tests/download_reranker_test.py
 cargo run --locked --features advanced-search --example advanced_search
+
+cargo check --lib --no-default-features --features storage --locked
+cargo check --lib --no-default-features --features sqlite-storage --locked
+cargo run --locked --features storage --example storage

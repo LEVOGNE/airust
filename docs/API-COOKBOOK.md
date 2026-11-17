@@ -1,4 +1,4 @@
-# AIRust 0.2.10 API cookbook
+# AIRust 0.2.11 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.10", default-features = false }
+airust = { version = "=0.2.11", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,7 @@ airust = { version = "=0.2.10", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
 | `advanced-search` | Explicit phrase queries, Unicode word boundaries and optional German stemming | [TEXT-SEARCH](TEXT-SEARCH.md), `advanced_search` |
 | `reranking` | Bounded provider-neutral query/document rescoring | [RERANKING](RERANKING.md), `reranking` |
 | `local-reranking` | Explicit verified multilingual cross-encoder/ONNX inference | [LOCAL-RERANKING](LOCAL-RERANKING.md), `reranking_quality` |
@@ -165,3 +166,12 @@ Enable `advanced-search`. `TextIndex::new(AnalyzerConfig)` is an alternative pos
 Call `search(query, &TextSearchOptions::new(limit))`. Every double-quoted token phrase is required and matched before top-K; unquoted terms additionally obey Any/All. `with_search` selects the shared BM25/TF-IDF options, `with_context` scopes results, and query/evidence budgets fail explicitly. Invalid/empty/unclosed phrases do not silently become ordinary search. Results retain original entries, analyzed matched terms and bounded phrase evidence with truncation flags. With `reranking`, these results implement `Rerankable` without copying original content.
 
 German stemming handles useful suffix forms but is not full morphology, irregular-verb lemmatization, decompounding or meaning recognition. Analyzed phrases can cross punctuation/whitespace; they are not byte-exact quotations or evidence of truth. The [full contract](TEXT-SEARCH.md), compiled `advanced_search` example and [measured release report](CHANGES-0.2.10.md) define limits and source-coordinate behavior. This feature does not automatically change an existing application or wrap a SemanticIndex.
+
+
+## 16. Store authoritative records behind one contract
+
+Enable `storage` for `MemoryStore` and the object-safe `StorageBackend`; add `sqlite-storage` for an independently owned SQLite file. Both implement revision-checked get/page and atomic apply. Read the complete `StoreRevision`, then pass it to every operation. `StoreChange::Put/Delete` batches reject repeated IDs, invalid records and exceeded budgets before commit. Conflicts require rereading/reconciling, not force overwrites. Rotate identity after restoring independent database copies.
+
+Use `page` with a pinned revision and exclusive `next_after`, or `read_snapshot` with explicit row/count/byte limits. A concurrent write fails the complete snapshot. `StoredSnapshot::into_index` consumes the source records and returns a `LoadedIndex` with immutable index/revision accessors; `into_parts` supports alternative indexing explicitly. A later source write does not update that view. Stage a fresh view, verify its source revision, then swap it under application coordination.
+
+SQLite uses a standalone versioned AIRust schema, WAL/FULL, bounded busy waits and transactional record/revision commits. It rejects unrelated application databases; this release performs no DenkMaps integration. It is a record backend, not a persisted positional/vector index. See [STORAGE](STORAGE.md), `cargo run --features storage --example storage` and the reproducible `storage_benchmark`.

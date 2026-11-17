@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.11
+
+Optional Storage Backend API: memory and standalone SQLite implementations, atomic revision-checked batches, bounded pages, consistent snapshot loading and explicit identity renewal. No default-feature or application integration changes. See [report](docs/CHANGES-0.2.11.md).
+
+
 ## 0.2.10
 
 - Add explicitly selected Unicode word analysis, optional German Snowball stemming and required quoted token phrases.

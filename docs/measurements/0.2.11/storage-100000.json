@@ -1,0 +1,24 @@
+{
+  "memory": {
+    "durable": false,
+    "entries": 100000,
+    "generation": 101,
+    "get_1000_ms": 1.2787499999999998,
+    "page_all_ms": 117.69200000000001,
+    "snapshot_and_index_ms": 596.071667,
+    "update_100_ms": 0.069041,
+    "write_ms": 138.441666
+  },
+  "method": "one process, sequential adapters, synthetic records, SQLite WAL/FULL, timings include record generation/validation; peak RSS includes the derived RAM index",
+  "sqlite": {
+    "durable": true,
+    "entries": 100000,
+    "generation": 101,
+    "get_1000_ms": 5.628,
+    "page_all_ms": 140.04833399999998,
+    "snapshot_and_index_ms": 618.618833,
+    "update_100_ms": 0.660292,
+    "write_ms": 328.825333
+  },
+  "sqlite_reopen_get_ms": 0.53425
+}

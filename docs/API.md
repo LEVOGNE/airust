@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.2.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.2.11 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Source entries
 
@@ -162,3 +162,5 @@ Enable `local-reranking` separately for `FastEmbedReranker::multilingual_minilm_
 ## Optional advanced text search
 
 Enable `advanced-search` for `TextIndex`, `TextAnalyzer`, `AnalyzerConfig`, `WordTokenizer`, `Stemming`, `TextSearchOptions`, `TermOperator`, `Token`, `TextSpan`, `PhraseEvidence`, `TextSearchResult` and `TextSearchError`. The [text-search guide](TEXT-SEARCH.md) defines analysis recipes, required quoted phrases, original UTF-8 evidence, word-form limits and update atomicity. Legacy Engine methods remain unchanged.
+
+Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](STORAGE.md).
