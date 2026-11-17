@@ -43,4 +43,4 @@ Byte limits are not LLM-token counts, exact total heap limits, deadlines, cancel
 
 Retriever borrows an immutable index through each source and does not mutate records. It does not synchronize a database, refresh vectors, authorize users or automatically retry stale work. A StoredSnapshot/LoadedIndex revision can be carried by the caller alongside the response; the current store may already have advanced. Recheck authoritative source/access revisions before publishing prepared context when required. Do model work outside long database locks and use bounded workers in async applications.
 
-See the [API cookbook](API-COOKBOOK.md), executable `retrieval`, [release report](CHANGES-0.2.12.md) and proposed application upgrade guide. No DenkMaps or MCP integration is performed by this release.
+See the [API cookbook](API-COOKBOOK.md), executable `retrieval`, [release report](CHANGES-0.2.13.md) and proposed application upgrade guide. No DenkMaps or MCP integration is performed by this release.

@@ -263,7 +263,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
-| `retrieval` | Compact owned query responses across existing search adapters; no additional dependency. |
+| `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
 | `advanced-search` | Explicit positional phrase search, configurable Unicode analysis and optional German Snowball stemming. Rust 1.89. |
 | `reranking` | Bounded provider-neutral candidate rescoring with preserved original evidence. No added dependencies; Rust 1.89. |
