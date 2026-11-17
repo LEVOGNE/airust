@@ -227,7 +227,7 @@ fn legacy_tokens(source: &str, options: &ExcerptOptions) -> Result<Vec<Token>, R
             let first = mapping.partition_point(|m| m.1 <= begin);
             let last = mapping.partition_point(|m| m.0 < offset) - 1;
             tokens.push(Token {
-                term: word.to_string(),
+                term: text::normalize(word),
                 span: ExcerptSpan {
                     start: mapping[first].2,
                     end: mapping[last].3,

@@ -8,9 +8,11 @@ The [complete excerpt contract](EXCERPTS.md), [API cookbook](API-COOKBOOK.md) an
 
 ## Correctness and bug hunting
 
-The full release suite passes **189 default and 455 all-feature Rust tests**, including compiled documentation, plus five Python helper tests. Nineteen new integration tests cover late-document hits, unique-term versus repetition scoring, phrase priority, no-overlap/too-wide/empty-budget cases, NFC/NFKC/combining source mapping, extended graphemes, malformed hints, independent analysis/query/match/highlight limits, total-text/JSON budgets, old prefix JSON, source permissions, German stems/phrases, dynamic source forwarding, full-document reranking inputs/order and semantic localization fallback. The isolated retrieval-only excerpt suite passes sixteen tests.
+The full release suite passes **189 default and 457 all-feature Rust tests**, including compiled documentation, plus five Python helper tests. Twenty-one new integration tests cover late-document hits, unique-term versus repetition scoring, phrase priority, no-overlap/too-wide/empty-budget cases, NFC/NFKC/combining source mapping, extended graphemes, malformed hints, independent analysis/query/match/highlight limits, total-text/JSON budgets, old prefix JSON, source permissions, German stems/phrases, dynamic source forwarding, full-document reranking inputs/order and semantic localization fallback. The isolated retrieval-only excerpt suite passes eighteen tests.
 
 A separate unit test compares the optimized window sweep with an independent exhaustive reference over **1,500 seeded cases**, including nested spans, phrase hints and variable-width grapheme boundaries. **600 mixed-Unicode generated cases** check original slices, grapheme boundaries, contained highlights and relative-offset round trips. JSON budgets are swept in 19-byte steps; hit/details alignment and complete parseable output are checked after tail removal. Existing 0.2.12 retrieval tests remain unchanged and pass.
+
+An additional Korean compatibility-Jamo probe found a real mismatch between per-grapheme localization and whole-word core normalization. Normalizing each mapped token through the shared text normalizer fixes cross-grapheme composition while retaining the complete original span. A direct regression and 600 additional compositional-Unicode cases compare localized terms to the core tokenizer. Publication was stopped before tagging, and the corrected source was checked again.
 
 Boundary review corrected context allocation at the end of a document and ensured omitted highlights mark both their local omission flag and the complete response truncated. Supplied term bytes are checked before cloning. Strict count/analysis overruns return errors; they do not quietly convert a partial scan into a claimed best passage. The first sandboxed full run was blocked by the existing CLI test's `ps` call; the complete suite passed with the required system-call permission. No product change was made to bypass that test.
 
@@ -22,12 +24,12 @@ The public synthetic fixture puts literal query terms after a long unrelated int
 
 | Records | Query | Prefix median ms | Relevant median ms | Prefix literal coverage | Relevant literal coverage |
 | ---: | --- | ---: | ---: | --- | --- |
-| 10,000 | Rust ownership | 3.622 | 4.040 | 0/10 | 10/10 |
-| 100,000 | Rust ownership | 59.810 | 60.106 | 0/10 | 10/10 |
-| 10,000 | Unique key | 0.001584 | 0.041791 | 0/1 | 1/1 |
-| 100,000 | Unique key | 0.002125 | 0.050229 | 0/1 | 1/1 |
+| 10,000 | Rust ownership | 4.260 | 4.749 | 0/10 | 10/10 |
+| 100,000 | Rust ownership | 47.124 | 48.021 | 0/10 | 10/10 |
+| 10,000 | Unique key | 0.001583 | 0.054708 | 0/1 | 1/1 |
+| 100,000 | Unique key | 0.001625 | 0.053229 | 0/1 | 1/1 |
 
-Miss medians were 0.000500 / 0.000500 ms at 10k and 0.000542 / 0.000563 ms at 100k, returning zero hits. Build including generation took 213.663 / 2290.388 ms. Common-query JSON grew from 5,582 to 7,712 bytes at 10k and 5,562 to 7,692 bytes at 100k because relevant details/highlights are included. Whole-process peak RSS was 88.33 / 858.30 MiB, including the full original RAM index and all phases, not just the selector.
+Miss medians were 0.000500 / 0.000500 ms at 10k and 0.000459 / 0.000459 ms at 100k, returning zero hits. Build including generation took 247.718 / 2466.655 ms. Common-query JSON grew from 5,582 to 7,712 bytes at 10k and 5,562 to 7,692 bytes at 100k because relevant details/highlights are included. Whole-process peak RSS was 88.77 / 858.30 MiB, including the full original RAM index and all phases, not just the selector.
 
 This deliberately constructed late-hit check demonstrates lexical localization, not independent relevance judgments, universal answer quality, token savings or a production latency guarantee. Sequential mode ordering and single-host samples limit performance conclusions. No million-record run was performed. Host: Apple M5 Max, 18 logical CPUs, 64 GiB RAM, macOS ARM64, Rust 1.98.0. Raw samples, commands and resource metadata: [measurements/0.2.13](measurements/0.2.13/).
 

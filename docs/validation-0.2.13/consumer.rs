@@ -19,6 +19,12 @@ fn excerpt_check() -> Result<(), Box<dyn std::error::Error>> {
         semantic_rank: None, lexical_score: None, semantic_score: None, phrase_spans: vec![], phrase_evidence_truncated: false };
     let selected = select_excerpt(&original, "Rust ownership", &evidence, &ExcerptAnalyzer::Legacy, &ExcerptOptions::default(), 120)?;
     assert!(selected.text.contains("Rust ownership"));
+    let korean_text = "Background. ㄱㅏ is here.";
+    let korean_index = Engine::from_entries([KnowledgeEntry::new("ko", korean_text)])?;
+    let korean = Retriever::new(LexicalSource::new(&korean_index)).query("가", &options)?;
+    let korean_details = &korean.excerpt_details().unwrap()[0];
+    assert_eq!(korean_details.reason, ExcerptReason::Terms);
+    assert_eq!(korean_details.matches[0].span.slice(korean_text), Some("ㄱㅏ"));
     let _old_literal = RetrievalHit { id: "literal".into(), excerpt: "Rust".into(), span: ExcerptSpan { start: 0, end: 4 },
         text_truncated: false, source_rank: 1, evidence, rerank_score: None, metadata_status: MetadataStatus::Omitted, metadata: None };
     let text = airust::text_search::TextIndex::from_entries(airust::text_search::AnalyzerConfig::german(), [KnowledgeEntry::new("de", format!("{} Häuser und Gärten.", "Einleitung. ".repeat(50)))])?;

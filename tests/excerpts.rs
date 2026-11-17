@@ -574,3 +574,54 @@ fn matches_at_document_edges_use_available_context_without_splitting_words_as_ev
         Err(RetrievalError::Output("invalid excerpt term"))
     ));
 }
+
+#[test]
+fn compatibility_jamo_composes_across_original_graphemes_like_the_core_analyzer() {
+    let original = "Background. ㄱㅏ is here.";
+    let index = Engine::from_entries([KnowledgeEntry::new("ko", original)]).unwrap();
+    let options = RetrievalOptions::new(1).with_relevant_excerpts(ExcerptOptions::default());
+    let response = Retriever::new(LexicalSource::new(&index))
+        .query("가", &options)
+        .unwrap();
+    let detail = &response.excerpt_details().unwrap()[0];
+    assert_eq!(detail.reason, ExcerptReason::Terms);
+    assert_eq!(detail.matches.len(), 1);
+    assert_eq!(detail.matches[0].span.slice(original), Some("ㄱㅏ"));
+    assert_eq!(detail.matches[0].term.as_deref(), Some("가"));
+}
+#[test]
+fn legacy_excerpt_terms_agree_with_core_normalization_on_compositional_unicode() {
+    let fragments = [
+        "ㄱ", "ㅏ", "ᄀ", "ᅡ", "ᆨ", "가", "a", "\u{301}", "\u{323}", "ﬃ", "㍿", "Ａ", "é", "\r\n",
+        " ", "ß", "\u{ff76}", "\u{ff9e}",
+    ];
+    let mut seed = 43u64;
+    for _ in 0..600 {
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        let original = (0..30)
+            .map(|i| fragments[((seed >> ((i % 8) * 8)) as usize + i) % fragments.len()])
+            .collect::<String>();
+        let expected: BTreeSet<_> = airust::text::tokenize(&original).into_iter().collect();
+        if expected.is_empty() {
+            continue;
+        }
+        let mut evidence = evidence();
+        evidence.matched_terms = expected.iter().cloned().collect();
+        let selected = select_excerpt(
+            &original,
+            "x",
+            &evidence,
+            &ExcerptAnalyzer::Legacy,
+            &ExcerptOptions::default(),
+            original.len(),
+        )
+        .unwrap();
+        let actual: BTreeSet<_> = selected
+            .matches
+            .iter()
+            .filter_map(|m| m.term.clone())
+            .collect();
+        assert_eq!(actual, expected, "{original:?}");
+        verify(&original, &selected, original.len());
+    }
+}
