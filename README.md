@@ -1,10 +1,10 @@
-# AIRust 0.2.5
+# AIRust 0.2.6
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.5 adds an optional validated derived-index cache. Restart from original records and cached analysis without repeating normalization, tokenization or embedding inference. Atomic files protect complete snapshots; stale or damaged caches can be rebuilt. See the [0.2.5 report](docs/CHANGES-0.2.5.md) and [cache guide](docs/CACHE.md).
+Version 0.2.6 adds optional HNSW candidate search over the existing semantic index. Vectors are shared, final scores remain exact, and fallback modes are visible. Approximation can miss relevant candidates: measure recall before choosing it. See the [0.2.6 report](docs/CHANGES-0.2.6.md) and [ANN guide](docs/ANN.md).
 
 ## What it does
 
@@ -39,7 +39,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.5", default-features = false }
+airust = { version = "=0.2.6", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -107,6 +107,16 @@ cargo run --locked --features hybrid --example hybrid
 ```
 
 Hybrid fusion can improve retrieval for some workloads and make it worse for others; the release report compares the fixed reference corpus without claiming universal improvement.
+
+## Optional approximate vector retrieval
+
+Enable `hnsw`, move an existing semantic index into `HnswIndex`, and choose `AnnSearchOptions` explicitly. The established semantic, hybrid and context APIs retain exact retrieval. Shared vector buffers avoid duplicating their contents. Configurable construction/search widths trade CPU and memory for recall; candidate scores use the existing cosine function.
+
+```bash
+cargo run --locked --features hnsw --example ann
+```
+
+Small indexes and explicit scopes use exact fallback. Changed entries are searched exactly in an overlay, stale graph points are excluded, and `rebuild` compacts them. Excessive pending changes switch to exact retrieval until compaction. The [ANN guide](docs/ANN.md) explains mode reporting, scopes, updates and measured recall limits. In the difficult 100k independent-random-vector test, width 100 recovered only 14.5% of exact top-ten neighbors on average; width 1000 recovered 68.5%. Serial topology construction took almost nine minutes. These synthetic results are reasons to measure the corpus and retain exact retrieval when needed, not production quality guarantees.
 
 ## Optional relationships and graph queries
 
@@ -190,6 +200,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | --- | --- |
 | None | Knowledge index, BM25, TF-IDF, matching, duplicates, filters, and relation suggestions. |
 | `embeddings` | Provider-neutral validated embeddings, atomic updates, and exact semantic retrieval. No added dependencies; Rust 1.89. |
+| `hnsw` | Optional approximate semantic candidates with exact re-scoring, update overlay and visible exact fallbacks. Enables embeddings and hnsw_rs; Rust 1.89. |
 | `hybrid` | Weighted reciprocal rank fusion, component evidence, filters, and explicit provider-error fallback. Enables `embeddings`; no added dependencies. |
 | `graph` | Stable IDs, typed directed/undirected relationships, bounded queries, and cycle checks using petgraph. Independent of embeddings; Rust 1.89. |
 | `context-assembly` | Borrowed ranked excerpts, graph evidence, deduplication, scope intersection, and text budgets. Enables `hybrid` and `graph`; Rust 1.89. |
@@ -237,6 +248,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/knowledge.rs` | Generic knowledge entries and the existing training collection. |
 | `src/index.rs` | Shared storage and retrieval operations. |
 | `src/semantic.rs`, `src/semantic/local.rs` | Optional semantic index, provider contract, and local E5 adapter. |
+| `src/ann.rs` | Optional shared-vector HNSW topology, update overlay and explicit fallback policy. |
 | `src/hybrid.rs` | Optional rank fusion over the shared lexical and semantic index. |
 | `src/graph.rs` | Optional ID-based graph, relationship metadata, bounded traversals, and cycle checks. |
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
@@ -258,6 +270,8 @@ The [API guide](docs/API.md) describes the public contracts. The [architecture g
 
 ## Changes and compatibility
 
+The [0.2.6 report](docs/CHANGES-0.2.6.md) and [migration guide](docs/MIGRATION-0.2.6.md) describe opt-in HNSW. Existing exact retrieval and default features remain unchanged.
+
 The [0.2.5 report](docs/CHANGES-0.2.5.md) and [migration guide](docs/MIGRATION-0.2.5.md) describe the additive cache. Default features, original entries and existing retrieval APIs remain unchanged.
 
 The [0.2.4 report](docs/CHANGES-0.2.4.md) and [migration guide](docs/MIGRATION-0.2.4.md) describe optional provenance. Source entries keep their original fields and JSON; references live in a separate caller-owned sidecar.
@@ -274,7 +288,7 @@ See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide]
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. ANN, revision, and broader quality work follow in separate stages. External application integrations remain separate.
+The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Revision and broader quality work follow in separate stages. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 

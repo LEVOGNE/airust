@@ -138,3 +138,7 @@ Enable `provenance` for `SourceReference`, `TextSpan`, `CodePosition`, `CodeSpan
 ## Optional derived-index cache
 
 Enable `cache` for `IndexCache`, `CacheIdentity`, `CacheLimits`, `CacheMetadata` and `CacheLoad<T>`. `save`/`load` handle the lexical engine; with `embeddings`, `save_semantic`/`load_semantic` preserve validated vectors. Load takes `&mut Vec<KnowledgeEntry>` and consumes it only on success. The [cache guide](CACHE.md) defines fingerprints, recipes, format, limits and rebuild behavior.
+
+## Optional HNSW candidate retrieval
+
+Enable `hnsw` for `HnswIndex`, `HnswConfig`, `AnnSearchOptions`, `AnnOutcome`, `AnnSearchMode` and `AnnError`. Move a `SemanticIndex` into the wrapper, query through an existing provider or validated embedding, inspect the reported mode, and compact changes explicitly. Existing exact APIs remain available through `semantic()`. See [ANN.md](ANN.md).

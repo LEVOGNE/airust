@@ -121,3 +121,7 @@ The independent `provenance` module owns reference definitions once and maps sta
 ## Derived cache boundary
 
 The optional cache serializes derived analysis and vectors, not authoritative source records. A validated load moves supplied originals into reconstructed posting/duplicate structures. Model, source and Unicode analysis recipes gate reuse. The existing atomic writer streams cache files with private permissions. See [CACHE.md](CACHE.md).
+
+## Optional ANN topology
+
+HNSW topology shares immutable vector buffers with the semantic index. The wrapper owns mutation so changed/deleted base IDs cannot silently retain stale answers. Exact re-scoring, changed-entry overlay and scope/small-index/pending-policy fallbacks keep behavior inspectable. Existing hybrid/context methods continue their exact path. Semantic cache format is preserved; ANN topology is rebuilt separately. See [ANN.md](ANN.md).

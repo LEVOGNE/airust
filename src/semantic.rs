@@ -5,7 +5,10 @@ use crate::{
     ranking::{Ranked, TopK},
     Context, Engine, IndexError, KnowledgeEntry,
 };
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    sync::Arc,
+};
 use thiserror::Error;
 
 #[cfg(feature = "local-embeddings")]
@@ -61,7 +64,7 @@ impl EmbeddingSpace {
         self.dimensions
     }
 
-    fn require(&self, other: &Self) -> Result<(), EmbeddingError> {
+    pub(crate) fn require(&self, other: &Self) -> Result<(), EmbeddingError> {
         if self == other {
             Ok(())
         } else {
@@ -247,7 +250,7 @@ impl Ranked for SemanticResult<'_> {
 pub struct SemanticIndex {
     lexical: Engine,
     space: EmbeddingSpace,
-    vectors: BTreeMap<String, Vec<f32>>,
+    vectors: BTreeMap<String, Arc<Vec<f32>>>,
 }
 
 impl SemanticIndex {
@@ -260,7 +263,10 @@ impl SemanticIndex {
         Self {
             lexical,
             space,
-            vectors,
+            vectors: vectors
+                .into_iter()
+                .map(|(id, vector)| (id, Arc::new(vector)))
+                .collect(),
         }
     }
     pub fn new(space: EmbeddingSpace) -> Self {
@@ -292,7 +298,7 @@ impl SemanticIndex {
             let embedded = embed_batch(provider, &texts, EmbeddingPurpose::Document)?;
             space.require(provider.space())?;
             for (entry, embedding) in batch.into_iter().zip(embedded) {
-                vectors.insert(entry.id.clone(), embedding.values);
+                vectors.insert(entry.id.clone(), Arc::new(embedding.values));
             }
         }
         drop(entries);
@@ -301,6 +307,13 @@ impl SemanticIndex {
             space,
             vectors,
         })
+    }
+
+    #[cfg(feature = "hnsw")]
+    pub(crate) fn shared_embeddings(&self) -> impl Iterator<Item = (&str, Arc<Vec<f32>>)> {
+        self.vectors
+            .iter()
+            .map(|(id, vector)| (id.as_str(), Arc::clone(vector)))
     }
 
     pub fn space(&self) -> &EmbeddingSpace {
@@ -320,7 +333,7 @@ impl SemanticIndex {
         self.lexical.is_empty()
     }
     pub fn embedding(&self, id: &str) -> Option<&[f32]> {
-        self.vectors.get(id).map(Vec::as_slice)
+        self.vectors.get(id).map(|vector| vector.as_slice())
     }
 
     pub fn upsert_embedded(
@@ -330,7 +343,8 @@ impl SemanticIndex {
     ) -> Result<Option<KnowledgeEntry>, EmbeddingError> {
         self.space.require(embedding.space())?;
         let normalized = validate_entry(&entry)?;
-        self.vectors.insert(entry.id.clone(), embedding.values);
+        self.vectors
+            .insert(entry.id.clone(), Arc::new(embedding.values));
         Ok(self.lexical.insert_validated(entry, normalized))
     }
 
@@ -344,7 +358,8 @@ impl SemanticIndex {
         let mut embedded = embed_batch(provider, &[&entry.text], EmbeddingPurpose::Document)?;
         self.space.require(provider.space())?;
         let embedding = embedded.pop().expect("validated single embedding");
-        self.vectors.insert(entry.id.clone(), embedding.values);
+        self.vectors
+            .insert(entry.id.clone(), Arc::new(embedding.values));
         Ok(self.lexical.insert_validated(entry, normalized))
     }
 
@@ -376,7 +391,8 @@ impl SemanticIndex {
         }
         let count = prepared.len();
         for ((entry, normalized), embedding) in prepared.into_iter().zip(embeddings) {
-            self.vectors.insert(entry.id.clone(), embedding.values);
+            self.vectors
+                .insert(entry.id.clone(), Arc::new(embedding.values));
             self.lexical.insert_validated(entry, normalized);
         }
         Ok(count)

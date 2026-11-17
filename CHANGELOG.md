@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.6
+
+- Add optional HNSW over shared semantic-vector buffers with configurable construction/search widths.
+- Preserve exact final cosine scores, access-filter fallback, small-index fallback and stable result ordering.
+- Track changed/deleted IDs with an exact live overlay and explicit topology compaction.
+- Compare recall, build/query time and memory against exact search; retain existing exact APIs.
+
+
 ## 0.2.5
 
 - Add optional versioned derived-index caches with source, analysis and model validation.

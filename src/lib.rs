@@ -64,3 +64,6 @@ pub fn version_info() -> String {
 pub fn library_description() -> String {
     "AIRust: A Modular Knowledge Intelligence Engine — find knowledge, compare text, suggest connections".to_string()
 }
+
+#[cfg(feature = "hnsw")]
+pub mod ann;

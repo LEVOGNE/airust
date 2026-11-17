@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.5"
+version = "0.2.6"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -38,9 +38,12 @@ ort = { version = "=2.0.0-rc.15", optional = true, default-features = false, fea
 petgraph = { version = "0.8.3", optional = true, default-features = false, features = ["std", "stable_graph"] }
 postcard = { version = "1.1.3", optional = true, default-features = false, features = ["use-std"] }
 
+hnsw_rs = { version = "=0.3.5", optional = true, default-features = false }
+
 [features]
 default = []
 embeddings = []
+hnsw = ["embeddings", "dep:hnsw_rs", "serde/rc"]
 hybrid = ["embeddings"]
 graph = ["dep:petgraph", "serde/rc"]
 context-assembly = ["hybrid", "graph"]
@@ -145,3 +148,11 @@ required-features = ["cache"]
 [[example]]
 name = "cache_benchmark"
 required-features = ["cache"]
+
+[[example]]
+name = "ann"
+required-features = ["hnsw"]
+
+[[example]]
+name = "ann_benchmark"
+required-features = ["hnsw"]
