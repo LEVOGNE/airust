@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.14
+
+Optional coherent dataset snapshots: one revision for search, vectors and source references, off-lock preparation, conflict-checked publication, full reconciliation, exact-text vector reuse and explicit model rebuilding. Optional positional search joins the same boundary. See [report](docs/CHANGES-0.2.14.md).
+
+
 ## 0.2.13
 
 Optional query-related excerpts over existing retrieval results: original UTF-8 byte spans, grapheme-safe bounded highlights, phrase/term selection, analyzer forwarding and explicit fallback reasons. Prefix defaults and old public struct literals remain compatible. See [report](docs/CHANGES-0.2.13.md).

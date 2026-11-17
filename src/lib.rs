@@ -88,3 +88,6 @@ pub mod storage;
 
 #[cfg(feature = "retrieval")]
 pub mod retrieval;
+
+#[cfg(feature = "snapshots")]
+pub mod snapshots;

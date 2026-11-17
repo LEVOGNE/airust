@@ -335,6 +335,20 @@ impl SemanticIndex {
     pub fn embedding(&self, id: &str) -> Option<&[f32]> {
         self.vectors.get(id).map(|vector| vector.as_slice())
     }
+    #[cfg(feature = "snapshots")]
+    pub(crate) fn replace_unchanged_text(
+        &mut self,
+        entry: KnowledgeEntry,
+    ) -> Result<Option<KnowledgeEntry>, EmbeddingError> {
+        if self
+            .lexical
+            .get(&entry.id)
+            .is_none_or(|old| old.text != entry.text)
+        {
+            return Ok(None);
+        }
+        Ok(self.lexical.upsert(entry)?)
+    }
 
     pub fn upsert_embedded(
         &mut self,

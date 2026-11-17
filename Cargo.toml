@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.13"
+version = "0.2.14"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -47,6 +47,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+snapshots = ["storage", "embeddings", "provenance"]
 retrieval = ["dep:unicode-segmentation"]
 storage = ["dep:getrandom"]
 sqlite-storage = ["storage", "dep:rusqlite"]
@@ -233,3 +234,11 @@ required-features = ["retrieval"]
 [[example]]
 name = "excerpt_benchmark"
 required-features = ["retrieval"]
+
+[[example]]
+name = "snapshots"
+required-features = ["snapshots", "retrieval"]
+
+[[example]]
+name = "snapshot_benchmark"
+required-features = ["snapshots"]

@@ -1,4 +1,4 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.13
+# Proposed DenkMaps upgrade to AIRust 0.2.14
 
 This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was previously inspected read-only and was not re-audited for this library-only release; the new library is not integrated automatically.
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.13", default-features = false }
+airust = { version = "=0.2.14", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.13", default-features = false,
+airust = { version = "=0.2.14", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -122,7 +122,7 @@ This release does not integrate the new TextIndex into DenkMaps. It is an altern
 A future dependency selection for an isolated lexical/phrase trial could be:
 
 ```toml
-airust = { version = "=0.2.13", default-features = false,
+airust = { version = "=0.2.14", default-features = false,
            features = ["retrieval", "advanced-search", "quality"] }
 ```
 
@@ -140,3 +140,14 @@ With 0.2.13, an explicitly authorized application trial can add `with_relevant_e
 TextSource forwards German stemming and phrase analysis. Semantic-only paraphrases without matching words expose a localization fallback; they do not acquire an invented supporting quotation. Set analysis/highlight limits as well as text/JSON budgets, handle budget errors explicitly and preserve the existing application fallback. Compare selected evidence with manually judged real queries before changing displayed context.
 
 ContextAssembler retains its existing behavior. If feeding selected hit IDs to it for graph/source expansion, keep the RetrievalResponse's new excerpts, positions and ranking evidence separately; passing IDs alone does not carry the selected windows into another API. Cap any combined transport envelope independently. This documentation changes no DenkMaps source, dependency, database or MCP tool.
+
+
+## 11. Consider coordinated snapshots in a separate application trial
+
+The new optional snapshots feature offers DatasetManager as an alternative coordinated owner for lexical search, optional vectors and provenance. Acquire one DatasetSnapshot for each request, query its views and resolve sources from that same Arc. Carry its revision with selected evidence; an older retained view stays coherent but may no longer be current. An optional configured TextIndex joins the same publication boundary, with explicit extra rebuilding/memory cost.
+
+Keep DenkMaps SQLite transactions, permissions and committed generations authoritative. Map a consistent authorized complete source image and its same-generation references into DatasetRecords, then use prepare_replace so missing IDs are removed. SourceRevision is a separate caller-provided marker, not a database watcher or distributed transaction. Preserve the application's source/access recheck before publication and handle stale prepared work by discarding/reconciling it. Do not infer matching freshness merely from the same numeric generation in unrelated lineages.
+
+Exact unchanged text can reuse vectors; changed text needs a matching provider before anything is published. Every Put replaces its source list, so explicitly provide references intended to survive metadata edits. Model changes use prepare_model and rebuild all vectors against the retained source snapshot. Measure staging clones, retained-reader RAM, optional text-index rebuilding and model latency on real maps before adopting the new owner. HNSW/graph/cache/history remain separate projections requiring their own generation coordination.
+
+A later integration must test simultaneous readers, concurrent commits, interrupted inference, deleted/private nodes, source-binding replacement, stale publication, model changes, restart reconciliation and transport envelope budgets. This guide performs no DenkMaps code, dependency, database or MCP integration.

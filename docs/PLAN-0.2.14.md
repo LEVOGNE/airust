@@ -1,0 +1,5 @@
+# AIRust 0.2.14 acceptance plan
+
+Coordinate existing lexical/semantic search, source references and optional positional analysis under a single immutable published revision. Use off-lock preparation and short compare-and-swap publication. Reject stale/cross-lineage work, provider failures, invalid source definitions and exhausted revisions without partial publication. Keep old readers coherent.
+
+Validate complete replacement/deletion reconciliation, literal-text vector reuse, metadata/source changes, explicit full model rebuilds, external marker monotonicity, final-state capacity checks and bounded data. Exercise concurrent readers/writers, blocked/panicking providers, independently modeled updates, source encoding/depth limits and optional excerpt/context composition. Measure 10k/100k staging, publication, acquisition and memory costs with explicit retained-reader scope. Run complete tests, minimum compilers, static patch compatibility, audit, independent consumer, extracted package and exact-commit CI/registry checks before release. No application integration.

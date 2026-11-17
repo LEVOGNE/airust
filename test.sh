@@ -58,3 +58,10 @@ cargo run --locked --features retrieval --example retrieval
 cargo test --no-default-features --features retrieval --test excerpts --locked
 cargo run --locked --features retrieval --example relevant_excerpts
 cargo run --locked --features retrieval,advanced-search --example relevant_excerpts
+
+cargo check --lib --no-default-features --features snapshots --locked
+cargo check --lib --no-default-features --features snapshots,retrieval --locked
+cargo check --lib --no-default-features --features snapshots,advanced-search --locked
+cargo test --no-default-features --features snapshots --test snapshots --locked
+cargo run --locked --features snapshots,retrieval --example snapshots
+cargo run --locked --features snapshots,retrieval,advanced-search,context-assembly --example snapshots

@@ -1,14 +1,16 @@
-# AIRust 0.2.13
+# AIRust 0.2.14
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.13 adds optional relevant text excerpts. AIRust can return the matching passage from further down a document, together with exact original UTF-8 byte positions and bounded highlights. Existing prefix defaults remain compatible. See the [API cookbook](docs/API-COOKBOOK.md), [excerpt guide](docs/EXCERPTS.md) and [release report](docs/CHANGES-0.2.13.md). No DenkMaps or MCP integration is performed.
+Version 0.2.14 adds optional coherent dataset snapshots. Search, vectors and source references are published together under one revision. Readers keep a complete old view while an update is prepared; stale competing updates are rejected. See the [snapshot guide](docs/SNAPSHOTS.md), [API cookbook](docs/API-COOKBOOK.md) and [release report](docs/CHANGES-0.2.14.md). No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
+
+To keep related data consistent, enable `snapshots` and acquire one `manager.snapshot()` per request. Use that view for search, vectors and source lookup. Run `cargo run --features snapshots,retrieval --example snapshots` for a complete example. These are RAM read views; an application still coordinates its own database transactions.
 
 ## What it does
 
@@ -22,6 +24,7 @@ To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10)
 | `KnowledgeGraph` | Store explicit relationships, inspect neighbors, traverse within budgets, and detect cycles. | Application-owned hierarchies, dependencies, and references. |
 | `ContextAssembler::query()` | Assemble ranked excerpts and optional graph neighbors with source evidence and budgets. | Preparing focused, inspectable context for an application or agent. |
 | `reranking::rerank()` | Rescore a bounded candidate set while preserving its original retrieval evidence. | Improving the order of possible answers with an evaluated scorer. |
+| `DatasetManager` | One immutable revision for search, optional vectors and sources; checked publication of prepared changes. | Keeping concurrent readers and updates consistent. |
 | `Retriever::query()` | Compact owned excerpts, original ranking evidence and bounded JSON through interchangeable sources. | Feeding application transports without copying the whole corpus. |
 | `StorageBackend` | Atomic original-record batches, revision fencing and bounded pages. | Sharing a storage contract without coupling to an application database. |
 | `ProvenanceStore` | Share explicit source references and preserve them when entries are combined. | Showing where knowledge came from without inventing citations. |
@@ -46,7 +49,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.13", default-features = false }
+airust = { version = "=0.2.14", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -213,7 +216,7 @@ cargo run --locked --features quality,hybrid --example retrieval_quality
 
 The new authored reference has 30 public records and 36 queries, including literal identifiers, multilingual paraphrases, graded sources, distractors and no-answer cases. It is not an independent application benchmark or proof of logical understanding. Explicit local E5 runs and scale checks are documented in [BENCHMARKS.md](docs/BENCHMARKS.md). Raw samples, costs and unfavorable results remain visible. No token-saving percentage or production speed guarantee is inferred.
 
-The current release passes **189 default tests and 457 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **189 default tests and 482 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
@@ -263,6 +266,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
+| `snapshots` | Coordinated immutable dataset views and conflict-checked publication; includes provider-neutral embeddings, provenance and record-validation contracts. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
 | `advanced-search` | Explicit positional phrase search, configurable Unicode analysis and optional German Snowball stemming. Rust 1.89. |
@@ -303,6 +307,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 | Location | Purpose |
 | --- | --- |
+| `src/snapshots.rs` | Common revisions, prepared updates, vector reuse and atomic index/source publication. |
 | `src/retrieval/excerpts.rs` | Bounded query-related windows, Unicode-safe highlights and original byte coordinates. |
 | `src/retrieval.rs` | Transport-neutral source adapters, scope checks, optional reranking and exact JSON output budgets. |
 | `src/storage.rs` | Optional record-backend contract, memory adapter and snapshot loading; `storage/sqlite.rs` supplies standalone SQLite. |

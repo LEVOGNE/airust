@@ -1,4 +1,4 @@
-# AIRust 0.2.13 API cookbook
+# AIRust 0.2.14 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.13", default-features = false }
+airust = { version = "=0.2.14", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,7 @@ airust = { version = "=0.2.13", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `snapshots` | One revision for immutable search/vector/source views and checked updates | [SNAPSHOTS](SNAPSHOTS.md), `snapshots`, `snapshot_benchmark` |
 | `retrieval` | Compact owned excerpts/evidence and complete JSON budgets over interchangeable sources | [RETRIEVAL](RETRIEVAL.md), `retrieval`, `retrieval_benchmark` |
 | `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
 | `advanced-search` | Explicit phrase queries, Unicode word boundaries and optional German stemming | [TEXT-SEARCH](TEXT-SEARCH.md), `advanced_search` |
@@ -38,6 +39,7 @@ Rust 1.89 supports the provider-independent features. The local ONNX adapters ne
 | `SemanticIndex` | One Engine and model-specific vector buffers | `lexical()` borrows; `into_lexical()` consumes |
 | `HnswIndex` | One SemanticIndex and derived topology over shared buffers | `semantic()` borrows; `into_semantic()` consumes |
 | `VersionedIndex` | One Engine, revision heads and optional snapshots | `index()` borrows; `into_index()` consumes and ends history bookkeeping |
+| `DatasetManager` / `DatasetSnapshot` | Published immutable data generation / retained read view | Prepare off-lock, publish with CAS, read every component from one view |
 | `TextIndex` | One privately analyzed lexical index and positions | Explicit analyzer and original-text phrase evidence |
 | `MemoryStore` / `SqliteStore` | Authoritative generic records with a revision lineage | Atomic batches, pages and staged snapshots |
 | `Retriever` / `RetrievalResponse` | Source/provider borrows / only selected owned output | Full encoded JSON budget; no second source corpus |
@@ -201,3 +203,16 @@ Keep `retrieval` enabled and opt in with `RetrievalOptions::with_relevant_excerp
 Relevant mode respects per-item, total-text and full-JSON budgets, including details/highlights. ExcerptOptions additionally bounds analysis input/normalized bytes, tokens, query terms, occurrences and markers. Analysis overruns fail explicitly; marker truncation sets both its local flag and the response flag. Tail-hit removal also removes its details. Use `with_prefix_excerpts` to return to compatible prefix JSON.
 
 Standalone callers can use `select_excerpt` with original text, RankingEvidence and an explicit ExcerptAnalyzer. Custom RetrievalSource implementations can override the default excerpt analyzer; boxed/borrowed forwarding preserves it. Read the [complete excerpt contract](EXCERPTS.md) and run `cargo run --features retrieval --example relevant_excerpts`; adding `advanced-search` also runs its German phrase example. No application integration is performed.
+
+
+## 19. Keep search, vectors and sources on one dataset revision
+
+Enable `snapshots`. Create DatasetManager with DatasetConfig; use `with_embedding_space` for provider-neutral semantic mode and, with `advanced-search`, `with_text_analyzer` for an optional positional projection. Acquire one `snapshot()` per request and borrow lexical(), semantic(), provenance() and text_index() from that same view. Carry revision() alongside results. Older Arcs remain coherent after publication; require_current checks freshness only at the instant called.
+
+Build DatasetRecords with complete entries and source lists. prepare() stages unique-ID Put/Delete changes against an expected revision, outside the publication lock. prepare_replace() reconciles an entire source image and removes missing IDs automatically. publish() swaps the complete result only if that base is still current. Invalid records, provider failures, changed model recipes, source conflicts, stale work and capacity overruns publish nothing. No automatic retry repeats model work.
+
+Exact unchanged text shares its existing vector buffer for metadata/source changes; changed text needs a matching provider. prepare_model explicitly rebuilds every vector for an enabled/replaced model, or switches to lexical-only with None. Every Put replaces sources; omitting them clears old bindings. Changing a shared source definition requires replacing all affected bindings together. Optional positional search is rebuilt on record updates and published in the same boundary.
+
+Dataset revisions reuse StoreRevision's complete namespace/identity/generation token. An optional separate source_revision can record a consistent external committed generation; later markers must advance within that lineage. This is a caller assertion, not a database watcher or cross-store transaction. Preserve external source/access rechecks. A full image mapped from storage::read_snapshot can be reconciled without changing that storage backend.
+
+Index/source staging copies bookkeeping and can retain multiple generations in RAM; unchanged vectors are shared. Default limits bound encoded records, source lists, vector components and batches, not exact heap. No automatic graph/HNSW/cache/history synchronization is claimed. See [the complete snapshot contract](SNAPSHOTS.md) and run `cargo run --features snapshots,retrieval --example snapshots`. Add `advanced-search,context-assembly` for positional/sourced-context composition. No DenkMaps integration is performed.

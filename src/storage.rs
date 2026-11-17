@@ -88,7 +88,7 @@ impl StoreRevision {
     pub fn generation(&self) -> u64 {
         self.generation
     }
-    fn fresh(namespace: &str) -> Result<Self, StorageError> {
+    pub(crate) fn fresh(namespace: &str) -> Result<Self, StorageError> {
         let mut bytes = [0u8; 16];
         getrandom::fill(&mut bytes).map_err(|e| StorageError::Backend(e.to_string()))?;
         Self::new(
@@ -97,7 +97,7 @@ impl StoreRevision {
             0,
         )
     }
-    fn next(&self) -> Result<Self, StorageError> {
+    pub(crate) fn next(&self) -> Result<Self, StorageError> {
         let mut next = self.clone();
         next.generation = next
             .generation
@@ -274,7 +274,7 @@ fn validate_id(id: &str, limits: &StorageLimits) -> Result<(), StorageError> {
     }
     Ok(())
 }
-fn validate_metadata(value: &Value, limits: &StorageLimits) -> Result<(), StorageError> {
+pub(crate) fn validate_metadata(value: &Value, limits: &StorageLimits) -> Result<(), StorageError> {
     let mut stack = vec![(value, 1usize)];
     let mut nodes = 0usize;
     while let Some((value, depth)) = stack.pop() {
@@ -326,7 +326,10 @@ impl Write for LimitedBytes {
         Ok(())
     }
 }
-fn encode_entry(entry: &KnowledgeEntry, limits: &StorageLimits) -> Result<String, StorageError> {
+pub(crate) fn encode_entry(
+    entry: &KnowledgeEntry,
+    limits: &StorageLimits,
+) -> Result<String, StorageError> {
     validate_id(&entry.id, limits)?;
     if entry.text.len() > limits.max_entry_bytes {
         return Err(StorageError::Limit("entry text bytes"));
