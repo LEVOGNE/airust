@@ -1,4 +1,4 @@
-# AIRust 0.2.9 API cookbook
+# AIRust 0.2.10 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.9", default-features = false }
+airust = { version = "=0.2.10", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,7 @@ airust = { version = "=0.2.9", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `advanced-search` | Explicit phrase queries, Unicode word boundaries and optional German stemming | [TEXT-SEARCH](TEXT-SEARCH.md), `advanced_search` |
 | `reranking` | Bounded provider-neutral query/document rescoring | [RERANKING](RERANKING.md), `reranking` |
 | `local-reranking` | Explicit verified multilingual cross-encoder/ONNX inference | [LOCAL-RERANKING](LOCAL-RERANKING.md), `reranking_quality` |
 | `graph` | Explicit relationships, bounded BFS/DFS and cycle checks | [GRAPH](GRAPH.md), `graph` |
@@ -154,3 +155,13 @@ Call `rerank(query, &candidates, &mut scorer, &RerankOptions::new(k))`. Candidat
 All selected inputs are validated before any inference. Wrong output counts, non-finite scores, duplicate selected IDs and changed recipes fail. Equal scores keep input order. Default provider failures return errors. Explicit `KeepOriginalOrder` fallback discards every partial score, keeps the selected original order, returns `score=None` and explains the failure. It never bypasses a configured finite `with_min_score` threshold. A successful score is not a calibrated relevance probability or a no-answer decision.
 
 For context, feed the selected IDs into `ContextAssembler::assemble` and preserve rerank scores separately. Assembly still enforces its source/scope/excerpt budgets and does not invent ranking evidence. Reuse model instances in bounded workers, keep database/index locks out of expensive inference and evaluate latency/quality before rollout. See the complete [reranking contract](RERANKING.md), [native setup](LOCAL-RERANKING.md), `reranking` executable and `reranking_quality` evaluator. The [0.2.9 report](CHANGES-0.2.9.md) includes both improvements and regressions on the unchanged fixture. No DenkMaps/MCP integration is performed.
+
+## 15. Search phrases and German word forms
+
+Enable `advanced-search`. `TextIndex::new(AnalyzerConfig)` is an alternative positional lexical owner that reuses the shared Engine's storage/ranking privately. Use `from_entries`, `upsert`, `remove`, `clear`, `get`, `entries`, `stats` and `tokens`; no second source corpus is maintained. The default Engine and its saved/cache formats are unchanged. Analyzer changes require an explicit source rebuild.
+
+`AnalyzerConfig::default()` selects Unicode word boundaries, typographic-apostrophe folding and no stemming. `german()` enables German Snowball stemming. Set tokenizer, stemming, apostrophe handling and positive input/normalized-byte/token limits explicitly. `TextAnalyzer::analyze` returns normalized/stemmed terms with sequential positions and original UTF-8 spans; expansions may share one original grapheme. Store the complete analyzer recipe/config with derived data.
+
+Call `search(query, &TextSearchOptions::new(limit))`. Every double-quoted token phrase is required and matched before top-K; unquoted terms additionally obey Any/All. `with_search` selects the shared BM25/TF-IDF options, `with_context` scopes results, and query/evidence budgets fail explicitly. Invalid/empty/unclosed phrases do not silently become ordinary search. Results retain original entries, analyzed matched terms and bounded phrase evidence with truncation flags. With `reranking`, these results implement `Rerankable` without copying original content.
+
+German stemming handles useful suffix forms but is not full morphology, irregular-verb lemmatization, decompounding or meaning recognition. Analyzed phrases can cross punctuation/whitespace; they are not byte-exact quotations or evidence of truth. The [full contract](TEXT-SEARCH.md), compiled `advanced_search` example and [measured release report](CHANGES-0.2.10.md) define limits and source-coordinate behavior. This feature does not automatically change an existing application or wrap a SemanticIndex.

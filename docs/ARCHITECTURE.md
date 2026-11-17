@@ -21,6 +21,7 @@ The arrows represent possible library calls. No external application is integrat
 
 | Module | Responsibility |
 | --- | --- |
+| `text_search` | Optional positional wrapper over shared Engine storage/ranking, configurable Unicode/German analysis and bounded phrase evidence. |
 | `text` | Normalize Unicode, split words and numbers, and count terms. |
 | `knowledge` | Represent generic entries and relation suggestions; retain the existing training collection. |
 | `index` | Own entries, postings, and the central `Engine` operations. |
@@ -140,3 +141,7 @@ The independent versioning wrapper owns the existing lexical engine and revision
 ## Quality and application boundaries
 
 The quality module consumes ranked IDs and caller judgments; it requires no engine, model or transport. Integration harnesses are development tools, not runtime dependencies. The [cookbook](API-COOKBOOK.md) distinguishes alternative index owners from borrowed sidecars, and the [proposed DenkMaps upgrade](DENKMAPS-UPGRADE.md) preserves its existing SQLite authority and access rules. No application integration is performed by the library release.
+
+## Advanced positional analysis
+
+`TextIndex` privately uses `insert_analyzed` and `search_analyzed` inside the same Engine implementation. Its immutable analyzer builds terms and positional evidence before committing replacements. Context is checked before phrase evaluation; phrase/term constraints precede shared top-K. KMP matches required phrases in linear token-stream time per phrase and returns bounded original UTF-8 spans. The internal Engine is not exposed as an ordinary legacy analyzer or passed into old cache/vector wrappers. Original source records are owned once; positions are additional derived memory.

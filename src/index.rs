@@ -74,6 +74,15 @@ impl KnowledgeIndex {
         normalized: String,
     ) -> Option<KnowledgeEntry> {
         let terms = text::frequencies_normalized(&normalized);
+        self.insert_analyzed(entry, normalized, terms)
+    }
+
+    pub(crate) fn insert_analyzed(
+        &mut self,
+        entry: KnowledgeEntry,
+        normalized: String,
+        terms: BTreeMap<String, usize>,
+    ) -> Option<KnowledgeEntry> {
         let char_length = normalized.chars().count();
         let length = terms.values().sum();
         let previous = self.remove(&entry.id);
@@ -183,6 +192,18 @@ impl KnowledgeIndex {
             return Vec::new();
         }
         let query_terms = text::term_frequencies(query);
+        self.search_analyzed(&query_terms, options, |_| true)
+    }
+
+    pub(crate) fn search_analyzed(
+        &self,
+        query_terms: &BTreeMap<String, usize>,
+        options: &SearchOptions,
+        includes: impl Fn(&str) -> bool,
+    ) -> Vec<SearchResult<'_>> {
+        if options.limit == 0 || self.is_empty() {
+            return Vec::new();
+        }
         let candidates = self.candidates(query_terms.keys().map(String::as_str));
         let average = self.total_tokens as f64 / self.len() as f64;
         let query_norm = if options.algorithm == SearchAlgorithm::Tfidf {
@@ -206,6 +227,9 @@ impl KnowledgeIndex {
                 .as_ref()
                 .is_some_and(|context| !context.includes(&document.entry))
             {
+                continue;
+            }
+            if !includes(id) {
                 continue;
             }
             let matched_terms: Vec<String> = query_terms

@@ -79,3 +79,6 @@ pub mod quality;
 
 #[cfg(feature = "reranking")]
 pub mod reranking;
+
+#[cfg(feature = "advanced-search")]
+pub mod text_search;

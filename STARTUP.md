@@ -152,3 +152,7 @@ For the complete modular API, read [API-COOKBOOK.md](docs/API-COOKBOOK.md). Repr
 ## Optional intelligent reranking
 
 Reranking is a library operation, not a new dashboard or MCP endpoint. Run the model-independent API example with `cargo run --locked --features reranking --example reranking`. It uses a handwritten demonstration scorer. For actual model inference and explicit pinned-asset download commands, follow [LOCAL-RERANKING.md](docs/LOCAL-RERANKING.md). The complete [API cookbook](docs/API-COOKBOOK.md) explains bounded candidate selection and composition with context. No existing application is upgraded automatically.
+
+## Optional phrase and word-form search
+
+Run `cargo run --locked --features advanced-search --example advanced_search`. The [text-search guide](docs/TEXT-SEARCH.md) documents required quoted phrases, German stemming, Unicode tokenization and budgets. This is a library-only feature and changes no existing dashboard or application search automatically.

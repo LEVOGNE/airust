@@ -1,4 +1,4 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.9
+# Proposed DenkMaps upgrade to AIRust 0.2.10
 
 This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was inspected read-only; the new library is not integrated automatically.
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.9", default-features = false }
+airust = { version = "=0.2.10", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.9", default-features = false,
+airust = { version = "=0.2.10", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -105,3 +105,7 @@ MCP/TOON are transport choices, not required AIRust dependencies. Measure the co
 The separately requested MCP progress improvement should report real visible actions, elapsed time and completed units when known. It must distinguish a completed server tool request from the external agent's still-unobserved final answer. Start/progress/end communication rules belong to the agent/server instructions; no fabricated percentages, finish time or hidden thinking trace are needed.
 
 The [API cookbook](API-COOKBOOK.md) gives compiled generic examples and exact module contracts. Implement the application upgrade in its own branch/change set after the above checks; this guide performs none of those production changes itself.
+
+## Optional advanced-text trial
+
+This release does not integrate the new TextIndex into DenkMaps. It is an alternative positional lexical owner with an immutable analyzer, not a drop-in replacement for SemanticIndex ownership. A later explicitly authorized trial must rebuild from committed authorized source records, preserve stable IDs/revisions, compare literal identifiers and phrase/German stem behavior against existing search, and measure positional memory/query costs before changing displayed results.

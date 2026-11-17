@@ -20,6 +20,7 @@ cargo check --lib --no-default-features --features cache --locked
 cargo check --lib --no-default-features --features hnsw --locked
 cargo check --lib --no-default-features --features versioning --locked
 cargo check --lib --no-default-features --features quality --locked
+cargo check --lib --no-default-features --features advanced-search --locked
 cargo check --lib --no-default-features --features reranking --locked
 cargo check --lib --no-default-features --features local-reranking --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
@@ -40,3 +41,4 @@ cargo run --locked --features quality,context-assembly,provenance --example qual
 cargo run --locked --features reranking --example reranking
 cargo run --locked --features hnsw,cache,context-assembly,provenance,quality,reranking --example knowledge_pipeline
 python3 -B tests/download_reranker_test.py
+cargo run --locked --features advanced-search --example advanced_search

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.10
+
+- Add explicitly selected Unicode word analysis, optional German Snowball stemming and required quoted token phrases.
+- Reuse shared Engine postings/BM25/TF-IDF/top-K without changing default analysis or duplicating source records.
+- Preserve original UTF-8 evidence across normalization/compatibility expansions; bound input/query/occurrence work and stage updates before mutation.
+- Test ordering, overlaps, malformed queries, scope-before-top-K, Unicode spans, stem limitations and incremental/rebuilt agreement.
+- Add executable recipes, measured scale checks, compatibility validation and English API guidance. No DenkMaps/MCP integration.
+
 ## 0.2.9
 
 - Add optional provider-neutral candidate reranking with bounded batches/bytes, pre-inference scope checks, stable ties and preserved retrieval evidence.

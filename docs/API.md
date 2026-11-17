@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.2.9 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.2.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Source entries
 
@@ -158,3 +158,7 @@ Enable `quality` for `Judgments`, `UnjudgedPolicy`, `evaluate_ranking`, `QueryMe
 Enable `reranking` for `rerank`, `Reranker`, `Rerankable`, `RerankOptions`, `RerankResult`, `RerankOutcome`, `RerankError` and `RerankFailurePolicy`. Apply scope before bounded query/document scoring. Keep original candidate evidence and raw new scores separate. Wrong counts, invalid scores and recipe changes fail. Provider-error fallback is explicit and cannot bypass a configured score threshold. See [RERANKING.md](RERANKING.md).
 
 Enable `local-reranking` separately for `FastEmbedReranker::multilingual_minilm_v2`, with explicit pinned local assets, a trusted dynamic runtime and a positive thread count. It uses 512-token pairs and raw logits, not relevance probabilities. The [local guide](LOCAL-RERANKING.md) documents downloads, resource cost and shared runtime behavior. Neither feature changes existing search results automatically.
+
+## Optional advanced text search
+
+Enable `advanced-search` for `TextIndex`, `TextAnalyzer`, `AnalyzerConfig`, `WordTokenizer`, `Stemming`, `TextSearchOptions`, `TermOperator`, `Token`, `TextSpan`, `PhraseEvidence`, `TextSearchResult` and `TextSearchError`. The [text-search guide](TEXT-SEARCH.md) defines analysis recipes, required quoted phrases, original UTF-8 evidence, word-form limits and update atomicity. Legacy Engine methods remain unchanged.

@@ -16,7 +16,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.7 | Generic revisions and conflict detection | Implemented; see the release report for validation. |
 | 0.2.8 | Reproducible performance and quality suite | Implemented; see the release report for validation. |
 | 0.2.9 | Optional intelligent reranking over retrieved candidates | Implemented and measured; see [release report](docs/CHANGES-0.2.9.md). |
-| 0.2.10 | Phrase queries, optional German morphology and configurable text analysis | Proposed after 0.2.9 validation. |
+| 0.2.10 | Phrase queries, optional German morphology and configurable text analysis | Implemented and validated; see [report](docs/CHANGES-0.2.10.md). |
 | 0.2.11 | Interchangeable storage-backend API for larger derived indexes | Proposed after 0.2.10 validation. |
 | 0.2.12 | Unified compact retrieval API for applications and agent transports | Proposed after 0.2.11 validation. |
 
