@@ -142,3 +142,7 @@ Enable `cache` for `IndexCache`, `CacheIdentity`, `CacheLimits`, `CacheMetadata`
 ## Optional HNSW candidate retrieval
 
 Enable `hnsw` for `HnswIndex`, `HnswConfig`, `AnnSearchOptions`, `AnnOutcome`, `AnnSearchMode` and `AnnError`. Move a `SemanticIndex` into the wrapper, query through an existing provider or validated embedding, inspect the reported mode, and compact changes explicitly. Existing exact APIs remain available through `semantic()`. See [ANN.md](ANN.md).
+
+## Optional revision ownership
+
+Enable `versioning` for `VersionedIndex`, `Revision`, `ExpectedRevision`, `ChangeMetadata`, `EntryVersion`, `RevisionRecord`, borrowed `RevisionView` and `RevisionComparison`. Writes require absent/exact expectations. History is explicitly enabled by record count; restore creates a new revision. The [revision guide](VERSIONING.md) defines tombstones, comparison, pruning, JSON and caller coordination.

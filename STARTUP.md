@@ -144,3 +144,5 @@ The older benchmark measures a small fixed workload. Results depend on the host.
 For optional derived-index startup and recovery, see [CACHE.md](docs/CACHE.md).
 
 Approximate retrieval is explicitly opt-in; see [ANN.md](docs/ANN.md).
+
+Optional conflict-checked revisions and history: [VERSIONING.md](docs/VERSIONING.md).

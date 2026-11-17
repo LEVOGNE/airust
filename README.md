@@ -1,10 +1,10 @@
-# AIRust 0.2.6
+# AIRust 0.2.7
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.6 adds optional HNSW candidate search over the existing semantic index. Vectors are shared, final scores remain exact, and fallback modes are visible. Approximation can miss relevant candidates: measure recall before choosing it. See the [0.2.6 report](docs/CHANGES-0.2.6.md) and [ANN guide](docs/ANN.md).
+Version 0.2.7 adds optional revisions, conflict-checked writes and retained history. Restore available earlier content into a new revision, keep deletion tombstones, and compare states. History is disabled by default. See the [0.2.7 report](docs/CHANGES-0.2.7.md) and [revision guide](docs/VERSIONING.md).
 
 ## What it does
 
@@ -39,7 +39,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.6", default-features = false }
+airust = { version = "=0.2.7", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -161,6 +161,16 @@ cargo run --locked --features cache --example cache
 
 Files use atomic replacement, exact lengths, SHA-256 and explicit limits. Checksums detect damage, not a hostile writer with directory access. Loading reconstructs posting trees and validates source fingerprints, so a cache is not guaranteed faster for every workload. See [CACHE.md](docs/CACHE.md) for recovery, permissions and concurrency limits.
 
+## Optional revisions and history
+
+Enable `versioning` for `VersionedIndex`. Each write supplies an expected revision, so a stale caller receives a conflict. Deleted IDs retain a revision; recreating them needs that current value. Optional actor/reason/metadata describe a change without claiming authenticated audit evidence.
+
+```bash
+cargo run --locked --features versioning --example versioning
+```
+
+History defaults to zero retained snapshots. Opt into a global record limit when earlier content must remain available. Compare states, restore live or deleted states into new revisions, and export/import a validated versioned snapshot. Record limits are not byte limits; original application transactions, permissions and durable history remain caller-owned. See [VERSIONING.md](docs/VERSIONING.md).
+
 ## Tested lexical baseline and limits
 
 The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
@@ -206,6 +216,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `context-assembly` | Borrowed ranked excerpts, graph evidence, deduplication, scope intersection, and text budgets. Enables `hybrid` and `graph`; Rust 1.89. |
 | `provenance` | Shared document/page/text/file/code source references, checked merges and versioned export. No added dependencies; Rust 1.89. |
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
+| `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -253,6 +264,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/graph.rs` | Optional ID-based graph, relationship metadata, bounded traversals, and cycle checks. |
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
 | `src/cache.rs` | Optional versioned, bounded derived-index snapshots and validated restoration. |
+| `src/versioning.rs` | Optional revision ownership, conflict checks and retained snapshots over the existing lexical engine. |
 | `src/provenance.rs` | Optional validated source locations and shared entry-to-source bindings. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
@@ -269,6 +281,8 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 The [API guide](docs/API.md) describes the public contracts. The [architecture guide](docs/ARCHITECTURE.md) explains how the modules work together. Source code is kept free of comments; explanations live in these documents and executable examples.
 
 ## Changes and compatibility
+
+The [0.2.7 report](docs/CHANGES-0.2.7.md) and [migration guide](docs/MIGRATION-0.2.7.md) describe additive revision tracking. Existing source entries, retrieval and cache formats stay unchanged.
 
 The [0.2.6 report](docs/CHANGES-0.2.6.md) and [migration guide](docs/MIGRATION-0.2.6.md) describe opt-in HNSW. Existing exact retrieval and default features remain unchanged.
 
@@ -288,7 +302,7 @@ See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide]
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Revision and broader quality work follow in separate stages. External application integrations remain separate.
+The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Broader quality work follows in separate stages. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 

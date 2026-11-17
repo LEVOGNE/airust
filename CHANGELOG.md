@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.7
+
+- Add independent revision heads and deletion tombstones with explicit expected-version writes.
+- Keep historical snapshots opt-in, bounded globally, and separate from application durability.
+- Compare available states and restore them into new revisions without rewinding the sequence.
+- Validate versioned JSON and standalone records, including sequence exhaustion and malformed histories.
+
+
 ## 0.2.6
 
 - Add optional HNSW over shared semantic-vector buffers with configurable construction/search widths.

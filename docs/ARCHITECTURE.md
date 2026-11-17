@@ -125,3 +125,7 @@ The optional cache serializes derived analysis and vectors, not authoritative so
 ## Optional ANN topology
 
 HNSW topology shares immutable vector buffers with the semantic index. The wrapper owns mutation so changed/deleted base IDs cannot silently retain stale answers. Exact re-scoring, changed-entry overlay and scope/small-index/pending-policy fallbacks keep behavior inspectable. Existing hybrid/context methods continue their exact path. Semantic cache format is preserved; ANN topology is rebuilt separately. See [ANN.md](ANN.md).
+
+## Revision and history boundary
+
+The independent versioning wrapper owns the existing lexical engine and revision heads. Private mutation prevents bypassing expected-version checks. Default tracking retains no old text; optional bounded committed snapshots permit restoration. Change metadata uses shared immutable storage. Versioned JSON is caller-owned history data, separate from portable entries and the derived cache. Database commits, semantic refresh and provenance validity remain application-owned. See [VERSIONING.md](VERSIONING.md).

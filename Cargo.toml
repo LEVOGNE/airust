@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.6"
+version = "0.2.7"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -48,6 +48,7 @@ hybrid = ["embeddings"]
 graph = ["dep:petgraph", "serde/rc"]
 context-assembly = ["hybrid", "graph"]
 provenance = []
+versioning = ["serde/rc"]
 cache = ["dep:postcard", "dep:sha2"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
@@ -156,3 +157,11 @@ required-features = ["hnsw"]
 [[example]]
 name = "ann_benchmark"
 required-features = ["hnsw"]
+
+[[example]]
+name = "versioning"
+required-features = ["versioning"]
+
+[[example]]
+name = "versioning_benchmark"
+required-features = ["versioning"]

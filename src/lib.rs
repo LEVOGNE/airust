@@ -67,3 +67,6 @@ pub fn library_description() -> String {
 
 #[cfg(feature = "hnsw")]
 pub mod ann;
+
+#[cfg(feature = "versioning")]
+pub mod versioning;
