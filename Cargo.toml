@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.7"
+version = "0.2.8"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -13,7 +13,7 @@ categories = ["text-processing", "algorithms"]
 documentation = "https://docs.rs/airust"
 homepage = "https://github.com/LEVOGNE/airust"
 repository = "https://github.com/LEVOGNE/airust"
-include = ["Cargo.toml", "Cargo.lock", "src/**", "build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "tests/**", "docs/**", "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md", "LICENSE", "test.sh", "Dockerfile", ".dockerignore", "!**/.DS_Store", "!**/._*"]
+include = ["Cargo.toml", "Cargo.lock", "src/**", "build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "scripts/**", "tests/**", "docs/**", "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md", "LICENSE", "test.sh", "Dockerfile", ".dockerignore", "!**/.DS_Store", "!**/._*"]
  
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -49,6 +49,7 @@ graph = ["dep:petgraph", "serde/rc"]
 context-assembly = ["hybrid", "graph"]
 provenance = []
 versioning = ["serde/rc"]
+quality = []
 cache = ["dep:postcard", "dep:sha2"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
@@ -165,3 +166,19 @@ required-features = ["versioning"]
 [[example]]
 name = "versioning_benchmark"
 required-features = ["versioning"]
+
+[[example]]
+name = "quality"
+required-features = ["quality"]
+
+[[example]]
+name = "retrieval_quality"
+required-features = ["quality", "hybrid"]
+
+[[example]]
+name = "quality_benchmark"
+required-features = ["quality", "context-assembly", "provenance"]
+
+[[example]]
+name = "knowledge_pipeline"
+required-features = ["hnsw", "cache", "context-assembly", "provenance", "quality"]

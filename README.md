@@ -1,10 +1,10 @@
-# AIRust 0.2.7
+# AIRust 0.2.8
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.7 adds optional revisions, conflict-checked writes and retained history. Restore available earlier content into a new revision, keep deletion tombstones, and compare states. History is disabled by default. See the [0.2.7 report](docs/CHANGES-0.2.7.md) and [revision guide](docs/VERSIONING.md).
+Version 0.2.8 adds optional retrieval-quality metrics, a broader public reference corpus and reproducible scale checks. The [API cookbook](https://github.com/LEVOGNE/airust/blob/v0.2.8/docs/API-COOKBOOK.md) explains every optional module and how to combine them. The [DenkMaps upgrade guide](https://github.com/LEVOGNE/airust/blob/v0.2.8/docs/DENKMAPS-UPGRADE.md) describes a future tested application upgrade; it performs no integration. See the [0.2.8 report](docs/CHANGES-0.2.8.md) for measured results and limits.
 
 ## What it does
 
@@ -39,7 +39,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.7", default-features = false }
+airust = { version = "=0.2.8", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -171,6 +171,20 @@ cargo run --locked --features versioning --example versioning
 
 History defaults to zero retained snapshots. Opt into a global record limit when earlier content must remain available. Compare states, restore live or deleted states into new revisions, and export/import a validated versioned snapshot. Record limits are not byte limits; original application transactions, permissions and durable history remain caller-owned. See [VERSIONING.md](docs/VERSIONING.md).
 
+## Measure retrieval quality
+
+Enable `quality` for judgments, Precision@K, Recall@K, reciprocal rank and exponential-gain nDCG@K. Choose how to handle unjudged IDs explicitly. Duplicate ranked IDs are rejected. Missing positive judgments leave recall/nDCG undefined; summaries show how many queries have defined denominators.
+
+```bash
+cargo run --locked --features quality --example quality
+cargo run --locked --features quality,hybrid --example retrieval_quality
+```
+
+The new authored reference has 30 public records and 36 queries, including literal identifiers, multilingual paraphrases, graded sources, distractors and no-answer cases. It is not an independent application benchmark or proof of logical understanding. Explicit local E5 runs and scale checks are documented in [BENCHMARKS.md](docs/BENCHMARKS.md). Raw samples, costs and unfavorable results remain visible. No token-saving percentage or production speed guarantee is inferred.
+
+The current release passes **189 default tests and 350 all-feature tests**, plus the compiled examples, minimum-Rust checks and actual local E5 runs. In the new authored reference, Recall@3 was 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over the 34 queries with positive judgments. E5 still preferred some wrong action/temporal distractors and returned candidates for both no-answer queries. These results measure this fixture, not reliable logical understanding. See the [complete report](docs/CHANGES-0.2.8.md).
+
+
 ## Tested lexical baseline and limits
 
 The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
@@ -217,6 +231,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `provenance` | Shared document/page/text/file/code source references, checked merges and versioned export. No added dependencies; Rust 1.89. |
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
+| `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -265,10 +280,12 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
 | `src/cache.rs` | Optional versioned, bounded derived-index snapshots and validated restoration. |
 | `src/versioning.rs` | Optional revision ownership, conflict checks and retained snapshots over the existing lexical engine. |
+| `src/quality.rs` | Optional descriptive retrieval-quality metrics and query-summary contracts. |
 | `src/provenance.rs` | Optional validated source locations and shared entry-to-source bindings. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
+| `scripts/measure.py` | Development-only CPU, memory and wall-time wrapper for timed executables. |
 | `tests/` | Cross-module tests and regression cases. |
 | `docs/` | API contracts, architecture, migration, change reports, and follow-up validation with reproducible checks. |
 | `knowledge/`, `data/pdf/` | Sample knowledge and a PDF fixture. |
@@ -278,9 +295,11 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `Dockerfile`, `.dockerignore` | Container configuration for the dashboard. |
 | `test.sh`, `.github/workflows/ci.yml` | Repeatable validation. |
 
-The [API guide](docs/API.md) describes the public contracts. The [architecture guide](docs/ARCHITECTURE.md) explains how the modules work together. Source code is kept free of comments; explanations live in these documents and executable examples.
+Start with the [API cookbook](docs/API-COOKBOOK.md) for practical recipes and ownership choices. The [API guide](docs/API.md) describes the public contracts. The [architecture guide](docs/ARCHITECTURE.md) explains how the modules work together. Source code is kept free of comments; explanations live in these documents and executable examples.
 
 ## Changes and compatibility
+
+The [0.2.8 report](docs/CHANGES-0.2.8.md) and [migration guide](docs/MIGRATION-0.2.8.md) complete this release sequence with quality tools. Existing retrieval APIs, defaults and source/cache/history formats remain unchanged.
 
 The [0.2.7 report](docs/CHANGES-0.2.7.md) and [migration guide](docs/MIGRATION-0.2.7.md) describe additive revision tracking. Existing source entries, retrieval and cache formats stay unchanged.
 
@@ -302,7 +321,7 @@ See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide]
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Broader quality work follows in separate stages. External application integrations remain separate.
+The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. The quality suite is implemented; proposed reranking, text-analysis and storage/retrieval APIs remain future work. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 

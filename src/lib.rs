@@ -70,3 +70,6 @@ pub mod ann;
 
 #[cfg(feature = "versioning")]
 pub mod versioning;
+
+#[cfg(feature = "quality")]
+pub mod quality;

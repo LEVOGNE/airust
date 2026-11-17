@@ -58,6 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         total_hits += hits.len();
         black_box(hits);
     }
+    let raw_latencies = latencies.clone();
     latencies.sort_unstable();
     let percentile =
         |percent: usize| latencies[(latencies.len() - 1) * percent / 100] as f64 / 1000.0;
@@ -88,6 +89,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             "result_limit": 10,
             "total_hits": total_hits,
             "build_ms": build.as_secs_f64() * 1000.0,
+            "warmup_queries": 20.min(iterations),
+            "raw_search_samples_ns": raw_latencies,
             "search_p50_us": percentile(50),
             "search_p95_us": percentile(95),
             "search_p99_us": percentile(99),

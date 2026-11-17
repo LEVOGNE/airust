@@ -146,3 +146,5 @@ For optional derived-index startup and recovery, see [CACHE.md](docs/CACHE.md).
 Approximate retrieval is explicitly opt-in; see [ANN.md](docs/ANN.md).
 
 Optional conflict-checked revisions and history: [VERSIONING.md](docs/VERSIONING.md).
+
+For the complete modular API, read [API-COOKBOOK.md](docs/API-COOKBOOK.md). Reproducible measurements: [BENCHMARKS.md](docs/BENCHMARKS.md).

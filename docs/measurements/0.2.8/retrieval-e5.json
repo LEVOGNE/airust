@@ -1,0 +1,5502 @@
+{
+  "airust_version": "0.2.8",
+  "cutoff": 3,
+  "documents": 30,
+  "fixture": "airust-quality-reference-v1",
+  "limits": "Authored public smoke judgments. Includes difficult distractors and no-answer cases; not an independent relevance benchmark, logical-reasoning test or production guarantee. Unlisted document grades are explicitly zero for this closed fixture only.",
+  "model": {
+    "build_ms": 86.233041,
+    "dimensions": 384,
+    "load_ms": 1575.5597080000002,
+    "maximum_tokens": 512,
+    "recipe": "intfloat/multilingual-e5-small:sha256:bdeaf1db1a21c209f990af1bd3faa13d439d214ebc80e4e3dc73d76c9fa79456",
+    "threads": 2
+  },
+  "queries": 36,
+  "reports": [
+    {
+      "cases": [
+        {
+          "elapsed_ms": 0.026667,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "query_id": "de-registration",
+          "ranked_ids": [
+            "vet",
+            "bicycle",
+            "cooking"
+          ],
+          "scores": [
+            2.662504244167111,
+            2.5662433783496073,
+            2.5662433783496073
+          ]
+        },
+        {
+          "elapsed_ms": 0.0015,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Auto zulassen",
+          "query_id": "de-synonym",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.005542,
+          "grades": {
+            "passport": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 2,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 2,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "query_id": "de-passport",
+          "ranked_ids": [
+            "cooking",
+            "password"
+          ],
+          "scores": [
+            2.5662433783496073,
+            2.5662433783496073
+          ]
+        },
+        {
+          "elapsed_ms": 0.005875,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "query_id": "de-backup",
+          "ranked_ids": [
+            "bicycle"
+          ],
+          "scores": [
+            3.0869188802385628
+          ]
+        },
+        {
+          "elapsed_ms": 0.013833,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "query_id": "de-vet",
+          "ranked_ids": [
+            "passport",
+            "vet",
+            "plants"
+          ],
+          "scores": [
+            3.1325115314669607,
+            2.662504244167111,
+            1.4793221634135358
+          ]
+        },
+        {
+          "elapsed_ms": 0.007708,
+          "grades": {
+            "bicycle": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.5,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.3333333333333333,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "query_id": "de-bike",
+          "ranked_ids": [
+            "train",
+            "weather",
+            "bicycle"
+          ],
+          "scores": [
+            2.396576051436806,
+            2.396576051436806,
+            2.223283192870138
+          ]
+        },
+        {
+          "elapsed_ms": 0.007333,
+          "grades": {
+            "rust": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "query_id": "de-rust",
+          "ranked_ids": [
+            "plants",
+            "backup",
+            "train"
+          ],
+          "scores": [
+            2.8784478145861923,
+            2.766268122043139,
+            2.766268122043139
+          ]
+        },
+        {
+          "elapsed_ms": 0.005875,
+          "grades": {
+            "plants": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "query_id": "de-plants",
+          "ranked_ids": [
+            "cooking",
+            "vet",
+            "bicycle"
+          ],
+          "scores": [
+            3.0869188802385628,
+            2.662504244167111,
+            2.5662433783496073
+          ]
+        },
+        {
+          "elapsed_ms": 0.014667,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Register a vehicle at the licensing authority",
+          "query_id": "en-registration",
+          "ranked_ids": [
+            "registration-documents",
+            "backup-delete",
+            "api-r484"
+          ],
+          "scores": [
+            4.2520595970055455,
+            2.4096197712116516,
+            2.3066794782375926
+          ]
+        },
+        {
+          "elapsed_ms": 0.011333,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "How can I bake a loaf of bread?",
+          "query_id": "en-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "backup-delete",
+            "api-r483"
+          ],
+          "scores": [
+            5.117764807207309,
+            2.997124900858891,
+            1.3188707771836263
+          ]
+        },
+        {
+          "elapsed_ms": 0.04075,
+          "grades": {
+            "train": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Buy a railway ticket and check the departure time",
+          "query_id": "en-train",
+          "ranked_ids": [
+            "rust-drop",
+            "backup-delete",
+            "registration-documents"
+          ],
+          "scores": [
+            3.2106902335702685,
+            2.4096197712116516,
+            2.3378352425717064
+          ]
+        },
+        {
+          "elapsed_ms": 0.0035,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "query_id": "fr-weather",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.0047079999999999995,
+          "grades": {
+            "password": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "query_id": "es-password",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.004458,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "query_id": "fr-backup",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.030000000000000002,
+          "grades": {
+            "meeting": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "query_id": "en-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "source-references",
+            "backup-delete"
+          ],
+          "scores": [
+            8.016532155627253,
+            4.156726541184224,
+            3.9220518065873295
+          ]
+        },
+        {
+          "elapsed_ms": 0.004041,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "query_id": "es-vet",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.001625,
+          "grades": {
+            "api-r482": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R482",
+          "query_id": "literal-r482",
+          "ranked_ids": [
+            "api-r482"
+          ],
+          "scores": [
+            2.979207831173635
+          ]
+        },
+        {
+          "elapsed_ms": 0.0012920000000000002,
+          "grades": {
+            "api-r483": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R483",
+          "query_id": "literal-r483",
+          "ranked_ids": [
+            "api-r483"
+          ],
+          "scores": [
+            3.0869188802385628
+          ]
+        },
+        {
+          "elapsed_ms": 0.000959,
+          "grades": {
+            "api-r484": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R484",
+          "query_id": "literal-r484",
+          "ranked_ids": [
+            "api-r484"
+          ],
+          "scores": [
+            3.20271050258705
+          ]
+        },
+        {
+          "elapsed_ms": 0.0014169999999999999,
+          "grades": {
+            "history-cas": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CAS731",
+          "query_id": "literal-cas",
+          "ranked_ids": [
+            "history-cas"
+          ],
+          "scores": [
+            2.8787600146880106
+          ]
+        },
+        {
+          "elapsed_ms": 0.001041,
+          "grades": {
+            "context-bytes": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CTX842",
+          "query_id": "literal-ctx",
+          "ranked_ids": [
+            "context-bytes"
+          ],
+          "scores": [
+            2.614324132186617
+          ]
+        },
+        {
+          "elapsed_ms": 0.0012079999999999999,
+          "grades": {
+            "source-references": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "SRC953",
+          "query_id": "literal-src",
+          "ranked_ids": [
+            "source-references"
+          ],
+          "scores": [
+            2.329067508347301
+          ]
+        },
+        {
+          "elapsed_ms": 0.000959,
+          "grades": {
+            "unicode-analysis": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "NFKC",
+          "query_id": "literal-unicode",
+          "ranked_ids": [
+            "unicode-analysis"
+          ],
+          "scores": [
+            2.8787600146880106
+          ]
+        },
+        {
+          "elapsed_ms": 0.001084,
+          "grades": {
+            "rust-drop": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Drop",
+          "query_id": "literal-drop",
+          "ranked_ids": [
+            "rust-drop"
+          ],
+          "scores": [
+            2.979207831173635
+          ]
+        },
+        {
+          "elapsed_ms": 0.006916,
+          "grades": {
+            "rust": 3,
+            "rust-drop": 2,
+            "rust-unsafe": 1
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.9721212198129313,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Rust ownership memory safety borrowing",
+          "query_id": "graded-rust",
+          "ranked_ids": [
+            "rust",
+            "rust-unsafe",
+            "rust-drop"
+          ],
+          "scores": [
+            8.834679277784717,
+            5.310202073108701,
+            4.622406879538519
+          ]
+        },
+        {
+          "elapsed_ms": 0.016167,
+          "grades": {
+            "meeting": 3,
+            "meeting-decisions": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6131471927654584,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record meeting decisions and assign follow-up tasks",
+          "query_id": "graded-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "source-references",
+            "account-recovery"
+          ],
+          "scores": [
+            14.937311249127593,
+            3.1616440028929205,
+            2.1733619357580936
+          ]
+        },
+        {
+          "elapsed_ms": 0.012334000000000001,
+          "grades": {
+            "plant-roots": 2,
+            "plants": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Indoor plants need water and healthy roots",
+          "query_id": "graded-plants",
+          "ranked_ids": [
+            "plant-roots",
+            "circle",
+            "rust-unsafe"
+          ],
+          "scores": [
+            13.955721441164055,
+            1.2900504294008364,
+            1.103487164302697
+          ]
+        },
+        {
+          "elapsed_ms": 0.00475,
+          "grades": {
+            "registration": 3,
+            "registration-documents": 2
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "vehicle registration application documents",
+          "query_id": "graded-vehicle",
+          "ranked_ids": [
+            "registration-documents"
+          ],
+          "scores": [
+            11.91683132469454
+          ]
+        },
+        {
+          "elapsed_ms": 0.009417,
+          "grades": {
+            "registration-not-here": 3
+          },
+          "kind": "negation-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Welches Büro führt keine Kfz-Zulassung durch?",
+          "query_id": "contrast-register",
+          "ranked_ids": [
+            "registration-not-here",
+            "registration",
+            "rust"
+          ],
+          "scores": [
+            15.815865040136034,
+            7.221064638099046,
+            2.8784478145861923
+          ]
+        },
+        {
+          "elapsed_ms": 0.011792,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "temporal-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "rain forecast for tomorrow, not an archived report",
+          "query_id": "contrast-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "meeting",
+            "account-recovery"
+          ],
+          "scores": [
+            15.426886976188833,
+            2.766268122043139,
+            2.1733619357580936
+          ]
+        },
+        {
+          "elapsed_ms": 0.013709,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Create a new backup, do not delete existing copies",
+          "query_id": "contrast-backup",
+          "ranked_ids": [
+            "backup-delete",
+            "source-references",
+            "weather-archive"
+          ],
+          "scores": [
+            9.802887950491671,
+            5.001608006262185,
+            1.9423817131907102
+          ]
+        },
+        {
+          "elapsed_ms": 0.021540999999999998,
+          "grades": {
+            "password": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Set up a unique password and two-factor authentication",
+          "query_id": "contrast-auth",
+          "ranked_ids": [
+            "account-recovery",
+            "meeting-decisions",
+            "registration-documents"
+          ],
+          "scores": [
+            12.630658464504561,
+            4.652207124941899,
+            2.3378352425717064
+          ]
+        },
+        {
+          "elapsed_ms": 0.010667,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Bake bread with flour water and yeast",
+          "query_id": "contrast-bread",
+          "ranked_ids": [
+            "plant-roots",
+            "bread-storage",
+            "circle"
+          ],
+          "scores": [
+            4.347589933402907,
+            3.9279451691295946,
+            1.2900504294008364
+          ]
+        },
+        {
+          "elapsed_ms": 0.003875,
+          "grades": {
+            "api-r482": 3,
+            "api-r483": 1,
+            "api-r484": 1
+          },
+          "kind": "code-name",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CacheCoordinator::invalidate",
+          "query_id": "code-function",
+          "ranked_ids": [
+            "api-r482",
+            "api-r484",
+            "api-r483"
+          ],
+          "scores": [
+            5.124914588004107,
+            2.3066794782375926,
+            2.223283192870138
+          ]
+        },
+        {
+          "elapsed_ms": 0.0022500000000000003,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ZXQJ9999 lunar teapot fabricator",
+          "query_id": "no-answer-1",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.002375,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ABCD9876 underwater violin teleportation",
+          "query_id": "no-answer-2",
+          "ranked_ids": [],
+          "scores": []
+        }
+      ],
+      "mode": "Bm25",
+      "summary": {
+        "cutoff": 3,
+        "mean_ndcg_at_k": 0.39385006210502005,
+        "mean_precision_at_k": 0.18518518518518517,
+        "mean_recall_at_k": 0.4264705882352941,
+        "mean_reciprocal_rank_at_k": 0.412037037037037,
+        "ndcg_queries": 34,
+        "queries": 36,
+        "recall_queries": 34,
+        "unjudged_policy": "RequireJudged",
+        "unjudged_retrieved": 0
+      }
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 0.015333000000000001,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "query_id": "de-registration",
+          "ranked_ids": [
+            "vet",
+            "bicycle",
+            "cooking"
+          ],
+          "scores": [
+            0.20580002802457173,
+            0.20476540221349415,
+            0.2033627744607052
+          ]
+        },
+        {
+          "elapsed_ms": 0.001584,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Auto zulassen",
+          "query_id": "de-synonym",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.007542,
+          "grades": {
+            "passport": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 2,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 2,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "query_id": "de-passport",
+          "ranked_ids": [
+            "cooking",
+            "password"
+          ],
+          "scores": [
+            0.2875983937241502,
+            0.28457904548089485
+          ]
+        },
+        {
+          "elapsed_ms": 0.007417,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "query_id": "de-backup",
+          "ranked_ids": [
+            "bicycle"
+          ],
+          "scores": [
+            0.32478506809568924
+          ]
+        },
+        {
+          "elapsed_ms": 0.02225,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "query_id": "de-vet",
+          "ranked_ids": [
+            "passport",
+            "vet",
+            "rust"
+          ],
+          "scores": [
+            0.3132049063597955,
+            0.24172250063095246,
+            0.12952157838955997
+          ]
+        },
+        {
+          "elapsed_ms": 0.0085,
+          "grades": {
+            "bicycle": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.5,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.3333333333333333,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "query_id": "de-bike",
+          "ranked_ids": [
+            "train",
+            "weather",
+            "bicycle"
+          ],
+          "scores": [
+            0.2978869946997748,
+            0.29388645248526857,
+            0.26460504093636733
+          ]
+        },
+        {
+          "elapsed_ms": 0.011083,
+          "grades": {
+            "rust": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "query_id": "de-rust",
+          "ranked_ids": [
+            "plants",
+            "train",
+            "backup"
+          ],
+          "scores": [
+            0.23573922325796084,
+            0.23052074166091582,
+            0.21259024349684627
+          ]
+        },
+        {
+          "elapsed_ms": 0.010375,
+          "grades": {
+            "plants": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "query_id": "de-plants",
+          "ranked_ids": [
+            "cooking",
+            "vet",
+            "bicycle"
+          ],
+          "scores": [
+            0.2407588550475051,
+            0.1936900382472089,
+            0.1927162934190729
+          ]
+        },
+        {
+          "elapsed_ms": 0.030040999999999998,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Register a vehicle at the licensing authority",
+          "query_id": "en-registration",
+          "ranked_ids": [
+            "registration-documents",
+            "api-r484",
+            "backup-delete"
+          ],
+          "scores": [
+            0.3117036327448751,
+            0.16076253813103492,
+            0.1503195440337847
+          ]
+        },
+        {
+          "elapsed_ms": 0.020709,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "How can I bake a loaf of bread?",
+          "query_id": "en-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "backup-delete",
+            "api-r483"
+          ],
+          "scores": [
+            0.40195697247521045,
+            0.1850144710591286,
+            0.08088414034177853
+          ]
+        },
+        {
+          "elapsed_ms": 0.038458,
+          "grades": {
+            "train": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Buy a railway ticket and check the departure time",
+          "query_id": "en-train",
+          "ranked_ids": [
+            "rust-drop",
+            "api-r484",
+            "backup-delete"
+          ],
+          "scores": [
+            0.25911035769134383,
+            0.19912170459705308,
+            0.18618693254184626
+          ]
+        },
+        {
+          "elapsed_ms": 0.004208,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "query_id": "fr-weather",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.005292000000000001,
+          "grades": {
+            "password": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "query_id": "es-password",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.0050409999999999995,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "query_id": "fr-backup",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.044458,
+          "grades": {
+            "meeting": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.5,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.3333333333333333,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "query_id": "en-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "source-references",
+            "meeting"
+          ],
+          "scores": [
+            0.32069170994555923,
+            0.15701890734164445,
+            0.1462528660458947
+          ]
+        },
+        {
+          "elapsed_ms": 0.004667,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "query_id": "es-vet",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.002208,
+          "grades": {
+            "api-r482": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R482",
+          "query_id": "literal-r482",
+          "ranked_ids": [
+            "api-r482"
+          ],
+          "scores": [
+            0.3367179999084379
+          ]
+        },
+        {
+          "elapsed_ms": 0.001917,
+          "grades": {
+            "api-r483": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R483",
+          "query_id": "literal-r483",
+          "ranked_ids": [
+            "api-r483"
+          ],
+          "scores": [
+            0.3473678601019224
+          ]
+        },
+        {
+          "elapsed_ms": 0.00175,
+          "grades": {
+            "api-r484": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R484",
+          "query_id": "literal-r484",
+          "ranked_ids": [
+            "api-r484"
+          ],
+          "scores": [
+            0.3443443308363612
+          ]
+        },
+        {
+          "elapsed_ms": 0.002209,
+          "grades": {
+            "history-cas": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CAS731",
+          "query_id": "literal-cas",
+          "ranked_ids": [
+            "history-cas"
+          ],
+          "scores": [
+            0.29802831138651253
+          ]
+        },
+        {
+          "elapsed_ms": 0.0024159999999999997,
+          "grades": {
+            "context-bytes": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CTX842",
+          "query_id": "literal-ctx",
+          "ranked_ids": [
+            "context-bytes"
+          ],
+          "scores": [
+            0.27060589576080113
+          ]
+        },
+        {
+          "elapsed_ms": 0.0026249999999999997,
+          "grades": {
+            "source-references": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "SRC953",
+          "query_id": "literal-src",
+          "ranked_ids": [
+            "source-references"
+          ],
+          "scores": [
+            0.23220606921979597
+          ]
+        },
+        {
+          "elapsed_ms": 0.002167,
+          "grades": {
+            "unicode-analysis": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "NFKC",
+          "query_id": "literal-unicode",
+          "ranked_ids": [
+            "unicode-analysis"
+          ],
+          "scores": [
+            0.29005387297823976
+          ]
+        },
+        {
+          "elapsed_ms": 0.002,
+          "grades": {
+            "rust-drop": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Drop",
+          "query_id": "literal-drop",
+          "ranked_ids": [
+            "rust-drop"
+          ],
+          "scores": [
+            0.309808164042123
+          ]
+        },
+        {
+          "elapsed_ms": 0.010875,
+          "grades": {
+            "rust": 3,
+            "rust-drop": 2,
+            "rust-unsafe": 1
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.9721212198129313,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Rust ownership memory safety borrowing",
+          "query_id": "graded-rust",
+          "ranked_ids": [
+            "rust",
+            "rust-unsafe",
+            "rust-drop"
+          ],
+          "scores": [
+            0.5141748600428024,
+            0.29295702105662763,
+            0.24300044814449523
+          ]
+        },
+        {
+          "elapsed_ms": 0.025332999999999998,
+          "grades": {
+            "meeting": 3,
+            "meeting-decisions": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6131471927654584,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record meeting decisions and assign follow-up tasks",
+          "query_id": "graded-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "source-references",
+            "account-recovery"
+          ],
+          "scores": [
+            0.6096643978430866,
+            0.12195785929523952,
+            0.07754573660640149
+          ]
+        },
+        {
+          "elapsed_ms": 0.021291,
+          "grades": {
+            "plant-roots": 2,
+            "plants": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Indoor plants need water and healthy roots",
+          "query_id": "graded-plants",
+          "ranked_ids": [
+            "plant-roots",
+            "circle",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.6798151530108762,
+            0.05901024392802226,
+            0.04680427165997325
+          ]
+        },
+        {
+          "elapsed_ms": 0.0053750000000000004,
+          "grades": {
+            "registration": 3,
+            "registration-documents": 2
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 1,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 1,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "vehicle registration application documents",
+          "query_id": "graded-vehicle",
+          "ranked_ids": [
+            "registration-documents"
+          ],
+          "scores": [
+            0.6528862358604778
+          ]
+        },
+        {
+          "elapsed_ms": 0.012374999999999999,
+          "grades": {
+            "registration-not-here": 3
+          },
+          "kind": "negation-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Welches Büro führt keine Kfz-Zulassung durch?",
+          "query_id": "contrast-register",
+          "ranked_ids": [
+            "registration-not-here",
+            "registration",
+            "rust"
+          ],
+          "scores": [
+            0.6593907267513055,
+            0.42574230093723864,
+            0.1332358903427238
+          ]
+        },
+        {
+          "elapsed_ms": 0.022666,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "temporal-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "rain forecast for tomorrow, not an archived report",
+          "query_id": "contrast-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "meeting",
+            "account-recovery"
+          ],
+          "scores": [
+            0.6113771648132251,
+            0.11188679931775163,
+            0.07530725488405485
+          ]
+        },
+        {
+          "elapsed_ms": 0.022291000000000002,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Create a new backup, do not delete existing copies",
+          "query_id": "contrast-backup",
+          "ranked_ids": [
+            "backup-delete",
+            "source-references",
+            "weather-archive"
+          ],
+          "scores": [
+            0.4689145782886402,
+            0.20945521003339107,
+            0.08125979634930593
+          ]
+        },
+        {
+          "elapsed_ms": 0.046458,
+          "grades": {
+            "password": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Set up a unique password and two-factor authentication",
+          "query_id": "contrast-auth",
+          "ranked_ids": [
+            "account-recovery",
+            "meeting-decisions",
+            "registration-documents"
+          ],
+          "scores": [
+            0.49453483724507624,
+            0.1834271526275143,
+            0.09142905971182591
+          ]
+        },
+        {
+          "elapsed_ms": 0.020417,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Bake bread with flour water and yeast",
+          "query_id": "contrast-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "plant-roots",
+            "circle"
+          ],
+          "scores": [
+            0.3455193032978051,
+            0.28055952089293235,
+            0.08071656168235951
+          ]
+        },
+        {
+          "elapsed_ms": 0.006042,
+          "grades": {
+            "api-r482": 3,
+            "api-r483": 1,
+            "api-r484": 1
+          },
+          "kind": "code-name",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CacheCoordinator::invalidate",
+          "query_id": "code-function",
+          "ranked_ids": [
+            "api-r482",
+            "api-r483",
+            "api-r484"
+          ],
+          "scores": [
+            0.43432045572793904,
+            0.17875154335621843,
+            0.17719566964227382
+          ]
+        },
+        {
+          "elapsed_ms": 0.002875,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ZXQJ9999 lunar teapot fabricator",
+          "query_id": "no-answer-1",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "elapsed_ms": 0.001666,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 0,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 0,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ABCD9876 underwater violin teleportation",
+          "query_id": "no-answer-2",
+          "ranked_ids": [],
+          "scores": []
+        }
+      ],
+      "mode": "Tfidf",
+      "summary": {
+        "cutoff": 3,
+        "mean_ndcg_at_k": 0.40855594445796123,
+        "mean_precision_at_k": 0.19444444444444442,
+        "mean_recall_at_k": 0.45588235294117646,
+        "mean_reciprocal_rank_at_k": 0.4212962962962963,
+        "ndcg_queries": 34,
+        "queries": 36,
+        "recall_queries": 34,
+        "unjudged_policy": "RequireJudged",
+        "unjudged_retrieved": 0
+      }
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.9559170000000003,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "query_id": "de-registration",
+          "ranked_ids": [
+            "registration",
+            "passport",
+            "registration-documents"
+          ],
+          "scores": [
+            0.868915458566472,
+            0.8571070767364127,
+            0.8315716977619655
+          ]
+        },
+        {
+          "elapsed_ms": 2.416833,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Auto zulassen",
+          "query_id": "de-synonym",
+          "ranked_ids": [
+            "registration",
+            "train",
+            "passport"
+          ],
+          "scores": [
+            0.8747887562815861,
+            0.8264290037886255,
+            0.8257141207543056
+          ]
+        },
+        {
+          "elapsed_ms": 2.627958,
+          "grades": {
+            "passport": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "query_id": "de-passport",
+          "ranked_ids": [
+            "passport",
+            "train",
+            "backup"
+          ],
+          "scores": [
+            0.8730791709672879,
+            0.8333421130155025,
+            0.8105490416147839
+          ]
+        },
+        {
+          "elapsed_ms": 2.8415839999999997,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "query_id": "de-backup",
+          "ranked_ids": [
+            "backup",
+            "password",
+            "rust"
+          ],
+          "scores": [
+            0.8319648278002323,
+            0.8198004619944285,
+            0.8124359126712618
+          ]
+        },
+        {
+          "elapsed_ms": 3.0167919999999997,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "query_id": "de-vet",
+          "ranked_ids": [
+            "vet",
+            "passport",
+            "train"
+          ],
+          "scores": [
+            0.8879841433581245,
+            0.8073879319186472,
+            0.8068973073419571
+          ]
+        },
+        {
+          "elapsed_ms": 3.071875,
+          "grades": {
+            "bicycle": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "query_id": "de-bike",
+          "ranked_ids": [
+            "bicycle",
+            "train",
+            "registration"
+          ],
+          "scores": [
+            0.8804015074877681,
+            0.8421717208581109,
+            0.830903469120579
+          ]
+        },
+        {
+          "elapsed_ms": 3.018542,
+          "grades": {
+            "rust": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "query_id": "de-rust",
+          "ranked_ids": [
+            "rust",
+            "backup",
+            "password"
+          ],
+          "scores": [
+            0.8435121301383721,
+            0.8425769924198871,
+            0.8315784357681548
+          ]
+        },
+        {
+          "elapsed_ms": 2.959125,
+          "grades": {
+            "plants": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "query_id": "de-plants",
+          "ranked_ids": [
+            "plants",
+            "cooking",
+            "plant-roots"
+          ],
+          "scores": [
+            0.8371647952158754,
+            0.8172519853310111,
+            0.8134390642056958
+          ]
+        },
+        {
+          "elapsed_ms": 2.7525000000000004,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Register a vehicle at the licensing authority",
+          "query_id": "en-registration",
+          "ranked_ids": [
+            "registration-documents",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.8609752600031986,
+            0.8473777569365764,
+            0.8360299862461735
+          ]
+        },
+        {
+          "elapsed_ms": 2.652959,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "How can I bake a loaf of bread?",
+          "query_id": "en-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "cooking",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.864636280464136,
+            0.8146020172996604,
+            0.7834044460040294
+          ]
+        },
+        {
+          "elapsed_ms": 2.9520839999999997,
+          "grades": {
+            "train": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Buy a railway ticket and check the departure time",
+          "query_id": "en-train",
+          "ranked_ids": [
+            "train",
+            "passport",
+            "registration-documents"
+          ],
+          "scores": [
+            0.8727626338917589,
+            0.8327232041336287,
+            0.8218726183853041
+          ]
+        },
+        {
+          "elapsed_ms": 2.848,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "query_id": "fr-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "weather",
+            "passport"
+          ],
+          "scores": [
+            0.8198163748030929,
+            0.816326420516075,
+            0.802392421415062
+          ]
+        },
+        {
+          "elapsed_ms": 2.708041,
+          "grades": {
+            "password": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "query_id": "es-password",
+          "ranked_ids": [
+            "password",
+            "account-recovery",
+            "backup"
+          ],
+          "scores": [
+            0.8164529347965181,
+            0.8048817084152742,
+            0.7910081899373289
+          ]
+        },
+        {
+          "elapsed_ms": 2.669125,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "query_id": "fr-backup",
+          "ranked_ids": [
+            "backup",
+            "passport",
+            "registration"
+          ],
+          "scores": [
+            0.8703238021712183,
+            0.8153486832328711,
+            0.8075395033049069
+          ]
+        },
+        {
+          "elapsed_ms": 2.881583,
+          "grades": {
+            "meeting": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "query_id": "en-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "meeting",
+            "registration-documents"
+          ],
+          "scores": [
+            0.893506935677645,
+            0.8540354679189848,
+            0.8018912760597041
+          ]
+        },
+        {
+          "elapsed_ms": 2.677708,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "query_id": "es-vet",
+          "ranked_ids": [
+            "vet",
+            "passport",
+            "train"
+          ],
+          "scores": [
+            0.8507963794792802,
+            0.7674599732013246,
+            0.7554465110642373
+          ]
+        },
+        {
+          "elapsed_ms": 2.225459,
+          "grades": {
+            "api-r482": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R482",
+          "query_id": "literal-r482",
+          "ranked_ids": [
+            "api-r482",
+            "passport",
+            "api-r484"
+          ],
+          "scores": [
+            0.7918218020325595,
+            0.7892722449222124,
+            0.7849096563817861
+          ]
+        },
+        {
+          "elapsed_ms": 2.235791,
+          "grades": {
+            "api-r483": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R483",
+          "query_id": "literal-r483",
+          "ranked_ids": [
+            "api-r484",
+            "api-r483",
+            "passport"
+          ],
+          "scores": [
+            0.7892326798559731,
+            0.7884014166435163,
+            0.7863669913001432
+          ]
+        },
+        {
+          "elapsed_ms": 2.133416,
+          "grades": {
+            "api-r484": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R484",
+          "query_id": "literal-r484",
+          "ranked_ids": [
+            "api-r484",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.8100940654900052,
+            0.7938382002508264,
+            0.7920031538287685
+          ]
+        },
+        {
+          "elapsed_ms": 2.25775,
+          "grades": {
+            "history-cas": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CAS731",
+          "query_id": "literal-cas",
+          "ranked_ids": [
+            "history-cas",
+            "api-r483",
+            "api-r482"
+          ],
+          "scores": [
+            0.8486223274941491,
+            0.780778886987453,
+            0.7758991457910881
+          ]
+        },
+        {
+          "elapsed_ms": 2.250542,
+          "grades": {
+            "context-bytes": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CTX842",
+          "query_id": "literal-ctx",
+          "ranked_ids": [
+            "context-bytes",
+            "api-r484",
+            "registration"
+          ],
+          "scores": [
+            0.8463168332027569,
+            0.7870328794769267,
+            0.7829719763084713
+          ]
+        },
+        {
+          "elapsed_ms": 2.367709,
+          "grades": {
+            "source-references": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "SRC953",
+          "query_id": "literal-src",
+          "ranked_ids": [
+            "source-references",
+            "history-cas",
+            "api-r482"
+          ],
+          "scores": [
+            0.8520718785896998,
+            0.7867194464647641,
+            0.7844795778447791
+          ]
+        },
+        {
+          "elapsed_ms": 2.231625,
+          "grades": {
+            "unicode-analysis": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "NFKC",
+          "query_id": "literal-unicode",
+          "ranked_ids": [
+            "unicode-analysis",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.8022052023885623,
+            0.7824707693153976,
+            0.7659176693398487
+          ]
+        },
+        {
+          "elapsed_ms": 2.1695,
+          "grades": {
+            "rust-drop": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Drop",
+          "query_id": "literal-drop",
+          "ranked_ids": [
+            "rust-drop",
+            "circle",
+            "meeting-decisions"
+          ],
+          "scores": [
+            0.8478658377613809,
+            0.7886788930137618,
+            0.7886382368950282
+          ]
+        },
+        {
+          "elapsed_ms": 2.616209,
+          "grades": {
+            "rust": 3,
+            "rust-drop": 2,
+            "rust-unsafe": 1
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.8428282648809379,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Rust ownership memory safety borrowing",
+          "query_id": "graded-rust",
+          "ranked_ids": [
+            "rust-drop",
+            "rust",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.8651354199123589,
+            0.8590560014933242,
+            0.8539989451982197
+          ]
+        },
+        {
+          "elapsed_ms": 2.649959,
+          "grades": {
+            "meeting": 3,
+            "meeting-decisions": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.6666666666666666,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 2,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record meeting decisions and assign follow-up tasks",
+          "query_id": "graded-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "meeting",
+            "history-cas"
+          ],
+          "scores": [
+            0.9192014015542821,
+            0.8489421247851531,
+            0.8131056585351566
+          ]
+        },
+        {
+          "elapsed_ms": 2.706625,
+          "grades": {
+            "plant-roots": 2,
+            "plants": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.8339912323981488,
+            "precision_at_k": 0.6666666666666666,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 2,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Indoor plants need water and healthy roots",
+          "query_id": "graded-plants",
+          "ranked_ids": [
+            "plant-roots",
+            "plants",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.9067224200217764,
+            0.8251952463148732,
+            0.8081108489612303
+          ]
+        },
+        {
+          "elapsed_ms": 2.2847079999999997,
+          "grades": {
+            "registration": 3,
+            "registration-documents": 2
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.7309292742059024,
+            "precision_at_k": 0.6666666666666666,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 2,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "vehicle registration application documents",
+          "query_id": "graded-vehicle",
+          "ranked_ids": [
+            "registration-documents",
+            "source-references",
+            "registration"
+          ],
+          "scores": [
+            0.910213095273654,
+            0.8280638546710899,
+            0.817727253993122
+          ]
+        },
+        {
+          "elapsed_ms": 2.790375,
+          "grades": {
+            "registration-not-here": 3
+          },
+          "kind": "negation-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Welches Büro führt keine Kfz-Zulassung durch?",
+          "query_id": "contrast-register",
+          "ranked_ids": [
+            "registration-not-here",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.9044073636152294,
+            0.8351694223022624,
+            0.7779344659447203
+          ]
+        },
+        {
+          "elapsed_ms": 2.664125,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "temporal-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "rain forecast for tomorrow, not an archived report",
+          "query_id": "contrast-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "weather",
+            "api-r484"
+          ],
+          "scores": [
+            0.9099533276413533,
+            0.8270648100067926,
+            0.8122478032835316
+          ]
+        },
+        {
+          "elapsed_ms": 2.818583,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Create a new backup, do not delete existing copies",
+          "query_id": "contrast-backup",
+          "ranked_ids": [
+            "backup-delete",
+            "passport",
+            "api-r482"
+          ],
+          "scores": [
+            0.8640373516338138,
+            0.840074280991668,
+            0.8359058325564054
+          ]
+        },
+        {
+          "elapsed_ms": 2.692,
+          "grades": {
+            "password": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Set up a unique password and two-factor authentication",
+          "query_id": "contrast-auth",
+          "ranked_ids": [
+            "account-recovery",
+            "password",
+            "passport"
+          ],
+          "scores": [
+            0.8528271291971333,
+            0.8516907462398325,
+            0.8208643949311195
+          ]
+        },
+        {
+          "elapsed_ms": 2.6901249999999997,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Bake bread with flour water and yeast",
+          "query_id": "contrast-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "cooking",
+            "weather-archive"
+          ],
+          "scores": [
+            0.8475304755221127,
+            0.8278582972850342,
+            0.7751953470305487
+          ]
+        },
+        {
+          "elapsed_ms": 2.645,
+          "grades": {
+            "api-r482": 3,
+            "api-r483": 1,
+            "api-r484": 1
+          },
+          "kind": "code-name",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.7276545800191442,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CacheCoordinator::invalidate",
+          "query_id": "code-function",
+          "ranked_ids": [
+            "api-r483",
+            "api-r482",
+            "api-r484"
+          ],
+          "scores": [
+            0.9149698885744092,
+            0.913886426040214,
+            0.8846482829895773
+          ]
+        },
+        {
+          "elapsed_ms": 2.677,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ZXQJ9999 lunar teapot fabricator",
+          "query_id": "no-answer-1",
+          "ranked_ids": [
+            "rust-unsafe",
+            "rust-drop",
+            "history-cas"
+          ],
+          "scores": [
+            0.7992667860125683,
+            0.7941150939239822,
+            0.7928033134190513
+          ]
+        },
+        {
+          "elapsed_ms": 2.771833,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ABCD9876 underwater violin teleportation",
+          "query_id": "no-answer-2",
+          "ranked_ids": [
+            "history-cas",
+            "rust-unsafe",
+            "passport"
+          ],
+          "scores": [
+            0.7998127012344091,
+            0.7989220185658479,
+            0.7873534872843636
+          ]
+        }
+      ],
+      "mode": "exact-semantic",
+      "summary": {
+        "cutoff": 3,
+        "mean_ndcg_at_k": 0.8583188641198763,
+        "mean_precision_at_k": 0.3703703703703703,
+        "mean_recall_at_k": 0.9705882352941176,
+        "mean_reciprocal_rank_at_k": 0.8055555555555556,
+        "ndcg_queries": 34,
+        "queries": 36,
+        "recall_queries": 34,
+        "unjudged_policy": "RequireJudged",
+        "unjudged_retrieved": 0
+      }
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.594917,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "query_id": "de-registration",
+          "ranked_ids": [
+            "vet",
+            "bicycle",
+            "password"
+          ],
+          "scores": [
+            0.015772478887232988,
+            0.015527202696196438,
+            0.014955357142857142
+          ]
+        },
+        {
+          "elapsed_ms": 2.198834,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Auto zulassen",
+          "query_id": "de-synonym",
+          "ranked_ids": [
+            "registration",
+            "train",
+            "passport"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.534,
+          "grades": {
+            "passport": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.5,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.3333333333333333,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "query_id": "de-passport",
+          "ranked_ids": [
+            "cooking",
+            "password",
+            "passport"
+          ],
+          "scores": [
+            0.01523897483260217,
+            0.0152073732718894,
+            0.00819672131147541
+          ]
+        },
+        {
+          "elapsed_ms": 2.89475,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "query_id": "de-backup",
+          "ranked_ids": [
+            "bicycle",
+            "backup",
+            "password"
+          ],
+          "scores": [
+            0.015772478887232988,
+            0.00819672131147541,
+            0.008064516129032258
+          ]
+        },
+        {
+          "elapsed_ms": 2.905917,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "query_id": "de-vet",
+          "ranked_ids": [
+            "passport",
+            "vet",
+            "plants"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.01626123744050767,
+            0.015749007936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.83975,
+          "grades": {
+            "bicycle": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "query_id": "de-bike",
+          "ranked_ids": [
+            "train",
+            "bicycle",
+            "weather"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.016133229247983348,
+            0.015640273704789834
+          ]
+        },
+        {
+          "elapsed_ms": 2.85325,
+          "grades": {
+            "rust": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "query_id": "de-rust",
+          "ranked_ids": [
+            "backup",
+            "plants",
+            "train"
+          ],
+          "scores": [
+            0.016129032258064516,
+            0.015772478887232988,
+            0.014978761457634698
+          ]
+        },
+        {
+          "elapsed_ms": 2.637,
+          "grades": {
+            "plants": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "query_id": "de-plants",
+          "ranked_ids": [
+            "cooking",
+            "vet",
+            "bicycle"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.015877016129032258,
+            0.015399194503672116
+          ]
+        },
+        {
+          "elapsed_ms": 2.54725,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Register a vehicle at the licensing authority",
+          "query_id": "en-registration",
+          "ranked_ids": [
+            "registration-documents",
+            "api-r484",
+            "history-cas"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015512265512265512,
+            0.01527518656716418
+          ]
+        },
+        {
+          "elapsed_ms": 2.626625,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "How can I bake a loaf of bread?",
+          "query_id": "en-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "history-cas",
+            "api-r483"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.014618011096884338,
+            0.01443001443001443
+          ]
+        },
+        {
+          "elapsed_ms": 2.8484589999999996,
+          "grades": {
+            "train": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Buy a railway ticket and check the departure time",
+          "query_id": "en-train",
+          "ranked_ids": [
+            "registration-documents",
+            "rust-drop",
+            "api-r484"
+          ],
+          "scores": [
+            0.015873015873015872,
+            0.015549662487945998,
+            0.014756944444444444
+          ]
+        },
+        {
+          "elapsed_ms": 2.906125,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "query_id": "fr-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "weather",
+            "passport"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.568833,
+          "grades": {
+            "password": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "query_id": "es-password",
+          "ranked_ids": [
+            "password",
+            "account-recovery",
+            "backup"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.5834170000000003,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "query_id": "fr-backup",
+          "ranked_ids": [
+            "backup",
+            "passport",
+            "registration"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.766792,
+          "grades": {
+            "meeting": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "query_id": "en-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "meeting",
+            "api-r482"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01575682382133995,
+            0.015625
+          ]
+        },
+        {
+          "elapsed_ms": 2.566166,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "query_id": "es-vet",
+          "ranked_ids": [
+            "vet",
+            "passport",
+            "train"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.19125,
+          "grades": {
+            "api-r482": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R482",
+          "query_id": "literal-r482",
+          "ranked_ids": [
+            "api-r482",
+            "passport",
+            "api-r484"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.208958,
+          "grades": {
+            "api-r483": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R483",
+          "query_id": "literal-r483",
+          "ranked_ids": [
+            "api-r483",
+            "api-r484",
+            "passport"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.00819672131147541,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.1354170000000003,
+          "grades": {
+            "api-r484": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R484",
+          "query_id": "literal-r484",
+          "ranked_ids": [
+            "api-r484",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.23375,
+          "grades": {
+            "history-cas": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CAS731",
+          "query_id": "literal-cas",
+          "ranked_ids": [
+            "history-cas",
+            "api-r483",
+            "api-r482"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.151916,
+          "grades": {
+            "context-bytes": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CTX842",
+          "query_id": "literal-ctx",
+          "ranked_ids": [
+            "context-bytes",
+            "api-r484",
+            "registration"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.255042,
+          "grades": {
+            "source-references": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "SRC953",
+          "query_id": "literal-src",
+          "ranked_ids": [
+            "source-references",
+            "history-cas",
+            "api-r482"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.1575,
+          "grades": {
+            "unicode-analysis": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "NFKC",
+          "query_id": "literal-unicode",
+          "ranked_ids": [
+            "unicode-analysis",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.0813339999999996,
+          "grades": {
+            "rust-drop": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Drop",
+          "query_id": "literal-drop",
+          "ranked_ids": [
+            "rust-drop",
+            "circle",
+            "meeting-decisions"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.5416250000000002,
+          "grades": {
+            "rust": 3,
+            "rust-drop": 2,
+            "rust-unsafe": 1
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Rust ownership memory safety borrowing",
+          "query_id": "graded-rust",
+          "ranked_ids": [
+            "rust",
+            "rust-drop",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.016133229247983348,
+            0.016001024065540194
+          ]
+        },
+        {
+          "elapsed_ms": 2.692,
+          "grades": {
+            "meeting": 3,
+            "meeting-decisions": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6131471927654584,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record meeting decisions and assign follow-up tasks",
+          "query_id": "graded-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "source-references",
+            "registration-documents"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015527202696196438,
+            0.01527518656716418
+          ]
+        },
+        {
+          "elapsed_ms": 2.651583,
+          "grades": {
+            "plant-roots": 2,
+            "plants": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Indoor plants need water and healthy roots",
+          "query_id": "graded-plants",
+          "ranked_ids": [
+            "plant-roots",
+            "rust-unsafe",
+            "rust-drop"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015873015873015872,
+            0.015384615384615385
+          ]
+        },
+        {
+          "elapsed_ms": 2.28925,
+          "grades": {
+            "registration": 3,
+            "registration-documents": 2
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.7309292742059024,
+            "precision_at_k": 0.6666666666666666,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 2,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "vehicle registration application documents",
+          "query_id": "graded-vehicle",
+          "ranked_ids": [
+            "registration-documents",
+            "source-references",
+            "registration"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.747375,
+          "grades": {
+            "registration-not-here": 3
+          },
+          "kind": "negation-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Welches Büro führt keine Kfz-Zulassung durch?",
+          "query_id": "contrast-register",
+          "ranked_ids": [
+            "registration-not-here",
+            "registration",
+            "rust"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.016129032258064516,
+            0.01562881562881563
+          ]
+        },
+        {
+          "elapsed_ms": 2.599792,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "temporal-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "rain forecast for tomorrow, not an archived report",
+          "query_id": "contrast-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "source-references",
+            "backup-delete"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015388257575757576,
+            0.014734561213434454
+          ]
+        },
+        {
+          "elapsed_ms": 2.636333,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Create a new backup, do not delete existing copies",
+          "query_id": "contrast-backup",
+          "ranked_ids": [
+            "backup-delete",
+            "api-r482",
+            "history-cas"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01562881562881563,
+            0.01527518656716418
+          ]
+        },
+        {
+          "elapsed_ms": 2.717125,
+          "grades": {
+            "password": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Set up a unique password and two-factor authentication",
+          "query_id": "contrast-auth",
+          "ranked_ids": [
+            "account-recovery",
+            "registration-documents",
+            "history-cas"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.014978761457634698,
+            0.014928698752228164
+          ]
+        },
+        {
+          "elapsed_ms": 2.6114580000000003,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Bake bread with flour water and yeast",
+          "query_id": "contrast-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "rust-unsafe",
+            "circle"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.015625,
+            0.015512265512265512
+          ]
+        },
+        {
+          "elapsed_ms": 2.634334,
+          "grades": {
+            "api-r482": 3,
+            "api-r483": 1,
+            "api-r484": 1
+          },
+          "kind": "code-name",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CacheCoordinator::invalidate",
+          "query_id": "code-function",
+          "ranked_ids": [
+            "api-r482",
+            "api-r483",
+            "api-r484"
+          ],
+          "scores": [
+            0.01626123744050767,
+            0.016133229247983348,
+            0.016001024065540194
+          ]
+        },
+        {
+          "elapsed_ms": 2.6252079999999998,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ZXQJ9999 lunar teapot fabricator",
+          "query_id": "no-answer-1",
+          "ranked_ids": [
+            "rust-unsafe",
+            "rust-drop",
+            "history-cas"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        },
+        {
+          "elapsed_ms": 2.7175,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ABCD9876 underwater violin teleportation",
+          "query_id": "no-answer-2",
+          "ranked_ids": [
+            "history-cas",
+            "rust-unsafe",
+            "passport"
+          ],
+          "scores": [
+            0.00819672131147541,
+            0.008064516129032258,
+            0.007936507936507936
+          ]
+        }
+      ],
+      "mode": "hybrid-equal",
+      "summary": {
+        "cutoff": 3,
+        "mean_ndcg_at_k": 0.598119917868796,
+        "mean_precision_at_k": 0.26851851851851843,
+        "mean_recall_at_k": 0.6764705882352942,
+        "mean_reciprocal_rank_at_k": 0.5787037037037037,
+        "ndcg_queries": 34,
+        "queries": 36,
+        "recall_queries": 34,
+        "unjudged_policy": "RequireJudged",
+        "unjudged_retrieved": 0
+      }
+    },
+    {
+      "cases": [
+        {
+          "elapsed_ms": 2.564416,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Ein Fahrzeug bei der Behörde anmelden",
+          "query_id": "de-registration",
+          "ranked_ids": [
+            "vet",
+            "bicycle",
+            "password"
+          ],
+          "scores": [
+            0.01546199701937407,
+            0.015226287915262397,
+            0.014620535714285714
+          ]
+        },
+        {
+          "elapsed_ms": 2.292333,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Auto zulassen",
+          "query_id": "de-synonym",
+          "ranked_ids": [
+            "registration",
+            "train",
+            "passport"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.741,
+          "grades": {
+            "passport": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.5,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.3333333333333333,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wo bekomme ich ein neues Reisedokument?",
+          "query_id": "de-passport",
+          "ranked_ids": [
+            "password",
+            "cooking",
+            "passport"
+          ],
+          "scores": [
+            0.014746543778801843,
+            0.014661740937427847,
+            0.012295081967213115
+          ]
+        },
+        {
+          "elapsed_ms": 2.932708,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Wie schütze ich meine Daten vor Verlust?",
+          "query_id": "de-backup",
+          "ranked_ids": [
+            "bicycle",
+            "backup",
+            "password"
+          ],
+          "scores": [
+            0.01546199701937407,
+            0.012295081967213115,
+            0.012096774193548387
+          ]
+        },
+        {
+          "elapsed_ms": 2.898041,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mein Haustier ist krank und braucht einen Arzt",
+          "query_id": "de-vet",
+          "ranked_ids": [
+            "vet",
+            "passport",
+            "train"
+          ],
+          "scores": [
+            0.016327340031729243,
+            0.016195134849286093,
+            0.015692640692640692
+          ]
+        },
+        {
+          "elapsed_ms": 2.833833,
+          "grades": {
+            "bicycle": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Die Bremsanlage meines Rads überprüfen",
+          "query_id": "de-bike",
+          "ranked_ids": [
+            "bicycle",
+            "train",
+            "weather"
+          ],
+          "scores": [
+            0.016263335935467083,
+            0.016195134849286093,
+            0.015395894428152493
+          ]
+        },
+        {
+          "elapsed_ms": 2.7395,
+          "grades": {
+            "rust": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+          "query_id": "de-rust",
+          "ranked_ids": [
+            "backup",
+            "plants",
+            "train"
+          ],
+          "scores": [
+            0.016129032258064516,
+            0.01546199701937407,
+            0.014531634249944109
+          ]
+        },
+        {
+          "elapsed_ms": 2.599125,
+          "grades": {
+            "plants": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Meine Blumen in der Wohnung brauchen Wasser",
+          "query_id": "de-plants",
+          "ranked_ids": [
+            "cooking",
+            "vet",
+            "bicycle"
+          ],
+          "scores": [
+            0.016195134849286093,
+            0.01575100806451613,
+            0.015162283819000236
+          ]
+        },
+        {
+          "elapsed_ms": 2.528167,
+          "grades": {
+            "registration": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Register a vehicle at the licensing authority",
+          "query_id": "en-registration",
+          "ranked_ids": [
+            "registration-documents",
+            "history-cas",
+            "api-r484"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01545009328358209,
+            0.015331890331890332
+          ]
+        },
+        {
+          "elapsed_ms": 2.6365,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "How can I bake a loaf of bread?",
+          "query_id": "en-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "history-cas",
+            "api-r483"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.014351259069568929,
+            0.013708513708513708
+          ]
+        },
+        {
+          "elapsed_ms": 2.761375,
+          "grades": {
+            "train": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Buy a railway ticket and check the departure time",
+          "query_id": "en-train",
+          "ranked_ids": [
+            "registration-documents",
+            "rust-drop",
+            "history-cas"
+          ],
+          "scores": [
+            0.015873015873015872,
+            0.015127772420443587,
+            0.014765458422174839
+          ]
+        },
+        {
+          "elapsed_ms": 2.705333,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Est-ce qu'il va pleuvoir demain?",
+          "query_id": "fr-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "weather",
+            "passport"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.47475,
+          "grades": {
+            "password": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Cómo proteger mi cuenta con una contraseña segura",
+          "query_id": "es-password",
+          "ranked_ids": [
+            "password",
+            "account-recovery",
+            "backup"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.659917,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Créer une copie de sauvegarde des fichiers importants",
+          "query_id": "fr-backup",
+          "ranked_ids": [
+            "backup",
+            "passport",
+            "registration"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.818292,
+          "grades": {
+            "meeting": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6309297535714575,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 0.5,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record the decisions and distribute action items after a team meeting",
+          "query_id": "en-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "meeting",
+            "registration-documents"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015942928039702233,
+            0.015636105188343994
+          ]
+        },
+        {
+          "elapsed_ms": 2.586333,
+          "grades": {
+            "vet": 3
+          },
+          "kind": "multilingual-paraphrase",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Mi perro necesita una consulta con el veterinario",
+          "query_id": "es-vet",
+          "ranked_ids": [
+            "vet",
+            "passport",
+            "train"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.18025,
+          "grades": {
+            "api-r482": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R482",
+          "query_id": "literal-r482",
+          "ranked_ids": [
+            "api-r482",
+            "passport",
+            "api-r484"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.107541,
+          "grades": {
+            "api-r483": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R483",
+          "query_id": "literal-r483",
+          "ranked_ids": [
+            "api-r483",
+            "api-r484",
+            "passport"
+          ],
+          "scores": [
+            0.016195134849286093,
+            0.012295081967213115,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.059709,
+          "grades": {
+            "api-r484": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "R484",
+          "query_id": "literal-r484",
+          "ranked_ids": [
+            "api-r484",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 1.7925,
+          "grades": {
+            "history-cas": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CAS731",
+          "query_id": "literal-cas",
+          "ranked_ids": [
+            "history-cas",
+            "api-r483",
+            "api-r482"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 1.805125,
+          "grades": {
+            "context-bytes": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CTX842",
+          "query_id": "literal-ctx",
+          "ranked_ids": [
+            "context-bytes",
+            "api-r484",
+            "registration"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 1.822125,
+          "grades": {
+            "source-references": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "SRC953",
+          "query_id": "literal-src",
+          "ranked_ids": [
+            "source-references",
+            "history-cas",
+            "api-r482"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 1.727875,
+          "grades": {
+            "unicode-analysis": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "NFKC",
+          "query_id": "literal-unicode",
+          "ranked_ids": [
+            "unicode-analysis",
+            "registration",
+            "passport"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 1.629667,
+          "grades": {
+            "rust-drop": 3
+          },
+          "kind": "literal-identifier",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Drop",
+          "query_id": "literal-drop",
+          "ranked_ids": [
+            "rust-drop",
+            "circle",
+            "meeting-decisions"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.6506670000000003,
+          "grades": {
+            "rust": 3,
+            "rust-drop": 2,
+            "rust-unsafe": 1
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.8428282648809379,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Rust ownership memory safety borrowing",
+          "query_id": "graded-rust",
+          "ranked_ids": [
+            "rust-drop",
+            "rust",
+            "rust-unsafe"
+          ],
+          "scores": [
+            0.016263335935467083,
+            0.016195134849286093,
+            0.015937019969278033
+          ]
+        },
+        {
+          "elapsed_ms": 2.605333,
+          "grades": {
+            "meeting": 3,
+            "meeting-decisions": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.6131471927654584,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Record meeting decisions and assign follow-up tasks",
+          "query_id": "graded-meeting",
+          "ranked_ids": [
+            "meeting-decisions",
+            "registration-documents",
+            "source-references"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01545009328358209,
+            0.015226287915262397
+          ]
+        },
+        {
+          "elapsed_ms": 2.621375,
+          "grades": {
+            "plant-roots": 2,
+            "plants": 3
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.3373519727104165,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 0.5,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Indoor plants need water and healthy roots",
+          "query_id": "graded-plants",
+          "ranked_ids": [
+            "plant-roots",
+            "rust-unsafe",
+            "rust-drop"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015873015873015872,
+            0.015384615384615385
+          ]
+        },
+        {
+          "elapsed_ms": 2.315083,
+          "grades": {
+            "registration": 3,
+            "registration-documents": 2
+          },
+          "kind": "graded-multiple",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.7309292742059024,
+            "precision_at_k": 0.6666666666666666,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 2,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "vehicle registration application documents",
+          "query_id": "graded-vehicle",
+          "ranked_ids": [
+            "registration-documents",
+            "source-references",
+            "registration"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.7733749999999997,
+          "grades": {
+            "registration-not-here": 3
+          },
+          "kind": "negation-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 1.0,
+            "precision_at_k": 0.3333333333333333,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 1,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Welches Büro führt keine Kfz-Zulassung durch?",
+          "query_id": "contrast-register",
+          "ranked_ids": [
+            "registration-not-here",
+            "registration",
+            "rust"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.016129032258064516,
+            0.015506715506715507
+          ]
+        },
+        {
+          "elapsed_ms": 2.674709,
+          "grades": {
+            "weather": 3
+          },
+          "kind": "temporal-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "rain forecast for tomorrow, not an archived report",
+          "query_id": "contrast-weather",
+          "ranked_ids": [
+            "weather-archive",
+            "source-references",
+            "backup-delete"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.015269886363636364,
+            0.014409534127843987
+          ]
+        },
+        {
+          "elapsed_ms": 2.6835,
+          "grades": {
+            "backup": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Create a new backup, do not delete existing copies",
+          "query_id": "contrast-backup",
+          "ranked_ids": [
+            "backup-delete",
+            "api-r482",
+            "history-cas"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01575091575091575,
+            0.01545009328358209
+          ]
+        },
+        {
+          "elapsed_ms": 2.727625,
+          "grades": {
+            "password": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Set up a unique password and two-factor authentication",
+          "query_id": "contrast-auth",
+          "ranked_ids": [
+            "account-recovery",
+            "rust-unsafe",
+            "history-cas"
+          ],
+          "scores": [
+            0.01639344262295082,
+            0.01523987676056338,
+            0.015040106951871659
+          ]
+        },
+        {
+          "elapsed_ms": 2.696708,
+          "grades": {
+            "cooking": 3
+          },
+          "kind": "action-distractor",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "Bake bread with flour water and yeast",
+          "query_id": "contrast-bread",
+          "ranked_ids": [
+            "bread-storage",
+            "rust-unsafe",
+            "weather-archive"
+          ],
+          "scores": [
+            0.016327340031729243,
+            0.015625,
+            0.015527950310559006
+          ]
+        },
+        {
+          "elapsed_ms": 2.7187919999999997,
+          "grades": {
+            "api-r482": 3,
+            "api-r483": 1,
+            "api-r484": 1
+          },
+          "kind": "code-name",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": 0.7276545800191442,
+            "precision_at_k": 1.0,
+            "recall_at_k": 1.0,
+            "reciprocal_rank_at_k": 1.0,
+            "relevant_retrieved": 3,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "CacheCoordinator::invalidate",
+          "query_id": "code-function",
+          "ranked_ids": [
+            "api-r483",
+            "api-r482",
+            "api-r484"
+          ],
+          "scores": [
+            0.016263335935467083,
+            0.016195134849286093,
+            0.015937019969278033
+          ]
+        },
+        {
+          "elapsed_ms": 2.759041,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ZXQJ9999 lunar teapot fabricator",
+          "query_id": "no-answer-1",
+          "ranked_ids": [
+            "rust-unsafe",
+            "rust-drop",
+            "history-cas"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        },
+        {
+          "elapsed_ms": 2.6372079999999998,
+          "grades": {},
+          "kind": "no-answer",
+          "metrics": {
+            "cutoff": 3,
+            "judged_retrieved": 3,
+            "ndcg_at_k": null,
+            "precision_at_k": 0.0,
+            "recall_at_k": null,
+            "reciprocal_rank_at_k": 0.0,
+            "relevant_retrieved": 0,
+            "returned": 3,
+            "unjudged_policy": "RequireJudged",
+            "unjudged_retrieved": 0
+          },
+          "query": "ABCD9876 underwater violin teleportation",
+          "query_id": "no-answer-2",
+          "ranked_ids": [
+            "history-cas",
+            "rust-unsafe",
+            "passport"
+          ],
+          "scores": [
+            0.012295081967213115,
+            0.012096774193548387,
+            0.011904761904761904
+          ]
+        }
+      ],
+      "mode": "hybrid-semantic-75",
+      "summary": {
+        "cutoff": 3,
+        "mean_ndcg_at_k": 0.6071970748616539,
+        "mean_precision_at_k": 0.26851851851851843,
+        "mean_recall_at_k": 0.6764705882352942,
+        "mean_reciprocal_rank_at_k": 0.6064814814814814,
+        "ndcg_queries": 34,
+        "queries": 36,
+        "recall_queries": 34,
+        "unjudged_policy": "RequireJudged",
+        "unjudged_retrieved": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "version": "airust-quality-reference-v1",
+  "description": "Authored public smoke judgments. Includes difficult distractors and no-answer cases; not an independent relevance benchmark, logical-reasoning test or production guarantee. Unlisted document grades are explicitly zero for this closed fixture only.",
+  "documents": [
+    {
+      "id": "registration",
+      "text": "Kfz-Zulassung durchführen."
+    },
+    {
+      "id": "passport",
+      "text": "Einen neuen Reisepass beim Bürgeramt beantragen."
+    },
+    {
+      "id": "cooking",
+      "text": "Ein Rezept für selbst gebackenes Brot mit Mehl, Wasser und Hefe."
+    },
+    {
+      "id": "plants",
+      "text": "Zimmerpflanzen regelmäßig gießen und ausreichend mit Licht versorgen."
+    },
+    {
+      "id": "rust",
+      "text": "Rust verhindert viele Speicherfehler durch Ownership und Borrowing."
+    },
+    {
+      "id": "backup",
+      "text": "Eine Sicherungskopie wichtiger Dateien auf einem externen Datenträger erstellen."
+    },
+    {
+      "id": "train",
+      "text": "Fahrkarten für eine Zugreise buchen und die Abfahrtszeit prüfen."
+    },
+    {
+      "id": "vet",
+      "text": "Einen Termin beim Tierarzt vereinbaren, damit der Hund untersucht wird."
+    },
+    {
+      "id": "bicycle",
+      "text": "Das Fahrrad reparieren und die Bremsen vor der nächsten Fahrt kontrollieren."
+    },
+    {
+      "id": "meeting",
+      "text": "Besprechungsnotizen schreiben und vereinbarte Aufgaben an das Team verteilen."
+    },
+    {
+      "id": "password",
+      "text": "Ein langes einzigartiges Passwort und Zwei-Faktor-Authentifizierung schützen das Konto."
+    },
+    {
+      "id": "weather",
+      "text": "Die Wettervorhersage meldet Regen und niedrige Temperaturen für morgen."
+    },
+    {
+      "id": "registration-documents",
+      "text": "A knowledge note about vehicle registration documents, application forms and identity checks."
+    },
+    {
+      "id": "registration-not-here",
+      "text": "Dieses Büro führt keine Kfz-Zulassung durch. Es beantwortet nur Fragen zu Parkausweisen."
+    },
+    {
+      "id": "backup-delete",
+      "text": "Old backup copies can be deleted only after the retention policy has been reviewed. This note is about deletion, not creating a new backup."
+    },
+    {
+      "id": "rust-drop",
+      "text": "Rust ownership and the Drop trait: cleanup when owned values leave scope."
+    },
+    {
+      "id": "rust-unsafe",
+      "text": "Knowledge topic: unsafe Rust, raw pointers, and manually maintained memory invariants."
+    },
+    {
+      "id": "weather-archive",
+      "text": "Archived weather report: rain and low temperatures last year. This is not tomorrow’s forecast."
+    },
+    {
+      "id": "account-recovery",
+      "text": "Recover an account after forgetting its password. Account recovery differs from setting up two-factor authentication."
+    },
+    {
+      "id": "plant-roots",
+      "text": "Indoor plants: roots, watering frequency, standing water and soil conditions."
+    },
+    {
+      "id": "bread-storage",
+      "text": "Keep already baked bread fresh. This note discusses storage rather than a bread recipe."
+    },
+    {
+      "id": "meeting-decisions",
+      "text": "A meeting decision log records decisions, responsible people and agreed follow-up tasks."
+    },
+    {
+      "id": "api-r482",
+      "text": "Reference R482. CacheCoordinator::invalidate removes a derived knowledge cache after source changes."
+    },
+    {
+      "id": "api-r483",
+      "text": "Reference R483. CacheCoordinator::validate checks a derived knowledge cache before loading."
+    },
+    {
+      "id": "api-r484",
+      "text": "Reference R484. CacheCoordinator::inspect reports metadata without changing the cache."
+    },
+    {
+      "id": "unicode-analysis",
+      "text": "Text-analysis topic: Unicode NFKC, accents, Straße, Strasse, Grüße and multilingual token boundaries."
+    },
+    {
+      "id": "history-cas",
+      "text": "Reference CAS731. Expected revisions reject stale writes; deleted IDs retain a revision tombstone."
+    },
+    {
+      "id": "context-bytes",
+      "text": "Reference CTX842. Context selection uses UTF-8 text-byte limits, source IDs and bounded graph neighborhoods."
+    },
+    {
+      "id": "source-references",
+      "text": "Reference SRC953. Source references record document IDs, pages and original byte positions. References do not prove a claim is true."
+    },
+    {
+      "id": "circle",
+      "text": "Geometry note: circles, radius, circumference and area."
+    }
+  ],
+  "queries": [
+    {
+      "id": "de-registration",
+      "text": "Ein Fahrzeug bei der Behörde anmelden",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "registration": 3
+      }
+    },
+    {
+      "id": "de-synonym",
+      "text": "Auto zulassen",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "registration": 3
+      }
+    },
+    {
+      "id": "de-passport",
+      "text": "Wo bekomme ich ein neues Reisedokument?",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "passport": 3
+      }
+    },
+    {
+      "id": "de-backup",
+      "text": "Wie schütze ich meine Daten vor Verlust?",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "backup": 3
+      }
+    },
+    {
+      "id": "de-vet",
+      "text": "Mein Haustier ist krank und braucht einen Arzt",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "vet": 3
+      }
+    },
+    {
+      "id": "de-bike",
+      "text": "Die Bremsanlage meines Rads überprüfen",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "bicycle": 3
+      }
+    },
+    {
+      "id": "de-rust",
+      "text": "Eine Programmiersprache mit sicherer Speicherverwaltung",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "rust": 3
+      }
+    },
+    {
+      "id": "de-plants",
+      "text": "Meine Blumen in der Wohnung brauchen Wasser",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "plants": 3
+      }
+    },
+    {
+      "id": "en-registration",
+      "text": "Register a vehicle at the licensing authority",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "registration": 3
+      }
+    },
+    {
+      "id": "en-bread",
+      "text": "How can I bake a loaf of bread?",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "cooking": 3
+      }
+    },
+    {
+      "id": "en-train",
+      "text": "Buy a railway ticket and check the departure time",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "train": 3
+      }
+    },
+    {
+      "id": "fr-weather",
+      "text": "Est-ce qu'il va pleuvoir demain?",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "weather": 3
+      }
+    },
+    {
+      "id": "es-password",
+      "text": "Cómo proteger mi cuenta con una contraseña segura",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "password": 3
+      }
+    },
+    {
+      "id": "fr-backup",
+      "text": "Créer une copie de sauvegarde des fichiers importants",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "backup": 3
+      }
+    },
+    {
+      "id": "en-meeting",
+      "text": "Record the decisions and distribute action items after a team meeting",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "meeting": 3
+      }
+    },
+    {
+      "id": "es-vet",
+      "text": "Mi perro necesita una consulta con el veterinario",
+      "kind": "multilingual-paraphrase",
+      "grades": {
+        "vet": 3
+      }
+    },
+    {
+      "id": "literal-r482",
+      "text": "R482",
+      "kind": "literal-identifier",
+      "grades": {
+        "api-r482": 3
+      },
+      "lexical_top1": "api-r482"
+    },
+    {
+      "id": "literal-r483",
+      "text": "R483",
+      "kind": "literal-identifier",
+      "grades": {
+        "api-r483": 3
+      },
+      "lexical_top1": "api-r483"
+    },
+    {
+      "id": "literal-r484",
+      "text": "R484",
+      "kind": "literal-identifier",
+      "grades": {
+        "api-r484": 3
+      },
+      "lexical_top1": "api-r484"
+    },
+    {
+      "id": "literal-cas",
+      "text": "CAS731",
+      "kind": "literal-identifier",
+      "grades": {
+        "history-cas": 3
+      },
+      "lexical_top1": "history-cas"
+    },
+    {
+      "id": "literal-ctx",
+      "text": "CTX842",
+      "kind": "literal-identifier",
+      "grades": {
+        "context-bytes": 3
+      },
+      "lexical_top1": "context-bytes"
+    },
+    {
+      "id": "literal-src",
+      "text": "SRC953",
+      "kind": "literal-identifier",
+      "grades": {
+        "source-references": 3
+      },
+      "lexical_top1": "source-references"
+    },
+    {
+      "id": "literal-unicode",
+      "text": "NFKC",
+      "kind": "literal-identifier",
+      "grades": {
+        "unicode-analysis": 3
+      },
+      "lexical_top1": "unicode-analysis"
+    },
+    {
+      "id": "literal-drop",
+      "text": "Drop",
+      "kind": "literal-identifier",
+      "grades": {
+        "rust-drop": 3
+      },
+      "lexical_top1": "rust-drop"
+    },
+    {
+      "id": "graded-rust",
+      "text": "Rust ownership memory safety borrowing",
+      "kind": "graded-multiple",
+      "grades": {
+        "rust": 3,
+        "rust-drop": 2,
+        "rust-unsafe": 1
+      }
+    },
+    {
+      "id": "graded-meeting",
+      "text": "Record meeting decisions and assign follow-up tasks",
+      "kind": "graded-multiple",
+      "grades": {
+        "meeting": 3,
+        "meeting-decisions": 3
+      }
+    },
+    {
+      "id": "graded-plants",
+      "text": "Indoor plants need water and healthy roots",
+      "kind": "graded-multiple",
+      "grades": {
+        "plants": 3,
+        "plant-roots": 2
+      }
+    },
+    {
+      "id": "graded-vehicle",
+      "text": "vehicle registration application documents",
+      "kind": "graded-multiple",
+      "grades": {
+        "registration": 3,
+        "registration-documents": 2
+      }
+    },
+    {
+      "id": "contrast-register",
+      "text": "Welches Büro führt keine Kfz-Zulassung durch?",
+      "kind": "negation-distractor",
+      "grades": {
+        "registration-not-here": 3
+      }
+    },
+    {
+      "id": "contrast-weather",
+      "text": "rain forecast for tomorrow, not an archived report",
+      "kind": "temporal-distractor",
+      "grades": {
+        "weather": 3
+      }
+    },
+    {
+      "id": "contrast-backup",
+      "text": "Create a new backup, do not delete existing copies",
+      "kind": "action-distractor",
+      "grades": {
+        "backup": 3
+      }
+    },
+    {
+      "id": "contrast-auth",
+      "text": "Set up a unique password and two-factor authentication",
+      "kind": "action-distractor",
+      "grades": {
+        "password": 3
+      }
+    },
+    {
+      "id": "contrast-bread",
+      "text": "Bake bread with flour water and yeast",
+      "kind": "action-distractor",
+      "grades": {
+        "cooking": 3
+      }
+    },
+    {
+      "id": "code-function",
+      "text": "CacheCoordinator::invalidate",
+      "kind": "code-name",
+      "grades": {
+        "api-r482": 3,
+        "api-r483": 1,
+        "api-r484": 1
+      }
+    },
+    {
+      "id": "no-answer-1",
+      "text": "ZXQJ9999 lunar teapot fabricator",
+      "kind": "no-answer",
+      "grades": {}
+    },
+    {
+      "id": "no-answer-2",
+      "text": "ABCD9876 underwater violin teleportation",
+      "kind": "no-answer",
+      "grades": {}
+    }
+  ]
+}

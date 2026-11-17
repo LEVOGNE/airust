@@ -146,3 +146,7 @@ Enable `hnsw` for `HnswIndex`, `HnswConfig`, `AnnSearchOptions`, `AnnOutcome`, `
 ## Optional revision ownership
 
 Enable `versioning` for `VersionedIndex`, `Revision`, `ExpectedRevision`, `ChangeMetadata`, `EntryVersion`, `RevisionRecord`, borrowed `RevisionView` and `RevisionComparison`. Writes require absent/exact expectations. History is explicitly enabled by record count; restore creates a new revision. The [revision guide](VERSIONING.md) defines tombstones, comparison, pruning, JSON and caller coordination.
+
+## Optional retrieval-quality API
+
+Enable `quality` for `Judgments`, `UnjudgedPolicy`, `evaluate_ranking`, `QueryMetrics`, `summarize` and `QualitySummary`. Metrics use a declared cutoff, graded relevance and explicit unknown-result policy, with undefined recall/nDCG denominators retained. See [QUALITY.md](QUALITY.md). The [complete cookbook](API-COOKBOOK.md) maps all optional APIs and ownership choices; [BENCHMARKS.md](BENCHMARKS.md) gives repeatable validation commands.

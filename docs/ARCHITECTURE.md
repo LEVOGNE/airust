@@ -129,3 +129,7 @@ HNSW topology shares immutable vector buffers with the semantic index. The wrapp
 ## Revision and history boundary
 
 The independent versioning wrapper owns the existing lexical engine and revision heads. Private mutation prevents bypassing expected-version checks. Default tracking retains no old text; optional bounded committed snapshots permit restoration. Change metadata uses shared immutable storage. Versioned JSON is caller-owned history data, separate from portable entries and the derived cache. Database commits, semantic refresh and provenance validity remain application-owned. See [VERSIONING.md](VERSIONING.md).
+
+## Quality and application boundaries
+
+The quality module consumes ranked IDs and caller judgments; it requires no engine, model or transport. Integration harnesses are development tools, not runtime dependencies. The [cookbook](API-COOKBOOK.md) distinguishes alternative index owners from borrowed sidecars, and the [proposed DenkMaps upgrade](DENKMAPS-UPGRADE.md) preserves its existing SQLite authority and access rules. No application integration is performed by the library release.

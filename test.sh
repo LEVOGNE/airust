@@ -19,6 +19,7 @@ cargo check --lib --no-default-features --features provenance --locked
 cargo check --lib --no-default-features --features cache --locked
 cargo check --lib --no-default-features --features hnsw --locked
 cargo check --lib --no-default-features --features versioning --locked
+cargo check --lib --no-default-features --features quality --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
 cargo run --locked --example core
 cargo run --locked --features embeddings --example semantic
@@ -30,3 +31,7 @@ cargo run --locked --features provenance,context-assembly --example provenance_c
 cargo run --locked --features cache --example cache
 cargo run --locked --features hnsw --example ann
 cargo run --locked --features versioning --example versioning
+cargo run --locked --features quality --example quality
+cargo run --locked --features quality,hybrid --example retrieval_quality > /dev/null
+cargo run --locked --features hnsw,cache,context-assembly,provenance,quality --example knowledge_pipeline
+cargo run --locked --features quality,context-assembly,provenance --example quality_benchmark -- 1000 3 > /dev/null

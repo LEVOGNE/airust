@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.8
+
+- Add independent retrieval-quality metrics with graded judgments, explicit unjudged policy and defined-denominator summaries.
+- Preserve old fixtures and add public literal/paraphrase/distractor/no-answer reference cases plus context/source/access contracts.
+- Add reproducible scale/resource harnesses and a compiled generic knowledge pipeline.
+- Document all new APIs, ownership choices and a proposed shadow-tested DenkMaps upgrade without integrating it.
+- Update CI checkout to verified v7.0.1, pinned by commit, with Node 24 and read-only credentials policy.
+
+
 ## 0.2.7
 
 - Add independent revision heads and deletion tombstones with explicit expected-version writes.
