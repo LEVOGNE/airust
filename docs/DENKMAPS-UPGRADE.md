@@ -1,6 +1,6 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.10
+# Proposed DenkMaps upgrade to AIRust 0.2.12
 
-This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was inspected read-only; the new library is not integrated automatically.
+This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was previously inspected read-only and was not re-audited for this library-only release; the new library is not integrated automatically.
 
 ## What already exists
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.10", default-features = false }
+airust = { version = "=0.2.12", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.10", default-features = false,
+airust = { version = "=0.2.12", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -109,3 +109,25 @@ The [API cookbook](API-COOKBOOK.md) gives compiled generic examples and exact mo
 ## Optional advanced-text trial
 
 This release does not integrate the new TextIndex into DenkMaps. It is an alternative positional lexical owner with an immutable analyzer, not a drop-in replacement for SemanticIndex ownership. A later explicitly authorized trial must rebuild from committed authorized source records, preserve stable IDs/revisions, compare literal identifiers and phrase/German stem behavior against existing search, and measure positional memory/query costs before changing displayed results.
+
+
+## 9. Trial the three new APIs in a separate application change
+
+**Advanced text (0.2.10):** enable `advanced-search`, construct `TextIndex::from_entries(AnalyzerConfig::german(), records)` from the same committed authorized records, and use TextSearchOptions. Keep this as a measured alternative lexical projection. German stemming is suffix-based; phrases match adjacent analyzed tokens rather than exact bytes. Rebuild on analyzer/recipe changes and compare German/literal queries before selecting it. It is not an automatic semantic-index conversion.
+
+**Storage (0.2.11):** DenkMaps already owns SQLite transactions/revisions. Keep that owner. Do not point SqliteStore at the application database: it owns a separate AIRust schema and rejects unrelated schemas. A future adapter may implement StorageBackend over an appropriately coordinated source, but duplicating every application node into another authoritative database adds reconciliation work. For a standalone Rust tool without an existing store, use MemoryStore or a separate SqliteStore directly. Neither makes the derived search index persistent or automatically current.
+
+**Compact retrieval (0.2.12):** enable `retrieval` and borrow the chosen index via LexicalSource, TextSource, SemanticSource or HybridSource. Construct `Retriever`, optionally attach an explicit reranker, then call `query` with scoped RetrievalOptions. Existing application-owned semantic providers remain explicitly supplied. Metadata stays omitted unless authorized and opted in. Response hit IDs, excerpts, source ranks, component evidence, rerank diagnostics and truncation are owned and can be serialized after releasing the index guard.
+
+A future dependency selection for an isolated lexical/phrase trial could be:
+
+```toml
+airust = { version = "=0.2.12", default-features = false,
+           features = ["retrieval", "advanced-search", "quality"] }
+```
+
+Application-side sequence: authorize the request → obtain/reconcile the committed source revision → borrow the matching derived index → intersect the permitted scope → retrieve a bounded owned response → release guards → recheck freshness/access if required → return through the existing application transport. An empty permitted ID set must stop before constructing an unrestricted empty Context. Carry the application's committed revision alongside the response; AIRust does not infer it.
+
+`with_byte_budgets(query, total_text, excerpt, output)` caps complete output JSON as well as excerpts. If adding a surrounding MCP envelope or ContextAssembler graph/source bundle, measure/cap that additional encoded payload separately. Keep the original RetrievalResponse evidence when using hit IDs for sourced context assembly. Excerpts are UTF-8 prefixes, not guaranteed query-centered evidence. Choose and test sufficient budgets.
+
+The generic examples `advanced_search`, `storage`, `retrieval` and the API cookbook compile without any DenkMaps dependency. Run real application permissions, synchronization, German duplicate, update/restart, query relevance and large-map tests in a separate integration branch before rollout. This guide changes no application files, dependency or data.

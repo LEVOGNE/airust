@@ -46,3 +46,11 @@ cargo run --locked --features advanced-search --example advanced_search
 cargo check --lib --no-default-features --features storage --locked
 cargo check --lib --no-default-features --features sqlite-storage --locked
 cargo run --locked --features storage --example storage
+
+cargo check --lib --no-default-features --features retrieval --locked
+cargo check --lib --no-default-features --features retrieval,advanced-search --locked
+cargo check --lib --no-default-features --features retrieval,embeddings --locked
+cargo check --lib --no-default-features --features retrieval,hybrid --locked
+cargo check --lib --no-default-features --features retrieval,reranking --locked
+cargo test --no-default-features --features retrieval --test retrieval --locked
+cargo run --locked --features retrieval --example retrieval

@@ -1,0 +1,5 @@
+# AIRust 0.2.12 acceptance plan
+
+Provide a lightweight transport-neutral retrieval source/request/response API over existing algorithms. Preserve specialized APIs, default features and saved formats. Support lexical, positional text, semantic and hybrid sources, optional explicit reranking and custom borrowed/boxed sources. Return owned selected excerpts, original ranking evidence and complete valid JSON under a byte cap.
+
+Verify scope intersection before top-K/provider work, malformed/duplicate/nonfinite source rejection before inference, original UTF-8 spans, metadata depth/bytes, JSON escaping/envelope caps, deterministic truncation, explicit fallback diagnostics and separate retrieval/rerank scores. Compare source outputs to existing algorithms and preserve old APIs in an independent consumer. Complete full tests, isolated features, minimum Rust, static patch compatibility, advisory audit, reproducible measurements and extracted-package/CI/registry checks before publication. No DenkMaps/MCP integration.

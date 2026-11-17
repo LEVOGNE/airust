@@ -147,3 +147,5 @@ The quality module consumes ranked IDs and caller judgments; it requires no engi
 `TextIndex` privately uses `insert_analyzed` and `search_analyzed` inside the same Engine implementation. Its immutable analyzer builds terms and positional evidence before committing replacements. Context is checked before phrase evaluation; phrase/term constraints precede shared top-K. KMP matches required phrases in linear token-stream time per phrase and returns bounded original UTF-8 spans. The internal Engine is not exposed as an ordinary legacy analyzer or passed into old cache/vector wrappers. Original source records are owned once; positions are additional derived memory.
 
 Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](STORAGE.md).
+
+The optional compact Retrieval API reuses existing ranking, scopes results and bounds complete JSON. See [the retrieval contract](RETRIEVAL.md).

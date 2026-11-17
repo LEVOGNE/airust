@@ -85,3 +85,6 @@ pub mod text_search;
 
 #[cfg(feature = "storage")]
 pub mod storage;
+
+#[cfg(feature = "retrieval")]
+pub mod retrieval;

@@ -102,3 +102,5 @@ The local adapter verifies exact pinned assets before native loading and disable
 The positional analyzer enforces original/normalized byte and token limits; query syntax, token/phrase counts and returned span counts are bounded separately. Normalization expansion keeps original UTF-8 evidence and can map multiple tokens to one grapheme. Invalid replacements are rejected before prior state changes. Scope checks and phrase constraints precede top-K; missing authorized IDs still require caller-side denial because empty Context ID sets are unrestricted. Stems and analyzed phrase matches do not establish semantic equivalence, authorship or factual truth. Common queries can still visit many documents; individual budgets are not an aggregate service-throughput guarantee.
 
 Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](STORAGE.md).
+
+The optional compact Retrieval API reuses existing ranking, scopes results and bounds complete JSON. See [the retrieval contract](RETRIEVAL.md).

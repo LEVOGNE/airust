@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.12
+
+Optional Knowledge Retrieval API: interchangeable lexical/text/semantic/hybrid sources, compact owned excerpts with original ranking evidence, explicit reranking/fallbacks and exact complete-JSON budgets. Existing specialized APIs/defaults remain unchanged. See [report](docs/CHANGES-0.2.12.md).
+
+
 ## 0.2.11
 
 Optional Storage Backend API: memory and standalone SQLite implementations, atomic revision-checked batches, bounded pages, consistent snapshot loading and explicit identity renewal. No default-feature or application integration changes. See [report](docs/CHANGES-0.2.11.md).

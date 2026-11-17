@@ -1,4 +1,4 @@
-# AIRust 0.2.11 API cookbook
+# AIRust 0.2.12 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.11", default-features = false }
+airust = { version = "=0.2.12", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,7 @@ airust = { version = "=0.2.11", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `retrieval` | Compact owned excerpts/evidence and complete JSON budgets over interchangeable sources | [RETRIEVAL](RETRIEVAL.md), `retrieval`, `retrieval_benchmark` |
 | `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
 | `advanced-search` | Explicit phrase queries, Unicode word boundaries and optional German stemming | [TEXT-SEARCH](TEXT-SEARCH.md), `advanced_search` |
 | `reranking` | Bounded provider-neutral query/document rescoring | [RERANKING](RERANKING.md), `reranking` |
@@ -37,13 +38,16 @@ Rust 1.89 supports the provider-independent features. The local ONNX adapters ne
 | `SemanticIndex` | One Engine and model-specific vector buffers | `lexical()` borrows; `into_lexical()` consumes |
 | `HnswIndex` | One SemanticIndex and derived topology over shared buffers | `semantic()` borrows; `into_semantic()` consumes |
 | `VersionedIndex` | One Engine, revision heads and optional snapshots | `index()` borrows; `into_index()` consumes and ends history bookkeeping |
+| `TextIndex` | One privately analyzed lexical index and positions | Explicit analyzer and original-text phrase evidence |
+| `MemoryStore` / `SqliteStore` | Authoritative generic records with a revision lineage | Atomic batches, pages and staged snapshots |
+| `Retriever` / `RetrievalResponse` | Source/provider borrows / only selected owned output | Full encoded JSON budget; no second source corpus |
 | `ContextAssembler` | Borrows an Engine or SemanticIndex and optional sidecars | No second source corpus |
 | `RerankOutcome` | Borrows the supplied candidate slice and captured entry references | Retains component scores/ranks; no second corpus or index mutation |
 | Graph/provenance | IDs, relationships or source definitions/bindings | Caller-owned sidecars |
 
 VersionedIndex and SemanticIndex are alternative owners of an Engine. They are not two mutable wrappers over the same index. An application with its own database history normally keeps that authoritative history and chooses SemanticIndex when it needs vectors. Do not duplicate the full corpus simply to enable every feature. Consuming a wrapper discards the bookkeeping that is not part of its returned inner index.
 
-Results borrow original entries. Serialize the bounded result while its read guard remains valid, then release the guard before network work. Copy only the small selected result when it must outlive the index. Update through the owning wrapper so vectors, revisions or ANN overlays cannot be bypassed.
+Specialized search results borrow original entries; compact RetrievalResponse owns its selected excerpts. Serialize a borrowed bounded result while its read guard remains valid, then release the guard before network work. Copy only the small selected result when it must outlive the index. Update through the owning wrapper so vectors, revisions or ANN overlays cannot be bypassed.
 
 ## 3. Index general records
 
@@ -175,3 +179,14 @@ Enable `storage` for `MemoryStore` and the object-safe `StorageBackend`; add `sq
 Use `page` with a pinned revision and exclusive `next_after`, or `read_snapshot` with explicit row/count/byte limits. A concurrent write fails the complete snapshot. `StoredSnapshot::into_index` consumes the source records and returns a `LoadedIndex` with immutable index/revision accessors; `into_parts` supports alternative indexing explicitly. A later source write does not update that view. Stage a fresh view, verify its source revision, then swap it under application coordination.
 
 SQLite uses a standalone versioned AIRust schema, WAL/FULL, bounded busy waits and transactional record/revision commits. It rejects unrelated application databases; this release performs no DenkMaps integration. It is a record backend, not a persisted positional/vector index. See [STORAGE](STORAGE.md), `cargo run --features storage --example storage` and the reproducible `storage_benchmark`.
+
+
+## 17. Return a compact response through any transport
+
+Enable `retrieval`, construct a source and wrap it in `Retriever::new(source)`. `LexicalSource` borrows Engine; `TextSource` additionally needs `advanced-search`; `SemanticSource` needs `embeddings` and an explicit provider; `HybridSource` needs `hybrid`. Source options retain ranking/threshold/base scope, while `RetrievalOptions` controls request scope, candidates, hits and byte budgets. Base/request scopes intersect before top-K; a disjoint intersection stays empty. Boxed or borrowed custom RetrievalSource implementations use the same pipeline.
+
+Call `query` to receive an owned immutable RetrievalResponse. Use `hits`, original `evidence`, `source_rank`, optional `rerank_score`, `reranking`, `fallback_reason`, `truncated` and `to_json`. The complete schema-version-1 JSON is checked against its output budget, including escaping, envelope and opted-in metadata. Tail hits are removed if needed; an envelope that cannot fit returns an error. Excerpts are original UTF-8 prefixes with exact spans, not query-centered summaries or model tokens. Metadata is omitted by default and reports its status explicitly.
+
+With `reranking`, attach `with_reranker` and explicit RerankOptions. Source validation/scope checks run first. Provider errors remain errors unless explicitly configured for original-order fallback; fallback never fabricates scores. Feed returned IDs into scoped ContextAssembler::assemble with graph/provenance when sourced structural context is needed, retaining original ranking evidence separately. No transport, MCP endpoint or database synchronization is created automatically.
+
+Use the [full retrieval contract](RETRIEVAL.md), compiled `retrieval` example and [proposed DenkMaps guide](DENKMAPS-UPGRADE.md). Keep application permissions and committed source revisions authoritative. The exact JSON byte limit does not replace a model tokenizer, timeout or relevance evaluation.
