@@ -148,3 +148,7 @@ Approximate retrieval is explicitly opt-in; see [ANN.md](docs/ANN.md).
 Optional conflict-checked revisions and history: [VERSIONING.md](docs/VERSIONING.md).
 
 For the complete modular API, read [API-COOKBOOK.md](docs/API-COOKBOOK.md). Reproducible measurements: [BENCHMARKS.md](docs/BENCHMARKS.md).
+
+## Optional intelligent reranking
+
+Reranking is a library operation, not a new dashboard or MCP endpoint. Run the model-independent API example with `cargo run --locked --features reranking --example reranking`. It uses a handwritten demonstration scorer. For actual model inference and explicit pinned-asset download commands, follow [LOCAL-RERANKING.md](docs/LOCAL-RERANKING.md). The complete [API cookbook](docs/API-COOKBOOK.md) explains bounded candidate selection and composition with context. No existing application is upgraded automatically.

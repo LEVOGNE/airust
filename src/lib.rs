@@ -4,6 +4,9 @@
 mod persistence;
 mod ranking;
 
+#[cfg(any(feature = "local-embeddings", feature = "local-reranking"))]
+mod local_runtime;
+
 #[cfg(feature = "cache")]
 pub mod cache;
 
@@ -73,3 +76,6 @@ pub mod versioning;
 
 #[cfg(feature = "quality")]
 pub mod quality;
+
+#[cfg(feature = "reranking")]
+pub mod reranking;

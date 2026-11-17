@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.9
+
+- Add optional provider-neutral candidate reranking with bounded batches/bytes, pre-inference scope checks, stable ties and preserved retrieval evidence.
+- Add an explicitly loaded, size/SHA-256-verified multilingual MiniLMv2 cross-encoder; no automatic model/runtime downloads or new default dependencies.
+- Fix local E5/reranker coexistence by sharing one ONNX environment. Reject a different runtime path instead of silently mixing libraries.
+- Reject malformed scores/recipes and partial-result mixtures; opt-in original-order fallback cannot bypass a configured score threshold.
+- Compare actual native reranking against the unchanged 0.2.8 fixture, retaining per-query regressions, no-answer failures and added CPU/RAM/latency.
+- Extend API guides, executable examples, compatibility checks and CI. No DenkMaps or MCP integration.
+
 ## 0.2.8
 
 - Add independent retrieval-quality metrics with graded judgments, explicit unjudged policy and defined-denominator summaries.

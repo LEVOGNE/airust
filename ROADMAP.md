@@ -15,14 +15,14 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.6 | Optional HNSW with recall measurements | Implemented; see the release report for validation. |
 | 0.2.7 | Generic revisions and conflict detection | Implemented; see the release report for validation. |
 | 0.2.8 | Reproducible performance and quality suite | Implemented; see the release report for validation. |
-| 0.2.9 | Optional intelligent reranking over retrieved candidates | Proposed after successful 0.2.8 validation. |
+| 0.2.9 | Optional intelligent reranking over retrieved candidates | Implemented and measured; see [release report](docs/CHANGES-0.2.9.md). |
 | 0.2.10 | Phrase queries, optional German morphology and configurable text analysis | Proposed after 0.2.9 validation. |
 | 0.2.11 | Interchangeable storage-backend API for larger derived indexes | Proposed after 0.2.10 validation. |
 | 0.2.12 | Unified compact retrieval API for applications and agent transports | Proposed after 0.2.11 validation. |
 
 The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 
-The proposed 0.2.9–0.2.12 sequence is conditional on the completed 0.2.8 quality gate, not a claim that those features exist. Compare maintained libraries and their licenses before implementation. Reranking must be evaluated against fixed labeled queries, its original retrieval baseline, and added CPU/memory cost; it is not automatically better. Phrase/morphology support must preserve existing analyzer behavior unless explicitly selected. Storage adapters must retain the application's authoritative data model. A unified retrieval API remains transport-independent and does not require a built-in MCP server. AIRust can compose established tools such as Tantivy, FastEmbed or storage engines when justified, rather than duplicating every subsystem.
+The proposed 0.2.10–0.2.12 sequence remains conditional on validation of each preceding release; it is not a claim that those future features exist. Compare maintained libraries and their licenses before implementation. Reranking must be evaluated against fixed labeled queries, its original retrieval baseline, and added CPU/memory cost; it is not automatically better. Phrase/morphology support must preserve existing analyzer behavior unless explicitly selected. Storage adapters must retain the application's authoritative data model. A unified retrieval API remains transport-independent and does not require a built-in MCP server. AIRust can compose established tools such as Tantivy, FastEmbed or storage engines when justified, rather than duplicating every subsystem.
 
 ## 1. Maintain the tested 0.1.9 baseline
 

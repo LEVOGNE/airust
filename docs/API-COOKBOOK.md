@@ -1,4 +1,4 @@
-# AIRust 0.2.8 API cookbook
+# AIRust 0.2.9 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.8", default-features = false }
+airust = { version = "=0.2.9", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,8 @@ airust = { version = "=0.2.8", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `reranking` | Bounded provider-neutral query/document rescoring | [RERANKING](RERANKING.md), `reranking` |
+| `local-reranking` | Explicit verified multilingual cross-encoder/ONNX inference | [LOCAL-RERANKING](LOCAL-RERANKING.md), `reranking_quality` |
 | `graph` | Explicit relationships, bounded BFS/DFS and cycle checks | [GRAPH](GRAPH.md), `graph` |
 | `context-assembly` | Scoped ranked excerpts and optional graph neighbors | [CONTEXT](CONTEXT.md), `context` |
 | `provenance` | Shared source definitions and entry bindings | [PROVENANCE](PROVENANCE.md), `provenance`, `provenance_context` |
@@ -23,7 +25,7 @@ airust = { version = "=0.2.8", default-features = false }
 | `versioning` | Expected-revision writes, tombstones and optional history | [VERSIONING](VERSIONING.md), `versioning` |
 | `quality` | Retrieval metrics with explicit judgments and unknown-result policy | [QUALITY](QUALITY.md), `quality`, `retrieval_quality` |
 
-Rust 1.89 supports the provider-independent features. The local ONNX adapter needs Rust 1.92. The default library requires no model, network service, HTTP server or database. Existing CLI/PDF/web integrations remain separately opt-in.
+Rust 1.89 supports the provider-independent features. The local ONNX adapters need Rust 1.92. The default library requires no model, network service, HTTP server or database. Existing CLI/PDF/web integrations remain separately opt-in. `reranking` does not enable embeddings; `local-reranking` and `local-embeddings` can be selected separately or together with the same runtime-library path.
 
 ## 2. Understand ownership before combining APIs
 
@@ -34,6 +36,7 @@ Rust 1.89 supports the provider-independent features. The local ONNX adapter nee
 | `HnswIndex` | One SemanticIndex and derived topology over shared buffers | `semantic()` borrows; `into_semantic()` consumes |
 | `VersionedIndex` | One Engine, revision heads and optional snapshots | `index()` borrows; `into_index()` consumes and ends history bookkeeping |
 | `ContextAssembler` | Borrows an Engine or SemanticIndex and optional sidecars | No second source corpus |
+| `RerankOutcome` | Borrows the supplied candidate slice and captured entry references | Retains component scores/ranks; no second corpus or index mutation |
 | Graph/provenance | IDs, relationships or source definitions/bindings | Caller-owned sidecars |
 
 VersionedIndex and SemanticIndex are alternative owners of an Engine. They are not two mutable wrappers over the same index. An application with its own database history normally keeps that authoritative history and chooses SemanticIndex when it needs vectors. Do not duplicate the full corpus simply to enable every feature. Consuming a wrapper discards the bookkeeping that is not part of its returned inner index.
@@ -138,4 +141,16 @@ Use fixed labeled application queries and preserve baseline outputs. Include lit
 cargo run --locked --features hnsw,cache,context-assembly,provenance,quality --example knowledge_pipeline
 ```
 
-It uses three small generic records and explicitly handwritten vectors, then demonstrates scope, hybrid context, explicit graph/source bindings, quality metrics and semantic-cache restoration. The separate `versioning` example demonstrates the alternative lexical history owner. Replace demo vectors with a real provider and records with an authoritative application snapshot before evaluating a real integration.
+It uses three small generic records and explicitly handwritten vectors, then demonstrates scope, hybrid context, explicit graph/source bindings, quality metrics and semantic-cache restoration. Add `reranking` to that feature list to demonstrate the full retrieve → rerank → sourced-context pipeline with a handwritten API scorer. Both variants are compiled and run by the release checks. The separate `versioning` example demonstrates the alternative lexical history owner. Replace demo vectors/scorer with real providers and records with an authoritative application snapshot before evaluating a real integration.
+
+## 14. Rerank retrieved candidates explicitly
+
+Enable `reranking` alone for the provider-independent API. Implement `Reranker::recipe` and `score(query, documents)` with one finite score per input document, in document order. Higher ranks first; raw scores from different models or BM25/cosine are not directly comparable. `local-reranking` supplies a verified, explicitly loaded multilingual `FastEmbedReranker`. It works alongside E5 through a shared ONNX environment using the same runtime-library path. No model or runtime download happens during a build.
+
+Call `rerank(query, &candidates, &mut scorer, &RerankOptions::new(k))`. Candidate slices can contain entries/references, lexical hits, semantic hits or hybrid hits. A custom wrapper implements `Rerankable`. Each result exposes `entry()`, its original `candidate`, the one-based `original_rank` in the input slice and an optional new `score`. Keep original component evidence through `candidate` and retain the candidate slice/read guard for the outcome's lifetime. Reranking borrows data; it owns no index and changes no source records.
+
+`with_context` filters before selection and inference. Keep the existing empty-ID-set-means-unrestricted contract in mind. `with_candidates` caps the first eligible prefix, `with_batch_size` bounds provider calls and `with_byte_budgets` bounds original UTF-8 inputs. Defaults: ten returned results, one hundred candidates, batches of sixteen, query/document limits of 16/64 KiB and 2 MiB of complete query/document pairs. Total pair bytes repeat the query for each document. The outcome exposes received/eligible/selected/scored counts; omitted candidates are never presented as scored. Native 512-token pair truncation remains a separate model limit.
+
+All selected inputs are validated before any inference. Wrong output counts, non-finite scores, duplicate selected IDs and changed recipes fail. Equal scores keep input order. Default provider failures return errors. Explicit `KeepOriginalOrder` fallback discards every partial score, keeps the selected original order, returns `score=None` and explains the failure. It never bypasses a configured finite `with_min_score` threshold. A successful score is not a calibrated relevance probability or a no-answer decision.
+
+For context, feed the selected IDs into `ContextAssembler::assemble` and preserve rerank scores separately. Assembly still enforces its source/scope/excerpt budgets and does not invent ranking evidence. Reuse model instances in bounded workers, keep database/index locks out of expensive inference and evaluate latency/quality before rollout. See the complete [reranking contract](RERANKING.md), [native setup](LOCAL-RERANKING.md), `reranking` executable and `reranking_quality` evaluator. The [0.2.9 report](CHANGES-0.2.9.md) includes both improvements and regressions on the unchanged fixture. No DenkMaps/MCP integration is performed.

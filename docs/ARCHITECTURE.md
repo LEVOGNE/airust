@@ -30,6 +30,9 @@ The arrows represent possible library calls. No external application is integrat
 | `semantic` | Optional provider interface, validated vectors, model-space identity, and exact semantic retrieval. |
 | `semantic::local` | Optional CPU E5 adapter using explicit model files and a dynamic native runtime. |
 | `hybrid` | Optional weighted reciprocal-rank fusion using existing lexical and semantic results. |
+| `reranking` | Optional provider-neutral rescoring of bounded authorized candidates without mutating retrieval state. |
+| `reranking::local` | Optional verified multilingual cross-encoder using explicit local assets. |
+| `local_runtime` | Private shared ONNX environment for local E5 and reranker sessions. |
 | `graph` | Optional stable ID graph using petgraph, shared endpoint IDs, bounded queries, and iterative mixed-cycle analysis. |
 
 `Engine` is an alias for `KnowledgeIndex`. Search, comparison, and relation suggestions use the same source entries.
@@ -61,6 +64,10 @@ The API exposes scores as evidence for ranking. BM25 scores are unbounded releva
 The optional `SemanticIndex` owns the existing lexical index and a vector side table. Source entries are stored once. Its lexical view is immutable; update methods validate and stage embeddings before updating both stores. It reuses `Context` and `TopK`. Provider batches receive borrowed original text and a query/document purpose. Cosine similarity and model-space validation are separate from BM25 and TF-IDF. See [SEMANTIC.md](SEMANTIC.md).
 
 The `hybrid` feature ranks each component through those existing APIs, then merges by borrowed entry ID. A temporary map retains at most two candidate lists and the shared heap keeps final top results. Component scores and ranks remain inspectable. Explicit offline fallback is distinguished from successful semantic participation. Model and vector integrity failures remain errors. See [HYBRID.md](HYBRID.md).
+
+## Optional reranking
+
+The optional reranking pipeline sits after retrieval and before final result/context selection. It borrows original candidates, captures each entry once, filters scope before its candidate cap, validates all selected inputs before inference, then scores bounded batches. It sorts finite model scores while retaining original component evidence and stable input-order ties. A provider-only fallback is explicit, discards partial scores and cannot bypass a score threshold. Local inference reuses FastEmbed and a shared process-wide runtime instead of creating a second transformer implementation. See [RERANKING.md](RERANKING.md).
 
 ## Matching and duplicates
 

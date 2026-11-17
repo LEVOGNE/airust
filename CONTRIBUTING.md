@@ -1,6 +1,6 @@
 # Contribute to AIRust
 
-Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapter and the complete all-feature check script need Rust 1.92 or newer. Run the repository checks before submitting a change:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings/reranking. The optional local ONNX adapters and the complete all-feature check script need Rust 1.92 or newer. Python 3.11 or newer is needed for the explicit model-download helper tests, not for the library. Run the repository checks before submitting a change:
 
 ```bash
 ./test.sh
@@ -24,3 +24,5 @@ cargo publish --locked --dry-run
 ```
 
 Inspect the package contents. Local databases, credentials, logs, and backups must stay out of the crate. Publishing with `cargo publish` requires explicit release authorization. Check that the repository tag, packaged commit, registry checksum, and release asset identify the same source.
+
+For reranking changes, retain frozen judgments, compare actual first-stage prefixes without injecting relevant documents, record individual regressions and added cost, and test malformed outputs/recipe changes/scopes/fallbacks. Native inference remains an explicit asset-backed check; normal builds/tests must not download models or runtimes.

@@ -1,0 +1,74 @@
+{
+  "checked_at": "2026-11-17",
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "host": {
+    "cpu": "Apple M5 Max",
+    "logical_cpus": 18,
+    "ram_bytes": 68719476736
+  },
+  "rust_tests": {
+    "default_passed": 189,
+    "all_features_passed": 377,
+    "failures": 0,
+    "existing_ignored_child_entrypoint": 1
+  },
+  "python_download_helper_tests": {
+    "passed": 5,
+    "network_used": false
+  },
+  "minimum_rust": {
+    "provider_independent": "1.89.0",
+    "all_features": "1.92.0"
+  },
+  "independent_consumer": "Rust 1.89, original APIs and reranking; source in docs/validation-0.2.9",
+  "semver": {
+    "tool": "cargo-semver-checks 0.51.0",
+    "baseline": "0.2.8",
+    "all_features": true,
+    "release_type": "patch",
+    "checks_passed": 229,
+    "checks_skipped": 31,
+    "breaking_changes": 0,
+    "tool_asset_sha256": "3cec5da41eee9a3336d75ad43d1f30a5c9680818f4ba209024786f452cabab5b"
+  },
+  "source_sha256": {
+    "Cargo.toml": "8a38b2e718c903aae1f0284a024d8ff41c2555624c208c4bf389bf66c4ff67e6",
+    "Cargo.lock": "72c60a2706921c49a76fc7ddbf6ec42f944847b087735eb6800a74789e4a36be",
+    "src/reranking.rs": "a051ce86b6cf5a4d41cd6f2eb9493d794ea93d6822bd7939925724214d3f495e",
+    "src/reranking/local.rs": "2ff49ad63d92a668ca2a72bf87ed75caf3104cb1eeb08b7e43b083249b74ebe3",
+    "src/local_runtime.rs": "1c31f3a1a046bd849c55f5e50f16e941f617e696f630ccc471b4bf9559ef4d6f",
+    "src/semantic/local.rs": "b941955e4bebf72e90716442b85ae00a4064a4a315809e534c6a42cd109c4618",
+    "tests/reranking.rs": "97106f7ee3a95b6eaf41b54fbc46a6687b03a76d4758e3510f6ff0a225d9ccec",
+    "examples/reranking_quality.rs": "5b7bcb710c94b7902951a8a3eaf815adadde55da76088d3a32480de03ee22d17",
+    "tests/fixtures/quality-reference-v1.json": "6b14b6f61154e868b3a569a5393da0de229fb02af2964921b65255d3a8941fd3",
+    "docs/models/mmarco-minilm-v2.json": "9eabe59f460ed5f75658e154edf66be60ab10175743e208e64109f18691950ad",
+    "scripts/download_reranker.py": "0c5a1074df6ccbe14b59cdbec4d7e829c83142473fe29b167ea563b35459fe62",
+    "tests/download_reranker_test.py": "db88f3cc46a38e5ad28f7204a597e146492fd5dfe39f62a1869babc630272289"
+  },
+  "frozen_fixture_unchanged_from_028": true,
+  "native_evaluation": {
+    "reference_records": 30,
+    "queries": 36,
+    "candidate_windows": [
+      5,
+      20
+    ],
+    "positive_queries": 34,
+    "rank_cutoff": 3,
+    "minimum_logit": null,
+    "models_downloaded_during_build": false,
+    "application_integrated": false
+  },
+  "native_binary_sha256": "b2cabe14fb5a63ed2250d7cf220c16e00ea2a6685462302e3c2201d856366655",
+  "validation_log_sha256": {
+    "full_checks": "1b5d9c5b398a28141c195474a01900b37d383c14ea5dbfd964089e7e5f8298e5",
+    "semver": "7e707af7796cd2bdeedbb9bcf72ed37eb230e4ac04bbae67b841d5f3a92dc02a"
+  },
+  "publication_gates": [
+    "clean extracted crate tests",
+    "publish dry run",
+    "GitHub CI",
+    "registry commit/checksum",
+    "GitHub tag and crate asset digest"
+  ]
+}

@@ -88,3 +88,11 @@ The 0.2.0 audit found zero known vulnerabilities and retained optional-path main
 The changes have targeted regression cases for their boundaries. They are not a comprehensive independent production security audit. No arbitrary user content should be treated as executable instructions, and lexical results should not bypass the calling application's access rules.
 
 Release validation must check the exact final source, all relevant feature combinations, minimum supported Rust, package contents, and deployment-specific configuration. Report untested environments explicitly rather than implying a complete certification.
+
+## Optional reranking boundary
+
+Reranking receives only the query and the selected authorized document texts. It applies Context before its candidate cap, validates all selected records/byte budgets before any inference and retains original evidence. Counts/bytes bound pipeline work, not provider allocations or model accuracy. An empty Context ID set remains unrestricted. Use authorized candidate retrieval and scope later graph/context expansion independently.
+
+Provider-only original-order fallback is explicit. Malformed counts, non-finite scores, duplicate selected IDs and recipe changes fail; a configured score threshold cannot be bypassed by unscored fallback. Provider error text is application-owned and may require redaction at a service boundary. Query/document text is data, not permission to run instructions. A reranker score is not truth, authorization, human approval or a calibrated probability.
+
+The local adapter verifies exact pinned assets before native loading and disables model/runtime downloads. The shared ONNX environment permits local E5 and reranker coexistence with the same canonical runtime-library path; it is process-wide, not an isolated native-code sandbox. Runtime files remain explicitly trusted. The [0.2.9 report](CHANGES-0.2.9.md) records tests, compatibility checks and dependency-audit limits.

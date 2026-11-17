@@ -1,4 +1,4 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.8
+# Proposed DenkMaps upgrade to AIRust 0.2.9
 
 This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was inspected read-only; the new library is not integrated automatically.
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.8", default-features = false }
+airust = { version = "=0.2.9", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.8", default-features = false,
+airust = { version = "=0.2.9", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -89,6 +89,12 @@ Suggested acceptance checks:
 - Legacy fallback and dependency rollback remain tested.
 
 Do not enable HNSW based on speed alone. The published difficult random-vector test has substantial recall loss; small/wide ANN queries can be slower, and serial construction can take minutes. For typical small maps, exact retrieval is often the first implementation to evaluate.
+
+## Optional reranking after shadow validation
+
+This release does not enable reranking in DenkMaps. If a later application change is authorized, first retrieve a bounded authorized lexical/semantic/hybrid pool, then explicitly call `reranking::rerank` before context assembly. Keep SQLite revisions and original retrieval evidence. Add `reranking` for a caller scorer or `local-reranking` for the verified local cross-encoder; local E5 and reranker convenience adapters must use the same runtime-library path.
+
+Measure the full extra CPU/RAM/latency and query-level relevance changes on real authorized application judgments. The public reference contains E5 regressions despite a better average. Reranking cannot recover a candidate absent from the first stage, and its raw logits do not establish a no-answer threshold or logical truth. Keep the existing retrieval path as an explicit rollback; do not silently enable reranking with a dependency update.
 
 ## 8. Expose bounded retrieval through existing MCP separately
 

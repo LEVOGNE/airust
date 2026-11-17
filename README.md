@@ -1,10 +1,10 @@
-# AIRust 0.2.8
+# AIRust 0.2.9
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.8 adds optional retrieval-quality metrics, a broader public reference corpus and reproducible scale checks. The [API cookbook](https://github.com/LEVOGNE/airust/blob/v0.2.8/docs/API-COOKBOOK.md) explains every optional module and how to combine them. The [DenkMaps upgrade guide](https://github.com/LEVOGNE/airust/blob/v0.2.8/docs/DENKMAPS-UPGRADE.md) describes a future tested application upgrade; it performs no integration. See the [0.2.8 report](docs/CHANGES-0.2.8.md) for measured results and limits.
+Version 0.2.9 adds optional intelligent reranking. Retrieve possible answers first, then evaluate each query/document pair and reorder the candidates. Supply your own scorer or explicitly load a local multilingual cross-encoder. The [API cookbook](https://github.com/LEVOGNE/airust/blob/v0.2.9/docs/API-COOKBOOK.md) explains every module. The [reranking report](docs/CHANGES-0.2.9.md) records actual improvements, regressions and cost. The [DenkMaps upgrade guide](https://github.com/LEVOGNE/airust/blob/v0.2.9/docs/DENKMAPS-UPGRADE.md) remains a proposal; this release performs no application or MCP integration.
 
 ## What it does
 
@@ -17,6 +17,7 @@ Version 0.2.8 adds optional retrieval-quality metrics, a broader public referenc
 | `SemanticIndex::hybrid_search()` | Combine lexical and semantic rank positions with visible evidence and optional fallback. | Queries mixing exact terminology and paraphrases. |
 | `KnowledgeGraph` | Store explicit relationships, inspect neighbors, traverse within budgets, and detect cycles. | Application-owned hierarchies, dependencies, and references. |
 | `ContextAssembler::query()` | Assemble ranked excerpts and optional graph neighbors with source evidence and budgets. | Preparing focused, inspectable context for an application or agent. |
+| `reranking::rerank()` | Rescore a bounded candidate set while preserving its original retrieval evidence. | Improving the order of possible answers with an evaluated scorer. |
 | `ProvenanceStore` | Share explicit source references and preserve them when entries are combined. | Showing where knowledge came from without inventing citations. |
 
 The default `search()`, matching, and `relate()` methods compare words and characters. The optional semantic index uses model embeddings instead. Its quality depends on the provider and corpus. AIRust has no required model, cloud account, HTTP client, or LLM dependency.
@@ -25,7 +26,7 @@ A relationship suggestion is evidence of shared words. The application must deci
 
 ## Try the source checkout
 
-Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapter needs Rust 1.92. From the project directory:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapters need Rust 1.92. From the project directory:
 
 ```bash
 cargo run --locked --example core
@@ -39,7 +40,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.8", default-features = false }
+airust = { version = "=0.2.9", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -130,6 +131,20 @@ Breadth-first and depth-first queries have depth and node budgets, relation filt
 
 Graph relationships come from the application. They do not establish truth, and lexical or semantic suggestions are not automatically stored as facts.
 
+## Optional intelligent reranking
+
+Enable `reranking` for a provider-neutral second ranking step. Pass lexical, semantic or hybrid candidates to `reranking::rerank`. Choose candidate, batch and byte limits; apply a Context before scoring. The result preserves original candidates/ranks and adds a raw reranker score. Existing search methods keep their behavior.
+
+```bash
+cargo run --locked --features reranking --example reranking
+```
+
+That executable uses a handwritten API scorer. For actual model inference, enable `local-reranking` and explicitly supply the pinned multilingual MiniLMv2 model files and ONNX Runtime library. Builds do not download either. The [API contract](docs/RERANKING.md) and [local-model guide](docs/LOCAL-RERANKING.md) explain setup and compiled examples. Local E5 and reranker providers now share one runtime environment, fixing their previous second-environment initialization failure.
+
+On the unchanged authored 30-record/36-query reference, reranking twenty hybrid candidates raised nDCG@3 from 0.598 to 0.914. Median added reranking time was 65.6 ms on the recorded host. Two E5 queries became worse despite a better average. The combined two-model evaluation peaked at 2721 MiB. These are smoke measurements, not production guarantees. See every query and cost in the [0.2.9 report](docs/CHANGES-0.2.9.md).
+
+Reranking cannot recover a missing first-stage candidate, prove a statement true or guarantee a better answer. Raw logits are not probabilities. No default threshold detects unanswerable questions. It is optional and does not enable itself in existing applications.
+
 ## Optional context assembly
 
 Enable `context-assembly` for `ContextAssembler` and `ContextOptions`. Borrow an existing lexical or semantic index, optionally attach its graph, and choose lexical, semantic, or hybrid search. Search seeds take priority over neighbors. The bundle preserves selected source IDs, metadata, ranking evidence, and a graph path when used.
@@ -182,7 +197,7 @@ cargo run --locked --features quality,hybrid --example retrieval_quality
 
 The new authored reference has 30 public records and 36 queries, including literal identifiers, multilingual paraphrases, graded sources, distractors and no-answer cases. It is not an independent application benchmark or proof of logical understanding. Explicit local E5 runs and scale checks are documented in [BENCHMARKS.md](docs/BENCHMARKS.md). Raw samples, costs and unfavorable results remain visible. No token-saving percentage or production speed guarantee is inferred.
 
-The current release passes **189 default tests and 350 all-feature tests**, plus the compiled examples, minimum-Rust checks and actual local E5 runs. In the new authored reference, Recall@3 was 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over the 34 queries with positive judgments. E5 still preferred some wrong action/temporal distractors and returned candidates for both no-answer queries. These results measure this fixture, not reliable logical understanding. See the [complete report](docs/CHANGES-0.2.8.md).
+The current release passes **189 default tests and 377 all-feature tests**, plus compiled examples, minimum-Rust checks and actual local E5/cross-encoder inference. The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
@@ -232,6 +247,8 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
+| `reranking` | Bounded provider-neutral candidate rescoring with preserved original evidence. No added dependencies; Rust 1.89. |
+| `local-reranking` | Explicit verified multilingual cross-encoder using FastEmbed and a shared dynamic ONNX Runtime environment. Rust 1.92. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -276,6 +293,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/semantic.rs`, `src/semantic/local.rs` | Optional semantic index, provider contract, and local E5 adapter. |
 | `src/ann.rs` | Optional shared-vector HNSW topology, update overlay and explicit fallback policy. |
 | `src/hybrid.rs` | Optional rank fusion over the shared lexical and semantic index. |
+| `src/reranking.rs`, `src/reranking/local.rs` | Optional bounded candidate reranking and explicit local cross-encoder inference. |
 | `src/graph.rs` | Optional ID-based graph, relationship metadata, bounded traversals, and cycle checks. |
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
 | `src/cache.rs` | Optional versioned, bounded derived-index snapshots and validated restoration. |

@@ -49,11 +49,8 @@ impl FastEmbedProvider {
             ),
             384,
         )?;
-        let environment = ort::init_from(runtime_library.as_ref())
-            .map_err(provider_error)?
-            .with_name("airust-local-embeddings")
-            .build()
-            .map_err(provider_error)?;
+        let environment =
+            crate::local_runtime::environment(runtime_library.as_ref()).map_err(provider_error)?;
         let options = InitOptionsUserDefined::new()
             .with_environment(environment)
             .with_max_length(512)

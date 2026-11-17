@@ -15,6 +15,25 @@ use serde_json::json;
 use std::error::Error;
 
 struct ExampleVectors(EmbeddingSpace);
+
+#[cfg(feature = "reranking")]
+struct ExampleScorer;
+#[cfg(feature = "reranking")]
+impl airust::reranking::Reranker for ExampleScorer {
+    fn recipe(&self) -> &str {
+        "handwritten-pipeline-score-demo-v1"
+    }
+    fn score(
+        &mut self,
+        _: &str,
+        texts: &[&str],
+    ) -> Result<Vec<f64>, airust::reranking::RerankError> {
+        Ok(texts
+            .iter()
+            .map(|text| if text.contains("Rust") { 1.0 } else { 0.0 })
+            .collect())
+    }
+}
 impl EmbeddingProvider for ExampleVectors {
     fn space(&self) -> &EmbeddingSpace {
         &self.0
@@ -77,12 +96,32 @@ fn main() -> Result<(), Box<dyn Error>> {
             .with_revision("v1")?,
     )?;
     let options = ContextOptions::new(2, 128)
-        .with_scope(scope)
+        .with_scope(scope.clone())
         .with_hybrid(HybridSearchOptions::new(2));
-    let bundle = ContextAssembler::from_semantic(ann.semantic())
+    let assembler = ContextAssembler::from_semantic(ann.semantic())
         .with_graph(&graph)
-        .with_provenance(&sources)
-        .query("Rust", Some(&mut provider), &options)?;
+        .with_provenance(&sources);
+    #[cfg(feature = "reranking")]
+    let (bundle, rerank_trace) = {
+        let candidates = ann.semantic().hybrid_search(
+            "Rust",
+            &mut provider,
+            &HybridSearchOptions::new(2).with_context(scope.clone()),
+        )?;
+        let reranked = airust::reranking::rerank(
+            "Rust",
+            candidates.results(),
+            &mut ExampleScorer,
+            &airust::reranking::RerankOptions::new(2).with_context(scope),
+        )?;
+        let ids = reranked.results().iter().map(|r| r.entry().id.as_str());
+        (assembler.assemble(ids, &options)?, json!(reranked))
+    };
+    #[cfg(not(feature = "reranking"))]
+    let (bundle, rerank_trace) = (
+        assembler.query("Rust", Some(&mut provider), &options)?,
+        serde_json::Value::Null,
+    );
     assert!(bundle
         .items()
         .iter()
@@ -109,7 +148,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!(
         "{}",
         serde_json::to_string_pretty(
-            &json!({"demo":"Handwritten vectors demonstrate APIs, not semantic understanding","ann_mode":approximate.mode(),"context":bundle,"source_binding_metrics":metrics,"cache_entries":loaded.index().len()})
+            &json!({"demo":"Handwritten vectors/scores demonstrate APIs, not semantic understanding","ann_mode":approximate.mode(),"reranking":rerank_trace,"context":bundle,"source_binding_metrics":metrics,"cache_entries":loaded.index().len()})
         )?
     );
     std::fs::remove_dir_all(root)?;

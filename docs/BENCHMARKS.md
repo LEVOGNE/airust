@@ -44,3 +44,15 @@ No native weights/runtime are downloaded by Cargo. Supply explicit previously ob
 ## Regression policy
 
 Correctness gates cover exact literal IDs, metric reference calculations, scope/source/context contracts, update/restart consistency and the existing semantic smoke expectations. Performance samples are recorded rather than converted into flaky fixed wall-time unit tests. Before a production rollout, compare fixed authorized application queries, their judgments, actual selected evidence and end-to-end latency. Token savings need the target LLM's complete prompt/tokenizer and answer/evidence checks; none are inferred from a smaller node count.
+
+## Native reranking comparison
+
+```bash
+python3 scripts/download_reranker.py MODEL_DIRECTORY
+cargo build --locked --release --features local-reranking,local-embeddings,hybrid,quality --example reranking_quality
+python3 scripts/measure.py /tmp/reranking-reference.json target/release/examples/reranking_quality MODEL_DIRECTORY ONNX_RUNTIME_LIBRARY E5_DIRECTORY
+```
+
+The 0.2.9 evaluator uses the unchanged 30-record/36-query reference from 0.2.8. Each comparison reranks an actual top-5 or top-20 candidate prefix from BM25, exact E5 or equal-weight hybrid retrieval. Hybrid component candidate limits remain at their existing default of one hundred. Missing judged positives are never injected. Candidate Recall@N bounds the possible final recall. Cutoff remains three, with explicitly judged zero grades for unlisted records in this closed corpus only.
+
+The model scores query/document pairs with raw logits. It warms once with an obvious pair and checks separate-versus-batched native scores within a declared tolerance. Report model load, warmup, per-query retrieval/rerank/end-to-end latency, query-level before/after metrics and OS CPU/peak RSS. No default score threshold is applied; no-answer failures remain visible. One 36-query series is descriptive, not a confidence interval or production p95 guarantee. The [0.2.9 report](CHANGES-0.2.9.md) links raw data, adverse cases and the exact pinned asset manifest.

@@ -1,14 +1,14 @@
 [package]
 name = "airust"
-version = "0.2.8"
+version = "0.2.9"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
 rust-version = "1.89"
-description = "A modular knowledge intelligence engine: lexical search, text matching, and explainable relation suggestions"
+description = "A modular Rust knowledge engine: lexical search, text matching, optional semantic retrieval and reranking"
 license = "MIT"
 readme = "README.md"
-keywords = ["search", "bm25", "knowledge", "matching", "retrieval"]
+keywords = ["search", "knowledge", "matching", "retrieval", "reranking"]
 categories = ["text-processing", "algorithms"]
 documentation = "https://docs.rs/airust"
 homepage = "https://github.com/LEVOGNE/airust"
@@ -50,6 +50,8 @@ context-assembly = ["hybrid", "graph"]
 provenance = []
 versioning = ["serde/rc"]
 quality = []
+reranking = []
+local-reranking = ["reranking", "dep:fastembed", "dep:ort", "dep:sha2"]
 cache = ["dep:postcard", "dep:sha2"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
@@ -182,3 +184,11 @@ required-features = ["quality", "context-assembly", "provenance"]
 [[example]]
 name = "knowledge_pipeline"
 required-features = ["hnsw", "cache", "context-assembly", "provenance", "quality"]
+
+[[example]]
+name = "reranking"
+required-features = ["reranking"]
+
+[[example]]
+name = "reranking_quality"
+required-features = ["local-reranking", "quality"]
