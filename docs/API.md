@@ -134,3 +134,7 @@ Enable `context-assembly` and use `ContextAssembler::new(&Engine)` or `from_sema
 ## Optional source provenance
 
 Enable `provenance` for `SourceReference`, `TextSpan`, `CodePosition`, `CodeSpan` and `ProvenanceStore`. Register and bind shared references, preserve multiple sources on merges, reject conflicting definitions, and export/import versioned JSON. Locations have explicit UTF-8 byte units and optional exact-text validation. Combine with `context-assembly` and attach `with_provenance` to borrow source evidence in selected context; missing and omitted sources are explicit. The complete API and caller freshness responsibilities are in [PROVENANCE.md](PROVENANCE.md).
+
+## Optional derived-index cache
+
+Enable `cache` for `IndexCache`, `CacheIdentity`, `CacheLimits`, `CacheMetadata` and `CacheLoad<T>`. `save`/`load` handle the lexical engine; with `embeddings`, `save_semantic`/`load_semantic` preserve validated vectors. Load takes `&mut Vec<KnowledgeEntry>` and consumes it only on success. The [cache guide](CACHE.md) defines fingerprints, recipes, format, limits and rebuild behavior.

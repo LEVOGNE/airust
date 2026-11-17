@@ -102,7 +102,7 @@ impl Embedding {
     }
 }
 
-fn vector_norm(values: &[f32], dimensions: usize) -> Result<f64, EmbeddingError> {
+pub(crate) fn vector_norm(values: &[f32], dimensions: usize) -> Result<f64, EmbeddingError> {
     if values.len() != dimensions || dimensions == 0 {
         return Err(EmbeddingError::Dimension {
             expected: dimensions,
@@ -251,6 +251,18 @@ pub struct SemanticIndex {
 }
 
 impl SemanticIndex {
+    #[cfg(feature = "cache")]
+    pub(crate) fn from_cached_parts(
+        lexical: Engine,
+        space: EmbeddingSpace,
+        vectors: BTreeMap<String, Vec<f32>>,
+    ) -> Self {
+        Self {
+            lexical,
+            space,
+            vectors,
+        }
+    }
     pub fn new(space: EmbeddingSpace) -> Self {
         Self {
             lexical: Engine::new(),

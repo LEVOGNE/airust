@@ -4,6 +4,9 @@
 mod persistence;
 mod ranking;
 
+#[cfg(feature = "cache")]
+pub mod cache;
+
 pub mod context;
 #[cfg(feature = "context-assembly")]
 pub mod context_engine;

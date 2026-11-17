@@ -443,12 +443,167 @@ impl KnowledgeIndex {
 }
 
 pub(crate) fn validate_entry(entry: &KnowledgeEntry) -> Result<String, IndexError> {
-    if entry.id.trim().is_empty() {
-        return Err(IndexError::EmptyId);
-    }
+    check_source_entry(entry)?;
     let normalized = text::normalize(&entry.text);
     if normalized.is_empty() {
         return Err(IndexError::EmptyText(entry.id.clone()));
     }
     Ok(normalized)
+}
+
+pub(crate) fn check_source_entry(entry: &KnowledgeEntry) -> Result<(), IndexError> {
+    if entry.id.trim().is_empty() {
+        return Err(IndexError::EmptyId);
+    }
+    if entry.text.trim().is_empty() {
+        return Err(IndexError::EmptyText(entry.id.clone()));
+    }
+    Ok(())
+}
+
+#[cfg(feature = "cache")]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub(crate) struct CacheDocumentHeader {
+    pub id: String,
+    pub normalized: String,
+    pub length: usize,
+    pub char_length: usize,
+    pub term_count: usize,
+}
+#[cfg(feature = "cache")]
+#[derive(serde::Serialize)]
+struct CacheDocumentRef<'a> {
+    id: &'a str,
+    normalized: &'a str,
+    length: usize,
+    char_length: usize,
+    term_count: usize,
+}
+#[cfg(feature = "cache")]
+#[derive(Debug, Clone)]
+pub(crate) struct CacheDocument {
+    pub id: String,
+    pub normalized: String,
+    pub length: usize,
+    pub char_length: usize,
+    pub terms: BTreeMap<String, usize>,
+}
+#[cfg(feature = "cache")]
+impl KnowledgeIndex {
+    pub(crate) fn cache_term_bindings(&self) -> Result<usize, crate::cache::CacheError> {
+        self.documents.values().try_fold(0usize, |total, document| {
+            total
+                .checked_add(document.terms.len())
+                .ok_or(crate::cache::CacheError::Limit("term bindings"))
+        })
+    }
+    pub(crate) fn write_cached_documents(
+        &self,
+        writer: &mut impl std::io::Write,
+    ) -> Result<(), postcard::Error> {
+        for document in self.documents.values() {
+            postcard::to_io(
+                &CacheDocumentRef {
+                    id: &document.entry.id,
+                    normalized: &document.normalized,
+                    length: document.length,
+                    char_length: document.char_length,
+                    term_count: document.terms.len(),
+                },
+                &mut *writer,
+            )?;
+            for item in &document.terms {
+                postcard::to_io(&item, &mut *writer)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "cache")]
+pub(crate) struct PreparedCache {
+    documents: BTreeMap<String, CacheDocument>,
+    total_tokens: usize,
+}
+#[cfg(feature = "cache")]
+pub(crate) fn prepare_cached_documents(
+    originals: &[KnowledgeEntry],
+    documents: Vec<CacheDocument>,
+) -> Result<PreparedCache, crate::cache::CacheError> {
+    use crate::cache::CacheError;
+    let ids: BTreeSet<_> = originals.iter().map(|entry| entry.id.as_str()).collect();
+    if documents.len() != originals.len() || ids.len() != originals.len() {
+        return Err(CacheError::InvalidData("cached document count"));
+    }
+    let mut prepared = BTreeMap::new();
+    let mut total_tokens = 0usize;
+    for document in documents {
+        if !ids.contains(document.id.as_str()) || prepared.contains_key(&document.id) {
+            return Err(CacheError::InvalidData("cached document IDs"));
+        }
+        if document.normalized.trim().is_empty()
+            || document.char_length != document.normalized.chars().count()
+        {
+            return Err(CacheError::InvalidData("cached normalized text"));
+        }
+        let mut length = 0usize;
+        for (term, &frequency) in &document.terms {
+            let mut words = text::tokens_normalized(term);
+            if frequency == 0 || words.next() != Some(term.as_str()) || words.next().is_some() {
+                return Err(CacheError::InvalidData("cached term"));
+            }
+            length = length
+                .checked_add(frequency)
+                .ok_or(CacheError::InvalidData("cached token count overflow"))?;
+        }
+        if length != document.length || length > document.char_length {
+            return Err(CacheError::InvalidData("cached document length"));
+        }
+        total_tokens = total_tokens
+            .checked_add(length)
+            .ok_or(CacheError::InvalidData("cached total token count overflow"))?;
+        prepared.insert(document.id.clone(), document);
+    }
+    Ok(PreparedCache {
+        documents: prepared,
+        total_tokens,
+    })
+}
+#[cfg(feature = "cache")]
+impl PreparedCache {
+    pub(crate) fn restore(mut self, originals: Vec<KnowledgeEntry>) -> KnowledgeIndex {
+        let mut index = KnowledgeIndex {
+            total_tokens: self.total_tokens,
+            ..KnowledgeIndex::new()
+        };
+        for entry in originals {
+            let cached = self
+                .documents
+                .remove(&entry.id)
+                .expect("validated cached source ID");
+            for (term, &frequency) in &cached.terms {
+                index
+                    .postings
+                    .entry(term.clone())
+                    .or_default()
+                    .insert(entry.id.clone(), frequency);
+            }
+            index
+                .normalized_ids
+                .entry(cached.normalized.clone())
+                .or_default()
+                .insert(entry.id.clone());
+            index.documents.insert(
+                entry.id.clone(),
+                IndexedEntry {
+                    entry,
+                    normalized: cached.normalized,
+                    terms: cached.terms,
+                    length: cached.length,
+                    char_length: cached.char_length,
+                },
+            );
+        }
+        index
+    }
 }

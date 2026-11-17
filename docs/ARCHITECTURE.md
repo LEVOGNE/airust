@@ -117,3 +117,7 @@ The optional `context_engine` module borrows the existing index, rankers and gra
 ## Source provenance sidecar
 
 The independent `provenance` module owns reference definitions once and maps stable entry IDs to sorted reference-ID sets. It contains no knowledge text and performs no filesystem or network access. Versioned imports validate references and bindings; merges reject conflicts before changing state. With context assembly, results borrow source definitions for each selected entry. The caller keeps source bindings synchronized with its own committed content changes. Excerpt offsets are not converted to external document coordinates. See [PROVENANCE.md](PROVENANCE.md).
+
+## Derived cache boundary
+
+The optional cache serializes derived analysis and vectors, not authoritative source records. A validated load moves supplied originals into reconstructed posting/duplicate structures. Model, source and Unicode analysis recipes gate reuse. The existing atomic writer streams cache files with private permissions. See [CACHE.md](CACHE.md).

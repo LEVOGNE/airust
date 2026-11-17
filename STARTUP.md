@@ -140,3 +140,5 @@ cargo run --locked --release --example index_benchmark -- 10000 300
 This reports JSON with build, search percentiles, update, and delete timings. The entry and query counts are explicit. Larger benchmark methodology and evidence requirements are in [ROADMAP.md](ROADMAP.md).
 
 The older benchmark measures a small fixed workload. Results depend on the host. Historical results remain in their versioned reports. Optional semantic evaluation and exact-vector measurements are recorded in [CHANGES-0.2.0.md](docs/CHANGES-0.2.0.md). Run the model-independent example with `cargo run --locked --features embeddings --example semantic`; the [local-model guide](docs/LOCAL-EMBEDDINGS.md) describes explicit native inference.
+
+For optional derived-index startup and recovery, see [CACHE.md](docs/CACHE.md).

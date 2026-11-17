@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.5
+
+- Add optional versioned derived-index caches with source, analysis and model validation.
+- Stream private atomic snapshots; preserve source ownership on every returned load error.
+- Reuse lexical analysis and optional vector bits without inference; retain portable source JSON.
+- Add corruption, malformed-format, crash and repeated-restart regression checks plus measured startup costs.
+
+
 ## 0.2.4
 
 - Add independent optional source provenance with validated document/page/text/file/code locations.

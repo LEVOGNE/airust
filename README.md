@@ -1,10 +1,10 @@
-# AIRust 0.2.4
+# AIRust 0.2.5
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.4 adds optional source references. Keep document, page, text, file and code locations alongside knowledge entries, share references, and preserve them in context results. The default build remains the lexical library. See the [0.2.4 report](docs/CHANGES-0.2.4.md) and [source-reference guide](docs/PROVENANCE.md).
+Version 0.2.5 adds an optional validated derived-index cache. Restart from original records and cached analysis without repeating normalization, tokenization or embedding inference. Atomic files protect complete snapshots; stale or damaged caches can be rebuilt. See the [0.2.5 report](docs/CHANGES-0.2.5.md) and [cache guide](docs/CACHE.md).
 
 ## What it does
 
@@ -39,7 +39,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.4", default-features = false }
+airust = { version = "=0.2.5", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -141,6 +141,16 @@ cargo run --locked --features provenance,context-assembly --example provenance_c
 
 When both features are enabled, attach `ContextAssembler::with_provenance` to retain each selected entry's references, including duplicate content with distinct sources. Missing and intentionally omitted sources are separate states. Source locations stay in their original coordinates. References do not prove truth or freshness; callers update bindings when text changes and verify exact source bytes/revisions when needed. See [PROVENANCE.md](docs/PROVENANCE.md).
 
+## Optional derived-index cache
+
+Enable `cache` for `IndexCache`. Save derived lexical analysis, or add `embeddings` separately to preserve model-specific vectors. Load requires the authoritative original entries. Source fingerprints include text and metadata; dataset identity, analysis and model recipes must also match. Failed loads leave the originals available for rebuilding without a corpus clone.
+
+```bash
+cargo run --locked --features cache --example cache
+```
+
+Files use atomic replacement, exact lengths, SHA-256 and explicit limits. Checksums detect damage, not a hostile writer with directory access. Loading reconstructs posting trees and validates source fingerprints, so a cache is not guaranteed faster for every workload. See [CACHE.md](docs/CACHE.md) for recovery, permissions and concurrency limits.
+
 ## Tested lexical baseline and limits
 
 The [additional 0.1.9 validation report](docs/VALIDATION-0.1.9.md) records checks of the published crates.io package. Its complete default-feature suite passed again: **187 tests**, including the README example. The earlier release checks, including all optional features, are recorded separately in the [0.1.9 change report](docs/CHANGES-0.1.9.md).
@@ -184,6 +194,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `graph` | Stable IDs, typed directed/undirected relationships, bounded queries, and cycle checks using petgraph. Independent of embeddings; Rust 1.89. |
 | `context-assembly` | Borrowed ranked excerpts, graph evidence, deduplication, scope intersection, and text budgets. Enables `hybrid` and `graph`; Rust 1.89. |
 | `provenance` | Shared document/page/text/file/code source references, checked merges and versioned export. No added dependencies; Rust 1.89. |
+| `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `local-embeddings` | Explicit local E5 inference using FastEmbed and a separately supplied dynamic ONNX Runtime library. Rust 1.92. |
 | `cli` | The existing command-line programs and embedded sample knowledge. |
 | `pdf` | PDF text extraction and chunking. |
@@ -229,6 +240,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/hybrid.rs` | Optional rank fusion over the shared lexical and semantic index. |
 | `src/graph.rs` | Optional ID-based graph, relationship metadata, bounded traversals, and cycle checks. |
 | `src/context_engine.rs` | Optional structured context selection over the existing index and graph. |
+| `src/cache.rs` | Optional versioned, bounded derived-index snapshots and validated restoration. |
 | `src/provenance.rs` | Optional validated source locations and shared entry-to-source bindings. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
@@ -246,6 +258,8 @@ The [API guide](docs/API.md) describes the public contracts. The [architecture g
 
 ## Changes and compatibility
 
+The [0.2.5 report](docs/CHANGES-0.2.5.md) and [migration guide](docs/MIGRATION-0.2.5.md) describe the additive cache. Default features, original entries and existing retrieval APIs remain unchanged.
+
 The [0.2.4 report](docs/CHANGES-0.2.4.md) and [migration guide](docs/MIGRATION-0.2.4.md) describe optional provenance. Source entries keep their original fields and JSON; references live in a separate caller-owned sidecar.
 
 The [0.2.3 report](docs/CHANGES-0.2.3.md) and [migration guide](docs/MIGRATION-0.2.3.md) describe context assembly. Existing filters, graph, source formats, and retrieval APIs are preserved.
@@ -260,7 +274,7 @@ See the [0.1.9 change report](docs/CHANGES-0.1.9.md) and [0.1.9 migration guide]
 
 The [additional validation report](docs/VALIDATION-0.1.9.md) adds measurements and records remaining limits without changing the library version or introducing an application integration.
 
-The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. Persistent-index, ANN, revision, and broader quality work follow in separate stages. External application integrations remain separate.
+The [roadmap](ROADMAP.md) records implemented optional embeddings, hybrid retrieval, graph, context assembly and provenance. ANN, revision, and broader quality work follow in separate stages. External application integrations remain separate.
 
 The published 0.1.8 baseline is described in the [0.1.8 change report](docs/CHANGES-0.1.8.md). The [original analysis](docs/ANALYSIS-0.1.7.md) records what existed in 0.1.7. [CHANGELOG.md](CHANGELOG.md) lists the versions.
 

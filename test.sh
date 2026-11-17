@@ -16,6 +16,7 @@ cargo check --lib --no-default-features --features hybrid --locked
 cargo check --lib --no-default-features --features graph --locked
 cargo check --lib --no-default-features --features context-assembly --locked
 cargo check --lib --no-default-features --features provenance --locked
+cargo check --lib --no-default-features --features cache --locked
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features --locked
 cargo run --locked --example core
 cargo run --locked --features embeddings --example semantic
@@ -24,3 +25,4 @@ cargo run --locked --features graph --example graph
 cargo run --locked --features context-assembly --example context
 cargo run --locked --features provenance --example provenance
 cargo run --locked --features provenance,context-assembly --example provenance_context
+cargo run --locked --features cache --example cache

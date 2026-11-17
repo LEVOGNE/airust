@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.4"
+version = "0.2.5"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -36,6 +36,7 @@ tempfile = { version = "3", optional = true }
 fastembed = { version = "=7.7.1", optional = true, default-features = false, features = ["ort-load-dynamic"] }
 ort = { version = "=2.0.0-rc.15", optional = true, default-features = false, features = ["load-dynamic"] }
 petgraph = { version = "0.8.3", optional = true, default-features = false, features = ["std", "stable_graph"] }
+postcard = { version = "1.1.3", optional = true, default-features = false, features = ["use-std"] }
 
 [features]
 default = []
@@ -44,6 +45,7 @@ hybrid = ["embeddings"]
 graph = ["dep:petgraph", "serde/rc"]
 context-assembly = ["hybrid", "graph"]
 provenance = []
+cache = ["dep:postcard", "dep:sha2"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge"]
 pdf = ["dep:pdf_oxide"]
@@ -135,3 +137,11 @@ required-features = ["provenance", "context-assembly"]
 [[example]]
 name = "provenance_benchmark"
 required-features = ["provenance"]
+
+[[example]]
+name = "cache"
+required-features = ["cache"]
+
+[[example]]
+name = "cache_benchmark"
+required-features = ["cache"]

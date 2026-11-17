@@ -11,7 +11,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.2 | Generic graph model and bounded algorithms | Implemented; see the release report for validation. |
 | 0.2.3 | Structured context assembly and budgets | Implemented; see the release report for validation. |
 | 0.2.4 | Optional typed source references | Implemented; see the release report for validation. |
-| 0.2.5 | Versioned persistent derived-index cache | Planned. |
+| 0.2.5 | Versioned persistent derived-index cache | Implemented; see the release report for validation. |
 | 0.2.6 | Optional HNSW with recall measurements | Planned. |
 | 0.2.7 | Generic revisions and conflict detection | Planned. |
 | 0.2.8 | Reproducible performance and quality suite | Planned. |
