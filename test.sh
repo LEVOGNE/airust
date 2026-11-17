@@ -54,3 +54,7 @@ cargo check --lib --no-default-features --features retrieval,hybrid --locked
 cargo check --lib --no-default-features --features retrieval,reranking --locked
 cargo test --no-default-features --features retrieval --test retrieval --locked
 cargo run --locked --features retrieval --example retrieval
+
+cargo test --no-default-features --features retrieval --test excerpts --locked
+cargo run --locked --features retrieval --example relevant_excerpts
+cargo run --locked --features retrieval,advanced-search --example relevant_excerpts

@@ -149,3 +149,5 @@ The quality module consumes ranked IDs and caller judgments; it requires no engi
 Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](STORAGE.md).
 
 The optional compact Retrieval API reuses existing ranking, scopes results and bounds complete JSON. See [the retrieval contract](RETRIEVAL.md).
+
+Relevant excerpts are explicitly enabled through RetrievalOptions, preserve original UTF-8 positions and impose separate analysis/highlight limits. See [the excerpt contract](EXCERPTS.md).

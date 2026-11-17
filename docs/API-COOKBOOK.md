@@ -1,4 +1,4 @@
-# AIRust 0.2.12 API cookbook
+# AIRust 0.2.13 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.12", default-features = false }
+airust = { version = "=0.2.13", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -185,8 +185,19 @@ SQLite uses a standalone versioned AIRust schema, WAL/FULL, bounded busy waits a
 
 Enable `retrieval`, construct a source and wrap it in `Retriever::new(source)`. `LexicalSource` borrows Engine; `TextSource` additionally needs `advanced-search`; `SemanticSource` needs `embeddings` and an explicit provider; `HybridSource` needs `hybrid`. Source options retain ranking/threshold/base scope, while `RetrievalOptions` controls request scope, candidates, hits and byte budgets. Base/request scopes intersect before top-K; a disjoint intersection stays empty. Boxed or borrowed custom RetrievalSource implementations use the same pipeline.
 
-Call `query` to receive an owned immutable RetrievalResponse. Use `hits`, original `evidence`, `source_rank`, optional `rerank_score`, `reranking`, `fallback_reason`, `truncated` and `to_json`. The complete schema-version-1 JSON is checked against its output budget, including escaping, envelope and opted-in metadata. Tail hits are removed if needed; an envelope that cannot fit returns an error. Excerpts are original UTF-8 prefixes with exact spans, not query-centered summaries or model tokens. Metadata is omitted by default and reports its status explicitly.
+Call `query` to receive an owned immutable RetrievalResponse. Use `hits`, original `evidence`, `source_rank`, optional `rerank_score`, `reranking`, `fallback_reason`, `truncated` and `to_json`. The complete schema-version-1 JSON is checked against its output budget, including escaping, envelope and opted-in metadata. Tail hits are removed if needed; an envelope that cannot fit returns an error. Excerpts default to original UTF-8 prefixes with exact spans. The optional relevant-excerpt mode described below locates lexical evidence without synthesizing a summary or counting model tokens. Metadata is omitted by default and reports its status explicitly.
 
 With `reranking`, attach `with_reranker` and explicit RerankOptions. Source validation/scope checks run first. Provider errors remain errors unless explicitly configured for original-order fallback; fallback never fabricates scores. Feed returned IDs into scoped ContextAssembler::assemble with graph/provenance when sourced structural context is needed, retaining original ranking evidence separately. No transport, MCP endpoint or database synchronization is created automatically.
 
 Use the [full retrieval contract](RETRIEVAL.md), compiled `retrieval` example and [proposed DenkMaps guide](DENKMAPS-UPGRADE.md). Keep application permissions and committed source revisions authoritative. The exact JSON byte limit does not replace a model tokenizer, timeout or relevance evaluation.
+
+
+## 18. Return the matching passage with original positions
+
+Keep `retrieval` enabled and opt in with `RetrievalOptions::with_relevant_excerpts(ExcerptOptions::default())`. This preserves old prefix behavior for existing callers. A window containing a complete phrase hint has priority, followed by distinct matching terms and token occurrences. TextSource forwards its selected tokenizer/stemmer, so German forms retain original-text highlights. Other built-in sources locate legacy lexical overlap; semantic paraphrases without word overlap have an explicit `no_lexical_match` prefix fallback.
+
+`hit.span` indexes the original KnowledgeEntry text in half-open UTF-8 bytes. `hit.span.slice(original)` equals the returned excerpt. `response.excerpt_details()` supplies aligned hit IDs, reasons, bounded matches and highlight-omission flags. For display, convert each `matched.span.relative_to(hit.span)` to excerpt-local bytes, then translate/escape for the target UI. Preserve source revision and original text; these are not automatic PDF/file coordinates.
+
+Relevant mode respects per-item, total-text and full-JSON budgets, including details/highlights. ExcerptOptions additionally bounds analysis input/normalized bytes, tokens, query terms, occurrences and markers. Analysis overruns fail explicitly; marker truncation sets both its local flag and the response flag. Tail-hit removal also removes its details. Use `with_prefix_excerpts` to return to compatible prefix JSON.
+
+Standalone callers can use `select_excerpt` with original text, RankingEvidence and an explicit ExcerptAnalyzer. Custom RetrievalSource implementations can override the default excerpt analyzer; boxed/borrowed forwarding preserves it. Read the [complete excerpt contract](EXCERPTS.md) and run `cargo run --features retrieval --example relevant_excerpts`; adding `advanced-search` also runs its German phrase example. No application integration is performed.

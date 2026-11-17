@@ -1,4 +1,4 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.12
+# Proposed DenkMaps upgrade to AIRust 0.2.13
 
 This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was previously inspected read-only and was not re-audited for this library-only release; the new library is not integrated automatically.
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.12", default-features = false }
+airust = { version = "=0.2.13", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.12", default-features = false,
+airust = { version = "=0.2.13", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -122,12 +122,21 @@ This release does not integrate the new TextIndex into DenkMaps. It is an altern
 A future dependency selection for an isolated lexical/phrase trial could be:
 
 ```toml
-airust = { version = "=0.2.12", default-features = false,
+airust = { version = "=0.2.13", default-features = false,
            features = ["retrieval", "advanced-search", "quality"] }
 ```
 
 Application-side sequence: authorize the request → obtain/reconcile the committed source revision → borrow the matching derived index → intersect the permitted scope → retrieve a bounded owned response → release guards → recheck freshness/access if required → return through the existing application transport. An empty permitted ID set must stop before constructing an unrestricted empty Context. Carry the application's committed revision alongside the response; AIRust does not infer it.
 
-`with_byte_budgets(query, total_text, excerpt, output)` caps complete output JSON as well as excerpts. If adding a surrounding MCP envelope or ContextAssembler graph/source bundle, measure/cap that additional encoded payload separately. Keep the original RetrievalResponse evidence when using hit IDs for sourced context assembly. Excerpts are UTF-8 prefixes, not guaranteed query-centered evidence. Choose and test sufficient budgets.
+`with_byte_budgets(query, total_text, excerpt, output)` caps complete output JSON as well as excerpts. If adding a surrounding MCP envelope or ContextAssembler graph/source bundle, measure/cap that additional encoded payload separately. Keep the original RetrievalResponse evidence when using hit IDs for sourced context assembly. The compatible default uses UTF-8 prefixes. The separately described 0.2.13 relevant mode locates lexical evidence with explicit fallbacks. Choose and test sufficient budgets.
 
 The generic examples `advanced_search`, `storage`, `retrieval` and the API cookbook compile without any DenkMaps dependency. Run real application permissions, synchronization, German duplicate, update/restart, query relevance and large-map tests in a separate integration branch before rollout. This guide changes no application files, dependency or data.
+
+
+## 10. Trial relevant excerpts after the retrieval comparison
+
+With 0.2.13, an explicitly authorized application trial can add `with_relevant_excerpts(ExcerptOptions::default())` to the existing scoped retrieval options. This locates words/phrase hints inside long original node text. It preserves original retrieval/rerank scores and adds aligned excerpt_details. Keep the source generation and exact node text; spans use UTF-8 bytes, not JavaScript character offsets or original PDF coordinates. Convert positions for display and escape text.
+
+TextSource forwards German stemming and phrase analysis. Semantic-only paraphrases without matching words expose a localization fallback; they do not acquire an invented supporting quotation. Set analysis/highlight limits as well as text/JSON budgets, handle budget errors explicitly and preserve the existing application fallback. Compare selected evidence with manually judged real queries before changing displayed context.
+
+ContextAssembler retains its existing behavior. If feeding selected hit IDs to it for graph/source expansion, keep the RetrievalResponse's new excerpts, positions and ranking evidence separately; passing IDs alone does not carry the selected windows into another API. Cap any combined transport envelope independently. This documentation changes no DenkMaps source, dependency, database or MCP tool.

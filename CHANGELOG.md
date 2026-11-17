@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.13
+
+Optional query-related excerpts over existing retrieval results: original UTF-8 byte spans, grapheme-safe bounded highlights, phrase/term selection, analyzer forwarding and explicit fallback reasons. Prefix defaults and old public struct literals remain compatible. See [report](docs/CHANGES-0.2.13.md).
+
+
 ## 0.2.12
 
 Optional Knowledge Retrieval API: interchangeable lexical/text/semantic/hybrid sources, compact owned excerpts with original ranking evidence, explicit reranking/fallbacks and exact complete-JSON budgets. Existing specialized APIs/defaults remain unchanged. See [report](docs/CHANGES-0.2.12.md).

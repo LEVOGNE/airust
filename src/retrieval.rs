@@ -9,6 +9,12 @@ use std::{
 };
 use thiserror::Error;
 
+pub mod excerpts;
+pub use excerpts::{
+    select_excerpt, ExcerptAnalyzer, ExcerptDetails, ExcerptMatch, ExcerptMatchKind,
+    ExcerptOptions, ExcerptReason, SelectedExcerpt,
+};
+
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RetrievalError {
@@ -39,6 +45,7 @@ pub struct RetrievalOptions {
     max_evidence_bytes: usize,
     metadata: bool,
     max_metadata_bytes: usize,
+    excerpt_options: Option<ExcerptOptions>,
 }
 impl Default for RetrievalOptions {
     fn default() -> Self {
@@ -54,6 +61,7 @@ impl Default for RetrievalOptions {
             max_evidence_bytes: 64 * 1024,
             metadata: false,
             max_metadata_bytes: 4096,
+            excerpt_options: None,
         }
     }
 }
@@ -120,6 +128,17 @@ impl RetrievalOptions {
         self.max_metadata_bytes = max_bytes;
         Ok(self)
     }
+    pub fn with_relevant_excerpts(mut self, options: ExcerptOptions) -> Self {
+        self.excerpt_options = Some(options);
+        self
+    }
+    pub fn with_prefix_excerpts(mut self) -> Self {
+        self.excerpt_options = None;
+        self
+    }
+    pub fn excerpt_options(&self) -> Option<&ExcerptOptions> {
+        self.excerpt_options.as_ref()
+    }
     pub fn limit(&self) -> usize {
         self.limit
     }
@@ -170,6 +189,20 @@ pub enum RankingKind {
 pub struct ExcerptSpan {
     pub start: usize,
     pub end: usize,
+}
+impl ExcerptSpan {
+    pub fn slice<'a>(&self, text: &'a str) -> Option<&'a str> {
+        text.get(self.start..self.end)
+    }
+    pub fn relative_to(self, outer: Self) -> Option<Self> {
+        if self.start > self.end || outer.start > self.start || self.end > outer.end {
+            return None;
+        }
+        Some(Self {
+            start: self.start - outer.start,
+            end: self.end - outer.start,
+        })
+    }
 }
 #[derive(Debug, Clone, Serialize)]
 pub struct RankingEvidence {
@@ -225,6 +258,9 @@ impl<'a> RetrievalBatch<'a> {
     }
 }
 pub trait RetrievalSource {
+    fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
+        ExcerptAnalyzer::Legacy
+    }
     fn retrieve<'a>(
         &'a mut self,
         query: &str,
@@ -232,6 +268,9 @@ pub trait RetrievalSource {
     ) -> Result<RetrievalBatch<'a>, RetrievalError>;
 }
 impl<T: RetrievalSource + ?Sized> RetrievalSource for Box<T> {
+    fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
+        (**self).excerpt_analyzer()
+    }
     fn retrieve<'a>(
         &'a mut self,
         query: &str,
@@ -241,6 +280,9 @@ impl<T: RetrievalSource + ?Sized> RetrievalSource for Box<T> {
     }
 }
 impl<T: RetrievalSource + ?Sized> RetrievalSource for &mut T {
+    fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
+        (**self).excerpt_analyzer()
+    }
     fn retrieve<'a>(
         &'a mut self,
         query: &str,
@@ -330,6 +372,9 @@ impl<'a> TextSource<'a> {
 }
 #[cfg(feature = "advanced-search")]
 impl RetrievalSource for TextSource<'_> {
+    fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
+        ExcerptAnalyzer::Text(self.index.analyzer().config().clone())
+    }
     fn retrieve<'a>(
         &'a mut self,
         query: &str,
@@ -409,6 +454,8 @@ pub struct RetrievalResponse {
     reranking: Option<RerankSummary>,
     truncated: bool,
     hits: Vec<RetrievalHit>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    excerpt_details: Option<Vec<ExcerptDetails>>,
     #[serde(skip)]
     json: String,
 }
@@ -436,6 +483,9 @@ impl RetrievalResponse {
     }
     pub fn to_json(&self) -> &str {
         &self.json
+    }
+    pub fn excerpt_details(&self) -> Option<&[ExcerptDetails]> {
+        self.excerpt_details.as_deref()
     }
 }
 struct BoundedWriter {
@@ -538,17 +588,40 @@ fn hit(
     score: Option<f64>,
     options: &RetrievalOptions,
     remaining: &mut usize,
-) -> Result<RetrievalHit, RetrievalError> {
-    let mut end = candidate
-        .entry
-        .text
-        .len()
-        .min(options.max_excerpt_bytes)
-        .min(*remaining);
-    while !candidate.entry.text.is_char_boundary(end) {
-        end -= 1;
-    }
-    *remaining -= end;
+    query: &str,
+    analyzer: &ExcerptAnalyzer,
+) -> Result<(RetrievalHit, Option<ExcerptDetails>), RetrievalError> {
+    let (span, details) = if let Some(settings) = options.excerpt_options() {
+        let selected = select_excerpt(
+            &candidate.entry.text,
+            query,
+            &candidate.evidence,
+            analyzer,
+            settings,
+            options.max_excerpt_bytes.min(*remaining),
+        )?;
+        (
+            selected.span,
+            Some(ExcerptDetails {
+                id: candidate.entry.id.clone(),
+                reason: selected.reason,
+                matches: selected.matches,
+                matches_truncated: selected.matches_truncated,
+            }),
+        )
+    } else {
+        let mut end = candidate
+            .entry
+            .text
+            .len()
+            .min(options.max_excerpt_bytes)
+            .min(*remaining);
+        while !candidate.entry.text.is_char_boundary(end) {
+            end -= 1;
+        }
+        (ExcerptSpan { start: 0, end }, None)
+    };
+    *remaining -= span.end - span.start;
     let (metadata_status, metadata) = if !options.metadata {
         (MetadataStatus::Omitted, None)
     } else if let Some(v) = &candidate.entry.metadata {
@@ -560,17 +633,20 @@ fn hit(
     } else {
         (MetadataStatus::Missing, None)
     };
-    Ok(RetrievalHit {
-        id: candidate.entry.id.clone(),
-        excerpt: candidate.entry.text[..end].to_string(),
-        span: ExcerptSpan { start: 0, end },
-        text_truncated: end < candidate.entry.text.len(),
-        source_rank: rank,
-        evidence: candidate.evidence.clone(),
-        rerank_score: score,
-        metadata_status,
-        metadata,
-    })
+    Ok((
+        RetrievalHit {
+            id: candidate.entry.id.clone(),
+            excerpt: candidate.entry.text[span.start..span.end].to_string(),
+            span,
+            text_truncated: span.start > 0 || span.end < candidate.entry.text.len(),
+            source_rank: rank,
+            evidence: candidate.evidence.clone(),
+            rerank_score: score,
+            metadata_status,
+            metadata,
+        },
+        details,
+    ))
 }
 pub struct Retriever<'a, S> {
     source: S,
@@ -620,11 +696,17 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                     reranking: None,
                     truncated: false,
                     hits: Vec::new(),
+                    excerpt_details: options.excerpt_options().map(|_| Vec::new()),
                     json: String::new(),
                 },
                 options,
             );
         }
+        let analyzer = if options.excerpt_options().is_some() {
+            self.source.excerpt_analyzer()
+        } else {
+            ExcerptAnalyzer::Legacy
+        };
         let batch = self.source.retrieve(query, options)?;
         if batch.candidates.len() > options.candidates {
             return Err(RetrievalError::Output("source exceeded candidate count"));
@@ -670,15 +752,26 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                         r.score,
                         options,
                         &mut remaining,
+                        query,
+                        &analyzer,
                     )
                 })
                 .collect::<Result<Vec<_>, _>>()?
         } else {
-            plain_hits(&batch, options, &mut remaining)?
+            plain_hits(&batch, options, &mut remaining, query, &analyzer)?
         };
         #[cfg(not(feature = "reranking"))]
-        let hits = plain_hits(&batch, options, &mut remaining)?;
+        let hits = plain_hits(&batch, options, &mut remaining, query, &analyzer)?;
+        let (hits, details): (Vec<_>, Vec<_>) = hits.into_iter().unzip();
+        let excerpt_details = options
+            .excerpt_options()
+            .map(|_| details.into_iter().flatten().collect());
         let truncated = hits.len() < batch.candidates.len()
+            || excerpt_details
+                .as_ref()
+                .is_some_and(|details: &Vec<ExcerptDetails>| {
+                    details.iter().any(|d| d.matches_truncated)
+                })
             || hits
                 .iter()
                 .any(|h| h.text_truncated || h.metadata_status == MetadataStatus::BudgetExceeded);
@@ -691,6 +784,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                 reranking,
                 truncated,
                 hits,
+                excerpt_details,
                 json: String::new(),
             },
             options,
@@ -701,13 +795,15 @@ fn plain_hits(
     batch: &RetrievalBatch<'_>,
     options: &RetrievalOptions,
     remaining: &mut usize,
-) -> Result<Vec<RetrievalHit>, RetrievalError> {
+    query: &str,
+    analyzer: &ExcerptAnalyzer,
+) -> Result<Vec<(RetrievalHit, Option<ExcerptDetails>)>, RetrievalError> {
     batch
         .candidates
         .iter()
         .take(options.limit)
         .enumerate()
-        .map(|(i, c)| hit(c, i + 1, None, options, remaining))
+        .map(|(i, c)| hit(c, i + 1, None, options, remaining, query, analyzer))
         .collect()
 }
 fn finish(
@@ -721,6 +817,9 @@ fn finish(
         }
         if response.hits.pop().is_none() {
             return Err(RetrievalError::Budget("output envelope bytes"));
+        }
+        if let Some(details) = &mut response.excerpt_details {
+            details.pop();
         }
         response.truncated = true;
     }

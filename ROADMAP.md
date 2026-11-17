@@ -19,6 +19,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.10 | Phrase queries, optional German morphology and configurable text analysis | Implemented and validated; see [report](docs/CHANGES-0.2.10.md). |
 | 0.2.11 | Interchangeable original-record storage API | Implemented and measured; see [report](docs/CHANGES-0.2.11.md). |
 | 0.2.12 | Unified compact retrieval API for applications and agent transports | Implemented and validated; see [report](docs/CHANGES-0.2.12.md). |
+| 0.2.13 | Optional relevant excerpts with original positions and bounded highlights | Implemented; see [report](docs/CHANGES-0.2.13.md). |
 
 The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 

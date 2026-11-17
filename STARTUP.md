@@ -160,3 +160,5 @@ Run `cargo run --locked --features advanced-search --example advanced_search`. T
 Storage adapters are optional and own original records, not automatic search-index synchronization. See [the storage contract](docs/STORAGE.md).
 
 The optional compact Retrieval API reuses existing ranking, scopes results and bounds complete JSON. See [the retrieval contract](docs/RETRIEVAL.md).
+
+Relevant excerpts are explicitly enabled through RetrievalOptions, preserve original UTF-8 positions and impose separate analysis/highlight limits. See [the excerpt contract](docs/EXCERPTS.md).
