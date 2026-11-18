@@ -1,10 +1,10 @@
-# AIRust 0.2.20
+# AIRust 0.2.21
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.20 adds optional shared index storage. Enable `shared-index` when keeping multiple index copies or dataset read generations. Unchanged records and search bindings are shared; edits detach the affected data. The default storage stays unchanged. See [sharing behavior](docs/SHARED-INDEX.md) and [measured tradeoffs](docs/CHANGES-0.2.20.md). No DenkMaps or MCP integration is performed.
+Version 0.2.21 updates only affected text analysis. Metadata changes keep existing terms and positions. Source-only changes can reuse the whole positional index, while real text edits refresh their original coordinates. Receipts report what was rebuilt or reused. See [incremental updates](docs/INCREMENTAL.md) and [measured results](docs/CHANGES-0.2.21.md). No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -54,7 +54,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.20", default-features = false }
+airust = { version = "=0.2.21", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

@@ -151,6 +151,41 @@ impl Default for KnowledgeBase {
     }
 }
 
+pub(crate) fn entries_identical(left: &KnowledgeEntry, right: &KnowledgeEntry) -> bool {
+    if left.id != right.id || left.text != right.text {
+        return false;
+    }
+    match (&left.metadata, &right.metadata) {
+        (None, None) => true,
+        (Some(left), Some(right)) => {
+            let mut pending = vec![(left, right)];
+            while let Some((left, right)) = pending.pop() {
+                use serde_json::Value;
+                match (left, right) {
+                    (Value::Null, Value::Null) => {}
+                    (Value::Bool(a), Value::Bool(b)) if a == b => {}
+                    (Value::String(a), Value::String(b)) if a == b => {}
+                    (Value::Number(a), Value::Number(b)) if a.to_string() == b.to_string() => {}
+                    (Value::Array(a), Value::Array(b)) if a.len() == b.len() => {
+                        pending.extend(a.iter().zip(b))
+                    }
+                    (Value::Object(a), Value::Object(b)) if a.len() == b.len() => {
+                        for ((ka, va), (kb, vb)) in a.iter().zip(b) {
+                            if ka != kb {
+                                return false;
+                            }
+                            pending.push((va, vb));
+                        }
+                    }
+                    _ => return false,
+                }
+            }
+            true
+        }
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

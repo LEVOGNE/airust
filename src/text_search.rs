@@ -497,7 +497,16 @@ impl crate::reranking::Rerankable for TextSearchResult<'_> {
 pub struct TextIndex {
     index: Engine,
     analyzer: TextAnalyzer,
-    tokens: BTreeMap<String, Vec<Token>>,
+    tokens: BTreeMap<String, crate::index::Shared<Vec<Token>>>,
+}
+impl Clone for TextIndex {
+    fn clone(&self) -> Self {
+        Self {
+            index: self.index.clone(),
+            analyzer: TextAnalyzer::new(self.analyzer.config().clone()),
+            tokens: self.tokens.clone(),
+        }
+    }
 }
 impl Default for TextIndex {
     fn default() -> Self {
@@ -521,7 +530,7 @@ impl TextIndex {
             if index.get(&entry.id).is_some() {
                 return Err(IndexError::DuplicateId(entry.id).into());
             }
-            index.upsert(entry)?;
+            index.upsert_changed(entry)?;
         }
         Ok(index)
     }
@@ -539,7 +548,7 @@ impl TextIndex {
             if index.get(&entry.id).is_some() {
                 return Err(IndexError::DuplicateId(entry.id).into());
             }
-            index.upsert(entry)?;
+            index.upsert_changed(entry)?;
             if index.len().is_multiple_of(512) {
                 control.progress(
                     crate::execution::WorkPhase::AnalyzingText,
@@ -575,9 +584,24 @@ impl TextIndex {
         self.index.stats()
     }
     pub fn tokens(&self, id: &str) -> Option<&[Token]> {
-        self.tokens.get(id).map(Vec::as_slice)
+        self.tokens
+            .get(id)
+            .map(|tokens| crate::index::shared_ref(tokens).as_slice())
     }
     pub fn upsert(
+        &mut self,
+        entry: KnowledgeEntry,
+    ) -> Result<Option<KnowledgeEntry>, TextSearchError> {
+        if entry.text.len() > self.analyzer.config.max_input_bytes {
+            return Err(TextSearchError::Limit("input bytes"));
+        }
+        let entry = match self.index.replace_unchanged_entry(entry) {
+            Ok(previous) => return Ok(Some(previous)),
+            Err(entry) => entry,
+        };
+        self.upsert_changed(entry)
+    }
+    fn upsert_changed(
         &mut self,
         entry: KnowledgeEntry,
     ) -> Result<Option<KnowledgeEntry>, TextSearchError> {
@@ -592,7 +616,7 @@ impl TextIndex {
         }
         let id = entry.id.clone();
         let previous = self.index.insert_analyzed(entry, normalized, terms);
-        self.tokens.insert(id, tokens);
+        self.tokens.insert(id, crate::index::shared_new(tokens));
         Ok(previous)
     }
     pub fn remove(&mut self, id: &str) -> Option<KnowledgeEntry> {

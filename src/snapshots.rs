@@ -221,6 +221,9 @@ pub struct PreparationStats {
     pub embedded_entries: usize,
     pub reused_vectors: usize,
     pub text_entries_rebuilt: usize,
+    pub text_entries_reused: usize,
+    pub metadata_only_puts: usize,
+    pub unchanged_puts: usize,
 }
 #[derive(Clone)]
 enum Index {
@@ -569,41 +572,78 @@ impl DatasetManager {
             }
         }
         sources.prune_unreferenced();
+        let mut stats = PreparationStats::default();
         #[cfg(feature = "advanced-search")]
-        let text = if let Some(analyzer) = &base.config.analyzer {
-            let records = base
-                .lexical()
-                .entries()
-                .filter(|e| !ids.contains(e.id.as_str()))
-                .cloned()
-                .chain(changes.iter().filter_map(|c| {
-                    if let DatasetChange::Put(r) = c {
-                        Some(r.entry.clone())
-                    } else {
-                        None
-                    }
-                }));
-            #[cfg(feature = "execution")]
-            let text = if let Some(control) = control {
-                crate::text_search::TextIndex::from_entries_controlled(
-                    analyzer.clone(),
-                    records,
-                    control,
-                )?
+        let text = if let Some(old) = &base.text {
+            let differs = changes.iter().any(|change| match change {
+                DatasetChange::Delete(id) => old.get(id).is_some(),
+                DatasetChange::Put(record) => !old
+                    .get(&record.entry.id)
+                    .is_some_and(|entry| crate::knowledge::entries_identical(entry, &record.entry)),
+            });
+            if !differs {
+                stats.text_entries_reused = sizes.len();
+                Some(old.clone())
             } else {
-                crate::text_search::TextIndex::from_entries(analyzer.clone(), records)?
-            };
-            #[cfg(not(feature = "execution"))]
-            let text = crate::text_search::TextIndex::from_entries(analyzer.clone(), records)?;
-            Some(Arc::new(text))
+                let mut next = (**old).clone();
+                #[cfg(feature = "execution")]
+                let analysis_count = changes
+                    .iter()
+                    .filter(|change| match change {
+                        DatasetChange::Put(record) => old
+                            .get(&record.entry.id)
+                            .is_none_or(|entry| entry.text != record.entry.text),
+                        _ => false,
+                    })
+                    .count();
+                #[cfg(feature = "execution")]
+                if let Some(control) = control {
+                    control.progress(
+                        crate::execution::WorkPhase::AnalyzingText,
+                        0,
+                        Some(analysis_count),
+                    );
+                }
+                for change in &changes {
+                    #[cfg(feature = "execution")]
+                    if let Some(control) = control {
+                        control.checkpoint()?;
+                    }
+                    match change {
+                        DatasetChange::Delete(id) => {
+                            next.remove(id);
+                        }
+                        DatasetChange::Put(record) => {
+                            let analyzed = old
+                                .get(&record.entry.id)
+                                .is_none_or(|entry| entry.text != record.entry.text);
+                            if !old.get(&record.entry.id).is_some_and(|entry| {
+                                crate::knowledge::entries_identical(entry, &record.entry)
+                            }) {
+                                next.upsert(record.entry.clone())?;
+                            }
+                            stats.text_entries_rebuilt += usize::from(analyzed);
+                        }
+                    }
+                }
+                #[cfg(feature = "execution")]
+                if let Some(control) = control {
+                    control.progress(
+                        crate::execution::WorkPhase::AnalyzingText,
+                        analysis_count,
+                        Some(analysis_count),
+                    );
+                    control.checkpoint()?;
+                }
+                stats.text_entries_reused = sizes
+                    .len()
+                    .checked_sub(stats.text_entries_rebuilt)
+                    .ok_or(DatasetError::InvalidData("text analysis count invariant"))?;
+                Some(Arc::new(next))
+            }
         } else {
             None
         };
-        let mut stats = PreparationStats::default();
-        #[cfg(feature = "advanced-search")]
-        if text.is_some() {
-            stats.text_entries_rebuilt = sizes.len();
-        }
         drop(ids);
         let mut index = base.index.clone();
         let mut embed = Vec::new();
@@ -621,6 +661,13 @@ impl DatasetManager {
                 }
                 DatasetChange::Put(record) => {
                     stats.puts += 1;
+                    if let Some(old) = base.lexical().get(&record.entry.id) {
+                        if crate::knowledge::entries_identical(old, &record.entry) {
+                            stats.unchanged_puts += 1;
+                        } else if old.text == record.entry.text {
+                            stats.metadata_only_puts += 1;
+                        }
+                    }
                     match &mut index {
                         Index::Lexical(i) => {
                             i.upsert(record.entry)?;
@@ -725,6 +772,10 @@ impl DatasetManager {
         let revision = base.revision.next()?;
         let mut config = base.config.clone();
         let mut stats = PreparationStats::default();
+        #[cfg(feature = "advanced-search")]
+        {
+            stats.text_entries_reused = base.text.as_ref().map_or(0, |text| text.len());
+        }
         config.space = provider.as_ref().map(|p| p.space().clone());
         check_capacity(&config, base.lexical().len(), config.space.as_ref())?;
         let lexical = base.lexical().clone();

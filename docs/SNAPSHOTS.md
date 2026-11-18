@@ -74,3 +74,5 @@ Builders configure positive dataset limits, StorageLimits, source count, dimensi
 Borrow existing retrieval or ContextAssembler APIs from one view, and use its provenance for returned IDs. Compact RetrievalResponse remains a separate bounded output object. Adding revision/source/context fields to a transport envelope adds bytes outside that response's JSON cap; bound the combined envelope explicitly. A snapshot revision does not grant access: preserve existing request scopes and return no results for an empty authorized set before constructing an unrestricted empty Context. The snapshot itself is a RAM read view, not a new persistent backup/export format or a completed independent security audit.
 
 See [API cookbook](API-COOKBOOK.md), [migration](MIGRATION-0.2.14.md) and [release report](CHANGES-0.2.14.md) for executed validation and measured cloning/rebuild costs.
+
+Incremental updates retain unchanged term/positional analysis, update metadata in each projection and refresh coordinates whenever original text bytes change. Diagnostic preparation receipts distinguish rebuilt/reused analysis. See [incremental contract](INCREMENTAL.md).

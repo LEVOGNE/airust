@@ -62,3 +62,19 @@ Positions cost memory. Common-term/phrase queries may visit many candidate docum
 With the separate `reranking` feature, `TextSearchResult` implements `Rerankable`. The scorer receives only original candidate text; phrase spans and original ranking evidence stay on its candidate. Reapply scope at every later retrieval/context stage. A TextIndex is an alternative lexical owner, not an automatic semantic-vector-index conversion. Source-entry, graph and provenance reconciliation remain application work. No DenkMaps or MCP integration is performed.
 
 Primary references: [Unicode segmentation API](https://docs.rs/unicode-segmentation/1.13.3/unicode_segmentation/trait.UnicodeSegmentation.html), [Snowball German design and limitations](https://snowballstem.org/algorithms/german/stemmer.html), and [rust-stemmers 1.2.0](https://docs.rs/rust-stemmers/1.2.0/rust_stemmers/). Unicode segmentation is MIT/Apache-2.0; rust-stemmers is MIT/BSD-3-Clause. Dependencies are reused; no upstream algorithm source is copied.
+
+## Cloning and metadata-only updates
+
+TextIndex implements Clone. Exact unchanged text retains its analyzed positions when metadata changes. With shared-index enabled, unchanged token buffers can be shared across clones; edits preserve older views. See [incremental computation](INCREMENTAL.md).
+
+```rust
+# fn main() -> Result<(), Box<dyn std::error::Error>> {
+use airust::{KnowledgeEntry, text_search::{AnalyzerConfig, TextIndex}};
+let mut current = TextIndex::from_entries(AnalyzerConfig::german(), [KnowledgeEntry::new("a", "Häuser haben Türen")])?;
+let earlier = current.clone();
+current.upsert(KnowledgeEntry::new("a", "Häuser haben Türen").with_metadata(serde_json::json!({"version": 2})))?;
+assert!(earlier.get("a").unwrap().metadata.is_none());
+assert_eq!(current.get("a").unwrap().metadata, Some(serde_json::json!({"version": 2})));
+assert_eq!(earlier.tokens("a"), current.tokens("a"));
+# Ok(()) }
+```

@@ -88,3 +88,7 @@ cargo run --locked --features snapshots,execution --example stress_snapshots -- 
 cargo check --no-default-features --features shared-index --locked
 cargo clippy --all-targets --no-default-features --features shared-index --locked -- -D warnings
 cargo test --no-default-features --features shared-index --test shared_index --locked
+
+cargo test --no-default-features --features snapshots,advanced-search --test incremental --locked
+cargo run --locked --features snapshots,advanced-search --example incremental
+cargo run --locked --features snapshots,advanced-search,shared-index --example incremental

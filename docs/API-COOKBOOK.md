@@ -1,4 +1,4 @@
-# AIRust 0.2.20 API cookbook
+# AIRust 0.2.21 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.20", default-features = false }
+airust = { version = "=0.2.21", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -244,3 +244,7 @@ Build and run `stress_index` in scale/clone modes and `stress_snapshots` with ex
 ## 25. Retain index copies with shared immutable data
 
 Enable `shared-index` explicitly alongside your existing features. Continue using Engine::clone and the DatasetManager API. Edits detach changed private buffers; earlier views keep their original records and scores. Clones still copy outer maps, and changing a common posting set can be costly. Measure one-owner builds/queries as well as retained-copy memory before selecting the flag. The default mode is unchanged. See [sharing contract](SHARED-INDEX.md) and the fixed before/after profiles in the release report.
+
+## 26. Recompute changed text instead of the whole projection
+
+Use existing Engine/TextIndex upserts and DatasetManager prepared updates. Exact unchanged text keeps its terms/positions while metadata remains current. Source-only payloads can reuse the whole positional projection. Inspect PreparationStats.text_entries_rebuilt/text_entries_reused and metadata_only_puts/unchanged_puts. Treat receipts as additive diagnostics. TextIndex::clone allows independent views; shared-index optionally shares token buffers. A normalized-equal but byte-different original still refreshes positions. See [contract](INCREMENTAL.md) and the `incremental` example. Model refresh and external storage synchronization retain their explicit separate policies.

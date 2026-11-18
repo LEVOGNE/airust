@@ -9,10 +9,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
 
 #[cfg(feature = "shared-index")]
-type Shared<T> = std::sync::Arc<T>;
+pub(crate) type Shared<T> = std::sync::Arc<T>;
 #[cfg(not(feature = "shared-index"))]
-type Shared<T> = T;
-fn shared_new<T>(value: T) -> Shared<T> {
+pub(crate) type Shared<T> = T;
+pub(crate) fn shared_new<T>(value: T) -> Shared<T> {
     #[cfg(feature = "shared-index")]
     {
         std::sync::Arc::new(value)
@@ -22,7 +22,7 @@ fn shared_new<T>(value: T) -> Shared<T> {
         value
     }
 }
-fn shared_mut<T: Clone>(value: &mut Shared<T>) -> &mut T {
+pub(crate) fn shared_mut<T: Clone>(value: &mut Shared<T>) -> &mut T {
     #[cfg(feature = "shared-index")]
     {
         std::sync::Arc::make_mut(value)
@@ -32,7 +32,7 @@ fn shared_mut<T: Clone>(value: &mut Shared<T>) -> &mut T {
         value
     }
 }
-fn shared_owned<T: Clone>(value: Shared<T>) -> T {
+pub(crate) fn shared_owned<T: Clone>(value: Shared<T>) -> T {
     #[cfg(feature = "shared-index")]
     {
         std::sync::Arc::unwrap_or_clone(value)
@@ -42,7 +42,7 @@ fn shared_owned<T: Clone>(value: Shared<T>) -> T {
         value
     }
 }
-fn shared_ref<T>(value: &Shared<T>) -> &T {
+pub(crate) fn shared_ref<T>(value: &Shared<T>) -> &T {
     #[cfg(feature = "shared-index")]
     {
         value.as_ref()
@@ -104,16 +104,36 @@ impl KnowledgeIndex {
             if index.documents.contains_key(&entry.id) {
                 return Err(IndexError::DuplicateId(entry.id));
             }
-            index.upsert(entry)?;
+            let normalized = validate_entry(&entry)?;
+            index.insert_validated(entry, normalized);
         }
         Ok(index)
     }
 
     pub fn upsert(&mut self, entry: KnowledgeEntry) -> Result<Option<KnowledgeEntry>, IndexError> {
+        let entry = match self.replace_unchanged_entry(entry) {
+            Ok(previous) => return Ok(Some(previous)),
+            Err(entry) => entry,
+        };
         let normalized = validate_entry(&entry)?;
         Ok(self.insert_validated(entry, normalized))
     }
 
+    pub(crate) fn replace_unchanged_entry(
+        &mut self,
+        entry: KnowledgeEntry,
+    ) -> Result<KnowledgeEntry, KnowledgeEntry> {
+        let Some(old) = self.documents.get_mut(&entry.id) else {
+            return Err(entry);
+        };
+        if old.entry.text != entry.text {
+            return Err(entry);
+        }
+        if crate::knowledge::entries_identical(&old.entry, &entry) {
+            return Ok(entry);
+        }
+        Ok(std::mem::replace(&mut shared_mut(old).entry, entry))
+    }
     pub(crate) fn insert_validated(
         &mut self,
         entry: KnowledgeEntry,

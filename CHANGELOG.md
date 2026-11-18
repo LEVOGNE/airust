@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.21
+
+Incremental lexical/positional updates: metadata-only term/token reuse, clonable text indices, source-only projection reuse and changed-record reanalysis with fresh original coordinates. Diagnostic work receipts explain rebuilt/reused data. Serialized metadata representation is preserved exactly. See [report](docs/CHANGES-0.2.21.md).
+
 ## 0.2.20
 
 Optional shared-index storage: immutable analyzed records, posting maps and normalized duplicate bindings are shared across clones and detached on mutation. Default storage, APIs and wire formats remain unchanged. Fixed before/after workloads expose both copy savings and single-owner tradeoffs. See [report](docs/CHANGES-0.2.20.md).

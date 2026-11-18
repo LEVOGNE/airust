@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.20"
+version = "0.2.21"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -279,3 +279,7 @@ name="stress_index"
 [[example]]
 name="stress_snapshots"
 required-features=["snapshots","execution"]
+
+[[example]]
+name="incremental"
+required-features=["snapshots","advanced-search"]
