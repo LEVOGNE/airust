@@ -163,12 +163,14 @@ impl std::fmt::Debug for WorkControl {
     }
 }
 fn increment(value: &AtomicUsize) -> usize {
-    value
-        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |n| {
-            Some(n.saturating_add(1))
-        })
-        .unwrap()
-        .saturating_add(1)
+    let mut observed = value.load(Ordering::Relaxed);
+    loop {
+        let next = observed.saturating_add(1);
+        match value.compare_exchange_weak(observed, next, Ordering::Relaxed, Ordering::Relaxed) {
+            Ok(_) => return next,
+            Err(current) => observed = current,
+        }
+    }
 }
 struct ObserverSlot {
     callback: Box<dyn ProgressObserver>,
@@ -250,5 +252,33 @@ pub trait ProgressObserver: Send + Sync + std::panic::RefUnwindSafe {
 impl<F: Fn(&ProgressEvent) + Send + Sync + std::panic::RefUnwindSafe> ProgressObserver for F {
     fn on_progress(&self, event: &ProgressEvent) {
         self(event);
+    }
+}
+
+#[cfg(test)]
+mod counter_tests {
+    use super::*;
+    #[test]
+    fn concurrent_counters_saturate_without_wrapping_or_losing_early_values() {
+        let value = Arc::new(AtomicUsize::new(usize::MAX - 3));
+        let values = std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..16)
+                .map(|_| {
+                    let value = value.clone();
+                    scope.spawn(move || increment(&value))
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|handle| handle.join().unwrap())
+                .collect::<std::collections::BTreeSet<_>>()
+        });
+        assert_eq!(
+            values,
+            [usize::MAX - 2, usize::MAX - 1, usize::MAX]
+                .into_iter()
+                .collect()
+        );
+        assert_eq!(value.load(Ordering::Relaxed), usize::MAX);
     }
 }
