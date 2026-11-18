@@ -104,3 +104,7 @@ cargo clippy --all-targets --no-default-features --features feedback --locked --
 cargo test --no-default-features --features feedback --test feedback --locked
 cargo run --locked --features feedback --example feedback > /dev/null
 cargo run --locked --features feedback --example feedback_benchmark > /dev/null
+
+cargo clippy --all-targets --no-default-features --features learned-ranking --locked -- -D warnings
+cargo test --no-default-features --features learned-ranking --test learned_ranking --locked
+cargo run --locked --features learned-ranking --example learned_ranking > /dev/null

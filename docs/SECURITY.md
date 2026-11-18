@@ -128,3 +128,7 @@ Optional adaptive routing selects only explicitly registered sources, freezes an
 ## Optional explicit feedback learning (0.2.23)
 
 a bounded local feedback ledger and inspectable smoothed ranking adjustments. Enable `feedback` explicitly. See [API and limits](FEEDBACK.md).
+
+## Optional inspectable trainable ranking (0.2.24)
+
+an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. Enable `learned-ranking` explicitly. See [API and limits](LEARNED_RANKING.md).

@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.23"
+version = "0.2.24"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+learned-ranking = ["reranking", "dep:sha2", "serde_json/float_roundtrip"]
 feedback = ["reranking","dep:sha2"]
 adaptive = ["retrieval"]
 shared-index = []
@@ -304,3 +305,7 @@ required-features=["feedback"]
 [[example]]
 name="feedback_benchmark"
 required-features=["feedback"]
+
+[[example]]
+name="learned_ranking"
+required-features=["learned-ranking"]

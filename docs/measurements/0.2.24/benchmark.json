@@ -1,0 +1,47 @@
+{
+  "fixture": "authored lexical patterns, grouped query holdout, no semantic quality claim",
+  "holdout": {
+    "correct_at_zero": 48,
+    "examples": 48,
+    "loss": 0.11167818690001896
+  },
+  "model_fingerprint": "c3cb33c58f68bb8bbfca36c6e68d343deb96d12edaa4ec3dc3d3cf12b936942d",
+  "model_json_bytes": 568,
+  "neutral_zero_baseline_correct": 24,
+  "new_query_first": "b",
+  "schema": 1,
+  "schema_features": {
+    "names": [
+      "bias",
+      "query_coverage",
+      "document_density",
+      "exact_phrase",
+      "length_balance",
+      "ordered_bigram_coverage"
+    ],
+    "recipe": "airust-lexical-features-v1"
+  },
+  "train_examples": 192,
+  "train_ms": 1.287625,
+  "training_report": {
+    "config": {
+      "epochs": 100,
+      "gradient_clip": 5.0,
+      "l2": 0.01,
+      "learning_rate": 0.2
+    },
+    "examples": 192,
+    "final_loss": 0.11167818690001868,
+    "initial_loss": 0.6931471805599464,
+    "manifest": "5b37818ad223ab7be7bd10ac30cdb6640953b347f9e0b1e1114660a553bfe855",
+    "positive": 96
+  },
+  "weights": [
+    -1.0554663453812294,
+    1.2944668561629493,
+    0.43148895205431603,
+    1.2944668561629493,
+    -1.1351331823084698,
+    1.2944668561629493
+  ]
+}

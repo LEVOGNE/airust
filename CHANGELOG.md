@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.24
+
+Inspectable trainable ranking. an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. See [report](docs/CHANGES-0.2.24.md).
+
 ## 0.2.23
 
 Explicit feedback learning. a bounded local feedback ledger and inspectable smoothed ranking adjustments. See [report](docs/CHANGES-0.2.23.md).

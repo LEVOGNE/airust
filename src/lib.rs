@@ -100,3 +100,6 @@ pub mod adaptive;
 
 #[cfg(feature = "feedback")]
 pub mod feedback;
+
+#[cfg(feature = "learned-ranking")]
+pub mod learned_ranking;
