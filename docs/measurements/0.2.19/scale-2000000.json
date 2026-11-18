@@ -1,0 +1,45 @@
+{
+  "absent": {
+    "max_ms": 0.002666,
+    "min_ms": 0.00025,
+    "p50_ms": 0.000292,
+    "p95_ms": 0.002666,
+    "p99_ms": 0.002666,
+    "samples": 10
+  },
+  "build_ms": 5930.084917,
+  "common": {
+    "max_ms": 546.407209,
+    "min_ms": 520.0114169999999,
+    "p50_ms": 521.674375,
+    "p95_ms": 546.407209,
+    "p99_ms": 546.407209,
+    "samples": 8
+  },
+  "concurrent_readers": 4,
+  "concurrent_selective": {
+    "max_ms": 2.458208,
+    "min_ms": 1.702667,
+    "p50_ms": 1.824042,
+    "p95_ms": 2.4399170000000003,
+    "p99_ms": 2.458208,
+    "samples": 80
+  },
+  "delete_20_ms": 0.014,
+  "entries": 2000000,
+  "final_entries": 1999980,
+  "fixture": "stress-index-v1",
+  "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+  "mode": "scale",
+  "score_signature": 7777160148249243000,
+  "selective": {
+    "max_ms": 5.079625,
+    "min_ms": 1.701042,
+    "p50_ms": 1.906334,
+    "p95_ms": 2.670958,
+    "p99_ms": 5.079625,
+    "samples": 100
+  },
+  "update_100_ms": 0.329917,
+  "version": "0.2.19"
+}

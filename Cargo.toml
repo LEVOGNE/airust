@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.18"
+version = "0.2.19"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -271,3 +271,10 @@ required-features=["execution","retrieval"]
 [[example]]
 name="progress_benchmark"
 required-features=["execution"]
+
+[[example]]
+name="stress_index"
+
+[[example]]
+name="stress_snapshots"
+required-features=["snapshots","execution"]

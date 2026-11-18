@@ -1,10 +1,10 @@
-# AIRust 0.2.18
+# AIRust 0.2.19
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.18 adds optional progress notifications to execution controls. Applications can show the current phase and real completed/total counts, using an indeterminate indicator when the total is unknown. Notifications do not guess when an AI answer will arrive. Callback failures cannot undo a completed publication. See the [execution guide](docs/EXECUTION.md) and [release report](docs/CHANGES-0.2.18.md). No DenkMaps or MCP integration is performed.
+Version 0.2.19 adds reproducible stress validation. The shipped synthetic workloads passed with two million lexical records, parallel readers, and a separate 100,000-record concurrent snapshot test. Broad queries and retained index copies remain expensive. See [stress methodology](docs/STRESS.md) and the [release report](docs/CHANGES-0.2.19.md) for exact workloads and limits. No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -52,7 +52,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.18", default-features = false }
+airust = { version = "=0.2.19", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

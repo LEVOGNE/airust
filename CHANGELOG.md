@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.19
+
+Reproducible guarded stress workloads: two-million-record lexical scale, retained-copy memory baseline and concurrent snapshot/source consistency with four readers/two writers. Seeded update and concurrent-reader regressions preserve existing APIs/defaults. See [report](docs/CHANGES-0.2.19.md).
+
 ## 0.2.18
 
 Optional transport-neutral progress observers: actual phase/count events, known/unknown totals, sequenced delivery and callback diagnostics. Panics are isolated, busy/reentrant notifications are counted and dropped, and publication callbacks run outside locks. See [report](docs/CHANGES-0.2.18.md).

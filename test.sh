@@ -80,3 +80,7 @@ cargo run --locked --features execution,retrieval --example time_budget > /dev/n
 
 cargo test --no-default-features --features execution --test progress --locked
 cargo run --locked --features execution,retrieval --example progress > /dev/null
+
+cargo run --locked --example stress_index -- scale 1000 > /dev/null
+cargo run --locked --example stress_index -- clone 1000 > /dev/null
+cargo run --locked --features snapshots,execution --example stress_snapshots -- 1000 > /dev/null

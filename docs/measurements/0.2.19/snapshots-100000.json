@@ -1,0 +1,138 @@
+{
+  "build_ms": 191.442417,
+  "concurrent_elapsed_ms": 481.68512499999997,
+  "conflicts": 3,
+  "entries": 100000,
+  "final_generation": 11,
+  "fixture": "stress-snapshots-v1",
+  "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+  "old_view_unchanged": true,
+  "readers": [
+    {
+      "generations": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "latency": {
+        "max_ms": 0.157667,
+        "p50_ms": 0.019875,
+        "p95_ms": 0.024042,
+        "p99_ms": 0.02675,
+        "samples": 22758
+      },
+      "worker": 0
+    },
+    {
+      "generations": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "latency": {
+        "max_ms": 1.154458,
+        "p50_ms": 0.022459,
+        "p95_ms": 0.027625,
+        "p99_ms": 0.032666,
+        "samples": 14096
+      },
+      "worker": 1
+    },
+    {
+      "generations": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "latency": {
+        "max_ms": 0.153916,
+        "p50_ms": 0.022083,
+        "p95_ms": 0.026458,
+        "p99_ms": 0.030333,
+        "samples": 20478
+      },
+      "worker": 2
+    },
+    {
+      "generations": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "latency": {
+        "max_ms": 0.182792,
+        "p50_ms": 0.019875,
+        "p95_ms": 0.021500000000000002,
+        "p99_ms": 0.027,
+        "samples": 17357
+      },
+      "worker": 3
+    }
+  ],
+  "version": "0.2.19",
+  "writers": [
+    {
+      "commits": 5,
+      "prepare": {
+        "max_ms": 50.045167,
+        "p50_ms": 47.090166,
+        "p95_ms": 50.045167,
+        "p99_ms": 50.045167,
+        "samples": 8
+      },
+      "publish": {
+        "max_ms": 49.506208,
+        "p50_ms": 0.000458,
+        "p95_ms": 49.506208,
+        "p99_ms": 49.506208,
+        "samples": 8
+      },
+      "worker": 0
+    },
+    {
+      "commits": 5,
+      "prepare": {
+        "max_ms": 49.112125,
+        "p50_ms": 44.273292,
+        "p95_ms": 49.112125,
+        "p99_ms": 49.112125,
+        "samples": 5
+      },
+      "publish": {
+        "max_ms": 0.000375,
+        "p50_ms": 0.000292,
+        "p95_ms": 0.000375,
+        "p99_ms": 0.000375,
+        "samples": 5
+      },
+      "worker": 1
+    }
+  ]
+}

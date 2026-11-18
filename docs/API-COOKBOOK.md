@@ -1,4 +1,4 @@
-# AIRust 0.2.18 API cookbook
+# AIRust 0.2.19 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.18", default-features = false }
+airust = { version = "=0.2.19", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -235,3 +235,7 @@ Use `WorkControl::default().with_timeout(Duration::from_secs(2))?` or attach a m
 ## 23. Show progress without inventing an answer ETA
 
 Attach `.with_observer(|event: &ProgressEvent| ...)` to a WorkControl and pass it through supported APIs. Render its phase and completed count. Use fraction only for a known phase total; otherwise show an indeterminate state. Forward updates through a bounded nonblocking application channel to keep UI/network work outside the computation. Treat returned Result as the final status, since busy observers can drop events. Inspect dropped_events() and observer_failures() for diagnostics. Never label ranking percentage as answer correctness or arrival time. The [execution guide](EXECUTION.md) and `progress` example provide the contract. No MCP/DenkMaps component is changed.
+
+## 24. Validate scale before selecting an optimization
+
+Build and run `stress_index` in scale/clone modes and `stress_snapshots` with explicit record counts. Keep category-separated latency, OS RSS, conflicts and correctness assertions. Run small CI profiles and record large runs separately. Compare the same generator, retained readers and mutation pattern before/after changes. There is no new runtime API in 0.2.19. See [stress methodology](STRESS.md) and the versioned release evidence; a synthetic million-record success does not replace real application testing.

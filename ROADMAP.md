@@ -25,7 +25,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.16 | Cooperative cancellation | Implemented; see [report](docs/CHANGES-0.2.16.md). |
 | 0.2.17 | Cooperative time budgets | Implemented; see [report](docs/CHANGES-0.2.17.md). |
 | 0.2.18 | Observable work phases and progress | Implemented; see [report](docs/CHANGES-0.2.18.md). |
-| 0.2.19 | Reproducible million-record and concurrent stress validation | Planned. |
+| 0.2.19 | Reproducible million-record and concurrent stress validation | Implemented; see [report](docs/CHANGES-0.2.19.md). |
 | 0.2.20 | Measured memory optimization | Planned. |
 | 0.2.21 | Incremental recomputation of changed analysis | Planned. |
 | 0.2.22 | Explicit adaptive retrieval routing | Planned. |
