@@ -1,10 +1,10 @@
-# AIRust 0.2.16
+# AIRust 0.2.17
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.16 adds optional cooperative cancellation. Share a cancellation token with a running task; supported search, reranking, retrieval and dataset-update operations stop at checkpoints with an explicit error. No partial response or dataset publication is returned as a successful cancellation. Blocking providers must return before AIRust can check again. See the [execution guide](docs/EXECUTION.md) and [release report](docs/CHANGES-0.2.16.md). No DenkMaps or MCP integration is performed.
+Version 0.2.17 adds optional cooperative time budgets to the execution controls. Supported operations check a monotonic deadline, return a distinct deadline error and preserve earlier parent limits. Blocking provider calls and lock waits are checked after they return. See the [execution guide](docs/EXECUTION.md) and [release report](docs/CHANGES-0.2.17.md). No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -51,7 +51,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.16", default-features = false }
+airust = { version = "=0.2.17", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -222,7 +222,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **189 default tests and 514 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **189 default tests and 523 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits

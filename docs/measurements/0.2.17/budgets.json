@@ -1,0 +1,37 @@
+{
+  "blocking_provider": {
+    "budget_ms": 5,
+    "observed_elapsed_ms": 30.021708,
+    "provider_sleep_ms": 25,
+    "result": "deadline_exceeded"
+  },
+  "entries": 10000,
+  "fixture": "time-budget-v1",
+  "limits": "Cooperative: deadline does not forcibly stop a blocked provider. Descriptive timings, no hard response bound.",
+  "rows": [
+    {
+      "deadline_enabled": false,
+      "elapsed_ms": 360.716875,
+      "queries": 200,
+      "score_signature": 9207853799455872928
+    },
+    {
+      "deadline_enabled": true,
+      "elapsed_ms": 369.06525,
+      "queries": 200,
+      "score_signature": 9207853799455872928
+    },
+    {
+      "deadline_enabled": false,
+      "elapsed_ms": 355.13604100000003,
+      "queries": 200,
+      "score_signature": 9207853799455872928
+    },
+    {
+      "deadline_enabled": true,
+      "elapsed_ms": 372.593542,
+      "queries": 200,
+      "score_signature": 9207853799455872928
+    }
+  ]
+}

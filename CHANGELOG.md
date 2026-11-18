@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.17
+
+Optional monotonic time budgets on the shared execution controls. Earlier parent deadlines survive composition; late results remain typed deadline failures and never become provider fallbacks or partial publication. See [report](docs/CHANGES-0.2.17.md).
+
 ## 0.2.16
 
 Optional execution control: shared one-way cancellation, controlled lexical/phrase/semantic/hybrid search, reranking and compact retrieval, plus cancelled dataset staging/publication without partial commits. Provider interruption remains cooperative. See [report](docs/CHANGES-0.2.16.md).

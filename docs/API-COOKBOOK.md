@@ -1,4 +1,4 @@
-# AIRust 0.2.16 API cookbook
+# AIRust 0.2.17 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.16", default-features = false }
+airust = { version = "=0.2.17", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -226,3 +226,7 @@ Coverage compares distinct informative query terms with each delivered excerpt. 
 ## 21. Cancel supported work cooperatively
 
 Enable `execution` alongside the operation's feature. Create `CancellationToken::new()` and `WorkControl::new(token.clone())`. Pass control through RetrievalOptions, RerankOptions or semantic/hybrid search options; use the explicit controlled Engine/TextIndex/DatasetManager methods. Another thread can call token.cancel(). Handle the typed execution error without presenting an empty answer or retrying a fallback automatically. Dataset publication has a final pre-commit checkpoint; cancellation after that point can still return a successful committed revision. See [execution guide](EXECUTION.md) and `cancellation` example. No transport integration is introduced.
+
+## 22. Set a cooperative time budget
+
+Use `WorkControl::default().with_timeout(Duration::from_secs(2))?` or attach a monotonic Instant with `with_deadline`. Pass it through the same controlled APIs used for cancellation. Inspect `remaining()` when allocating a child's budget; cloned/combined controls retain the earlier parent deadline. Handle ExecutionError::DeadlineExceeded distinctly. Build the budget just before the operation if queueing time should not consume it. Blocking provider calls need their own timeout support; AIRust checks after they return. The `time_budget` example and [execution contract](EXECUTION.md) show this limit explicitly.

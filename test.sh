@@ -74,3 +74,6 @@ cargo check --no-default-features --features execution --locked
 cargo clippy --all-targets --no-default-features --features execution --locked -- -D warnings
 cargo test --no-default-features --features execution --test execution --locked
 cargo run --locked --features execution,retrieval --example cancellation
+
+cargo test --no-default-features --features execution --test time_budgets --locked
+cargo run --locked --features execution,retrieval --example time_budget > /dev/null

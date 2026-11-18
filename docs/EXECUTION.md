@@ -44,3 +44,23 @@ Dataset preparation remains off-lock and unpublished. A cancelled draft is disca
 These controls are cooperative. They cannot forcibly interrupt a blocked model, normalization call, allocation, clone, sort or lock wait. They check after that work returns. A single very large record or batch can increase cancellation latency. Use bounded records/batches and provider-specific cancellation where needed. Provider side effects are outside AIRust's rollback guarantee. No hard response-time guarantee or thread termination is claimed.
 
 Run `cargo run --features execution,retrieval --example cancellation`. The `execution_benchmark` example compares controlled/uncontrolled lexical searches and already-cancelled calls. See [release evidence](CHANGES-0.2.16.md).
+
+## Cooperative time budgets (0.2.17)
+
+```rust
+use airust::execution::{WorkControl, ExecutionError};
+use std::time::{Duration, Instant};
+let control = WorkControl::default().with_timeout(Duration::from_secs(2)).unwrap();
+assert!(control.deadline().is_some());
+let expired = control.clone().with_deadline(Instant::now() - Duration::from_secs(1));
+assert_eq!(expired.checkpoint(), Err(ExecutionError::DeadlineExceeded));
+assert_eq!(expired.remaining(), Some(Duration::ZERO));
+```
+
+`with_timeout(Duration)` uses the monotonic clock and returns InvalidBudget if checked clock addition overflows. The budget starts when this builder is called, not when a later operation starts. Construct one per task or deliberately share an overall budget. `with_deadline(Instant)` selects an absolute monotonic deadline. Both methods can only shorten a deadline already attached to that control. Clone/combined controls preserve the earliest deadline; a later child budget cannot extend it. `deadline()` returns the optional Instant; `remaining()` returns None for unlimited work or a saturating Duration, including zero when expired. These monotonic values are not portable persisted timestamps.
+
+Every supported checkpoint described above checks cancellation first, then deadline expiry. If both apply, cancellation wins. No deadline is enabled by default. A deadline error is distinct from cancellation, provider failure and insufficient evidence. The existing typed execution error paths carry it through search, reranking, retrieval and dataset operations. Fallback rules do not consume it.
+
+A budget is a cooperative limit, not a hard timeout or CPU quota. Blocking inference, a large normalization/clone/sort or a publication lock wait may exceed it before returning to a checkpoint. A late provider result is discarded even if it succeeded or returned a fallback-eligible error. Provider side effects are not rolled back. Controlled publication checks again after lock acquisition and before its commit boundary; a later racing deadline cannot turn an already committed success into an apparent failure. Application/network/provider timeouts must be configured separately when hard availability limits are needed.
+
+Run `cargo run --features execution,retrieval --example time_budget`. It measures deadline checking separately from untimed control and deliberately demonstrates a 25 ms blocking call with a 5 ms budget. The returned error does not imply that the thread stopped after 5 ms. See [0.2.17 evidence](CHANGES-0.2.17.md).
