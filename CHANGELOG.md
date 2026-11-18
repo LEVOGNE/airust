@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.18
+
+Optional transport-neutral progress observers: actual phase/count events, known/unknown totals, sequenced delivery and callback diagnostics. Panics are isolated, busy/reentrant notifications are counted and dropped, and publication callbacks run outside locks. See [report](docs/CHANGES-0.2.18.md).
+
 ## 0.2.17
 
 Optional monotonic time budgets on the shared execution controls. Earlier parent deadlines survive composition; late results remain typed deadline failures and never become provider fallbacks or partial publication. See [report](docs/CHANGES-0.2.17.md).

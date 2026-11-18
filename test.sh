@@ -77,3 +77,6 @@ cargo run --locked --features execution,retrieval --example cancellation
 
 cargo test --no-default-features --features execution --test time_budgets --locked
 cargo run --locked --features execution,retrieval --example time_budget > /dev/null
+
+cargo test --no-default-features --features execution --test progress --locked
+cargo run --locked --features execution,retrieval --example progress > /dev/null

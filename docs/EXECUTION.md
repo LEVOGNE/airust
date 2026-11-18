@@ -64,3 +64,34 @@ Every supported checkpoint described above checks cancellation first, then deadl
 A budget is a cooperative limit, not a hard timeout or CPU quota. Blocking inference, a large normalization/clone/sort or a publication lock wait may exceed it before returning to a checkpoint. A late provider result is discarded even if it succeeded or returned a fallback-eligible error. Provider side effects are not rolled back. Controlled publication checks again after lock acquisition and before its commit boundary; a later racing deadline cannot turn an already committed success into an apparent failure. Application/network/provider timeouts must be configured separately when hard availability limits are needed.
 
 Run `cargo run --features execution,retrieval --example time_budget`. It measures deadline checking separately from untimed control and deliberately demonstrates a 25 ms blocking call with a 5 ms budget. The returned error does not imply that the thread stopped after 5 ms. See [0.2.17 evidence](CHANGES-0.2.17.md).
+
+## Progress notifications (0.2.18)
+
+```rust
+use airust::execution::{WorkControl, ProgressEvent, WorkPhase};
+use std::sync::{Arc, Mutex};
+let events = Arc::new(Mutex::new(Vec::new()));
+let received = events.clone();
+let control = WorkControl::default().with_observer(move |event: &ProgressEvent| {
+    received.lock().unwrap().push(*event);
+});
+control.report(ProgressEvent::new(WorkPhase::Ranking, 3, Some(10)).unwrap());
+assert_eq!(events.lock().unwrap()[0].fraction(), Some(0.3));
+assert_eq!(control.observer_failures(), 0);
+```
+
+`with_observer` opts into a synchronous ProgressObserver. A Send + Sync + RefUnwindSafe closure taking `&ProgressEvent` is supported. The builder replaces earlier observers on that control; combined controls retain both sets and deduplicate shared observer slots. No observer, background worker, event queue, network call or progress JSON field is enabled by default. WorkControl remains cloneable across threads.
+
+ProgressEvent::new validates completed <= total when a total is known. It exposes phase, completed, total, sequence and fraction. None means the phase total is unknown; show an indeterminate indicator. A known zero total is an empty completed phase with fraction 1. Sequence starts at one on delivery and is scoped to an observer slot, shared through clones; counters saturate at usize::MAX. Constructed but unreported events have sequence zero. Counts describe the current phase, not the whole pipeline. A phase can repeat for another provider batch or suboperation; do not combine those fractions into a guessed global percentage or ETA.
+
+Built-in notifications cover query start/completion, source retrieval, lexical candidate collection, ranking, embedding batches, hybrid fusion, reranking, excerpt selection, evidence assessment, serialization attempts, dataset validation/staging, positional rebuilding and publication. Candidate collection counts visited posting bindings, including repeated IDs across query terms. Ranking counts inspected candidates, including excluded ones, not just accepted hits. Provider batches restart their own counts. Some phases report only start/end; a large indivisible clone, provider call or normalization remains between those reports. Counts are actual work units, not answer confidence.
+
+## Callback isolation and completion
+
+Callbacks run outside dataset publication locks. Publication start is sent before lock acquisition, completion after the lock is released. An observer may inspect the manager. If it cancels before the final publication checkpoint, publication fails without a commit. Cancellation from a publication-complete callback cannot change the successful committed result. Query completion is emitted only after a complete response passes its final interruption checkpoint and serialization.
+
+A callback panic is caught under normal Rust unwinding, counted by observer_failures(), and does not turn successful work into a failure. Rust's panic hook may still print the panic. Process-aborting panics cannot be recovered. A busy observer slot drops concurrent or reentrant notifications rather than waiting or recursing; dropped_events() reports them. Delivered callbacks for that slot are serialized. Other independent observers can still receive their events. Notifications are best effort: use the operation's returned Result/revision as the authoritative completion signal, even when its last notification was dropped.
+
+A callback itself can block its invoking thread and consume a time budget. Keep it short. For a user interface or transport, use a bounded channel and a nonblocking try_send inside the callback; let the application render or stream those updates. Queue overflow is application telemetry, separate from AIRust's busy-slot drop counter. Use one observer per request or attach the request ID in the observer closure when correlating concurrent operations. Avoid a strong reference cycle by capturing a control inside its own observer.
+
+Run `cargo run --features execution,retrieval --example progress`. Progress goes to stderr; the final compact response goes to stdout. This provides a transport-neutral hook for a future progress bar or status text. It neither modifies another application nor installs an instruction forcing external agents to narrate. A client can display 'retrieving', 'ranking' or 'waiting for provider', but cannot infer an answer arrival time from these events. See [0.2.18 verification](CHANGES-0.2.18.md).

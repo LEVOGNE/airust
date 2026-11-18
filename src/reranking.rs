@@ -116,6 +116,13 @@ impl Default for RerankOptions {
 }
 impl RerankOptions {
     #[cfg(feature = "execution")]
+    fn progress(&self, phase: crate::execution::WorkPhase, completed: usize, total: Option<usize>) {
+        if let Some(control) = self.control() {
+            control.progress(phase, completed, total);
+        }
+    }
+
+    #[cfg(feature = "execution")]
     pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
         self.control = Some(control);
         self
@@ -337,6 +344,12 @@ pub fn rerank<'a, T: Rerankable>(
     }
     let recipe = provider.recipe().to_owned();
     outcome.recipe = Some(recipe.clone());
+    #[cfg(feature = "execution")]
+    options.progress(
+        crate::execution::WorkPhase::Reranking,
+        0,
+        Some(selected.len()),
+    );
     let mut scores = Vec::with_capacity(selected.len());
     for batch in selected.chunks(options.batch_size) {
         options.checkpoint()?;
@@ -371,6 +384,12 @@ pub fn rerank<'a, T: Rerankable>(
             }
         }
         outcome.scored_candidates += batch_scores.len();
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Reranking,
+            outcome.scored_candidates,
+            Some(selected.len()),
+        );
         scores.extend(batch_scores);
     }
     for (hit, score) in selected.iter_mut().zip(scores) {

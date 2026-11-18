@@ -482,6 +482,14 @@ impl DatasetManager {
         if !full && changes.len() > base.config.limits.max_batch_operations() {
             return Err(DatasetError::Limit("batch operation count"));
         }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(
+                crate::execution::WorkPhase::ValidatingDataset,
+                0,
+                Some(changes.len()),
+            );
+        }
         let mut ids = BTreeSet::new();
         let mut sizes = base.sizes.clone();
         let mut bytes = 0usize;
@@ -529,6 +537,19 @@ impl DatasetManager {
             return Err(DatasetError::Limit("total record bytes"));
         }
         check_capacity(&base.config, sizes.len(), base.config.space.as_ref())?;
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(
+                crate::execution::WorkPhase::ValidatingDataset,
+                changes.len(),
+                Some(changes.len()),
+            );
+            control.progress(
+                crate::execution::WorkPhase::StagingDataset,
+                0,
+                Some(changes.len()),
+            );
+        }
         let mut sources = (*base.sources).clone();
         for id in &ids {
             #[cfg(feature = "execution")]
@@ -586,6 +607,8 @@ impl DatasetManager {
         drop(ids);
         let mut index = base.index.clone();
         let mut embed = Vec::new();
+        #[cfg(feature = "execution")]
+        let change_count = changes.len();
         for change in changes {
             #[cfg(feature = "execution")]
             if let Some(control) = control {
@@ -620,6 +643,14 @@ impl DatasetManager {
                     }
                 }
             }
+        }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(
+                crate::execution::WorkPhase::StagingDataset,
+                change_count,
+                Some(change_count),
+            );
         }
         if let Index::Semantic(index) = &mut index {
             stats.embedded_entries = embed.len();
@@ -760,6 +791,11 @@ impl DatasetManager {
         if let Some(control) = control {
             control.checkpoint()?;
         }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(crate::execution::WorkPhase::Publishing, 0, Some(1));
+            control.checkpoint()?;
+        }
         let mut current = self.current.write().map_err(|_| DatasetError::Poisoned)?;
         if current.revision != prepared.expected {
             drop(current);
@@ -773,6 +809,10 @@ impl DatasetManager {
         let published = current.clone();
         drop(current);
         drop(previous);
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(crate::execution::WorkPhase::Publishing, 1, Some(1));
+        }
         Ok(published)
     }
 }

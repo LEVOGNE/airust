@@ -81,6 +81,13 @@ impl Default for RetrievalOptions {
 }
 impl RetrievalOptions {
     #[cfg(feature = "execution")]
+    fn progress(&self, phase: crate::execution::WorkPhase, completed: usize, total: Option<usize>) {
+        if let Some(control) = self.control() {
+            control.progress(phase, completed, total);
+        }
+    }
+
+    #[cfg(feature = "execution")]
     pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
         self.control = Some(control);
         self
@@ -658,6 +665,8 @@ fn hit(
     analyzer: &ExcerptAnalyzer,
 ) -> Result<(RetrievalHit, Option<ExcerptDetails>), RetrievalError> {
     options.checkpoint()?;
+    #[cfg(feature = "execution")]
+    options.progress(crate::execution::WorkPhase::SelectingExcerpts, 0, None);
     let (span, details) = if let Some(settings) = options.excerpt_options() {
         let selected = select_excerpt(
             &candidate.entry.text,
@@ -748,6 +757,8 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
         options: &RetrievalOptions,
     ) -> Result<RetrievalResponse, RetrievalError> {
         options.checkpoint()?;
+        #[cfg(feature = "execution")]
+        options.progress(crate::execution::WorkPhase::Query, 0, Some(1));
         if query.trim().is_empty() {
             return Err(RetrievalError::Configuration("query is blank"));
         }
@@ -788,9 +799,18 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
             .evidence_policy()
             .map(|p| assessment::AssessmentPlan::new(query, &analyzer, p, options.limit))
             .transpose()?;
+        #[cfg(feature = "execution")]
+        options.progress(crate::execution::WorkPhase::Retrieving, 0, None);
+        options.checkpoint()?;
         let batch = self.source.retrieve(query, options);
         options.checkpoint()?;
         let batch = batch?;
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Retrieving,
+            batch.candidates.len(),
+            Some(batch.candidates.len()),
+        );
         if batch.candidates.len() > options.candidates {
             return Err(RetrievalError::Output("source exceeded candidate count"));
         }
@@ -912,15 +932,53 @@ fn finish(
 ) -> Result<RetrievalResponse, RetrievalError> {
     options.checkpoint()?;
     response.before_output_budget = response.hits.len();
+    #[cfg(feature = "execution")]
+    options.progress(
+        crate::execution::WorkPhase::SelectingExcerpts,
+        response.hits.len(),
+        Some(response.hits.len()),
+    );
+    #[cfg(feature = "execution")]
+    if plan.is_some() {
+        options.progress(
+            crate::execution::WorkPhase::AssessingEvidence,
+            0,
+            Some(response.hits.len()),
+        );
+    }
     let observations = plan.map(|p| p.observe(&response)).transpose()?;
+    #[cfg(feature = "execution")]
+    if plan.is_some() {
+        options.progress(
+            crate::execution::WorkPhase::AssessingEvidence,
+            response.hits.len(),
+            Some(response.hits.len()),
+        );
+    }
+    #[cfg(feature = "execution")]
+    let mut attempts = 0usize;
     loop {
         options.checkpoint()?;
+        #[cfg(feature = "execution")]
+        {
+            options.progress(crate::execution::WorkPhase::Serializing, attempts, None);
+            attempts += 1;
+        }
         response.assessment = plan
             .zip(observations.as_ref())
             .map(|(p, observations)| p.summarize(&response, observations));
         if let Some(json) = bounded_json(&response, options.max_output_bytes)? {
             options.checkpoint()?;
             response.json = json;
+            #[cfg(feature = "execution")]
+            {
+                options.progress(
+                    crate::execution::WorkPhase::Serializing,
+                    attempts,
+                    Some(attempts),
+                );
+                options.progress(crate::execution::WorkPhase::Query, 1, Some(1));
+            }
             return Ok(response);
         }
         if response.hits.pop().is_none() {

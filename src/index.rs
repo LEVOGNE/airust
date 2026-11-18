@@ -201,9 +201,14 @@ impl KnowledgeIndex {
         options: &SearchOptions,
         includes: impl Fn(&str) -> bool,
     ) -> Vec<SearchResult<'_>> {
-        match self.search_analyzed_checked(query_terms, options, includes, || {
-            Ok::<_, std::convert::Infallible>(())
-        }) {
+        match self.search_analyzed_checked(
+            query_terms,
+            options,
+            includes,
+            || Ok::<_, std::convert::Infallible>(()),
+            #[cfg(feature = "execution")]
+            None,
+        ) {
             Ok(results) => results,
             Err(error) => match error {},
         }
@@ -217,7 +222,13 @@ impl KnowledgeIndex {
     ) -> Result<Vec<SearchResult<'_>>, crate::execution::ExecutionError> {
         control.checkpoint()?;
         let terms = text::term_frequencies(query);
-        self.search_analyzed_checked(&terms, options, |_| true, || control.checkpoint())
+        self.search_analyzed_checked(
+            &terms,
+            options,
+            |_| true,
+            || control.checkpoint(),
+            Some(control),
+        )
     }
     pub(crate) fn search_analyzed_checked<E>(
         &self,
@@ -225,20 +236,55 @@ impl KnowledgeIndex {
         options: &SearchOptions,
         includes: impl Fn(&str) -> bool,
         mut checkpoint: impl FnMut() -> Result<(), E>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
     ) -> Result<Vec<SearchResult<'_>>, E> {
         checkpoint()?;
         if options.limit == 0 || self.is_empty() {
             return Ok(Vec::new());
         }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(crate::execution::WorkPhase::CollectingCandidates, 0, None);
+        }
+        #[cfg(feature = "execution")]
+        let mut visited = 0usize;
         let mut candidates = BTreeSet::new();
         for term in query_terms.keys() {
             checkpoint()?;
             if let Some(postings) = self.postings.get(term) {
                 for id in postings.keys() {
                     checkpoint()?;
+                    #[cfg(feature = "execution")]
+                    {
+                        visited += 1;
+                        if visited.is_multiple_of(512) {
+                            if let Some(control) = control {
+                                control.progress(
+                                    crate::execution::WorkPhase::CollectingCandidates,
+                                    visited,
+                                    None,
+                                );
+                            }
+                        }
+                    }
                     candidates.insert(id.as_str());
                 }
             }
+        }
+        #[cfg(feature = "execution")]
+        let candidate_count = candidates.len();
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(
+                crate::execution::WorkPhase::CollectingCandidates,
+                visited,
+                Some(visited),
+            );
+            control.progress(
+                crate::execution::WorkPhase::Ranking,
+                0,
+                Some(candidate_count),
+            );
         }
         let average = self.total_tokens as f64 / self.len() as f64;
         let query_norm = if options.algorithm == SearchAlgorithm::Tfidf {
@@ -255,8 +301,20 @@ impl KnowledgeIndex {
             0.0
         };
         let mut results = TopK::new(options.limit);
-        for id in candidates {
+        for (position, id) in candidates.into_iter().enumerate() {
+            #[cfg(not(feature = "execution"))]
+            let _ = position;
             checkpoint()?;
+            #[cfg(feature = "execution")]
+            if position.is_multiple_of(512) {
+                if let Some(control) = control {
+                    control.progress(
+                        crate::execution::WorkPhase::Ranking,
+                        position,
+                        Some(candidate_count),
+                    );
+                }
+            }
             let document = &self.documents[id];
             if options
                 .context
@@ -319,6 +377,14 @@ impl KnowledgeIndex {
         }
         checkpoint()?;
         let result = results.finish();
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(
+                crate::execution::WorkPhase::Ranking,
+                candidate_count,
+                Some(candidate_count),
+            );
+        }
         checkpoint()?;
         Ok(result)
     }
@@ -694,6 +760,7 @@ mod execution_tests {
                     Ok(())
                 }
             },
+            None,
         );
         assert!(matches!(
             result,

@@ -1,4 +1,4 @@
-# AIRust 0.2.17 API cookbook
+# AIRust 0.2.18 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.17", default-features = false }
+airust = { version = "=0.2.18", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -15,6 +15,7 @@ airust = { version = "=0.2.17", default-features = false }
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
+| `execution` | Optional cancellation, cooperative deadlines and real work-phase notifications | [EXECUTION](EXECUTION.md), `cancellation`, `time_budget`, `progress` |
 | `snapshots` | One revision for immutable search/vector/source views and checked updates | [SNAPSHOTS](SNAPSHOTS.md), `snapshots`, `snapshot_benchmark` |
 | `retrieval` | Compact owned excerpts/evidence and complete JSON budgets over interchangeable sources | [RETRIEVAL](RETRIEVAL.md), `retrieval`, `retrieval_benchmark` |
 | `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
@@ -230,3 +231,7 @@ Enable `execution` alongside the operation's feature. Create `CancellationToken:
 ## 22. Set a cooperative time budget
 
 Use `WorkControl::default().with_timeout(Duration::from_secs(2))?` or attach a monotonic Instant with `with_deadline`. Pass it through the same controlled APIs used for cancellation. Inspect `remaining()` when allocating a child's budget; cloned/combined controls retain the earlier parent deadline. Handle ExecutionError::DeadlineExceeded distinctly. Build the budget just before the operation if queueing time should not consume it. Blocking provider calls need their own timeout support; AIRust checks after they return. The `time_budget` example and [execution contract](EXECUTION.md) show this limit explicitly.
+
+## 23. Show progress without inventing an answer ETA
+
+Attach `.with_observer(|event: &ProgressEvent| ...)` to a WorkControl and pass it through supported APIs. Render its phase and completed count. Use fraction only for a known phase total; otherwise show an indeterminate state. Forward updates through a bounded nonblocking application channel to keep UI/network work outside the computation. Treat returned Result as the final status, since busy observers can drop events. Inspect dropped_events() and observer_failures() for diagnostics. Never label ranking percentage as answer correctness or arrival time. The [execution guide](EXECUTION.md) and `progress` example provide the contract. No MCP/DenkMaps component is changed.

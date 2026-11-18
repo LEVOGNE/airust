@@ -193,6 +193,13 @@ pub struct SemanticSearchOptions {
 
 impl SemanticSearchOptions {
     #[cfg(feature = "execution")]
+    fn progress(&self, phase: crate::execution::WorkPhase, completed: usize, total: Option<usize>) {
+        if let Some(control) = self.control() {
+            control.progress(phase, completed, total);
+        }
+    }
+
+    #[cfg(feature = "execution")]
     pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
         self.control = Some(control);
         self
@@ -462,9 +469,14 @@ impl SemanticIndex {
         if options.limit == 0 || self.is_empty() {
             return Ok(Vec::new());
         }
+        #[cfg(feature = "execution")]
+        options.progress(crate::execution::WorkPhase::Embedding, 0, Some(1));
+        options.checkpoint()?;
         let embeddings = embed_batch(provider, &[query], EmbeddingPurpose::Query);
         options.checkpoint()?;
         let mut embeddings = embeddings?;
+        #[cfg(feature = "execution")]
+        options.progress(crate::execution::WorkPhase::Embedding, 1, Some(1));
         self.space.require(provider.space())?;
         self.search_embedding(
             &embeddings.pop().expect("validated single embedding"),
@@ -483,7 +495,23 @@ impl SemanticIndex {
         if options.limit == 0 {
             return Ok(Vec::new());
         }
-        for (id, vector) in &self.vectors {
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Ranking,
+            0,
+            Some(self.vectors.len()),
+        );
+        for (position, (id, vector)) in self.vectors.iter().enumerate() {
+            #[cfg(not(feature = "execution"))]
+            let _ = position;
+            #[cfg(feature = "execution")]
+            if position.is_multiple_of(512) {
+                options.progress(
+                    crate::execution::WorkPhase::Ranking,
+                    position,
+                    Some(self.vectors.len()),
+                );
+            }
             options.checkpoint()?;
             let entry = self
                 .lexical
@@ -503,6 +531,12 @@ impl SemanticIndex {
         }
         options.checkpoint()?;
         let results = results.finish();
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Ranking,
+            self.vectors.len(),
+            Some(self.vectors.len()),
+        );
         options.checkpoint()?;
         Ok(results)
     }
@@ -523,9 +557,18 @@ impl EmbeddingProvider for ControlledProvider<'_> {
         texts: &[&str],
         purpose: EmbeddingPurpose,
     ) -> Result<Vec<Vec<f32>>, EmbeddingError> {
+        self.control
+            .progress(crate::execution::WorkPhase::Embedding, 0, Some(texts.len()));
         self.control.checkpoint()?;
         let result = self.provider.embed(texts, purpose);
         self.control.checkpoint()?;
+        if result.is_ok() {
+            self.control.progress(
+                crate::execution::WorkPhase::Embedding,
+                texts.len(),
+                Some(texts.len()),
+            );
+        }
         result
     }
 }

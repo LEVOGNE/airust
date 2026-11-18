@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.17"
+version = "0.2.18"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -263,3 +263,11 @@ required-features=["execution"]
 [[example]]
 name="time_budget"
 required-features=["execution","retrieval"]
+
+[[example]]
+name="progress"
+required-features=["execution","retrieval"]
+
+[[example]]
+name="progress_benchmark"
+required-features=["execution"]

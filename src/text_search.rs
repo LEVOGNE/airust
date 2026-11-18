@@ -533,13 +533,26 @@ impl TextIndex {
     ) -> Result<Self, TextSearchError> {
         control.checkpoint()?;
         let mut index = Self::new(config);
+        control.progress(crate::execution::WorkPhase::AnalyzingText, 0, None);
         for entry in entries {
             control.checkpoint()?;
             if index.get(&entry.id).is_some() {
                 return Err(IndexError::DuplicateId(entry.id).into());
             }
             index.upsert(entry)?;
+            if index.len().is_multiple_of(512) {
+                control.progress(
+                    crate::execution::WorkPhase::AnalyzingText,
+                    index.len(),
+                    None,
+                );
+            }
         }
+        control.progress(
+            crate::execution::WorkPhase::AnalyzingText,
+            index.len(),
+            Some(index.len()),
+        );
         control.checkpoint()?;
         Ok(index)
     }
@@ -636,6 +649,8 @@ impl TextIndex {
                     .is_some_and(|tokens| plan.includes(tokens, options.operator))
             },
             checkpoint,
+            #[cfg(feature = "execution")]
+            control,
         )?;
         checkpoint()?;
         Ok(results

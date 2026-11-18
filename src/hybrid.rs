@@ -62,6 +62,13 @@ impl Default for HybridSearchOptions {
 
 impl HybridSearchOptions {
     #[cfg(feature = "execution")]
+    fn progress(&self, phase: crate::execution::WorkPhase, completed: usize, total: Option<usize>) {
+        if let Some(control) = self.control() {
+            control.progress(phase, completed, total);
+        }
+    }
+
+    #[cfg(feature = "execution")]
     pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
         self.control = Some(control);
         self
@@ -301,8 +308,29 @@ impl SemanticIndex {
             Vec::new()
         };
         options.checkpoint()?;
+        #[cfg(feature = "execution")]
+        let contribution_count = lexical.len() + semantic.len();
+        #[cfg(feature = "execution")]
+        let mut contributions = 0usize;
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Fusing,
+            0,
+            Some(contribution_count),
+        );
         let mut fused: BTreeMap<&str, HybridResult<'_>> = BTreeMap::new();
         for (rank, hit) in lexical.into_iter().enumerate() {
+            #[cfg(feature = "execution")]
+            {
+                contributions += 1;
+                if contributions.is_multiple_of(512) {
+                    options.progress(
+                        crate::execution::WorkPhase::Fusing,
+                        contributions,
+                        Some(contribution_count),
+                    );
+                }
+            }
             options.checkpoint()?;
             let rank = rank + 1;
             fused.insert(
@@ -319,6 +347,17 @@ impl SemanticIndex {
             );
         }
         for (rank, hit) in semantic.into_iter().enumerate() {
+            #[cfg(feature = "execution")]
+            {
+                contributions += 1;
+                if contributions.is_multiple_of(512) {
+                    options.progress(
+                        crate::execution::WorkPhase::Fusing,
+                        contributions,
+                        Some(contribution_count),
+                    );
+                }
+            }
             options.checkpoint()?;
             let rank = rank + 1;
             let result = fused.entry(&hit.entry.id).or_insert_with(|| HybridResult {
@@ -334,14 +373,24 @@ impl SemanticIndex {
             result.semantic_score = Some(hit.score);
             result.score += options.semantic_weight / (options.rrf_k + rank as f64);
         }
+        #[cfg(feature = "execution")]
+        options.progress(
+            crate::execution::WorkPhase::Fusing,
+            contribution_count,
+            Some(contribution_count),
+        );
         let mut results = TopK::new(options.limit);
         for hit in fused.into_values() {
+            options.checkpoint()?;
             if hit.score > 0.0 && hit.score.is_finite() {
                 results.push(hit);
             }
         }
+        options.checkpoint()?;
+        let results = results.finish();
+        options.checkpoint()?;
         Ok(HybridOutcome {
-            results: results.finish(),
+            results,
             semantic_used,
             fallback_reason,
         })
