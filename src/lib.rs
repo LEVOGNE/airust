@@ -91,3 +91,6 @@ pub mod retrieval;
 
 #[cfg(feature = "snapshots")]
 pub mod snapshots;
+
+#[cfg(feature = "execution")]
+pub mod execution;

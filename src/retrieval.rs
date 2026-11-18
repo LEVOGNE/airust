@@ -23,6 +23,9 @@ pub use excerpts::{
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum RetrievalError {
+    #[cfg(feature = "execution")]
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
     #[error("invalid retrieval configuration: {0}")]
     Configuration(&'static str),
     #[error("retrieval budget exceeded: {0}")]
@@ -39,6 +42,8 @@ pub enum RetrievalError {
 }
 #[derive(Debug, Clone)]
 pub struct RetrievalOptions {
+    #[cfg(feature = "execution")]
+    control: Option<crate::execution::WorkControl>,
     limit: usize,
     candidates: usize,
     context: Option<Context>,
@@ -56,6 +61,8 @@ pub struct RetrievalOptions {
 impl Default for RetrievalOptions {
     fn default() -> Self {
         Self {
+            #[cfg(feature = "execution")]
+            control: None,
             limit: 10,
             candidates: 100,
             context: None,
@@ -73,6 +80,23 @@ impl Default for RetrievalOptions {
     }
 }
 impl RetrievalOptions {
+    #[cfg(feature = "execution")]
+    pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
+        self.control = Some(control);
+        self
+    }
+    #[cfg(feature = "execution")]
+    pub fn control(&self) -> Option<&crate::execution::WorkControl> {
+        self.control.as_ref()
+    }
+    fn checkpoint(&self) -> Result<(), RetrievalError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = &self.control {
+            control.checkpoint()?;
+        }
+        Ok(())
+    }
+
     pub fn new(limit: usize) -> Self {
         Self {
             limit,
@@ -352,11 +376,17 @@ impl RetrievalSource for LexicalSource<'_> {
         };
         options.context = Some(context);
         options.limit = request.candidates;
+        #[cfg(feature = "execution")]
+        let hits = if let Some(control) = request.control() {
+            self.index.search_controlled(query, &options, control)?
+        } else {
+            self.index.search_with_options(query, &options)
+        };
+        #[cfg(not(feature = "execution"))]
+        let hits = self.index.search_with_options(query, &options);
         Ok(RetrievalBatch::new(
             "airust-lexical-v1",
-            self.index
-                .search_with_options(query, &options)
-                .into_iter()
+            hits.into_iter()
                 .map(|hit| {
                     let mut evidence =
                         RankingEvidence::new(kind(options.algorithm, false), hit.score);
@@ -406,10 +436,16 @@ impl RetrievalSource for TextSource<'_> {
         search.limit = request.candidates;
         let algorithm = search.algorithm;
         let options = self.options.clone().with_search(search);
-        let hits = self
-            .index
-            .search(query, &options)
-            .map_err(|e| RetrievalError::Source(e.to_string()))?;
+        #[cfg(feature = "execution")]
+        let hits = if let Some(control) = request.control() {
+            self.index.search_controlled(query, &options, control)
+        } else {
+            self.index.search(query, &options)
+        };
+        #[cfg(not(feature = "execution"))]
+        let hits = self.index.search(query, &options);
+        request.checkpoint()?;
+        let hits = hits.map_err(|e| RetrievalError::Source(e.to_string()))?;
         Ok(RetrievalBatch::new(
             self.index.analyzer().config().recipe(),
             hits.into_iter()
@@ -621,6 +657,7 @@ fn hit(
     query: &str,
     analyzer: &ExcerptAnalyzer,
 ) -> Result<(RetrievalHit, Option<ExcerptDetails>), RetrievalError> {
+    options.checkpoint()?;
     let (span, details) = if let Some(settings) = options.excerpt_options() {
         let selected = select_excerpt(
             &candidate.entry.text,
@@ -710,6 +747,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
         query: &str,
         options: &RetrievalOptions,
     ) -> Result<RetrievalResponse, RetrievalError> {
+        options.checkpoint()?;
         if query.trim().is_empty() {
             return Err(RetrievalError::Configuration("query is blank"));
         }
@@ -750,7 +788,9 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
             .evidence_policy()
             .map(|p| assessment::AssessmentPlan::new(query, &analyzer, p, options.limit))
             .transpose()?;
-        let batch = self.source.retrieve(query, options)?;
+        let batch = self.source.retrieve(query, options);
+        options.checkpoint()?;
+        let batch = batch?;
         if batch.candidates.len() > options.candidates {
             return Err(RetrievalError::Output("source exceeded candidate count"));
         }
@@ -766,6 +806,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
         }
         let mut ids = BTreeSet::new();
         for c in &batch.candidates {
+            options.checkpoint()?;
             candidate_valid(c, options)?;
             if !ids.insert(&c.entry.id) {
                 return Err(RetrievalError::Output("duplicate candidate ID"));
@@ -776,7 +817,18 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
         let mut reranking = None;
         #[cfg(feature = "reranking")]
         let hits = if let Some((provider, settings)) = &mut self.reranker {
+            #[cfg(feature = "execution")]
+            let settings = &if let Some(control) = options.control() {
+                settings.clone().with_control(
+                    settings
+                        .control()
+                        .map_or_else(|| control.clone(), |own| own.combined(control)),
+                )
+            } else {
+                settings.clone()
+            };
             let outcome = crate::reranking::rerank(query, &batch.candidates, *provider, settings)?;
+            options.checkpoint()?;
             reranking = Some(RerankSummary {
                 used: outcome.reranker_used(),
                 recipe: outcome.recipe().map(str::to_owned),
@@ -858,13 +910,16 @@ fn finish(
     options: &RetrievalOptions,
     plan: Option<&assessment::AssessmentPlan>,
 ) -> Result<RetrievalResponse, RetrievalError> {
+    options.checkpoint()?;
     response.before_output_budget = response.hits.len();
     let observations = plan.map(|p| p.observe(&response)).transpose()?;
     loop {
+        options.checkpoint()?;
         response.assessment = plan
             .zip(observations.as_ref())
             .map(|(p, observations)| p.summarize(&response, observations));
         if let Some(json) = bounded_json(&response, options.max_output_bytes)? {
+            options.checkpoint()?;
             response.json = json;
             return Ok(response);
         }
@@ -915,10 +970,25 @@ impl RetrievalSource for SemanticSource<'_, '_> {
             .with_min_score(self.options.min_score())
             .map_err(|e| RetrievalError::Source(e.to_string()))?
             .with_context(context);
-        let results = self
-            .index
-            .search(query, self.provider, &options)
-            .map_err(|e| RetrievalError::Source(e.to_string()))?;
+        #[cfg(feature = "execution")]
+        let options = if let Some(control) = request.control() {
+            options.with_control(
+                self.options
+                    .control()
+                    .map_or_else(|| control.clone(), |own| own.combined(control)),
+            )
+        } else if let Some(control) = self.options.control() {
+            options.with_control(control.clone())
+        } else {
+            options
+        };
+        let results = self.index.search(query, self.provider, &options);
+        request.checkpoint()?;
+        #[cfg(feature = "execution")]
+        if let Err(crate::semantic::EmbeddingError::Execution(error)) = &results {
+            return Err(RetrievalError::Execution(*error));
+        }
+        let results = results.map_err(|e| RetrievalError::Source(e.to_string()))?;
         Ok(RetrievalBatch::new(
             format!(
                 "airust-cosine-v1/{}/{}",
@@ -984,10 +1054,28 @@ impl RetrievalSource for HybridSource<'_, '_> {
             .with_bm25(self.options.bm25())
             .with_context(context)
             .with_failure_policy(self.options.failure_policy());
-        let outcome = self
-            .index
-            .hybrid_search(query, self.provider, &options)
-            .map_err(|e| RetrievalError::Source(e.to_string()))?;
+        #[cfg(feature = "execution")]
+        let options = if let Some(control) = request.control() {
+            options.with_control(
+                self.options
+                    .control()
+                    .map_or_else(|| control.clone(), |own| own.combined(control)),
+            )
+        } else if let Some(control) = self.options.control() {
+            options.with_control(control.clone())
+        } else {
+            options
+        };
+        let outcome = self.index.hybrid_search(query, self.provider, &options);
+        request.checkpoint()?;
+        #[cfg(feature = "execution")]
+        if let Err(crate::hybrid::HybridError::Embedding(
+            crate::semantic::EmbeddingError::Execution(error),
+        )) = &outcome
+        {
+            return Err(RetrievalError::Execution(*error));
+        }
+        let outcome = outcome.map_err(|e| RetrievalError::Source(e.to_string()))?;
         let fallback = outcome.fallback_reason().map(str::to_owned);
         let mut batch = RetrievalBatch::new(
             format!(

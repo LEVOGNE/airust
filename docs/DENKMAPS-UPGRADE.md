@@ -1,4 +1,4 @@
-# Proposed DenkMaps upgrade to AIRust 0.2.15
+# Proposed DenkMaps upgrade to AIRust 0.2.16
 
 This is an implementation guide, not a claim that DenkMaps uses the new release. The AIRust sequence keeps its core independent. The existing DenkMaps application was previously inspected read-only and was not re-audited for this library-only release; the new library is not integrated automatically.
 
@@ -15,7 +15,7 @@ Other local UI/import/MCP work is separate from this library upgrade. Re-read cu
 Start with the existing lexical dependency and run all application tests:
 
 ```toml
-airust = { version = "=0.2.15", default-features = false }
+airust = { version = "=0.2.16", default-features = false }
 ```
 
 This uses the same generic entry shape and existing lexical API. Keep a configuration rollback to the current search. Compare result IDs, counts and authorization before changing ranking behavior. Do not remove the Unicode fallback merely because the new version compiles.
@@ -23,7 +23,7 @@ This uses the same generic entry shape and existing lexical API. Keep a configur
 When semantic/context work is explicitly approved and tested, select the needed features, for example:
 
 ```toml
-airust = { version = "=0.2.15", default-features = false,
+airust = { version = "=0.2.16", default-features = false,
            features = ["context-assembly", "provenance", "cache", "quality"] }
 ```
 
@@ -122,7 +122,7 @@ This release does not integrate the new TextIndex into DenkMaps. It is an altern
 A future dependency selection for an isolated lexical/phrase trial could be:
 
 ```toml
-airust = { version = "=0.2.15", default-features = false,
+airust = { version = "=0.2.16", default-features = false,
            features = ["retrieval", "advanced-search", "quality"] }
 ```
 

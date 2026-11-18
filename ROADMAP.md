@@ -22,7 +22,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.13 | Optional relevant excerpts with original positions and bounded highlights | Implemented; see [report](docs/CHANGES-0.2.13.md). |
 | 0.2.14 | Coherent immutable search/vector/source snapshots and checked publication | Implemented; see [report](docs/CHANGES-0.2.14.md). |
 | 0.2.15 | Explicit retrieval evidence assessment | Implemented; see [report](docs/CHANGES-0.2.15.md). |
-| 0.2.16 | Cooperative cancellation | Planned; implementation and release gates required. |
+| 0.2.16 | Cooperative cancellation | Implemented; see [report](docs/CHANGES-0.2.16.md). |
 | 0.2.17 | Cooperative time budgets | Planned. |
 | 0.2.18 | Observable work phases and progress | Planned. |
 | 0.2.19 | Reproducible million-record and concurrent stress validation | Planned. |

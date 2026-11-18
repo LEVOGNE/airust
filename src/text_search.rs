@@ -14,6 +14,9 @@ use unicode_segmentation::UnicodeSegmentation;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum TextSearchError {
+    #[cfg(feature = "execution")]
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
     #[error("invalid text search configuration: {0}")]
     Configuration(&'static str),
     #[error("text search limit exceeded: {0}")]
@@ -522,6 +525,24 @@ impl TextIndex {
         }
         Ok(index)
     }
+    #[cfg(feature = "execution")]
+    pub fn from_entries_controlled(
+        config: AnalyzerConfig,
+        entries: impl IntoIterator<Item = KnowledgeEntry>,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Self, TextSearchError> {
+        control.checkpoint()?;
+        let mut index = Self::new(config);
+        for entry in entries {
+            control.checkpoint()?;
+            if index.get(&entry.id).is_some() {
+                return Err(IndexError::DuplicateId(entry.id).into());
+            }
+            index.upsert(entry)?;
+        }
+        control.checkpoint()?;
+        Ok(index)
+    }
     pub fn analyzer(&self) -> &TextAnalyzer {
         &self.analyzer
     }
@@ -575,14 +596,48 @@ impl TextIndex {
         query: &str,
         options: &TextSearchOptions,
     ) -> Result<Vec<TextSearchResult<'_>>, TextSearchError> {
+        self.search_inner(
+            query,
+            options,
+            #[cfg(feature = "execution")]
+            None,
+        )
+    }
+    #[cfg(feature = "execution")]
+    pub fn search_controlled(
+        &self,
+        query: &str,
+        options: &TextSearchOptions,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Vec<TextSearchResult<'_>>, TextSearchError> {
+        self.search_inner(query, options, Some(control))
+    }
+    fn search_inner(
+        &self,
+        query: &str,
+        options: &TextSearchOptions,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<Vec<TextSearchResult<'_>>, TextSearchError> {
+        let checkpoint = || -> Result<(), TextSearchError> {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
+            Ok(())
+        };
+        checkpoint()?;
         let plan = Plan::new(query, &self.analyzer, options)?;
-        let results = self
-            .index
-            .search_analyzed(&plan.terms, &options.search, |id| {
+        let results = self.index.search_analyzed_checked(
+            &plan.terms,
+            &options.search,
+            |id| {
                 self.tokens
                     .get(id)
                     .is_some_and(|tokens| plan.includes(tokens, options.operator))
-            });
+            },
+            checkpoint,
+        )?;
+        checkpoint()?;
         Ok(results
             .into_iter()
             .map(|hit| TextSearchResult {

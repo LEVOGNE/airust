@@ -1,4 +1,4 @@
-# AIRust 0.2.15 API cookbook
+# AIRust 0.2.16 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.15", default-features = false }
+airust = { version = "=0.2.16", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -222,3 +222,7 @@ Index/source staging copies bookkeeping and can retain multiple generations in R
 Enable `retrieval`; set `RetrievalOptions::new(10).with_evidence_policy(EvidencePolicy::default())`. Inspect `response.assessment()` and match its verdict. `MeetsPolicy` means configured criteria passed; `Insufficient` asks for more evidence; `Undetermined` preserves missing calibration or fallback; `NotRequested` represents a zero result limit. Use qualified returned ranks to inspect supporting excerpts. Pair relevant excerpts with assessment so a useful late passage can be examined.
 
 Coverage compares distinct informative query terms with each delivered excerpt. It never merges support across unrelated records or assumes an uncalibrated semantic score is enough. Explicit recipe-bound score gates permit evaluated thresholds without hiding original scores. Complete JSON bounds include the assessment and reassess after hit removal. See [full assessment API](ASSESSMENT.md), `evidence_assessment` and `assessment_quality` examples. Preserve the source revision and evaluation recipe in your application. No automatic integration or answer generation is performed.
+
+## 21. Cancel supported work cooperatively
+
+Enable `execution` alongside the operation's feature. Create `CancellationToken::new()` and `WorkControl::new(token.clone())`. Pass control through RetrievalOptions, RerankOptions or semantic/hybrid search options; use the explicit controlled Engine/TextIndex/DatasetManager methods. Another thread can call token.cancel(). Handle the typed execution error without presenting an empty answer or retrying a fallback automatically. Dataset publication has a final pre-commit checkpoint; cancellation after that point can still return a successful committed revision. See [execution guide](EXECUTION.md) and `cancellation` example. No transport integration is introduced.

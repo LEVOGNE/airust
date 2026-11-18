@@ -69,3 +69,8 @@ cargo run --locked --features snapshots,retrieval,advanced-search,context-assemb
 cargo test --no-default-features --features retrieval --test assessment --locked
 cargo run --locked --features retrieval --example evidence_assessment
 cargo run --locked --features retrieval --example assessment_quality > /dev/null
+
+cargo check --no-default-features --features execution --locked
+cargo clippy --all-targets --no-default-features --features execution --locked -- -D warnings
+cargo test --no-default-features --features execution --test execution --locked
+cargo run --locked --features execution,retrieval --example cancellation

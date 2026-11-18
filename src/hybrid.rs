@@ -27,6 +27,8 @@ pub enum SemanticFailurePolicy {
 
 #[derive(Debug, Clone)]
 pub struct HybridSearchOptions {
+    #[cfg(feature = "execution")]
+    control: Option<crate::execution::WorkControl>,
     limit: usize,
     candidates: usize,
     algorithm: SearchAlgorithm,
@@ -42,6 +44,8 @@ pub struct HybridSearchOptions {
 impl Default for HybridSearchOptions {
     fn default() -> Self {
         Self {
+            #[cfg(feature = "execution")]
+            control: None,
             limit: 10,
             candidates: 100,
             algorithm: SearchAlgorithm::Bm25,
@@ -57,6 +61,25 @@ impl Default for HybridSearchOptions {
 }
 
 impl HybridSearchOptions {
+    #[cfg(feature = "execution")]
+    pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
+        self.control = Some(control);
+        self
+    }
+    #[cfg(feature = "execution")]
+    pub fn control(&self) -> Option<&crate::execution::WorkControl> {
+        self.control.as_ref()
+    }
+    fn checkpoint(&self) -> Result<(), HybridError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = &self.control {
+            control
+                .checkpoint()
+                .map_err(crate::semantic::EmbeddingError::from)?;
+        }
+        Ok(())
+    }
+
     pub fn new(limit: usize) -> Self {
         Self {
             limit,
@@ -212,6 +235,7 @@ impl SemanticIndex {
         provider: &mut (impl EmbeddingProvider + ?Sized),
         options: &HybridSearchOptions,
     ) -> Result<HybridOutcome<'_>, HybridError> {
+        options.checkpoint()?;
         if query.trim().is_empty() {
             return Err(EmbeddingError::EmptyInput.into());
         }
@@ -229,6 +253,10 @@ impl SemanticIndex {
                 SemanticSearchOptions::new(options.candidates).with_min_score(options.min_score)?;
             if let Some(context) = &options.context {
                 semantic_options = semantic_options.with_context(context.clone());
+            }
+            #[cfg(feature = "execution")]
+            if let Some(control) = options.control() {
+                semantic_options = semantic_options.with_control(control.clone());
             }
             match self.search(query, provider, &semantic_options) {
                 Ok(results) => {
@@ -252,20 +280,30 @@ impl SemanticIndex {
             options.lexical_weight
         };
         let lexical = if lexical_weight > 0.0 {
-            self.lexical().search_with_options(
-                query,
-                &SearchOptions {
-                    limit: options.candidates,
-                    algorithm: options.algorithm,
-                    bm25: options.bm25,
-                    context: options.context.clone(),
-                },
-            )
+            let search = SearchOptions {
+                limit: options.candidates,
+                algorithm: options.algorithm,
+                bm25: options.bm25,
+                context: options.context.clone(),
+            };
+            #[cfg(feature = "execution")]
+            let hits = if let Some(control) = options.control() {
+                self.lexical()
+                    .search_controlled(query, &search, control)
+                    .map_err(EmbeddingError::from)?
+            } else {
+                self.lexical().search_with_options(query, &search)
+            };
+            #[cfg(not(feature = "execution"))]
+            let hits = self.lexical().search_with_options(query, &search);
+            hits
         } else {
             Vec::new()
         };
+        options.checkpoint()?;
         let mut fused: BTreeMap<&str, HybridResult<'_>> = BTreeMap::new();
         for (rank, hit) in lexical.into_iter().enumerate() {
+            options.checkpoint()?;
             let rank = rank + 1;
             fused.insert(
                 &hit.entry.id,
@@ -281,6 +319,7 @@ impl SemanticIndex {
             );
         }
         for (rank, hit) in semantic.into_iter().enumerate() {
+            options.checkpoint()?;
             let rank = rank + 1;
             let result = fused.entry(&hit.entry.id).or_insert_with(|| HybridResult {
                 entry: hit.entry,

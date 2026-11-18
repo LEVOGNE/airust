@@ -1,10 +1,10 @@
-# AIRust 0.2.15
+# AIRust 0.2.16
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.15 adds optional evidence assessment. AIRust reports whether delivered excerpts meet your policy, are insufficient or remain uncertain. Literal coverage is not proof that an answer is correct. Semantic thresholds require caller calibration. See the [assessment guide](docs/ASSESSMENT.md), [API cookbook](docs/API-COOKBOOK.md) and [release report](docs/CHANGES-0.2.15.md). No DenkMaps or MCP integration is performed.
+Version 0.2.16 adds optional cooperative cancellation. Share a cancellation token with a running task; supported search, reranking, retrieval and dataset-update operations stop at checkpoints with an explicit error. No partial response or dataset publication is returned as a successful cancellation. Blocking providers must return before AIRust can check again. See the [execution guide](docs/EXECUTION.md) and [release report](docs/CHANGES-0.2.16.md). No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -51,7 +51,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.15", default-features = false }
+airust = { version = "=0.2.16", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -220,7 +220,9 @@ The new authored reference has 30 public records and 36 queries, including liter
 
 The assessment fixture reduces false acceptances from five to one compared with accepting any hit, while rejecting one paraphrased answer. These twelve authored cases do not establish production answer quality; see [results and limitations](docs/CHANGES-0.2.15.md).
 
-The current release passes **189 default tests and 501 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
+
+The current release passes **189 default tests and 514 all-feature tests**, plus compiled examples and minimum-Rust checks. Historical native E5/cross-encoder measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
@@ -270,6 +272,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
+| `execution` | Shared cancellation tokens and explicit cooperative control for supported operations; no new dependency. |
 | `snapshots` | Coordinated immutable dataset views and conflict-checked publication; includes provider-neutral embeddings, provenance and record-validation contracts. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
@@ -311,6 +314,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 | Location | Purpose |
 | --- | --- |
+| `src/execution.rs` | Optional execution controls shared across threads and supported operations. |
 | `src/snapshots.rs` | Common revisions, prepared updates, vector reuse and atomic index/source publication. |
 | `src/retrieval/assessment.rs` | Optional evidence policies, explicit uncertainty and auditable per-excerpt observations. |
 | `src/retrieval/excerpts.rs` | Bounded query-related windows, Unicode-safe highlights and original byte coordinates. |

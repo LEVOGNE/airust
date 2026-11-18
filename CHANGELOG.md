@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.16
+
+Optional execution control: shared one-way cancellation, controlled lexical/phrase/semantic/hybrid search, reranking and compact retrieval, plus cancelled dataset staging/publication without partial commits. Provider interruption remains cooperative. See [report](docs/CHANGES-0.2.16.md).
+
 ## 0.2.15
 
 Optional retrieval evidence policies: explicit sufficient-by-policy, insufficient and uncertain decisions; per-excerpt coverage; caller-calibrated recipe-bound score gates; JSON-budget-aware reports. Defaults remain unchanged. See [report](docs/CHANGES-0.2.15.md).

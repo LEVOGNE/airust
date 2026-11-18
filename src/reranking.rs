@@ -11,6 +11,9 @@ pub mod local;
 #[derive(Debug, Error, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum RerankError {
+    #[cfg(feature = "execution")]
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
     #[error("invalid reranking configuration: {0}")]
     Configuration(&'static str),
     #[error("reranking query must not be empty or whitespace-only")]
@@ -82,6 +85,8 @@ pub enum RerankFailurePolicy {
 
 #[derive(Debug, Clone)]
 pub struct RerankOptions {
+    #[cfg(feature = "execution")]
+    control: Option<crate::execution::WorkControl>,
     limit: usize,
     candidates: usize,
     batch_size: usize,
@@ -95,6 +100,8 @@ pub struct RerankOptions {
 impl Default for RerankOptions {
     fn default() -> Self {
         Self {
+            #[cfg(feature = "execution")]
+            control: None,
             limit: 10,
             candidates: 100,
             batch_size: 16,
@@ -108,6 +115,23 @@ impl Default for RerankOptions {
     }
 }
 impl RerankOptions {
+    #[cfg(feature = "execution")]
+    pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
+        self.control = Some(control);
+        self
+    }
+    #[cfg(feature = "execution")]
+    pub fn control(&self) -> Option<&crate::execution::WorkControl> {
+        self.control.as_ref()
+    }
+    fn checkpoint(&self) -> Result<(), RerankError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = &self.control {
+            control.checkpoint()?;
+        }
+        Ok(())
+    }
+
     pub fn new(limit: usize) -> Self {
         Self {
             limit,
@@ -250,6 +274,7 @@ pub fn rerank<'a, T: Rerankable>(
     provider: &mut (impl Reranker + ?Sized),
     options: &RerankOptions,
 ) -> Result<RerankOutcome<'a, T>, RerankError> {
+    options.checkpoint()?;
     if query.trim().is_empty() {
         return Err(RerankError::EmptyQuery);
     }
@@ -270,6 +295,7 @@ pub fn rerank<'a, T: Rerankable>(
     let mut ids = BTreeSet::new();
     let mut bytes = 0usize;
     for (position, candidate) in candidates.iter().enumerate() {
+        options.checkpoint()?;
         let entry = candidate.entry();
         if options.context.as_ref().is_some_and(|c| !c.includes(entry)) {
             continue;
@@ -313,8 +339,10 @@ pub fn rerank<'a, T: Rerankable>(
     outcome.recipe = Some(recipe.clone());
     let mut scores = Vec::with_capacity(selected.len());
     for batch in selected.chunks(options.batch_size) {
+        options.checkpoint()?;
         let texts: Vec<_> = batch.iter().map(|hit| hit.entry().text.as_str()).collect();
         let result = provider.score(query, &texts);
+        options.checkpoint()?;
         if provider.recipe() != recipe {
             return Err(RerankError::RecipeChanged);
         }
@@ -361,6 +389,7 @@ pub fn rerank<'a, T: Rerankable>(
             .then_with(|| a.original_rank.cmp(&b.original_rank))
     });
     selected.truncate(options.limit);
+    options.checkpoint()?;
     outcome.reranker_used = true;
     outcome.results = selected;
     Ok(outcome)

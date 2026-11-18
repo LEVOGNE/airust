@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.15"
+version = "0.2.16"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -47,6 +47,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+execution = []
 snapshots = ["storage", "embeddings", "provenance"]
 retrieval = ["dep:unicode-segmentation"]
 storage = ["dep:getrandom"]
@@ -250,3 +251,11 @@ required-features = ["retrieval"]
 [[example]]
 name = "assessment_quality"
 required-features = ["retrieval"]
+
+[[example]]
+name = "cancellation"
+required-features = ["execution", "retrieval"]
+
+[[example]]
+name="execution_benchmark"
+required-features=["execution"]

@@ -166,3 +166,5 @@ Relevant excerpts are explicitly enabled through RetrievalOptions, preserve orig
 The optional snapshot coordinator publishes search, vectors and source bindings together. Acquire one immutable view per request; its revision is a consistency token, not authorization or an external database transaction. See [the snapshot contract](docs/SNAPSHOTS.md).
 
 Optional retrieval evidence assessment distinguishes policy success, insufficient evidence and uncertainty. It evaluates delivered text and explicit score gates, not source truth or calibrated answer probability. See [assessment contract](docs/ASSESSMENT.md).
+
+The optional execution feature adds shared cooperative cancellation. Supported controlled APIs return typed interruption errors and preserve the dataset publication boundary. Blocking providers/lock waits are not forcibly interrupted. See [execution contract](docs/EXECUTION.md).

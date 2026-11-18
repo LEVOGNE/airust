@@ -201,10 +201,45 @@ impl KnowledgeIndex {
         options: &SearchOptions,
         includes: impl Fn(&str) -> bool,
     ) -> Vec<SearchResult<'_>> {
-        if options.limit == 0 || self.is_empty() {
-            return Vec::new();
+        match self.search_analyzed_checked(query_terms, options, includes, || {
+            Ok::<_, std::convert::Infallible>(())
+        }) {
+            Ok(results) => results,
+            Err(error) => match error {},
         }
-        let candidates = self.candidates(query_terms.keys().map(String::as_str));
+    }
+    #[cfg(feature = "execution")]
+    pub fn search_controlled(
+        &self,
+        query: &str,
+        options: &SearchOptions,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Vec<SearchResult<'_>>, crate::execution::ExecutionError> {
+        control.checkpoint()?;
+        let terms = text::term_frequencies(query);
+        self.search_analyzed_checked(&terms, options, |_| true, || control.checkpoint())
+    }
+    pub(crate) fn search_analyzed_checked<E>(
+        &self,
+        query_terms: &BTreeMap<String, usize>,
+        options: &SearchOptions,
+        includes: impl Fn(&str) -> bool,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<Vec<SearchResult<'_>>, E> {
+        checkpoint()?;
+        if options.limit == 0 || self.is_empty() {
+            return Ok(Vec::new());
+        }
+        let mut candidates = BTreeSet::new();
+        for term in query_terms.keys() {
+            checkpoint()?;
+            if let Some(postings) = self.postings.get(term) {
+                for id in postings.keys() {
+                    checkpoint()?;
+                    candidates.insert(id.as_str());
+                }
+            }
+        }
         let average = self.total_tokens as f64 / self.len() as f64;
         let query_norm = if options.algorithm == SearchAlgorithm::Tfidf {
             query_terms
@@ -221,6 +256,7 @@ impl KnowledgeIndex {
         };
         let mut results = TopK::new(options.limit);
         for id in candidates {
+            checkpoint()?;
             let document = &self.documents[id];
             if options
                 .context
@@ -281,7 +317,10 @@ impl KnowledgeIndex {
                 });
             }
         }
-        results.finish()
+        checkpoint()?;
+        let result = results.finish();
+        checkpoint()?;
+        Ok(result)
     }
 
     pub fn find_matches(&self, text: &str, limit: usize) -> Vec<MatchResult<'_>> {
@@ -629,5 +668,37 @@ impl PreparedCache {
             );
         }
         index
+    }
+}
+
+#[cfg(all(test, feature = "execution"))]
+mod execution_tests {
+    use super::*;
+    #[test]
+    fn cancellation_inside_shared_candidate_build_returns_no_partial_results() {
+        let index = KnowledgeIndex::from_entries(
+            (0..1000).map(|i| KnowledgeEntry::new(i.to_string(), "Rust ownership")),
+        )
+        .unwrap();
+        let terms = text::term_frequencies("Rust");
+        let mut checkpoints = 0;
+        let result = index.search_analyzed_checked(
+            &terms,
+            &SearchOptions::default(),
+            |_| true,
+            || {
+                checkpoints += 1;
+                if checkpoints == 30 {
+                    Err(crate::execution::ExecutionError::Cancelled)
+                } else {
+                    Ok(())
+                }
+            },
+        );
+        assert!(matches!(
+            result,
+            Err(crate::execution::ExecutionError::Cancelled)
+        ));
+        assert_eq!(checkpoints, 30);
     }
 }

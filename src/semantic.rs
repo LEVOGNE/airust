@@ -17,6 +17,9 @@ pub mod local;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum EmbeddingError {
+    #[cfg(feature = "execution")]
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
     #[error("embedding space requires a nonempty model recipe ID and positive dimension")]
     InvalidSpace,
     #[error("expected {expected} vector components, received {actual}")]
@@ -181,12 +184,33 @@ pub fn embed_batch(
 
 #[derive(Debug, Clone)]
 pub struct SemanticSearchOptions {
+    #[cfg(feature = "execution")]
+    control: Option<crate::execution::WorkControl>,
     limit: usize,
     min_score: f64,
     context: Option<Context>,
 }
 
 impl SemanticSearchOptions {
+    #[cfg(feature = "execution")]
+    pub fn with_control(mut self, control: crate::execution::WorkControl) -> Self {
+        self.control = Some(control);
+        self
+    }
+    #[cfg(feature = "execution")]
+    pub fn control(&self) -> Option<&crate::execution::WorkControl> {
+        self.control.as_ref()
+    }
+    fn checkpoint(&self) -> Result<(), EmbeddingError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = &self.control {
+            control
+                .checkpoint()
+                .map_err(crate::semantic::EmbeddingError::from)?;
+        }
+        Ok(())
+    }
+
     pub fn new(limit: usize) -> Self {
         Self {
             limit,
@@ -223,6 +247,8 @@ impl SemanticSearchOptions {
 impl Default for SemanticSearchOptions {
     fn default() -> Self {
         Self {
+            #[cfg(feature = "execution")]
+            control: None,
             limit: 10,
             min_score: -1.0,
             context: None,
@@ -428,6 +454,7 @@ impl SemanticIndex {
         provider: &mut (impl EmbeddingProvider + ?Sized),
         options: &SemanticSearchOptions,
     ) -> Result<Vec<SemanticResult<'_>>, EmbeddingError> {
+        options.checkpoint()?;
         if query.trim().is_empty() {
             return Err(EmbeddingError::EmptyInput);
         }
@@ -435,7 +462,9 @@ impl SemanticIndex {
         if options.limit == 0 || self.is_empty() {
             return Ok(Vec::new());
         }
-        let mut embeddings = embed_batch(provider, &[query], EmbeddingPurpose::Query)?;
+        let embeddings = embed_batch(provider, &[query], EmbeddingPurpose::Query);
+        options.checkpoint()?;
+        let mut embeddings = embeddings?;
         self.space.require(provider.space())?;
         self.search_embedding(
             &embeddings.pop().expect("validated single embedding"),
@@ -448,12 +477,14 @@ impl SemanticIndex {
         query: &Embedding,
         options: &SemanticSearchOptions,
     ) -> Result<Vec<SemanticResult<'_>>, EmbeddingError> {
+        options.checkpoint()?;
         self.space.require(query.space())?;
         let mut results = TopK::new(options.limit);
         if options.limit == 0 {
             return Ok(Vec::new());
         }
         for (id, vector) in &self.vectors {
+            options.checkpoint()?;
             let entry = self
                 .lexical
                 .get(id)
@@ -470,6 +501,31 @@ impl SemanticIndex {
                 results.push(SemanticResult { entry, score });
             }
         }
-        Ok(results.finish())
+        options.checkpoint()?;
+        let results = results.finish();
+        options.checkpoint()?;
+        Ok(results)
+    }
+}
+
+#[cfg(feature = "execution")]
+pub(crate) struct ControlledProvider<'a> {
+    pub(crate) provider: &'a mut dyn EmbeddingProvider,
+    pub(crate) control: &'a crate::execution::WorkControl,
+}
+#[cfg(feature = "execution")]
+impl EmbeddingProvider for ControlledProvider<'_> {
+    fn space(&self) -> &EmbeddingSpace {
+        self.provider.space()
+    }
+    fn embed(
+        &mut self,
+        texts: &[&str],
+        purpose: EmbeddingPurpose,
+    ) -> Result<Vec<Vec<f32>>, EmbeddingError> {
+        self.control.checkpoint()?;
+        let result = self.provider.embed(texts, purpose);
+        self.control.checkpoint()?;
+        result
     }
 }

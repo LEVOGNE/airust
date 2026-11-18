@@ -17,6 +17,9 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum DatasetError {
+    #[cfg(feature = "execution")]
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
     #[error("invalid dataset configuration: {0}")]
     Configuration(&'static str),
     #[error("dataset limit exceeded: {0}")]
@@ -360,7 +363,25 @@ impl DatasetManager {
         provider: Option<&mut dyn EmbeddingProvider>,
     ) -> Result<PreparedDataset, DatasetError> {
         let base = self.base(expected)?;
-        self.prepare_inner(base, update, provider, false)
+        self.prepare_inner(
+            base,
+            update,
+            provider,
+            false,
+            #[cfg(feature = "execution")]
+            None,
+        )
+    }
+    #[cfg(feature = "execution")]
+    pub fn prepare_controlled(
+        &self,
+        expected: &StoreRevision,
+        update: DatasetUpdate,
+        provider: Option<&mut dyn EmbeddingProvider>,
+        control: &crate::execution::WorkControl,
+    ) -> Result<PreparedDataset, DatasetError> {
+        control.checkpoint()?;
+        self.prepare_inner(self.base(expected)?, update, provider, false, Some(control))
     }
     pub fn prepare_replace(
         &self,
@@ -369,12 +390,45 @@ impl DatasetManager {
         source_revision: Option<StoreRevision>,
         provider: Option<&mut dyn EmbeddingProvider>,
     ) -> Result<PreparedDataset, DatasetError> {
+        self.prepare_replace_inner(
+            expected,
+            records,
+            source_revision,
+            provider,
+            #[cfg(feature = "execution")]
+            None,
+        )
+    }
+    #[cfg(feature = "execution")]
+    pub fn prepare_replace_controlled(
+        &self,
+        expected: &StoreRevision,
+        records: Vec<DatasetRecord>,
+        source_revision: Option<StoreRevision>,
+        provider: Option<&mut dyn EmbeddingProvider>,
+        control: &crate::execution::WorkControl,
+    ) -> Result<PreparedDataset, DatasetError> {
+        control.checkpoint()?;
+        self.prepare_replace_inner(expected, records, source_revision, provider, Some(control))
+    }
+    fn prepare_replace_inner(
+        &self,
+        expected: &StoreRevision,
+        records: Vec<DatasetRecord>,
+        source_revision: Option<StoreRevision>,
+        provider: Option<&mut dyn EmbeddingProvider>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<PreparedDataset, DatasetError> {
         let base = self.base(expected)?;
         if records.len() > base.config.max_entries {
             return Err(DatasetError::Limit("entry count"));
         }
         let mut ids = BTreeSet::new();
         for record in &records {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
             validate_id(&record.entry.id, &base.config)?;
             if !ids.insert(record.entry.id.as_str()) {
                 return Err(DatasetError::InvalidData("duplicate replacement ID"));
@@ -400,6 +454,8 @@ impl DatasetManager {
             },
             provider,
             true,
+            #[cfg(feature = "execution")]
+            control,
         )
     }
     fn prepare_inner(
@@ -408,7 +464,12 @@ impl DatasetManager {
         update: DatasetUpdate,
         provider: Option<&mut dyn EmbeddingProvider>,
         full: bool,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
     ) -> Result<PreparedDataset, DatasetError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
+        }
         let revision = base.revision.next()?;
         let DatasetUpdate {
             changes,
@@ -427,6 +488,10 @@ impl DatasetManager {
         let mut put_bytes = 0usize;
         let mut total = base.total_bytes;
         for change in &changes {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
             let (id, size) = match change {
                 DatasetChange::Put(record) => (
                     &record.entry.id,
@@ -466,10 +531,18 @@ impl DatasetManager {
         check_capacity(&base.config, sizes.len(), base.config.space.as_ref())?;
         let mut sources = (*base.sources).clone();
         for id in &ids {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
             sources.remove_entry(id);
         }
         sources.prune_unreferenced();
         for change in &changes {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
             if let DatasetChange::Put(record) = change {
                 sources.replace(&record.entry.id, record.sources.iter().cloned())?;
             }
@@ -489,10 +562,19 @@ impl DatasetManager {
                         None
                     }
                 }));
-            Some(Arc::new(crate::text_search::TextIndex::from_entries(
-                analyzer.clone(),
-                records,
-            )?))
+            #[cfg(feature = "execution")]
+            let text = if let Some(control) = control {
+                crate::text_search::TextIndex::from_entries_controlled(
+                    analyzer.clone(),
+                    records,
+                    control,
+                )?
+            } else {
+                crate::text_search::TextIndex::from_entries(analyzer.clone(), records)?
+            };
+            #[cfg(not(feature = "execution"))]
+            let text = crate::text_search::TextIndex::from_entries(analyzer.clone(), records)?;
+            Some(Arc::new(text))
         } else {
             None
         };
@@ -505,6 +587,10 @@ impl DatasetManager {
         let mut index = base.index.clone();
         let mut embed = Vec::new();
         for change in changes {
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                control.checkpoint()?;
+            }
             match change {
                 DatasetChange::Delete(id) => {
                     stats.deleted += usize::from(base.lexical().get(&id).is_some());
@@ -539,9 +625,22 @@ impl DatasetManager {
             stats.embedded_entries = embed.len();
             if !embed.is_empty() {
                 let provider = provider.ok_or(DatasetError::MissingProvider)?;
+                #[cfg(feature = "execution")]
+                let mut wrapper;
+                #[cfg(feature = "execution")]
+                let provider = if let Some(control) = control {
+                    wrapper = crate::semantic::ControlledProvider { provider, control };
+                    &mut wrapper as &mut dyn EmbeddingProvider
+                } else {
+                    provider
+                };
                 index.upsert_batch(embed, provider, base.config.batch_size)?;
             }
             stats.reused_vectors = sizes.len() - stats.embedded_entries;
+        }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
         }
         Ok(PreparedDataset {
             expected: base.revision.clone(),
@@ -564,6 +663,33 @@ impl DatasetManager {
         expected: &StoreRevision,
         provider: Option<&mut dyn EmbeddingProvider>,
     ) -> Result<PreparedDataset, DatasetError> {
+        self.prepare_model_inner(
+            expected,
+            provider,
+            #[cfg(feature = "execution")]
+            None,
+        )
+    }
+    #[cfg(feature = "execution")]
+    pub fn prepare_model_controlled(
+        &self,
+        expected: &StoreRevision,
+        provider: Option<&mut dyn EmbeddingProvider>,
+        control: &crate::execution::WorkControl,
+    ) -> Result<PreparedDataset, DatasetError> {
+        control.checkpoint()?;
+        self.prepare_model_inner(expected, provider, Some(control))
+    }
+    fn prepare_model_inner(
+        &self,
+        expected: &StoreRevision,
+        provider: Option<&mut dyn EmbeddingProvider>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<PreparedDataset, DatasetError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
+        }
         let base = self.base(expected)?;
         let revision = base.revision.next()?;
         let mut config = base.config.clone();
@@ -573,6 +699,15 @@ impl DatasetManager {
         let lexical = base.lexical().clone();
         let index = if let Some(provider) = provider {
             stats.embedded_entries = lexical.len();
+            #[cfg(feature = "execution")]
+            let mut wrapper;
+            #[cfg(feature = "execution")]
+            let provider = if let Some(control) = control {
+                wrapper = crate::semantic::ControlledProvider { provider, control };
+                &mut wrapper as &mut dyn EmbeddingProvider
+            } else {
+                provider
+            };
             Index::Semantic(SemanticIndex::from_index(
                 lexical,
                 provider,
@@ -581,6 +716,10 @@ impl DatasetManager {
         } else {
             Index::Lexical(lexical)
         };
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
+        }
         Ok(PreparedDataset {
             expected: base.revision.clone(),
             next: Arc::new(DatasetSnapshot {
@@ -598,10 +737,37 @@ impl DatasetManager {
         })
     }
     pub fn publish(&self, prepared: PreparedDataset) -> Result<Arc<DatasetSnapshot>, DatasetError> {
+        self.publish_inner(
+            prepared,
+            #[cfg(feature = "execution")]
+            None,
+        )
+    }
+    #[cfg(feature = "execution")]
+    pub fn publish_controlled(
+        &self,
+        prepared: PreparedDataset,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Arc<DatasetSnapshot>, DatasetError> {
+        self.publish_inner(prepared, Some(control))
+    }
+    fn publish_inner(
+        &self,
+        prepared: PreparedDataset,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<Arc<DatasetSnapshot>, DatasetError> {
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
+        }
         let mut current = self.current.write().map_err(|_| DatasetError::Poisoned)?;
         if current.revision != prepared.expected {
             drop(current);
             return Err(DatasetError::Conflict);
+        }
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.checkpoint()?;
         }
         let previous = std::mem::replace(&mut *current, prepared.next);
         let published = current.clone();
