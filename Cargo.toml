@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.21"
+version = "0.2.22"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+adaptive = ["retrieval"]
 shared-index = []
 execution = []
 snapshots = ["storage", "embeddings", "provenance"]
@@ -282,3 +283,15 @@ required-features=["snapshots","execution"]
 [[example]]
 name="incremental"
 required-features=["snapshots","advanced-search"]
+
+[[example]]
+name="adaptive"
+required-features=["adaptive"]
+
+[[example]]
+name="adaptive_quality"
+required-features=["adaptive","advanced-search"]
+
+[[example]]
+name="adaptive_benchmark"
+required-features=["adaptive","hybrid"]

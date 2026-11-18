@@ -307,6 +307,14 @@ impl<'a> RetrievalBatch<'a> {
     }
 }
 pub trait RetrievalSource {
+    fn prepare_query(
+        &mut self,
+        _query: &str,
+        _options: &RetrievalOptions,
+    ) -> Result<(), RetrievalError> {
+        Ok(())
+    }
+
     fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
         ExcerptAnalyzer::Legacy
     }
@@ -317,6 +325,13 @@ pub trait RetrievalSource {
     ) -> Result<RetrievalBatch<'a>, RetrievalError>;
 }
 impl<T: RetrievalSource + ?Sized> RetrievalSource for Box<T> {
+    fn prepare_query(
+        &mut self,
+        query: &str,
+        options: &RetrievalOptions,
+    ) -> Result<(), RetrievalError> {
+        (**self).prepare_query(query, options)
+    }
     fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
         (**self).excerpt_analyzer()
     }
@@ -329,6 +344,13 @@ impl<T: RetrievalSource + ?Sized> RetrievalSource for Box<T> {
     }
 }
 impl<T: RetrievalSource + ?Sized> RetrievalSource for &mut T {
+    fn prepare_query(
+        &mut self,
+        query: &str,
+        options: &RetrievalOptions,
+    ) -> Result<(), RetrievalError> {
+        (**self).prepare_query(query, options)
+    }
     fn excerpt_analyzer(&self) -> ExcerptAnalyzer {
         (**self).excerpt_analyzer()
     }
@@ -751,6 +773,15 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
         self.reranker = Some((provider, options));
         self
     }
+    pub fn source(&self) -> &S {
+        &self.source
+    }
+    pub fn source_mut(&mut self) -> &mut S {
+        &mut self.source
+    }
+    pub fn into_source(self) -> S {
+        self.source
+    }
     pub fn query(
         &mut self,
         query: &str,
@@ -789,6 +820,17 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                     .as_ref(),
             );
         }
+        if let Some(policy) = options.evidence_policy() {
+            if options.limit() > policy.limits().hits() {
+                return Err(RetrievalError::Budget("assessment requested hit count"));
+            }
+            if query.len() > policy.limits().query_bytes() {
+                return Err(RetrievalError::Budget("assessment query bytes"));
+            }
+        }
+        options.checkpoint()?;
+        self.source.prepare_query(query, options)?;
+        options.checkpoint()?;
         let analyzer = if options.excerpt_options().is_some() || options.evidence_policy().is_some()
         {
             self.source.excerpt_analyzer()

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.22
+
+Optional adaptive retrieval: bounded explicit backend registration, replaceable query-shape policy, frozen analyzer/route planning and bounded decision traces. Original recipes/scopes survive routing; failures do not cause hidden retries. No model auto-loading. See [report](docs/CHANGES-0.2.22.md).
+
 ## 0.2.21
 
 Incremental lexical/positional updates: metadata-only term/token reuse, clonable text indices, source-only projection reuse and changed-record reanalysis with fresh original coordinates. Diagnostic work receipts explain rebuilt/reused data. Serialized metadata representation is preserved exactly. See [report](docs/CHANGES-0.2.21.md).

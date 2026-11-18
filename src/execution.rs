@@ -197,6 +197,7 @@ pub enum WorkPhase {
     StagingDataset,
     AnalyzingText,
     Publishing,
+    Routing,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 #[error("progress completed count exceeds its total")]

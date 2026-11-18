@@ -92,3 +92,10 @@ cargo test --no-default-features --features shared-index --test shared_index --l
 cargo test --no-default-features --features snapshots,advanced-search --test incremental --locked
 cargo run --locked --features snapshots,advanced-search --example incremental
 cargo run --locked --features snapshots,advanced-search,shared-index --example incremental
+
+cargo check --no-default-features --features adaptive --locked
+cargo clippy --all-targets --no-default-features --features adaptive --locked -- -D warnings
+cargo test --no-default-features --features adaptive --test adaptive --locked
+cargo run --locked --features adaptive --example adaptive
+cargo run --locked --features adaptive,advanced-search --example adaptive_quality > /dev/null
+cargo run --locked --features adaptive,hybrid --example adaptive_benchmark > /dev/null

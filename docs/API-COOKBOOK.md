@@ -1,4 +1,4 @@
-# AIRust 0.2.21 API cookbook
+# AIRust 0.2.22 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.21", default-features = false }
+airust = { version = "=0.2.22", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -18,6 +18,7 @@ airust = { version = "=0.2.21", default-features = false }
 | `execution` | Optional cancellation, cooperative deadlines and real work-phase notifications | [EXECUTION](EXECUTION.md), `cancellation`, `time_budget`, `progress` |
 | `shared-index` | Optional copy-on-write lexical payload sharing across index clones and snapshots | [SHARED-INDEX](SHARED-INDEX.md), existing `stress_index`/`stress_snapshots` |
 | `snapshots` | One revision for immutable search/vector/source views and checked updates | [SNAPSHOTS](SNAPSHOTS.md), `snapshots`, `snapshot_benchmark` |
+| `adaptive` | Optional source registry, policy-controlled query routing and bounded traces | [ADAPTIVE](ADAPTIVE.md), `adaptive`, `adaptive_quality`, `adaptive_benchmark` |
 | `retrieval` | Compact owned excerpts/evidence and complete JSON budgets over interchangeable sources | [RETRIEVAL](RETRIEVAL.md), `retrieval`, `retrieval_benchmark` |
 | `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
 | `advanced-search` | Explicit phrase queries, Unicode word boundaries and optional German stemming | [TEXT-SEARCH](TEXT-SEARCH.md), `advanced_search` |
@@ -248,3 +249,7 @@ Enable `shared-index` explicitly alongside your existing features. Continue usin
 ## 26. Recompute changed text instead of the whole projection
 
 Use existing Engine/TextIndex upserts and DatasetManager prepared updates. Exact unchanged text keeps its terms/positions while metadata remains current. Source-only payloads can reuse the whole positional projection. Inspect PreparationStats.text_entries_rebuilt/text_entries_reused and metadata_only_puts/unchanged_puts. Treat receipts as additive diagnostics. TextIndex::clone allows independent views; shared-index optionally shares token buffers. A normalized-equal but byte-different original still refreshes positions. See [contract](INCREMENTAL.md) and the `incremental` example. Model refresh and external storage synchronization retain their explicit separate policies.
+
+## 27. Route queries through explicitly configured sources
+
+Build AdaptiveSource::default() or new(your_policy), register sources with with_source(name, role, source), and pass it to Retriever. Inspect retriever.source().last_route() after querying. The default policy prefers configured lexical/text sources for short queries and configured hybrid/semantic sources for longer ones; phrases require a declared text backend. It never loads models or retries another backend on errors. For consistent data, register views from the same DatasetSnapshot. The metadata-only prepare_query hook freezes route/analyzer selection, including boxed/borrowed sources. Keep traces and any outer transport envelope within application budgets. See [contract](ADAPTIVE.md); evaluate routing on your own labeled queries before treating it as an improvement.

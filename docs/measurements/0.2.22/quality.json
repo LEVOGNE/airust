@@ -1,0 +1,121 @@
+{
+  "adaptive_top1_or_empty_correct": 8,
+  "baseline_top1_or_empty_correct": 4,
+  "cases": 8,
+  "fixture": "authored-routing-v1",
+  "limits": "Small authored German/phrase fixture; reuses existing TextIndex, not independent semantic/model validation or universal routing improvement.",
+  "rows": [
+    {
+      "adaptive": "a",
+      "baseline": null,
+      "expected_authored": "a",
+      "query": "Haus",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 2,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "b",
+      "baseline": null,
+      "expected_authored": "b",
+      "query": "Garten",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 1,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "b",
+      "baseline": null,
+      "expected_authored": "b",
+      "query": "Baum",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 1,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "a",
+      "baseline": null,
+      "expected_authored": "a",
+      "query": "Tür",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 2,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "c",
+      "baseline": "c",
+      "expected_authored": "c",
+      "query": "Rust ownership",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 1,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "a",
+      "baseline": "a",
+      "expected_authored": "a",
+      "query": "\"Haus haben\"",
+      "route": {
+        "reason": "quoted phrase requires positional search",
+        "received_candidates": 1,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": "c",
+      "baseline": "c",
+      "expected_authored": "c",
+      "query": "How ownership prevents memory errors",
+      "route": {
+        "reason": "long query uses the first available configured retrieval role",
+        "received_candidates": 1,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    },
+    {
+      "adaptive": null,
+      "baseline": null,
+      "expected_authored": null,
+      "query": "Vulkan Eruption",
+      "route": {
+        "reason": "short query follows the configured role priority",
+        "received_candidates": 0,
+        "recipe": "airust-text-v1/nfkc-lower-nfkc/graphemes/unicode-(17, 0, 0)-(18, 0, 0)-(17, 0, 0)/words-1.13.3/UnicodeWords/stem-1.2.0-German/apostrophes-true",
+        "role": "text",
+        "source": "german-text",
+        "state": "returned"
+      }
+    }
+  ]
+}

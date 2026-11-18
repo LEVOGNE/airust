@@ -94,3 +94,6 @@ pub mod snapshots;
 
 #[cfg(feature = "execution")]
 pub mod execution;
+
+#[cfg(feature = "adaptive")]
+pub mod adaptive;

@@ -1,0 +1,18 @@
+{
+  "fixture": "routing-provider-count-v1",
+  "limits": "One document and constant handwritten 2D vectors: checks orchestration/call avoidance, not real model quality or inference latency. Router overhead may dominate this deliberately cheap provider.",
+  "rows": [
+    {
+      "adaptive": false,
+      "elapsed_ms": 2.233708,
+      "queries": 1000,
+      "query_embedding_calls": 1000
+    },
+    {
+      "adaptive": true,
+      "elapsed_ms": 2.200917,
+      "queries": 1000,
+      "query_embedding_calls": 200
+    }
+  ]
+}
