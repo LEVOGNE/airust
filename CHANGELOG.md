@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.25
+
+Evidence-backed rule proposals. an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. See [report](docs/CHANGES-0.2.25.md).
+
 ## 0.2.24
 
 Inspectable trainable ranking. an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. See [report](docs/CHANGES-0.2.24.md).

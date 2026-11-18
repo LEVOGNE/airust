@@ -177,3 +177,7 @@ a bounded local feedback ledger and inspectable smoothed ranking adjustments. En
 ## Optional inspectable trainable ranking (0.2.24)
 
 an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. Enable `learned-ranking` explicitly. See [API and limits](LEARNED_RANKING.md).
+
+## Optional evidence-backed rule proposals (0.2.25)
+
+an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](REASONING.md).

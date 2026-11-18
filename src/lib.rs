@@ -103,3 +103,6 @@ pub mod feedback;
 
 #[cfg(feature = "learned-ranking")]
 pub mod learned_ranking;
+
+#[cfg(feature = "reasoning")]
+pub mod reasoning;

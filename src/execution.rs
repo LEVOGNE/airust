@@ -200,6 +200,7 @@ pub enum WorkPhase {
     Routing,
     Features,
     Training,
+    Reasoning,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 #[error("progress completed count exceeds its total")]

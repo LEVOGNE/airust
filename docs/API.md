@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.2.24 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.2.25 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Source entries
 
@@ -194,3 +194,7 @@ a bounded local feedback ledger and inspectable smoothed ranking adjustments. En
 ## Optional inspectable trainable ranking (0.2.24)
 
 an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. Enable `learned-ranking` explicitly. See [API and limits](LEARNED_RANKING.md).
+
+## Optional evidence-backed rule proposals (0.2.25)
+
+an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](REASONING.md).

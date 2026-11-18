@@ -108,3 +108,7 @@ cargo run --locked --features feedback --example feedback_benchmark > /dev/null
 cargo clippy --all-targets --no-default-features --features learned-ranking --locked -- -D warnings
 cargo test --no-default-features --features learned-ranking --test learned_ranking --locked
 cargo run --locked --features learned-ranking --example learned_ranking > /dev/null
+
+cargo clippy --all-targets --no-default-features --features reasoning --locked -- -D warnings
+cargo test --no-default-features --features reasoning --test reasoning --locked
+cargo run --locked --features reasoning --example reasoning > /dev/null

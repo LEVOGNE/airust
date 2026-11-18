@@ -1,4 +1,4 @@
-# AIRust 0.2.24 API cookbook
+# AIRust 0.2.25 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.24", default-features = false }
+airust = { version = "=0.2.25", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -261,3 +261,9 @@ a bounded local feedback ledger and inspectable smoothed ranking adjustments. En
 ## Optional inspectable trainable ranking (0.2.24)
 
 an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. Enable `learned-ranking` explicitly. See [API and limits](LEARNED_RANKING.md).
+
+## Optional evidence-backed rule proposals (0.2.25)
+
+an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](REASONING.md).
+
+The [complete application guide](APPLICATION-INTEGRATION.md) connects these APIs into a future adapter with explicit revision, permission, feedback and review boundaries.

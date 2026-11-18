@@ -1,12 +1,12 @@
-# AIRust 0.2.24
+# AIRust 0.2.25
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.24 adds an optional small linear model with replaceable bounded features, explicit training, grouped holdout evaluation and versioned artifacts. See [API contract](docs/LEARNED_RANKING.md) and [validation and limits](docs/CHANGES-0.2.24.md). Default features remain empty. No DenkMaps or MCP integration is performed.
+Version 0.2.25 can apply rules you provide and explain each suggested conclusion. It shows the supporting facts and sources, reports conflicts and tells you when a limit prevents a complete result. See [API contract](docs/REASONING.md) and [validation and limits](docs/CHANGES-0.2.25.md). Default features remain empty. No DenkMaps or MCP integration is performed.
 
-The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.2.25, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -31,12 +31,16 @@ In the fixed 500,000-record/three-copy fixture, sharing reduces peak RAM by 65.3
 | `WorkControl` | Optional cancellation, monotonic deadlines and real phase/count notifications. | Keeping supported long-running work observable and interruptible. |
 | `DatasetManager` | One immutable revision for search, optional vectors and sources; checked publication of prepared changes. | Keeping concurrent readers and updates consistent. |
 | `Retriever::query()` | Compact owned excerpts, original ranking evidence and bounded JSON through interchangeable sources. | Feeding application transports without copying the whole corpus. |
+| `AdaptiveSource` | Choose among sources you explicitly register and show the routing decision. | Keeping source selection visible and replaceable. |
+| `FeedbackLedger` / `FeedbackReranker` | Record, correct or remove ratings and apply a visible preference adjustment. | Learning explicit preferences without automatic data collection. |
+| `learned_ranking::train()` | Train a small model from labeled examples and inspect its features, weights and test results. | Testing learned ranking without building or loading an LLM. |
+| `reasoning::infer()` | Apply explicit rules and return reviewable conclusions with proof chains. | Suggesting evidence-backed links without changing stored facts. |
 | `StorageBackend` | Atomic original-record batches, revision fencing and bounded pages. | Sharing a storage contract without coupling to an application database. |
 | `ProvenanceStore` | Share explicit source references and preserve them when entries are combined. | Showing where knowledge came from without inventing citations. |
 
 The default `search()`, matching, and `relate()` methods compare words and characters. The optional semantic index uses model embeddings instead. Its quality depends on the provider and corpus. AIRust has no required model, cloud account, HTTP client, or LLM dependency.
 
-A relationship suggestion is evidence of shared words. The application must decide whether that evidence supports a useful connection, hierarchy, prerequisite, or contradiction.
+`relate()` explains its suggestions with shared words. The optional rule engine explains its proposals with explicit premises and sources. Your application reviews these results before storing a hierarchy, prerequisite or contradiction.
 
 ## Try the source checkout
 
@@ -54,7 +58,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.24", default-features = false }
+airust = { version = "=0.2.25", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -280,6 +284,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `snapshots` | Coordinated immutable dataset views and conflict-checked publication; includes provider-neutral embeddings, provenance and record-validation contracts. |
 | `feedback` | Explicit feedback learning; explicitly enabled. |
 | `learned-ranking` | Inspectable trainable ranking; explicitly enabled. |
+| `reasoning` | Evidence-backed rule proposals; explicitly enabled. |
 | `adaptive` | Explicit bounded source registry, replaceable routing policy and inspectable route traces; includes retrieval. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
@@ -325,6 +330,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/snapshots.rs` | Common revisions, prepared updates, vector reuse and atomic index/source publication. |
 | `src/feedback.rs` | Optional local rating ledger and explicit scorer wrapper; no automatic telemetry. |
 | `src/learned_ranking.rs` | Optional trainable linear ranker with replaceable features and inspectable artifacts. |
+| `src/reasoning.rs` | Optional caller-defined rules and evidence-backed proposals; no automatic knowledge writes. |
 | `src/adaptive.rs` | Optional query-shape routing across explicitly configured sources, preserving scopes and recipes. |
 | `src/retrieval/assessment.rs` | Optional evidence policies, explicit uncertainty and auditable per-excerpt observations. |
 | `src/retrieval/excerpts.rs` | Bounded query-related windows, Unicode-safe highlights and original byte coordinates. |
@@ -402,3 +408,5 @@ The script checks formatting, the default library, optional integrations, docume
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+For a complete future application adapter, see the [application integration guide](docs/APPLICATION-INTEGRATION.md). It covers all new APIs, revision/permission boundaries, real progress, explicit learning and reviewed rule proposals. No application integration is performed.
