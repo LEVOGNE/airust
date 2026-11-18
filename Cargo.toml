@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.22"
+version = "0.2.23"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+feedback = ["reranking","dep:sha2"]
 adaptive = ["retrieval"]
 shared-index = []
 execution = []
@@ -295,3 +296,11 @@ required-features=["adaptive","advanced-search"]
 [[example]]
 name="adaptive_benchmark"
 required-features=["adaptive","hybrid"]
+
+[[example]]
+name="feedback"
+required-features=["feedback"]
+
+[[example]]
+name="feedback_benchmark"
+required-features=["feedback"]

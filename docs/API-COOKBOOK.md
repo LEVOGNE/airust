@@ -1,4 +1,4 @@
-# AIRust 0.2.22 API cookbook
+# AIRust 0.2.23 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.22", default-features = false }
+airust = { version = "=0.2.23", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -253,3 +253,7 @@ Use existing Engine/TextIndex upserts and DatasetManager prepared updates. Exact
 ## 27. Route queries through explicitly configured sources
 
 Build AdaptiveSource::default() or new(your_policy), register sources with with_source(name, role, source), and pass it to Retriever. Inspect retriever.source().last_route() after querying. The default policy prefers configured lexical/text sources for short queries and configured hybrid/semantic sources for longer ones; phrases require a declared text backend. It never loads models or retries another backend on errors. For consistent data, register views from the same DatasetSnapshot. The metadata-only prepare_query hook freezes route/analyzer selection, including boxed/borrowed sources. Keep traces and any outer transport envelope within application budgets. See [contract](ADAPTIVE.md); evaluate routing on your own labeled queries before treating it as an improvement.
+
+## Optional explicit feedback learning (0.2.23)
+
+a bounded local feedback ledger and inspectable smoothed ranking adjustments. Enable `feedback` explicitly. See [API and limits](FEEDBACK.md).

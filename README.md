@@ -1,10 +1,10 @@
-# AIRust 0.2.22
+# AIRust 0.2.23
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.22 adds optional adaptive retrieval over sources you explicitly register. A replaceable policy selects a source, preserves its real ranking recipe and records the decision. No model is loaded automatically. See [routing behavior](docs/ADAPTIVE.md) and [measured limits](docs/CHANGES-0.2.22.md). No DenkMaps or MCP integration is performed.
+Version 0.2.23 adds a bounded local feedback ledger and inspectable smoothed ranking adjustments. See [API contract](docs/FEEDBACK.md) and [validation and limits](docs/CHANGES-0.2.23.md). Default features remain empty. No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -54,7 +54,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.22", default-features = false }
+airust = { version = "=0.2.23", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -278,6 +278,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `execution` | Cooperative cancellation, deadlines and phase/count observers; no new dependency. |
 | `shared-index` | Optional sharing of immutable record, posting and duplicate buffers across cloned lexical indices; no new dependency. |
 | `snapshots` | Coordinated immutable dataset views and conflict-checked publication; includes provider-neutral embeddings, provenance and record-validation contracts. |
+| `feedback` | Explicit feedback learning; explicitly enabled. |
 | `adaptive` | Explicit bounded source registry, replaceable routing policy and inspectable route traces; includes retrieval. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
@@ -321,6 +322,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | --- | --- |
 | `src/execution.rs` | Optional execution controls shared across threads and supported operations. |
 | `src/snapshots.rs` | Common revisions, prepared updates, vector reuse and atomic index/source publication. |
+| `src/feedback.rs` | Optional local rating ledger and explicit scorer wrapper; no automatic telemetry. |
 | `src/adaptive.rs` | Optional query-shape routing across explicitly configured sources, preserving scopes and recipes. |
 | `src/retrieval/assessment.rs` | Optional evidence policies, explicit uncertainty and auditable per-excerpt observations. |
 | `src/retrieval/excerpts.rs` | Bounded query-related windows, Unicode-safe highlights and original byte coordinates. |

@@ -180,3 +180,7 @@ The optional shared-index feature shares immutable record/posting/duplicate payl
 Incremental updates retain unchanged term/positional analysis, update metadata in each projection and refresh coordinates whenever original text bytes change. Diagnostic preparation receipts distinguish rebuilt/reused analysis. See [incremental contract](docs/INCREMENTAL.md).
 
 Optional adaptive routing selects only explicitly registered sources, freezes analyzer selection during metadata-only preflight and preserves actual recipes/scopes. Source failures never trigger hidden retries. Route traces are separate diagnostics. See [routing contract](docs/ADAPTIVE.md).
+
+## Optional explicit feedback learning (0.2.23)
+
+a bounded local feedback ledger and inspectable smoothed ranking adjustments. Enable `feedback` explicitly. See [API and limits](docs/FEEDBACK.md).

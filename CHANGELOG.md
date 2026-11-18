@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.23
+
+Explicit feedback learning. a bounded local feedback ledger and inspectable smoothed ranking adjustments. See [report](docs/CHANGES-0.2.23.md).
+
 ## 0.2.22
 
 Optional adaptive retrieval: bounded explicit backend registration, replaceable query-shape policy, frozen analyzer/route planning and bounded decision traces. Original recipes/scopes survive routing; failures do not cause hidden retries. No model auto-loading. See [report](docs/CHANGES-0.2.22.md).

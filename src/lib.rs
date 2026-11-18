@@ -97,3 +97,6 @@ pub mod execution;
 
 #[cfg(feature = "adaptive")]
 pub mod adaptive;
+
+#[cfg(feature = "feedback")]
+pub mod feedback;

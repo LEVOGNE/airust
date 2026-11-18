@@ -99,3 +99,8 @@ cargo test --no-default-features --features adaptive --test adaptive --locked
 cargo run --locked --features adaptive --example adaptive
 cargo run --locked --features adaptive,advanced-search --example adaptive_quality > /dev/null
 cargo run --locked --features adaptive,hybrid --example adaptive_benchmark > /dev/null
+
+cargo clippy --all-targets --no-default-features --features feedback --locked -- -D warnings
+cargo test --no-default-features --features feedback --test feedback --locked
+cargo run --locked --features feedback --example feedback > /dev/null
+cargo run --locked --features feedback --example feedback_benchmark > /dev/null

@@ -29,7 +29,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.20 | Measured memory optimization | Implemented as opt-in shared-index; see [report](docs/CHANGES-0.2.20.md). |
 | 0.2.21 | Incremental recomputation of changed analysis | Implemented; see [report](docs/CHANGES-0.2.21.md). |
 | 0.2.22 | Explicit adaptive retrieval routing | Implemented; see [report](docs/CHANGES-0.2.22.md). |
-| 0.2.23 | Bounded local feedback learning | Planned. |
+| 0.2.23 | Bounded local feedback learning | Implemented; see [report](docs/CHANGES-0.2.23.md). |
 | 0.2.24 | Optional small trainable ranking model | Planned. |
 | 0.2.25 | Bounded rule-based inference proposals with evidence | Planned. |
 
