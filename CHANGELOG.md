@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.15
+
+Optional retrieval evidence policies: explicit sufficient-by-policy, insufficient and uncertain decisions; per-excerpt coverage; caller-calibrated recipe-bound score gates; JSON-budget-aware reports. Defaults remain unchanged. See [report](docs/CHANGES-0.2.15.md).
+
 ## 0.2.14
 
 Optional coherent dataset snapshots: one revision for search, vectors and source references, off-lock preparation, conflict-checked publication, full reconciliation, exact-text vector reuse and explicit model rebuilding. Optional positional search joins the same boundary. See [report](docs/CHANGES-0.2.14.md).

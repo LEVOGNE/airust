@@ -149,6 +149,16 @@ struct Token {
     term: String,
     span: ExcerptSpan,
 }
+pub(super) fn analyzed_terms(
+    text: &str,
+    analyzer: &ExcerptAnalyzer,
+    options: &ExcerptOptions,
+) -> Result<Vec<String>, RetrievalError> {
+    Ok(analyze(text, analyzer, options)?
+        .into_iter()
+        .map(|t| t.term)
+        .collect())
+}
 fn analyze(
     text: &str,
     analyzer: &ExcerptAnalyzer,

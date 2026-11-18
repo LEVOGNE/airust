@@ -1,0 +1,135 @@
+{
+  "baseline_false_accepts": 5,
+  "baseline_rule": "accept any delivered hit",
+  "case_count": 12,
+  "fixture": "authored-assessment-v1",
+  "limits": "Tiny authored lexical fixture; no independent semantic or answer quality benchmark.",
+  "policy_false_accepts": 1,
+  "policy_false_rejects": 1,
+  "rows": [
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "Rust ownership",
+      "texts": [
+        "Rust ownership prevents use-after-free."
+      ],
+      "verdict": "meets_policy"
+    },
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "SQLite atomic transactions",
+      "texts": [
+        "SQLite atomic transactions commit all changes together."
+      ],
+      "verdict": "meets_policy"
+    },
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "time budget",
+      "texts": [
+        "A time budget bounds cooperative work."
+      ],
+      "verdict": "meets_policy"
+    },
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "Häuser Türen",
+      "texts": [
+        "Häuser haben rote Türen."
+      ],
+      "verdict": "meets_policy"
+    },
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "immutable read views",
+      "texts": [
+        "Immutable read views preserve an earlier revision."
+      ],
+      "verdict": "meets_policy"
+    },
+    {
+      "answerable_authored_label": true,
+      "delivered_hits": 1,
+      "query": "vehicle registration documents",
+      "texts": [
+        "Car registration requires identity papers."
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 1,
+      "query": "Rust ownership",
+      "texts": [
+        "Rust scripts run locally."
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 1,
+      "query": "SQLite transactions",
+      "texts": [
+        "SQLite installation guide."
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 2,
+      "query": "Rust ownership",
+      "texts": [
+        "Rust language",
+        "ownership glossary"
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 0,
+      "query": "volcano eruption",
+      "texts": [
+        "Rust ownership prevents errors."
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 1,
+      "query": "cancellation rollback",
+      "texts": [
+        "Cancellation support planned."
+      ],
+      "verdict": "insufficient"
+    },
+    {
+      "answerable_authored_label": false,
+      "delivered_hits": 1,
+      "query": "Rust ownership",
+      "texts": [
+        "Glossary headings: Rust, ownership. Explanations unavailable."
+      ],
+      "verdict": "meets_policy"
+    }
+  ],
+  "timings": [
+    {
+      "assessment": false,
+      "elapsed_ms": 27.389459000000002,
+      "queries": 10000,
+      "serialized_bytes": 5430000
+    },
+    {
+      "assessment": true,
+      "elapsed_ms": 55.258541,
+      "queries": 10000,
+      "serialized_bytes": 8890000
+    }
+  ],
+  "total_ms": 83.40308300000001
+}

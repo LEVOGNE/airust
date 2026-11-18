@@ -1,4 +1,4 @@
-# AIRust 0.2.14 API cookbook
+# AIRust 0.2.15 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.14", default-features = false }
+airust = { version = "=0.2.15", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -216,3 +216,9 @@ Exact unchanged text shares its existing vector buffer for metadata/source chang
 Dataset revisions reuse StoreRevision's complete namespace/identity/generation token. An optional separate source_revision can record a consistent external committed generation; later markers must advance within that lineage. This is a caller assertion, not a database watcher or cross-store transaction. Preserve external source/access rechecks. A full image mapped from storage::read_snapshot can be reconciled without changing that storage backend.
 
 Index/source staging copies bookkeeping and can retain multiple generations in RAM; unchanged vectors are shared. Default limits bound encoded records, source lists, vector components and batches, not exact heap. No automatic graph/HNSW/cache/history synchronization is claimed. See [the complete snapshot contract](SNAPSHOTS.md) and run `cargo run --features snapshots,retrieval --example snapshots`. Add `advanced-search,context-assembly` for positional/sourced-context composition. No DenkMaps integration is performed.
+
+## 20. Decide whether delivered evidence meets a policy
+
+Enable `retrieval`; set `RetrievalOptions::new(10).with_evidence_policy(EvidencePolicy::default())`. Inspect `response.assessment()` and match its verdict. `MeetsPolicy` means configured criteria passed; `Insufficient` asks for more evidence; `Undetermined` preserves missing calibration or fallback; `NotRequested` represents a zero result limit. Use qualified returned ranks to inspect supporting excerpts. Pair relevant excerpts with assessment so a useful late passage can be examined.
+
+Coverage compares distinct informative query terms with each delivered excerpt. It never merges support across unrelated records or assumes an uncalibrated semantic score is enough. Explicit recipe-bound score gates permit evaluated thresholds without hiding original scores. Complete JSON bounds include the assessment and reassess after hit removal. See [full assessment API](ASSESSMENT.md), `evidence_assessment` and `assessment_quality` examples. Preserve the source revision and evaluation recipe in your application. No automatic integration or answer generation is performed.

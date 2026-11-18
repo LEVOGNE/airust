@@ -65,3 +65,7 @@ cargo check --lib --no-default-features --features snapshots,advanced-search --l
 cargo test --no-default-features --features snapshots --test snapshots --locked
 cargo run --locked --features snapshots,retrieval --example snapshots
 cargo run --locked --features snapshots,retrieval,advanced-search,context-assembly --example snapshots
+
+cargo test --no-default-features --features retrieval --test assessment --locked
+cargo run --locked --features retrieval --example evidence_assessment
+cargo run --locked --features retrieval --example assessment_quality > /dev/null

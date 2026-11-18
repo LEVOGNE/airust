@@ -21,6 +21,17 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.12 | Unified compact retrieval API for applications and agent transports | Implemented and validated; see [report](docs/CHANGES-0.2.12.md). |
 | 0.2.13 | Optional relevant excerpts with original positions and bounded highlights | Implemented; see [report](docs/CHANGES-0.2.13.md). |
 | 0.2.14 | Coherent immutable search/vector/source snapshots and checked publication | Implemented; see [report](docs/CHANGES-0.2.14.md). |
+| 0.2.15 | Explicit retrieval evidence assessment | Implemented; see [report](docs/CHANGES-0.2.15.md). |
+| 0.2.16 | Cooperative cancellation | Planned; implementation and release gates required. |
+| 0.2.17 | Cooperative time budgets | Planned. |
+| 0.2.18 | Observable work phases and progress | Planned. |
+| 0.2.19 | Reproducible million-record and concurrent stress validation | Planned. |
+| 0.2.20 | Measured memory optimization | Planned. |
+| 0.2.21 | Incremental recomputation of changed analysis | Planned. |
+| 0.2.22 | Explicit adaptive retrieval routing | Planned. |
+| 0.2.23 | Bounded local feedback learning | Planned. |
+| 0.2.24 | Optional small trainable ranking model | Planned. |
+| 0.2.25 | Bounded rule-based inference proposals with evidence | Planned. |
 
 The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 
@@ -104,3 +115,5 @@ An example ratio derived from assumed input sizes is illustrative. It must not b
 Acceptance: reproducible token counts, comparable prompts, identified tokenizer, query-level distributions, and a clear separation between measured results and illustrative calculations.
 
 0.2.11 delivers the optional record Storage Backend API. 0.2.12 adds the compact transport-neutral Knowledge Retrieval API. Application and MCP integration remain separate.
+
+Permanent principles: optional capabilities, reproducible measurements and inspectable decisions. No optimization is accepted on an unsupported speed or quality claim. Learning is explicit and local; rule conclusions remain proposals. No mandatory model or application integration.

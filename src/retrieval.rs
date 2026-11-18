@@ -9,7 +9,12 @@ use std::{
 };
 use thiserror::Error;
 
+pub mod assessment;
 pub mod excerpts;
+pub use assessment::{
+    assess_response, AssessmentLimits, AssessmentReason, EvidenceAssessment, EvidencePolicy,
+    EvidenceVerdict, HitAssessment, ScoreGate, ScoreScale,
+};
 pub use excerpts::{
     select_excerpt, ExcerptAnalyzer, ExcerptDetails, ExcerptMatch, ExcerptMatchKind,
     ExcerptOptions, ExcerptReason, SelectedExcerpt,
@@ -46,6 +51,7 @@ pub struct RetrievalOptions {
     metadata: bool,
     max_metadata_bytes: usize,
     excerpt_options: Option<ExcerptOptions>,
+    evidence_policy: Option<EvidencePolicy>,
 }
 impl Default for RetrievalOptions {
     fn default() -> Self {
@@ -62,6 +68,7 @@ impl Default for RetrievalOptions {
             metadata: false,
             max_metadata_bytes: 4096,
             excerpt_options: None,
+            evidence_policy: None,
         }
     }
 }
@@ -138,6 +145,17 @@ impl RetrievalOptions {
     }
     pub fn excerpt_options(&self) -> Option<&ExcerptOptions> {
         self.excerpt_options.as_ref()
+    }
+    pub fn with_evidence_policy(mut self, policy: EvidencePolicy) -> Self {
+        self.evidence_policy = Some(policy);
+        self
+    }
+    pub fn without_evidence_policy(mut self) -> Self {
+        self.evidence_policy = None;
+        self
+    }
+    pub fn evidence_policy(&self) -> Option<&EvidencePolicy> {
+        self.evidence_policy.as_ref()
     }
     pub fn limit(&self) -> usize {
         self.limit
@@ -456,6 +474,12 @@ pub struct RetrievalResponse {
     hits: Vec<RetrievalHit>,
     #[serde(skip_serializing_if = "Option::is_none")]
     excerpt_details: Option<Vec<ExcerptDetails>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    assessment: Option<EvidenceAssessment>,
+    #[serde(skip)]
+    requested_limit: usize,
+    #[serde(skip)]
+    before_output_budget: usize,
     #[serde(skip)]
     json: String,
 }
@@ -486,6 +510,12 @@ impl RetrievalResponse {
     }
     pub fn excerpt_details(&self) -> Option<&[ExcerptDetails]> {
         self.excerpt_details.as_deref()
+    }
+    pub fn assessment(&self) -> Option<&EvidenceAssessment> {
+        self.assessment.as_ref()
+    }
+    pub fn requested_limit(&self) -> usize {
+        self.requested_limit
     }
 }
 struct BoundedWriter {
@@ -697,16 +727,29 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                     truncated: false,
                     hits: Vec::new(),
                     excerpt_details: options.excerpt_options().map(|_| Vec::new()),
+                    assessment: None,
+                    requested_limit: 0,
+                    before_output_budget: 0,
                     json: String::new(),
                 },
                 options,
+                options
+                    .evidence_policy()
+                    .map(|p| assessment::AssessmentPlan::new(query, &ExcerptAnalyzer::Legacy, p, 0))
+                    .transpose()?
+                    .as_ref(),
             );
         }
-        let analyzer = if options.excerpt_options().is_some() {
+        let analyzer = if options.excerpt_options().is_some() || options.evidence_policy().is_some()
+        {
             self.source.excerpt_analyzer()
         } else {
             ExcerptAnalyzer::Legacy
         };
+        let assessment_plan = options
+            .evidence_policy()
+            .map(|p| assessment::AssessmentPlan::new(query, &analyzer, p, options.limit))
+            .transpose()?;
         let batch = self.source.retrieve(query, options)?;
         if batch.candidates.len() > options.candidates {
             return Err(RetrievalError::Output("source exceeded candidate count"));
@@ -785,9 +828,13 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                 truncated,
                 hits,
                 excerpt_details,
+                assessment: None,
+                requested_limit: options.limit,
+                before_output_budget: 0,
                 json: String::new(),
             },
             options,
+            assessment_plan.as_ref(),
         )
     }
 }
@@ -809,8 +856,14 @@ fn plain_hits(
 fn finish(
     mut response: RetrievalResponse,
     options: &RetrievalOptions,
+    plan: Option<&assessment::AssessmentPlan>,
 ) -> Result<RetrievalResponse, RetrievalError> {
+    response.before_output_budget = response.hits.len();
+    let observations = plan.map(|p| p.observe(&response)).transpose()?;
     loop {
+        response.assessment = plan
+            .zip(observations.as_ref())
+            .map(|(p, observations)| p.summarize(&response, observations));
         if let Some(json) = bounded_json(&response, options.max_output_bytes)? {
             response.json = json;
             return Ok(response);

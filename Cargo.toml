@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.14"
+version = "0.2.15"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -242,3 +242,11 @@ required-features = ["snapshots", "retrieval"]
 [[example]]
 name = "snapshot_benchmark"
 required-features = ["snapshots"]
+
+[[example]]
+name = "evidence_assessment"
+required-features = ["retrieval"]
+
+[[example]]
+name = "assessment_quality"
+required-features = ["retrieval"]
