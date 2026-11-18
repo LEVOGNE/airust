@@ -1,4 +1,4 @@
-# AIRust 0.2.19 API cookbook
+# AIRust 0.2.20 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.19", default-features = false }
+airust = { version = "=0.2.20", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -16,6 +16,7 @@ airust = { version = "=0.2.19", default-features = false }
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
 | `hybrid` | Weighted reciprocal-rank fusion of lexical and semantic candidates | [HYBRID](HYBRID.md), `hybrid` |
 | `execution` | Optional cancellation, cooperative deadlines and real work-phase notifications | [EXECUTION](EXECUTION.md), `cancellation`, `time_budget`, `progress` |
+| `shared-index` | Optional copy-on-write lexical payload sharing across index clones and snapshots | [SHARED-INDEX](SHARED-INDEX.md), existing `stress_index`/`stress_snapshots` |
 | `snapshots` | One revision for immutable search/vector/source views and checked updates | [SNAPSHOTS](SNAPSHOTS.md), `snapshots`, `snapshot_benchmark` |
 | `retrieval` | Compact owned excerpts/evidence and complete JSON budgets over interchangeable sources | [RETRIEVAL](RETRIEVAL.md), `retrieval`, `retrieval_benchmark` |
 | `storage` / `sqlite-storage` | Revision-fenced atomic record storage and standalone SQLite | [STORAGE](STORAGE.md), `storage`, `storage_benchmark` |
@@ -239,3 +240,7 @@ Attach `.with_observer(|event: &ProgressEvent| ...)` to a WorkControl and pass i
 ## 24. Validate scale before selecting an optimization
 
 Build and run `stress_index` in scale/clone modes and `stress_snapshots` with explicit record counts. Keep category-separated latency, OS RSS, conflicts and correctness assertions. Run small CI profiles and record large runs separately. Compare the same generator, retained readers and mutation pattern before/after changes. There is no new runtime API in 0.2.19. See [stress methodology](STRESS.md) and the versioned release evidence; a synthetic million-record success does not replace real application testing.
+
+## 25. Retain index copies with shared immutable data
+
+Enable `shared-index` explicitly alongside your existing features. Continue using Engine::clone and the DatasetManager API. Edits detach changed private buffers; earlier views keep their original records and scores. Clones still copy outer maps, and changing a common posting set can be costly. Measure one-owner builds/queries as well as retained-copy memory before selecting the flag. The default mode is unchanged. See [sharing contract](SHARED-INDEX.md) and the fixed before/after profiles in the release report.

@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.19"
+version = "0.2.20"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -47,6 +47,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+shared-index = []
 execution = []
 snapshots = ["storage", "embeddings", "provenance"]
 retrieval = ["dep:unicode-segmentation"]

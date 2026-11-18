@@ -1,10 +1,10 @@
-# AIRust 0.2.19
+# AIRust 0.2.20
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.19 adds reproducible stress validation. The shipped synthetic workloads passed with two million lexical records, parallel readers, and a separate 100,000-record concurrent snapshot test. Broad queries and retained index copies remain expensive. See [stress methodology](docs/STRESS.md) and the [release report](docs/CHANGES-0.2.19.md) for exact workloads and limits. No DenkMaps or MCP integration is performed.
+Version 0.2.20 adds optional shared index storage. Enable `shared-index` when keeping multiple index copies or dataset read generations. Unchanged records and search bindings are shared; edits detach the affected data. The default storage stays unchanged. See [sharing behavior](docs/SHARED-INDEX.md) and [measured tradeoffs](docs/CHANGES-0.2.20.md). No DenkMaps or MCP integration is performed.
 
 The completed releases are [0.2.10: advanced text](docs/CHANGES-0.2.10.md), [0.2.11: record storage](docs/CHANGES-0.2.11.md) and [0.2.12: compact retrieval](docs/CHANGES-0.2.12.md). The [proposed DenkMaps upgrade guide](docs/DENKMAPS-UPGRADE.md) describes a later integration and its required application tests. No application dependency or data is changed here.
 
@@ -13,6 +13,8 @@ To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10)
 To keep related data consistent, enable `snapshots` and acquire one `manager.snapshot()` per request. Use that view for search, vectors and source lookup. Run `cargo run --features snapshots,retrieval --example snapshots` for a complete example. These are RAM read views; an application still coordinates its own database transactions.
 
 To assess evidence, enable `retrieval` and add `.with_evidence_policy(EvidencePolicy::default())`. Run `cargo run --features retrieval --example evidence_assessment`. The fixed twelve-case evaluation includes a false acceptance and a false rejection to show the limits of word coverage.
+
+In the fixed 500,000-record/three-copy fixture, sharing reduces peak RAM by 65.3%. The first changed clone takes more time to detach its common posting data. See [measurements and tradeoffs](docs/CHANGES-0.2.20.md).
 
 ## What it does
 
@@ -52,7 +54,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.19", default-features = false }
+airust = { version = "=0.2.20", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -273,7 +275,8 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `cache` | Validated atomic derived-analysis/vector snapshots using Postcard and SHA-256. Original records remain authoritative; Rust 1.89. |
 | `versioning` | Revision heads/tombstones, expected-version conflicts, optional bounded history, comparison and restoration. No new dependency; Rust 1.89. |
 | `quality` | Validated graded judgments, explicit unknown-result policy, retrieval metrics and macro summaries. No added dependencies; Rust 1.89. |
-| `execution` | Shared cancellation tokens and explicit cooperative control for supported operations; no new dependency. |
+| `execution` | Cooperative cancellation, deadlines and phase/count observers; no new dependency. |
+| `shared-index` | Optional sharing of immutable record, posting and duplicate buffers across cloned lexical indices; no new dependency. |
 | `snapshots` | Coordinated immutable dataset views and conflict-checked publication; includes provider-neutral embeddings, provenance and record-validation contracts. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |

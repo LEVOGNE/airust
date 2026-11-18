@@ -1,3 +1,4 @@
+#![cfg_attr(feature="shared-index", doc=include_str!("../docs/SHARED-INDEX.md"))]
 use crate::context::Context;
 use crate::knowledge::{KnowledgeEntry, RelationKind, RelationSuggestion};
 use crate::matching::{MatchError, MatchOptions, MatchResult, MatchStrategy, Similarity};
@@ -6,6 +7,51 @@ use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
 use std::collections::{BTreeMap, BTreeSet};
 use thiserror::Error;
+
+#[cfg(feature = "shared-index")]
+type Shared<T> = std::sync::Arc<T>;
+#[cfg(not(feature = "shared-index"))]
+type Shared<T> = T;
+fn shared_new<T>(value: T) -> Shared<T> {
+    #[cfg(feature = "shared-index")]
+    {
+        std::sync::Arc::new(value)
+    }
+    #[cfg(not(feature = "shared-index"))]
+    {
+        value
+    }
+}
+fn shared_mut<T: Clone>(value: &mut Shared<T>) -> &mut T {
+    #[cfg(feature = "shared-index")]
+    {
+        std::sync::Arc::make_mut(value)
+    }
+    #[cfg(not(feature = "shared-index"))]
+    {
+        value
+    }
+}
+fn shared_owned<T: Clone>(value: Shared<T>) -> T {
+    #[cfg(feature = "shared-index")]
+    {
+        std::sync::Arc::unwrap_or_clone(value)
+    }
+    #[cfg(not(feature = "shared-index"))]
+    {
+        value
+    }
+}
+fn shared_ref<T>(value: &Shared<T>) -> &T {
+    #[cfg(feature = "shared-index")]
+    {
+        value.as_ref()
+    }
+    #[cfg(not(feature = "shared-index"))]
+    {
+        value
+    }
+}
 
 #[derive(Debug, Error)]
 pub enum IndexError {
@@ -39,9 +85,9 @@ pub struct IndexStats {
 
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
-    documents: BTreeMap<String, IndexedEntry>,
-    postings: BTreeMap<String, BTreeMap<String, usize>>,
-    normalized_ids: BTreeMap<String, BTreeSet<String>>,
+    documents: BTreeMap<String, Shared<IndexedEntry>>,
+    postings: BTreeMap<String, Shared<BTreeMap<String, usize>>>,
+    normalized_ids: BTreeMap<String, Shared<BTreeSet<String>>>,
     total_tokens: usize,
 }
 
@@ -87,42 +133,38 @@ impl KnowledgeIndex {
         let length = terms.values().sum();
         let previous = self.remove(&entry.id);
         for (term, count) in &terms {
-            self.postings
-                .entry(term.clone())
-                .or_default()
+            shared_mut(self.postings.entry(term.clone()).or_default())
                 .insert(entry.id.clone(), *count);
         }
-        self.normalized_ids
-            .entry(normalized.clone())
-            .or_default()
+        shared_mut(self.normalized_ids.entry(normalized.clone()).or_default())
             .insert(entry.id.clone());
         self.total_tokens += length;
         self.documents.insert(
             entry.id.clone(),
-            IndexedEntry {
+            shared_new(IndexedEntry {
                 entry,
                 normalized,
                 terms,
                 length,
                 char_length,
-            },
+            }),
         );
         previous
     }
 
     pub fn remove(&mut self, id: &str) -> Option<KnowledgeEntry> {
-        let document = self.documents.remove(id)?;
+        let document = shared_owned(self.documents.remove(id)?);
         self.total_tokens -= document.length;
         for term in document.terms.keys() {
             if let Some(postings) = self.postings.get_mut(term) {
-                postings.remove(id);
+                shared_mut(postings).remove(id);
                 if postings.is_empty() {
                     self.postings.remove(term);
                 }
             }
         }
         if let Some(ids) = self.normalized_ids.get_mut(&document.normalized) {
-            ids.remove(id);
+            shared_mut(ids).remove(id);
             if ids.is_empty() {
                 self.normalized_ids.remove(&document.normalized);
             }
@@ -424,15 +466,15 @@ impl KnowledgeIndex {
             MatchStrategy::Exact => Box::new(
                 exact_ids
                     .into_iter()
-                    .flatten()
-                    .map(|id| &self.documents[id]),
+                    .flat_map(|ids| ids.iter())
+                    .map(|id| shared_ref(&self.documents[id])),
             ),
             MatchStrategy::TokenOverlap => Box::new(
                 self.candidates(query_terms.iter().copied())
                     .into_iter()
-                    .map(|id| &self.documents[id]),
+                    .map(|id| shared_ref(&self.documents[id])),
             ),
-            MatchStrategy::Fuzzy => Box::new(self.documents.values()),
+            MatchStrategy::Fuzzy => Box::new(self.documents.values().map(shared_ref)),
         };
         let mut results = TopK::new(options.limit);
         for document in candidates {
@@ -711,26 +753,25 @@ impl PreparedCache {
                 .remove(&entry.id)
                 .expect("validated cached source ID");
             for (term, &frequency) in &cached.terms {
-                index
-                    .postings
-                    .entry(term.clone())
-                    .or_default()
+                shared_mut(index.postings.entry(term.clone()).or_default())
                     .insert(entry.id.clone(), frequency);
             }
-            index
-                .normalized_ids
-                .entry(cached.normalized.clone())
-                .or_default()
-                .insert(entry.id.clone());
+            shared_mut(
+                index
+                    .normalized_ids
+                    .entry(cached.normalized.clone())
+                    .or_default(),
+            )
+            .insert(entry.id.clone());
             index.documents.insert(
                 entry.id.clone(),
-                IndexedEntry {
+                shared_new(IndexedEntry {
                     entry,
                     normalized: cached.normalized,
                     terms: cached.terms,
                     length: cached.length,
                     char_length: cached.char_length,
-                },
+                }),
             );
         }
         index
@@ -767,5 +808,64 @@ mod execution_tests {
             Err(crate::execution::ExecutionError::Cancelled)
         ));
         assert_eq!(checkpoints, 30);
+    }
+}
+#[cfg(all(test, feature = "shared-index"))]
+mod sharing_tests {
+    use super::*;
+    use std::sync::Arc;
+    #[test]
+    fn copies_share_immutable_payloads_and_detach_only_modified_bindings() {
+        let original = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "common one"),
+            KnowledgeEntry::new("b", "common two"),
+            KnowledgeEntry::new("c", "untouched unique"),
+        ])
+        .unwrap();
+        let mut changed = original.clone();
+        assert!(Arc::ptr_eq(
+            &original.documents["a"],
+            &changed.documents["a"]
+        ));
+        assert!(Arc::ptr_eq(
+            &original.postings["common"],
+            &changed.postings["common"]
+        ));
+        changed
+            .upsert(KnowledgeEntry::new("a", "replacement different"))
+            .unwrap();
+        assert!(Arc::ptr_eq(
+            &original.documents["b"],
+            &changed.documents["b"]
+        ));
+        assert!(!Arc::ptr_eq(
+            &original.postings["common"],
+            &changed.postings["common"]
+        ));
+        assert!(Arc::ptr_eq(
+            &original.postings["unique"],
+            &changed.postings["unique"]
+        ));
+        assert!(original.postings["common"].contains_key("a"));
+        assert!(!changed.postings["common"].contains_key("a"));
+    }
+    #[test]
+    fn duplicate_sets_detach_without_leaking_removal_to_old_views() {
+        let original = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "same text"),
+            KnowledgeEntry::new("b", "same text"),
+        ])
+        .unwrap();
+        let mut changed = original.clone();
+        assert!(Arc::ptr_eq(
+            &original.normalized_ids["same text"],
+            &changed.normalized_ids["same text"]
+        ));
+        changed.remove("a");
+        assert_eq!(original.normalized_ids["same text"].len(), 2);
+        assert_eq!(changed.normalized_ids["same text"].len(), 1);
+        changed.remove("b");
+        assert!(changed.normalized_ids.is_empty());
+        assert_eq!(original.len(), 2);
     }
 }

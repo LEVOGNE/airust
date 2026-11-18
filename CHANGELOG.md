@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.20
+
+Optional shared-index storage: immutable analyzed records, posting maps and normalized duplicate bindings are shared across clones and detached on mutation. Default storage, APIs and wire formats remain unchanged. Fixed before/after workloads expose both copy savings and single-owner tradeoffs. See [report](docs/CHANGES-0.2.20.md).
+
 ## 0.2.19
 
 Reproducible guarded stress workloads: two-million-record lexical scale, retained-copy memory baseline and concurrent snapshot/source consistency with four readers/two writers. Seeded update and concurrent-reader regressions preserve existing APIs/defaults. See [report](docs/CHANGES-0.2.19.md).
