@@ -4,6 +4,21 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use thiserror::Error;
+macro_rules! validated_deserialize {
+    ($name:ident { $($field:ident: $kind:ty),* $(,)? }) => {
+        impl<'de> Deserialize<'de> for $name {
+            fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                #[derive(Deserialize)]
+                #[serde(deny_unknown_fields)]
+                struct Fields { $($field: $kind),* }
+                let fields = Fields::deserialize(deserializer)?;
+                let value = Self { $($field: fields.$field),* };
+                value.validate().map_err(serde::de::Error::custom)?;
+                Ok(value)
+            }
+        }
+    };
+}
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum LearningError {
@@ -17,12 +32,13 @@ pub enum LearningError {
     #[error(transparent)]
     Json(#[from] serde_json::Error),
 }
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureSchema {
     recipe: String,
     names: Vec<String>,
 }
+validated_deserialize!(FeatureSchema { recipe: String, names: Vec<String> });
 impl FeatureSchema {
     pub fn new(recipe: impl Into<String>, names: Vec<String>) -> Result<Self, LearningError> {
         let value = Self {
@@ -149,7 +165,7 @@ impl TrainingExample {
         &self.group
     }
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TrainingConfig {
     epochs: usize,
@@ -157,6 +173,12 @@ pub struct TrainingConfig {
     l2: f64,
     gradient_clip: f64,
 }
+validated_deserialize!(TrainingConfig {
+    epochs: usize,
+    learning_rate: f64,
+    l2: f64,
+    gradient_clip: f64
+});
 impl Default for TrainingConfig {
     fn default() -> Self {
         Self {
@@ -258,7 +280,7 @@ impl TrainingOptions {
         let _ = (training, completed, total);
     }
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TrainingReport {
     examples: usize,
@@ -268,7 +290,30 @@ pub struct TrainingReport {
     final_loss: f64,
     config: TrainingConfig,
 }
+validated_deserialize!(TrainingReport {
+    examples: usize,
+    positive: usize,
+    manifest: String,
+    initial_loss: f64,
+    final_loss: f64,
+    config: TrainingConfig
+});
 impl TrainingReport {
+    fn validate(&self) -> Result<(), LearningError> {
+        self.config.validate()?;
+        if self.examples == 0
+            || self.examples > 100000
+            || self.positive == 0
+            || self.positive >= self.examples
+            || !hash_valid(&self.manifest)
+            || ![self.initial_loss, self.final_loss]
+                .iter()
+                .all(|v| v.is_finite() && *v >= 0.)
+        {
+            return Err(LearningError::Invalid("training report"));
+        }
+        Ok(())
+    }
     pub fn examples(&self) -> usize {
         self.examples
     }
@@ -288,7 +333,7 @@ impl TrainingReport {
         &self.config
     }
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LinearModel {
     schema_version: u32,
@@ -296,6 +341,7 @@ pub struct LinearModel {
     weights: Vec<f64>,
     report: TrainingReport,
 }
+validated_deserialize!(LinearModel { schema_version: u32, schema: FeatureSchema, weights: Vec<f64>, report: TrainingReport });
 impl LinearModel {
     pub fn schema(&self) -> &FeatureSchema {
         &self.schema
@@ -326,18 +372,10 @@ impl LinearModel {
     }
     fn validate(&self) -> Result<(), LearningError> {
         self.schema.validate()?;
-        self.report.config.validate()?;
+        self.report.validate()?;
         if self.schema_version != 1
             || self.weights.len() != self.schema.names.len()
             || self.weights.iter().any(|w| !w.is_finite() || w.abs() > 1e6)
-            || self.report.examples == 0
-            || self.report.examples > 100000
-            || self.report.positive == 0
-            || self.report.positive >= self.report.examples
-            || !hash_valid(&self.report.manifest)
-            || ![self.report.initial_loss, self.report.final_loss]
-                .iter()
-                .all(|v| v.is_finite() && *v >= 0.)
         {
             return Err(LearningError::Invalid("model artifact"));
         }

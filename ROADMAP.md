@@ -122,3 +122,7 @@ Acceptance: reproducible token counts, comparable prompts, identified tokenizer,
 0.2.11 delivers the optional record Storage Backend API. 0.2.12 adds the compact transport-neutral Knowledge Retrieval API. Application and MCP integration remain separate.
 
 Permanent principles: optional capabilities, reproducible measurements and inspectable decisions. No optimization is accepted on an unsupported speed or quality claim. Learning is explicit and local; rule conclusions remain proposals. No mandatory model or application integration.
+
+## 0.3.0 stability release
+
+Validate existing behavior and formats before adding capabilities. See the [release report](docs/CHANGES-0.3.0.md) and [stability contract](docs/STABILITY.md). Further changes require measured benefits and explicit compatibility notes.

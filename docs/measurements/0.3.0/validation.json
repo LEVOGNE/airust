@@ -1,0 +1,60 @@
+{
+  "version": "0.3.0",
+  "checked_at_utc": "2026-11-19T22:28:11Z",
+  "complete_check_script": {
+    "command": "./test.sh",
+    "result": "passed",
+    "test_groups": [
+      195,
+      656,
+      11,
+      18,
+      20,
+      16,
+      3,
+      5,
+      6,
+      3,
+      6,
+      9,
+      7,
+      9,
+      10,
+      7,
+      6,
+      6,
+      8,
+      14
+    ],
+    "default_tests": 195,
+    "all_feature_tests": 656,
+    "python_helper_tests": 5,
+    "declared_feature_checks": 37,
+    "ignored_helper": "persistence::tests::crash_writer_child is executed by its parent crash-recovery test"
+  },
+  "minimum_rust": {
+    "provider_neutral": "1.89.0 all-targets passed",
+    "all_features": "1.92.0 all-targets passed",
+    "legacy_disk_recipe_boundary": "1.89.0 stability tests passed; incompatible Unicode recipe rejected without file changes"
+  },
+  "api_compatibility": {
+    "baseline": "0.2.30",
+    "release_type_assumption": "patch",
+    "passed": 229,
+    "skipped": 31
+  },
+  "dependency_audit": "audit.json; zero known vulnerabilities and three maintenance notices",
+  "standalone_consumer": "local Rust 1.89 consumer passed; exact registry consumer required after publication",
+  "native_models": "semantic-native.json and reranking-native.json: executed using supplied assets, not skipped",
+  "quality_stability": "quality-stability.json: identical per-query identities, rankings and metrics against identified 0.2.26 independent datasets",
+  "stress": "stress-2m.json, snapshots-100k.json and disk-100k.json: passed assertions",
+  "platform": "macOS ARM64 local; Linux CI required on the exact final commit; no Windows execution or Docker image build claim",
+  "publication_gates": "Clean package, extracted-crate tests, dry run, exact-commit CI, registry consumer and checksum/VCS/tag/GitHub-asset equality required; recorded after source commit.",
+  "final_source_recheck": {
+    "default_tests": 195,
+    "all_feature_tests": 656,
+    "strict_all_target_all_feature_clippy": "passed",
+    "strict_all_feature_rustdoc": "passed",
+    "source_hash_manifest": "captured before packaging; publication script rejects source changes"
+  }
+}

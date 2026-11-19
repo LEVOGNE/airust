@@ -1,4 +1,6 @@
-# AIRust 0.2.30 application integration guide
+# AIRust 0.3.0 application integration guide
+
+For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
 AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. This release changes no DenkMaps or MCP code and does not establish production readiness for a real application dataset.
 
@@ -6,7 +8,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.30", default-features = false,
+airust = { version = "=0.3.0", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 

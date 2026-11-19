@@ -1,4 +1,6 @@
-# AIRust 0.2.30 API cookbook
+# AIRust 0.3.0 API cookbook
+
+For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.30", default-features = false }
+airust = { version = "=0.3.0", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |

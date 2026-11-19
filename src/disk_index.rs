@@ -599,16 +599,12 @@ impl DiskIndex {
     }
 }
 fn read_state(connection: &Connection) -> Result<State, DiskError> {
-    let bytes: i64 = connection.query_row(
-        "SELECT length(CAST(data AS BLOB)) FROM meta WHERE id=1",
+    let json: Option<String> = connection.query_row(
+        "SELECT CASE WHEN length(CAST(data AS BLOB)) BETWEEN 1 AND 16384 THEN data ELSE NULL END FROM meta WHERE id=1",
         [],
         |r| r.get(0),
     )?;
-    if !(1..=16384).contains(&bytes) {
-        return Err(DiskError::Invalid("state bytes"));
-    }
-    let json: String =
-        connection.query_row("SELECT data FROM meta WHERE id=1", [], |r| r.get(0))?;
+    let json = json.ok_or(DiskError::Invalid("state bytes"))?;
     let state: State = serde_json::from_str(&json)?;
     if state.schema_version != 1 {
         return Err(DiskError::Invalid("state schema"));

@@ -1,0 +1,13 @@
+{
+  "case": "direct_serde_import_enforces_constructor_and_model_invariants",
+  "before": {
+    "version": "0.2.30",
+    "failed_assertion": "serde_json::from_value::<FeatureSchema> must reject duplicate feature names",
+    "result": "reproduced failure"
+  },
+  "after": {
+    "version": "0.3.0",
+    "result": "focused learned_ranking suite passed 9 tests; old model fingerprint retained"
+  },
+  "scope": "Invalid object import path; model-use APIs already validated models in 0.2.30."
+}

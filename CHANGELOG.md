@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+Stability release: consistent validation for direct model deserialization, a single bounded disk-state read, compatibility fixtures from 0.2.30, and a manifest-driven isolated-feature matrix. Existing algorithms and data-format versions are retained. See [results and limits](docs/CHANGES-0.3.0.md) and [migration](docs/MIGRATION-0.3.0.md).
+
 ## 0.2.30
 
 a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. See [report](docs/CHANGES-0.2.30.md).

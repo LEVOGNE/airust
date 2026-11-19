@@ -3,6 +3,34 @@ use airust::{disk_index::*, retrieval::*, storage::StoreChange, Context, Knowled
 fn put(id: &str, text: &str) -> StoreChange {
     StoreChange::Put(KnowledgeEntry::new(id, text))
 }
+
+#[test]
+fn state_byte_limit_is_enforced_for_revision_and_count_reads() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("index.db");
+    let db = DiskIndex::open(&path, "n", DiskOptions::default()).unwrap();
+    let expected = db.revision().unwrap();
+    let connection = rusqlite::Connection::open(&path).unwrap();
+    let original: String = connection
+        .query_row("SELECT data FROM meta WHERE id=1", [], |r| r.get(0))
+        .unwrap();
+    let at_limit = format!("{original}{}", " ".repeat(16384 - original.len()));
+    connection
+        .execute("UPDATE meta SET data=?1 WHERE id=1", [&at_limit])
+        .unwrap();
+    assert_eq!(db.revision().unwrap(), expected);
+    assert_eq!(db.len().unwrap(), 0);
+    for invalid in [String::new(), format!("{at_limit} ")] {
+        connection
+            .execute("UPDATE meta SET data=?1 WHERE id=1", [&invalid])
+            .unwrap();
+        assert!(matches!(
+            db.revision(),
+            Err(DiskError::Invalid("state bytes"))
+        ));
+        assert!(matches!(db.len(), Err(DiskError::Invalid("state bytes"))));
+    }
+}
 #[test]
 fn durable_search_updates_delete_and_reopen_keep_one_revision() {
     let folder = tempfile::tempdir().unwrap();

@@ -133,3 +133,5 @@ cargo clippy --all-targets --no-default-features --features disk-index --locked 
 cargo test --no-default-features --features disk-index --test disk_index --locked
 cargo run --locked --features disk-index --example disk_index > /dev/null
 cargo run --locked --features disk-index --example disk_benchmark -- 1000 disk > /dev/null
+
+python3 -B scripts/check_features.py

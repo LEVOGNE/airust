@@ -134,8 +134,41 @@ fn malformed_artifacts_unknown_fields_dimensions_and_extremes_are_rejected() {
         }
         target[path[path.len() - 1]] = value;
         assert!(LinearModel::from_json(&v.to_string()).is_err());
+        assert!(serde_json::from_value::<LinearModel>(v).is_err());
     }
     assert!(LinearModel::from_json(&" ".repeat(1024 * 1024 + 1)).is_err());
+}
+
+#[test]
+fn direct_serde_import_enforces_constructor_and_model_invariants() {
+    assert!(serde_json::from_value::<FeatureSchema>(json!({
+        "recipe": "test", "names": ["bias", "bias"]
+    }))
+    .is_err());
+    assert!(serde_json::from_value::<TrainingConfig>(json!({
+        "epochs": 0, "learning_rate": 0.2, "l2": 0.01, "gradient_clip": 5.0
+    }))
+    .is_err());
+    let model = train(&data(), &mut LexicalFeatures, &TrainingOptions::default()).unwrap();
+    let mut report = serde_json::to_value(model.report()).unwrap();
+    report["positive"] = json!(report["examples"].as_u64().unwrap());
+    assert!(serde_json::from_value::<TrainingReport>(report).is_err());
+    let mut artifact = serde_json::to_value(&model).unwrap();
+    artifact["schema_version"] = json!(2);
+    assert!(serde_json::from_value::<LinearModel>(artifact).is_err());
+}
+
+#[test]
+fn direct_serde_roundtrip_preserves_valid_model_identity() {
+    let model = train(&data(), &mut LexicalFeatures, &TrainingOptions::default()).unwrap();
+    let restored: LinearModel = serde_json::from_str(&model.to_json().unwrap()).unwrap();
+    assert_eq!(
+        restored.fingerprint().unwrap(),
+        model.fingerprint().unwrap()
+    );
+    let config: TrainingConfig =
+        serde_json::from_value(serde_json::to_value(model.report().config()).unwrap()).unwrap();
+    assert_eq!(config.epochs(), model.report().config().epochs());
 }
 #[test]
 fn custom_schema_is_trainable_and_serialized_recipe_binds_features() {

@@ -1,10 +1,12 @@
 # Contribute to AIRust
 
-Use Rust 1.89 or newer for the core and provider-neutral embeddings/reranking. The optional local ONNX adapters and the complete all-feature check script need Rust 1.92 or newer. Python 3.11 or newer is needed for the explicit model-download helper tests, not for the library. Run the repository checks before submitting a change:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings/reranking. The optional local ONNX adapters and the complete all-feature check script need Rust 1.92 or newer. Python 3.11 or newer is needed for the model-download helper tests and the manifest-driven feature matrix, not for the library. Run the repository checks before submitting a change:
 
 ```bash
 ./test.sh
 ```
+
+The final step of `test.sh` runs `python3 -B scripts/check_features.py`: every declared feature is checked separately with all targets. Use `--report /tmp/features.json` to retain machine-readable results. This supplements the all-feature tests and targeted interaction tests; it does not enumerate every possible feature subset.
 
 Keep the default build independent of PDF, HTTP, databases, and language models. Lexical retrieval features should use the shared index and tokenizer. Embedding providers receive original text and explicitly define their model's preprocessing recipe.
 
