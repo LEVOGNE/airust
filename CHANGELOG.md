@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.27
+
+verification of captured proof dependencies against current facts, rules, source versions and allowed scope. See [report](docs/CHANGES-0.2.27.md).
+
 ## 0.2.26
 
 comparisons of identified retrieval runs, visible per-query regressions and explicit quality/resource criteria. See [report](docs/CHANGES-0.2.26.md).

@@ -116,3 +116,7 @@ cargo run --locked --features reasoning --example reasoning > /dev/null
 cargo clippy --all-targets --no-default-features --features quality-gates --locked -- -D warnings
 cargo test --no-default-features --features quality-gates --test quality_gates --locked
 cargo run --locked --features quality-gates --example quality_gate > /dev/null
+
+cargo clippy --all-targets --no-default-features --features evidence-freshness --locked -- -D warnings
+cargo test --no-default-features --features evidence-freshness --test evidence_freshness --locked
+cargo run --locked --features evidence-freshness --example evidence_freshness > /dev/null

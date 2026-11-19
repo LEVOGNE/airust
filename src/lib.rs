@@ -109,3 +109,6 @@ pub mod reasoning;
 
 #[cfg(feature = "quality-gates")]
 pub mod quality_gates;
+
+#[cfg(feature = "evidence-freshness")]
+pub mod evidence_freshness;

@@ -140,3 +140,7 @@ an optional bounded rule interpreter that proposes conclusions with explicit pre
 ## Comparable quality gates (0.2.26)
 
 comparisons of identified retrieval runs, visible per-query regressions and explicit quality/resource criteria. Enable `quality-gates` explicitly. See [contract](QUALITY-GATES.md) and [release report](CHANGES-0.2.26.md).
+
+## Evidence freshness (0.2.27)
+
+verification of captured proof dependencies against current facts, rules, source versions and allowed scope. Enable `evidence-freshness` explicitly. See [contract](EVIDENCE-FRESHNESS.md) and [release report](CHANGES-0.2.27.md).
