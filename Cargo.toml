@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.25"
+version = "0.2.26"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+quality-gates = ["quality", "dep:sha2"]
 reasoning = ["dep:sha2"]
 learned-ranking = ["reranking", "dep:sha2", "serde_json/float_roundtrip"]
 feedback = ["reranking","dep:sha2"]
@@ -314,3 +315,11 @@ required-features=["learned-ranking"]
 [[example]]
 name="reasoning"
 required-features=["reasoning"]
+
+[[example]]
+name="quality_gate"
+required-features=["quality-gates"]
+
+[[example]]
+name="beir_evaluation"
+required-features=["quality-gates"]

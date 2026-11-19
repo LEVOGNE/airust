@@ -1,4 +1,4 @@
-# AIRust 0.2.25 API cookbook
+# AIRust 0.2.26 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.25", default-features = false }
+airust = { version = "=0.2.26", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -267,3 +267,7 @@ an optional small linear model with replaceable bounded features, explicit train
 an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](REASONING.md).
 
 The [complete application guide](APPLICATION-INTEGRATION.md) connects these APIs into a future adapter with explicit revision, permission, feedback and review boundaries.
+
+## Comparable quality gates (0.2.26)
+
+comparisons of identified retrieval runs, visible per-query regressions and explicit quality/resource criteria. Enable `quality-gates` explicitly. See [contract](QUALITY-GATES.md) and [release report](CHANGES-0.2.26.md).

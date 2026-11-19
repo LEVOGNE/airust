@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.26
+
+comparisons of identified retrieval runs, visible per-query regressions and explicit quality/resource criteria. See [report](docs/CHANGES-0.2.26.md).
+
 ## 0.2.25
 
 Evidence-backed rule proposals. an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. See [report](docs/CHANGES-0.2.25.md).

@@ -112,3 +112,7 @@ cargo run --locked --features learned-ranking --example learned_ranking > /dev/n
 cargo clippy --all-targets --no-default-features --features reasoning --locked -- -D warnings
 cargo test --no-default-features --features reasoning --test reasoning --locked
 cargo run --locked --features reasoning --example reasoning > /dev/null
+
+cargo clippy --all-targets --no-default-features --features quality-gates --locked -- -D warnings
+cargo test --no-default-features --features quality-gates --test quality_gates --locked
+cargo run --locked --features quality-gates --example quality_gate > /dev/null

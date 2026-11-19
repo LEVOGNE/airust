@@ -136,3 +136,7 @@ an optional small linear model with replaceable bounded features, explicit train
 ## Optional evidence-backed rule proposals (0.2.25)
 
 an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](REASONING.md).
+
+## Comparable quality gates (0.2.26)
+
+comparisons of identified retrieval runs, visible per-query regressions and explicit quality/resource criteria. Enable `quality-gates` explicitly. See [contract](QUALITY-GATES.md) and [release report](CHANGES-0.2.26.md).

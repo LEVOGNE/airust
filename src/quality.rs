@@ -54,6 +54,9 @@ impl Judgments {
         }
         Ok(result)
     }
+    pub fn iter(&self) -> impl Iterator<Item = (&str, u8)> {
+        self.grades.iter().map(|(id, grade)| (id.as_str(), *grade))
+    }
     pub fn grade(&self, id: &str) -> Option<u8> {
         self.grades.get(id).copied()
     }

@@ -106,3 +106,6 @@ pub mod learned_ranking;
 
 #[cfg(feature = "reasoning")]
 pub mod reasoning;
+
+#[cfg(feature = "quality-gates")]
+pub mod quality_gates;
