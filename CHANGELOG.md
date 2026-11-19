@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.30
+
+a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. See [report](docs/CHANGES-0.2.30.md).
+
 ## 0.2.29
 
 trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. See [report](docs/CHANGES-0.2.29.md).

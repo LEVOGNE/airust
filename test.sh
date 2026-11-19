@@ -128,3 +128,8 @@ cargo run --locked --features rank-explanations --example rank_explanations > /d
 cargo clippy --all-targets --no-default-features --features training-pipeline --locked -- -D warnings
 cargo test --no-default-features --features training-pipeline --test training_pipeline --locked
 cargo run --locked --features training-pipeline --example training_pipeline > /dev/null
+
+cargo clippy --all-targets --no-default-features --features disk-index --locked -- -D warnings
+cargo test --no-default-features --features disk-index --test disk_index --locked
+cargo run --locked --features disk-index --example disk_index > /dev/null
+cargo run --locked --features disk-index --example disk_benchmark -- 1000 disk > /dev/null

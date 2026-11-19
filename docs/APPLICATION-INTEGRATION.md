@@ -1,4 +1,4 @@
-# AIRust 0.2.29 application integration guide
+# AIRust 0.2.30 application integration guide
 
 AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. This release changes no DenkMaps or MCP code and does not establish production readiness for a real application dataset.
 
@@ -6,7 +6,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.29", default-features = false,
+airust = { version = "=0.2.30", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -93,6 +93,11 @@ Roll out one capability at a time behind a configuration switch, with the previo
 | 0.2.23 | FeedbackLedger, FeedbackReranker | Retractable local preference evidence |
 | 0.2.24 | FeatureExtractor, train, LinearModel, LinearReranker | Inspectable small trained ranking model |
 | 0.2.25 | Fact, Rule, infer, ReasoningResult | Bounded evidence-backed rule proposals |
+| 0.2.26 | CaseMeasurement, EvaluationRun, GatePolicy, compare_runs | Explicit comparable quality/resource checks |
+| 0.2.27 | EvidenceView, EvidenceReceipt, capture_evidence, verify_evidence | Detect changed, missing or forbidden proof dependencies |
+| 0.2.28 | ExplainableReranker, ExplainedScores | Exact additive score explanations |
+| 0.2.29 | CurationPolicy, TrainingDataset, train_grouped, ModelRegistry | Reviewed training data and quality-gated model transitions |
+| 0.2.30 | DiskIndex, DiskSource, DiskPage | Dedicated disk-backed search with revision-fenced updates/export |
 
 The [API cookbook](API-COOKBOOK.md), focused module contracts and runnable examples contain exact signatures. [Release reports](../CHANGELOG.md) link actual tests, measurements and limitations for each version. This is an integration plan, not a completed DenkMaps integration or a claim of perfection.
 
@@ -111,3 +116,9 @@ per-document score explanations using the actual learned features and feedback a
 ## Controlled training pipeline (0.2.29)
 
 trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. Enable `training-pipeline` explicitly. See [contract](TRAINING-PIPELINE.md) and [release report](CHANGES-0.2.29.md).
+
+## Optional disk search index (0.2.30)
+
+a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. Enable `disk-index` explicitly. See [contract](DISK-INDEX.md) and [release report](CHANGES-0.2.30.md).
+
+The disk adapter has its own coherent record/FTS revision. Existing DatasetManager RAM snapshots do not cover it automatically. Coordinate external source generations before combining disk hits with vectors/graphs/provenance. Apply explicit quality gates, recheck proof receipts, inspect explanations and review curated training data before model promotion. ModelRegistry is a caller-owned slot; persist/authenticate its state and keep source/database ownership in the application.

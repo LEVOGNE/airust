@@ -1,12 +1,20 @@
-# AIRust 0.2.29
+# AIRust 0.2.30
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.2.29 adds trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. See [API and limits](docs/TRAINING-PIPELINE.md) and [validation report](docs/CHANGES-0.2.29.md). Extra capabilities remain optional. No DenkMaps or MCP integration is performed.
+Version 0.2.30 can search a dedicated index on disk. Records and search data update together, and failed batches leave the previous committed state available. See [API and limits](docs/DISK-INDEX.md) and [measurements](docs/CHANGES-0.2.30.md). Extra capabilities remain optional. No DenkMaps or MCP integration is performed.
 
-The [release history](CHANGELOG.md) explains every completed step through 0.2.29, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+| Release | What it adds | Why it helps |
+| --- | --- | --- |
+| [0.2.26](docs/QUALITY-GATES.md) | Compare identified search runs against explicit quality and resource rules. | Show regressions before approving a change. |
+| [0.2.27](docs/EVIDENCE-FRESHNESS.md) | Check proof dependencies against current facts, rules and source versions. | Find conclusions that need renewed review. |
+| [0.2.28](docs/RANK-EXPLANATIONS.md) | Show the actual feature and feedback contributions to a score. | Make ranking decisions inspectable. |
+| [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
+| [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
+
+The [release history](CHANGELOG.md) explains every completed step through 0.2.30, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -58,7 +66,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.29", default-features = false }
+airust = { version = "=0.2.30", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -289,6 +297,7 @@ The default build is the library. PDF processing, HTTP, SQLite, bots, command-li
 | `evidence-freshness` | Evidence freshness; optional. |
 | `rank-explanations` | Exact ranking explanations; optional. |
 | `training-pipeline` | Controlled training pipeline; optional. |
+| `disk-index` | Optional disk search index; optional. |
 | `adaptive` | Explicit bounded source registry, replaceable routing policy and inspectable route traces; includes retrieval. |
 | `retrieval` | Compact owned query responses and optional relevant excerpts; includes Unicode segmentation. |
 | `storage` / `sqlite-storage` | Bounded atomic record backends with revision fencing; SQLite stays separate from web. |
@@ -339,6 +348,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/evidence_freshness.rs` | verification of captured proof dependencies against current facts, rules, source versions and allowed scope. |
 | `src/rank_explanations.rs` | per-document score explanations using the actual learned features and feedback adjustments. |
 | `src/training_pipeline.rs` | trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. |
+| `src/disk_index.rs` | a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. |
 | `src/adaptive.rs` | Optional query-shape routing across explicitly configured sources, preserving scopes and recipes. |
 | `src/retrieval/assessment.rs` | Optional evidence policies, explicit uncertainty and auditable per-excerpt observations. |
 | `src/retrieval/excerpts.rs` | Bounded query-related windows, Unicode-safe highlights and original byte coordinates. |

@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.29"
+version = "0.2.30"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+disk-index = ["sqlite-storage", "retrieval", "rusqlite/hooks"]
 training-pipeline = ["feedback", "learned-ranking", "quality-gates"]
 rank-explanations = ["learned-ranking", "feedback"]
 evidence-freshness = ["reasoning"]
@@ -338,3 +339,11 @@ required-features=["rank-explanations"]
 [[example]]
 name="training_pipeline"
 required-features=["training-pipeline"]
+
+[[example]]
+name="disk_index"
+required-features=["disk-index"]
+
+[[example]]
+name="disk_benchmark"
+required-features=["disk-index"]

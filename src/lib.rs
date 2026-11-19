@@ -118,3 +118,6 @@ pub mod rank_explanations;
 
 #[cfg(feature = "training-pipeline")]
 pub mod training_pipeline;
+
+#[cfg(feature = "disk-index")]
+pub mod disk_index;
