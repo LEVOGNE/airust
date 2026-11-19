@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.2.27"
+version = "0.2.28"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+rank-explanations = ["learned-ranking", "feedback"]
 evidence-freshness = ["reasoning"]
 quality-gates = ["quality", "dep:sha2"]
 reasoning = ["dep:sha2"]
@@ -328,3 +329,7 @@ required-features=["quality-gates"]
 [[example]]
 name="evidence_freshness"
 required-features=["evidence-freshness"]
+
+[[example]]
+name="rank_explanations"
+required-features=["rank-explanations"]

@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.2.27 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.2.28 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Source entries
 
@@ -206,3 +206,7 @@ comparisons of identified retrieval runs, visible per-query regressions and expl
 ## Evidence freshness (0.2.27)
 
 verification of captured proof dependencies against current facts, rules, source versions and allowed scope. Enable `evidence-freshness` explicitly. See [contract](EVIDENCE-FRESHNESS.md) and [release report](CHANGES-0.2.27.md).
+
+## Exact ranking explanations (0.2.28)
+
+per-document score explanations using the actual learned features and feedback adjustments. Enable `rank-explanations` explicitly. See [contract](RANK-EXPLANATIONS.md) and [release report](CHANGES-0.2.28.md).

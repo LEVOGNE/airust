@@ -601,6 +601,35 @@ fn hash(parts: &[&[u8]]) -> String {
     }
     format!("{:x}", h.finalize())
 }
+#[cfg(feature = "rank-explanations")]
+impl crate::rank_explanations::ExplainableReranker for LinearReranker<'_> {
+    fn score_explained(
+        &mut self,
+        query: &str,
+        documents: &[&str],
+        options: &crate::rank_explanations::ExplanationOptions,
+    ) -> Result<crate::rank_explanations::ExplainedScores, RerankError> {
+        use crate::rank_explanations::*;
+        validate_inputs(query, documents, options)?;
+        let mut all = Vec::with_capacity(documents.len());
+        for document in documents {
+            let values = features(self.extractor, &self.model.schema, query, document)
+                .map_err(|_| RerankError::Output("invalid explained learned features"))?;
+            let components = self
+                .model
+                .schema
+                .names
+                .iter()
+                .zip(values)
+                .zip(&self.model.weights)
+                .map(|((name, value), weight)| ScoreComponent::new(name, value, *weight))
+                .collect::<Result<Vec<_>, _>>()?;
+            all.push(components);
+        }
+        ExplainedScores::from_components(self.recipe(), query, documents, all, options)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

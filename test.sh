@@ -120,3 +120,7 @@ cargo run --locked --features quality-gates --example quality_gate > /dev/null
 cargo clippy --all-targets --no-default-features --features evidence-freshness --locked -- -D warnings
 cargo test --no-default-features --features evidence-freshness --test evidence_freshness --locked
 cargo run --locked --features evidence-freshness --example evidence_freshness > /dev/null
+
+cargo clippy --all-targets --no-default-features --features rank-explanations --locked -- -D warnings
+cargo test --no-default-features --features rank-explanations --test rank_explanations --locked
+cargo run --locked --features rank-explanations --example rank_explanations > /dev/null

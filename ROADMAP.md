@@ -34,6 +34,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 | 0.2.25 | Bounded rule-based inference proposals with evidence | Implemented; see [report](docs/CHANGES-0.2.25.md). |
 | 0.2.26 | Comparable quality gates | Implemented; see [report](docs/CHANGES-0.2.26.md). |
 | 0.2.27 | Evidence freshness | Implemented; see [report](docs/CHANGES-0.2.27.md). |
+| 0.2.28 | Exact ranking explanations | Implemented; see [report](docs/CHANGES-0.2.28.md). |
 
 The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 

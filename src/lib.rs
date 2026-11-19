@@ -112,3 +112,6 @@ pub mod quality_gates;
 
 #[cfg(feature = "evidence-freshness")]
 pub mod evidence_freshness;
+
+#[cfg(feature = "rank-explanations")]
+pub mod rank_explanations;

@@ -1,0 +1,9 @@
+# AIRust 0.2.28: Exact ranking explanations
+
+per-document score explanations using the actual learned features and feedback adjustments.
+
+## Validation
+
+The suite passes 194 default and 625 all-feature Rust tests, including documentation, plus five Python tests. Isolated feature checks, strict Clippy/rustdoc, Rust 1.89/1.92, patch compatibility against 0.2.27, audit, local/registry consumers, extracted-package tests, dry-run and exact-commit CI gate publication. One native-model test requires external assets and remains ignored.
+
+See [API and limits](RANK-EXPLANATIONS.md) and [measurements](measurements/0.2.28/). Dataset/model identities, explicit uncertainty and application-owned authorization remain part of the contract. Public measurements do not establish production quality or an independent security audit. No DenkMaps/MCP integration.

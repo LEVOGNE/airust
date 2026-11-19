@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.28
+
+per-document score explanations using the actual learned features and feedback adjustments. See [report](docs/CHANGES-0.2.28.md).
+
 ## 0.2.27
 
 verification of captured proof dependencies against current facts, rules, source versions and allowed scope. See [report](docs/CHANGES-0.2.27.md).
