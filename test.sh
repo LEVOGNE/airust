@@ -124,3 +124,7 @@ cargo run --locked --features evidence-freshness --example evidence_freshness > 
 cargo clippy --all-targets --no-default-features --features rank-explanations --locked -- -D warnings
 cargo test --no-default-features --features rank-explanations --test rank_explanations --locked
 cargo run --locked --features rank-explanations --example rank_explanations > /dev/null
+
+cargo clippy --all-targets --no-default-features --features training-pipeline --locked -- -D warnings
+cargo test --no-default-features --features training-pipeline --test training_pipeline --locked
+cargo run --locked --features training-pipeline --example training_pipeline > /dev/null

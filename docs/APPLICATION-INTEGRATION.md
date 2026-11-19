@@ -1,4 +1,4 @@
-# AIRust 0.2.28 application integration guide
+# AIRust 0.2.29 application integration guide
 
 AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. This release changes no DenkMaps or MCP code and does not establish production readiness for a real application dataset.
 
@@ -6,7 +6,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.28", default-features = false,
+airust = { version = "=0.2.29", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -107,3 +107,7 @@ verification of captured proof dependencies against current facts, rules, source
 ## Exact ranking explanations (0.2.28)
 
 per-document score explanations using the actual learned features and feedback adjustments. Enable `rank-explanations` explicitly. See [contract](RANK-EXPLANATIONS.md) and [release report](CHANGES-0.2.28.md).
+
+## Controlled training pipeline (0.2.29)
+
+trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. Enable `training-pipeline` explicitly. See [contract](TRAINING-PIPELINE.md) and [release report](CHANGES-0.2.29.md).

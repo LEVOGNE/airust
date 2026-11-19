@@ -1,4 +1,4 @@
-# AIRust 0.2.28 API cookbook
+# AIRust 0.2.29 API cookbook
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -6,7 +6,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.28", default-features = false }
+airust = { version = "=0.2.29", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -279,3 +279,7 @@ verification of captured proof dependencies against current facts, rules, source
 ## Exact ranking explanations (0.2.28)
 
 per-document score explanations using the actual learned features and feedback adjustments. Enable `rank-explanations` explicitly. See [contract](RANK-EXPLANATIONS.md) and [release report](CHANGES-0.2.28.md).
+
+## Controlled training pipeline (0.2.29)
+
+trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. Enable `training-pipeline` explicitly. See [contract](TRAINING-PIPELINE.md) and [release report](CHANGES-0.2.29.md).

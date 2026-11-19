@@ -148,3 +148,7 @@ verification of captured proof dependencies against current facts, rules, source
 ## Exact ranking explanations (0.2.28)
 
 per-document score explanations using the actual learned features and feedback adjustments. Enable `rank-explanations` explicitly. See [contract](RANK-EXPLANATIONS.md) and [release report](CHANGES-0.2.28.md).
+
+## Controlled training pipeline (0.2.29)
+
+trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. Enable `training-pipeline` explicitly. See [contract](TRAINING-PIPELINE.md) and [release report](CHANGES-0.2.29.md).

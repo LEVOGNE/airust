@@ -272,6 +272,12 @@ pub struct GateReport {
     findings: Vec<GateFinding>,
 }
 impl GateReport {
+    pub fn baseline_fingerprint(&self) -> &str {
+        &self.baseline
+    }
+    pub fn candidate_fingerprint(&self) -> &str {
+        &self.candidate
+    }
     pub fn verdict(&self) -> GateVerdict {
         self.verdict
     }

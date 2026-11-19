@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.29
+
+trusted feedback curation, versioned datasets, grouped training and explicit quality-gated model promotion with rollback. See [report](docs/CHANGES-0.2.29.md).
+
 ## 0.2.28
 
 per-document score explanations using the actual learned features and feedback adjustments. See [report](docs/CHANGES-0.2.28.md).
