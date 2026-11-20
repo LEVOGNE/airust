@@ -135,3 +135,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.5 continues stabilization with larger official PDFs, authored format cases and early pagewise chunk-budget rejection. Parser caches are released before duplicating training text. Measurements, retained knowledge and explicit limits precede any 0.4.0 expansion. No application or MCP integration is included.
+
+
+0.3.6 continues stabilization by correcting PDF text fidelity and testing further official large references. Old knowledge remains intact, changed text is audited, and callers explicitly rebuild derived data. No 0.4.0 feature expansion or application/MCP integration is included.

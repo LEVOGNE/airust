@@ -1,4 +1,4 @@
-# AIRust 0.3.5 application integration guide
+# AIRust 0.3.6 application integration guide
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.5", default-features = false,
+airust = { version = "=0.3.6", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -134,3 +134,6 @@ AIRust 0.3.4 improves the optional PDF preparation step with the same API and pr
 
 
 AIRust 0.3.5 keeps these application APIs and adds earlier PDF chunk-budget rejection during document preparation. See [the current import guide](PDF-IMPORT-PIPELINE.md). Application transactions, authorization and source identity remain the caller's responsibility; no adapter is installed here.
+
+
+AIRust 0.3.6 changes PDF-derived text intentionally. Treat a reimport as a new derived-data revision and rebuild affected indexes/excerpts/vectors rather than merging chunk IDs blindly. [Cleaning controls and migration advice](PDF-TEXT-FIDELITY.md) describe the existing API. No adapter or application storage is changed.

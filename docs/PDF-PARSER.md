@@ -6,7 +6,7 @@ AIRust 0.3.4 removes a measured bottleneck in the optional PDF importer. Existin
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.5", default-features = false, features = ["pdf"] }
+airust = { version = "=0.3.6", default-features = false, features = ["pdf"] }
 ```
 
 ```rust
@@ -67,3 +67,6 @@ Format owned code with `cargo fmt --package airust`. The provenance checker form
 
 
 AIRust 0.3.5 uses this same independently versioned 0.3.4 backend. It improves the surrounding page/chunk budget pipeline; see [current import results and API](PDF-IMPORT-PIPELINE.md). The 0.3.4 performance results above remain historical comparisons.
+
+
+AIRust 0.3.6 keeps this exact backend and corrects surrounding text cleaning; see [current text behavior and controls](PDF-TEXT-FIDELITY.md).

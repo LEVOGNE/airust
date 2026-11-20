@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.5 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.6 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -246,3 +246,8 @@ The optional importer selects the maintained backend without changing public loa
 ## Pagewise PDF budget checks (0.3.5)
 
 The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conversion checks chunk count and overlap-expanded chunk bytes after each page, before extracting later pages. It stages one copy of validated chunks, releases the parser and then creates training records. `extract_pages_from_pdf` still returns complete page contents and applies file/page/raw/cleaned-text limits; it does not split chunks. If several budgets could fail, the first encountered failure may differ from older processing order. See [examples, measured behavior and limits](PDF-IMPORT-PIPELINE.md). The separately versioned backend stays at 0.3.4.
+
+
+## Corrected PDF cleaning (0.3.6)
+
+The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatures. Digit boundaries and blank paragraphs are protected during line joining; chained wraps are handled in one pass; Unicode is normalized after transformations. Page-number filtering is restricted to first/last nonempty extracted lines. Set `remove_page_numbers = false` for literal numeric edge data and `dehyphenate = false` for meaningful hyphens. `clean_text = false` bypasses AIRust cleaning in PDF import. Corrected imports can change chunks, offsets and ranking: preserve old exports, reimport explicitly and rebuild derived data under a new source/configuration revision. See [full behavior, examples, measurements and limits](PDF-TEXT-FIDELITY.md). The parser backend remains exactly 0.3.4.

@@ -1,4 +1,17 @@
 pub fn repeated_pages(count: usize) -> Vec<u8> {
+    let contents = (0..count)
+        .map(|i| {
+            format!(
+                "BT /F1 12 Tf 40 740 Td (Page {i}. {}) Tj ET",
+                "Repeated concurrency test content. ".repeat(100)
+            )
+        })
+        .collect::<Vec<_>>();
+    pages_with_contents(&contents)
+}
+
+pub fn pages_with_contents(contents: &[String]) -> Vec<u8> {
+    let count = contents.len();
     let mut objects = vec![
         b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
         format!(
@@ -11,11 +24,7 @@ pub fn repeated_pages(count: usize) -> Vec<u8> {
         .into_bytes(),
         b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_vec(),
     ];
-    for i in 0..count {
-        let text = format!(
-            "BT /F1 12 Tf 40 740 Td (Page {i}. {}) Tj ET",
-            "Repeated concurrency test content. ".repeat(100)
-        );
+    for (i, text) in contents.iter().enumerate() {
         objects.push(format!("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents {} 0 R >>",5+i*2).into_bytes());
         objects
             .push(format!("<< /Length {} >>\nstream\n{text}\nendstream", text.len()).into_bytes());

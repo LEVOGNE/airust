@@ -13,7 +13,7 @@ cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT
 For the installed converter:
 
 ```bash
-cargo install airust --version 0.3.5 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.6 --locked --features cli,pdf --bin pdf2kb
 pdf2kb INPUT.pdf OUTPUT.json --timeout-seconds 60
 ```
 
@@ -54,3 +54,6 @@ The supervised malformed-input campaign covers six authored files and 128 determ
 A separate real-PDF index soak uses unchanged 0.3.2 engine sources. Each of two modes performs 20,000 operation attempts, 9,920 exact ranked-ID/score comparisons against rebuilt indexes, parallel reads and selected clone/JSON-roundtrip checks. Both retain identical final indexes. The lab's peak RSS includes all comparison copies and is not a standalone engine memory claim. See [aggregate measurements](measurements/0.3.3/).
 
 Keep the ignored `local-lab/pdf-stability` directory to retain knowledge, reference text, indexes, fixtures, raw measurements, binaries and frozen release sources. Canonical source indexes remain separate from deliberately edited soak copies and malformed-input evidence; reuse the canonical indexes for domain knowledge. See [reuse instructions](PDF-STABILITY.md). Public documentation contains aggregates; private document text and query strings are not redistributed.
+
+
+AIRust 0.3.6 retains these budget/worker APIs and intentionally corrects text cleaning. Historical 0.3.5 output-equality measurements do not imply unchanged 0.3.6 text. See [current controls and upgrade notes](PDF-TEXT-FIDELITY.md).

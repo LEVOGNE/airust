@@ -49,3 +49,6 @@ AIRust 0.3.4 improves the measured long-line parser path with preserved raw text
 
 
 AIRust 0.3.5 checks chunk count and overlap-expanded chunk bytes after each page. The collecting page-extraction method keeps its existing contract. See [the current pipeline, API and measurements](PDF-IMPORT-PIPELINE.md).
+
+
+The 0.3.6 cleanup retains more numeric data and can therefore change budget outcomes near a configured boundary. [Cleaning controls and migration notes](PDF-TEXT-FIDELITY.md) explain the behavior. No partial import is returned.

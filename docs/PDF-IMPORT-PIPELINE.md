@@ -6,7 +6,7 @@ AIRust now checks chunk budgets as it processes each page. A document that alrea
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.5", default-features = false, features = ["pdf"] }
+airust = { version = "=0.3.6", default-features = false, features = ["pdf"] }
 ```
 
 ```rust
@@ -26,7 +26,7 @@ The four limits are input-file bytes, physical pages, text bytes and chunk count
 The CLI uses the same options:
 
 ```bash
-cargo install airust --version 0.3.5 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.6 --locked --features cli,pdf --bin pdf2kb
 pdf2kb document.pdf knowledge.json --max-file-mib 128 --max-pages 6000 --max-text-mib 64 --max-chunks 100000 --timeout-seconds 90
 ```
 
@@ -69,3 +69,6 @@ The optional backend remains `airust-pdf-backend = 0.3.4`. Its original notices,
 The local lab keeps the old 33,708-entry canonical export intact and adds a separate combined export with 60,266 unique entries. New IDs have a document namespace; source/page/chunk metadata remain intact. No fuzz, authored-format or edited soak output enters that canonical knowledge. Original PDFs, references, binaries, exports and raw logs remain local and excluded from Git, crate packaging and Docker context. The current `saved_knowledge` example can reopen the combined index.
 
 README, the API cookbook and the release evidence explain what changed. No DenkMaps or MCP code, storage or transport is integrated.
+
+
+AIRust 0.3.6 retains these budget/worker APIs and intentionally corrects text cleaning. Historical 0.3.5 output-equality measurements do not imply unchanged 0.3.6 text. See [current controls and upgrade notes](PDF-TEXT-FIDELITY.md).

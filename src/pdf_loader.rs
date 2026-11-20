@@ -8,7 +8,7 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
 
-static DEHYPHEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\w)-\s*\n\s*(\w)").unwrap());
+static DEHYPHEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"-[\t ]*\r?\n[\t ]*").unwrap());
 static SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r" {2,}").unwrap());
 static NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n{3,}").unwrap());
 static PAGE_NUMBER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*-?\s*\d{1,4}\s*-?\s*$").unwrap());
@@ -471,8 +471,30 @@ impl PdfLoader {
             .collect();
 
         if self.config.dehyphenate {
-            text = DEHYPHEN.replace_all(&text, "$1$2").to_string();
+            let mut joined = String::new();
+            let mut cursor = 0;
+            for matched in DEHYPHEN.find_iter(&text) {
+                let alphabetic = |c: char| c.is_alphabetic() && !c.is_numeric();
+                if text[..matched.start()]
+                    .chars()
+                    .next_back()
+                    .is_some_and(alphabetic)
+                    && text[matched.end()..].chars().next().is_some_and(alphabetic)
+                {
+                    if cursor == 0 {
+                        joined.reserve(text.len());
+                    }
+                    joined.push_str(&text[cursor..matched.start()]);
+                    cursor = matched.end();
+                }
+            }
+            if cursor != 0 {
+                joined.push_str(&text[cursor..]);
+                text = joined;
+            }
         }
+
+        text = text.nfc().collect();
 
         text = text.replace('\t', " ").replace("\r\n", "\n");
 
@@ -481,9 +503,16 @@ impl PdfLoader {
         text = NEWLINES.replace_all(&text, "\n\n").to_string();
 
         if self.config.remove_page_numbers {
-            text = text
-                .lines()
-                .filter(|l| !PAGE_NUMBER.is_match(l))
+            let lines: Vec<_> = text.lines().collect();
+            let first = lines.iter().position(|line| !line.trim().is_empty());
+            let last = lines.iter().rposition(|line| !line.trim().is_empty());
+            text = lines
+                .into_iter()
+                .enumerate()
+                .filter(|(i, line)| {
+                    (Some(*i) != first && Some(*i) != last) || !PAGE_NUMBER.is_match(line)
+                })
+                .map(|(_, line)| line)
                 .collect::<Vec<_>>()
                 .join("\n");
         }
@@ -838,6 +867,52 @@ mod tests {
     }
 
     #[test]
+    fn dehyphenation_preserves_numeric_ranges_and_paragraph_boundaries() {
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            remove_page_numbers: false,
+            ..Default::default()
+        });
+        for input in [
+            "Range 10-\n20 units.",
+            "Range Ⅳ-\nⅤ units.",
+            "Keep x_-\nname unchanged.",
+            "End-\n\nStart of another paragraph.",
+            "End-\n \t\nStart of another paragraph.",
+        ] {
+            let result = loader.clean_text(input);
+            assert!(result.contains("-\n"), "{input:?} became {result:?}");
+        }
+    }
+
+    #[test]
+    fn dehyphenation_handles_chained_splits_and_unicode_composition() {
+        let loader = PdfLoader::new();
+        for (input, expected) in [
+            ("com-\np-\nuter", "computer"),
+            ("infor-\r\nma-\r\ntion", "information"),
+            ("κα-\nλη-\nμέρα", "καλημέρα"),
+            ("\u{1100}-\n\u{1161}", "가"),
+            ("A\0\u{301}", "Á"),
+        ] {
+            let result = loader.clean_text(input);
+            assert_eq!(result, expected);
+            assert_eq!(loader.clean_text(&result), result);
+        }
+    }
+
+    #[test]
+    fn dehyphenation_long_chains_keep_all_letters_and_can_be_disabled() {
+        let input = format!("{}z", "a-\n".repeat(20000));
+        let expected = format!("{}z", "a".repeat(20000));
+        assert_eq!(PdfLoader::new().clean_text(&input), expected);
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            dehyphenate: false,
+            ..Default::default()
+        });
+        assert_eq!(loader.clean_text(&input), input);
+    }
+
+    #[test]
     fn test_clean_text_whitespace() {
         let loader = PdfLoader::new();
         let input = "Hello   world.\t\tTest.\r\nLine.\n\n\n\n\nParagraph.";
@@ -853,12 +928,24 @@ mod tests {
     #[test]
     fn test_clean_text_page_numbers() {
         let loader = PdfLoader::new();
-        let input = "Some text here.\n42\nMore text.\n- 7 -\nEnd.";
+        let input = "42\nSome text here.\nMore text.\nEnd.\n- 7 -";
         let result = loader.clean_text(input);
         assert!(!result.contains("\n42\n"));
         assert!(!result.contains("- 7 -"));
         assert!(result.contains("Some text here."));
         assert!(result.contains("More text."));
+    }
+
+    #[test]
+    fn page_number_removal_keeps_internal_numeric_data_and_can_be_disabled() {
+        let input = "\n42\nMeasurements\n100\n200\nEnd of table\n- 43 -\n";
+        let result = PdfLoader::new().clean_text(input);
+        assert_eq!(result, "Measurements\n100\n200\nEnd of table");
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            remove_page_numbers: false,
+            ..Default::default()
+        });
+        assert_eq!(loader.clean_text(input), input.trim());
     }
 
     #[test]

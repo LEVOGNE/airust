@@ -1,13 +1,14 @@
-# AIRust 0.3.5
+# AIRust 0.3.6
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.5 stops PDF conversion when a page exhausts the document's chunk budget. Successful text, metadata and output formats keep their behavior. Three additional official references bring the retained real corpus to 18 documents and 15,956 pages. Tests also exercise object streams, incremental updates, rotations, Unicode, encrypted files and image-only pages. Existing and new knowledge remain local. See [import behavior, API, measurements and limits](docs/PDF-IMPORT-PIPELINE.md) and the [release report](docs/CHANGES-0.3.5.md). The PDF backend remains optional. No DenkMaps or MCP integration is added. A three-pair follow-up reduces rejection of the 5,364-page one-chunk case from 7.39 to 1.07 seconds in the median. Complete-import timings remain similar in that follow-up; this is a targeted improvement.
+Version 0.3.6 corrects PDF text cleaning. Line joining protects digit boundaries and blank paragraphs, internal numeric rows are retained, and Unicode is normalized again after cleaning. Existing APIs and formats remain compatible, but corrected imports can change text, chunk IDs and rankings. Older knowledge exports remain intact. See [current behavior, controls and limits](docs/PDF-TEXT-FIDELITY.md) and the [release report](docs/CHANGES-0.3.6.md). The PDF backend stays optional and unchanged at 0.3.4. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.6](docs/PDF-TEXT-FIDELITY.md) | Preserve numeric data, paragraph breaks and normalized Unicode when cleaning PDF text. | Avoid misleading joined numbers and unnecessary loss of technical content. |
 | [0.3.5](docs/PDF-IMPORT-PIPELINE.md) | Check chunk budgets while processing pages and retain one staged copy. | Reject over-budget imports earlier while preserving existing knowledge. |
 | [0.3.4](docs/PDF-PARSER.md) | Read complete small PDF objects without repeatedly scanning huge physical lines. | Import the measured slow documents faster while keeping their structure and text. |
 | [0.3.3](docs/PDF-WORKERS.md) | Run PDF conversion in an owned child with a time budget and validated output. | Stop a blocking parser job while protecting previous knowledge. |
@@ -20,7 +21,7 @@ Version 0.3.5 stops PDF conversion when a page exhausts the document's chunk bud
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.5, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.6, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -72,7 +73,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.5", default-features = false }
+airust = { version = "=0.3.6", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -243,7 +244,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **197 default tests and 689 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **197 default tests and 694 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits

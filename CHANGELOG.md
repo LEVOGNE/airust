@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6
+
+Correct PDF text cleaning: keep digit boundaries and blank paragraphs, join chained wraps without losing match boundaries, normalize Unicode after transformations and retain internal numeric lines. Existing API/JSON formats remain compatible; corrected text can change chunks, offsets and rankings. The expanded 21-document corpus, independent cleanup oracle, fixed literal probes, difficult formats and malformed inputs validate the changes. Old knowledge and raw evidence remain local. See [results](docs/CHANGES-0.3.6.md) and [API/controls/upgrade/limits](docs/PDF-TEXT-FIDELITY.md). The optional backend stays 0.3.4. No DenkMaps/MCP integration is added.
+
 ## 0.3.5
 
 PDF conversion now checks chunk count and overlap-expanded text budgets while visiting each page, avoiding needless later-page extraction after a failure. Validated chunks are staged once and the parser is released before training text is duplicated. Public signatures, successful JSON and the optional backend version remain unchanged. Additional official large documents and authored format tests extend validation; original knowledge, fresh imports and raw evidence remain local. See [release results](docs/CHANGES-0.3.5.md) and [API/behavior/limits](docs/PDF-IMPORT-PIPELINE.md). No DenkMaps/MCP integration is added.

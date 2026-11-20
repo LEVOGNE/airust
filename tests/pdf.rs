@@ -4,6 +4,44 @@ use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
 #[test]
+fn imported_pdf_keeps_internal_numbers_and_wrapped_ranges() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("numbers-and-ranges.pdf");
+    let lines = [
+        "Header",
+        "100",
+        "200",
+        "Range 10-",
+        "20 units.",
+        "Footer",
+        "42",
+    ];
+    let mut contents = "BT /F1 12 Tf 40 740 Td ".to_owned();
+    for (i, line) in lines.iter().enumerate() {
+        if i != 0 {
+            contents.push_str("0 -28 Td ");
+        }
+        contents.push_str(&format!("({line}) Tj "));
+    }
+    contents.push_str("ET");
+    std::fs::write(&path, pdf_fixture::pages_with_contents(&[contents])).unwrap();
+    let examples = PdfLoader::new().pdf_to_training_examples(&path).unwrap();
+    assert_eq!(examples.len(), 1);
+    let input = &examples[0].input;
+    for expected in ["100", "200", "10-", "20 units."] {
+        assert!(input.contains(expected), "{input:?} misses {expected:?}");
+    }
+    assert!(!input.contains("1020"));
+    assert!(!input.ends_with("42"));
+    assert_eq!(examples[0].metadata.as_ref().unwrap()["page_number"], 1);
+    let index =
+        airust::Engine::from_entries(vec![airust::KnowledgeEntry::new("table", input.clone())])
+            .unwrap();
+    assert_eq!(index.search("100", 1)[0].entry.id, "table");
+    assert!(index.search("1020", 1).is_empty());
+}
+
+#[test]
 fn exhausted_chunk_budgets_stop_before_extracting_later_pages() {
     let folder = tempfile::tempdir().unwrap();
     let path = folder.path().join("two-pages.pdf");

@@ -1,0 +1,42 @@
+{
+  "samples": 24,
+  "binary_sha256": {
+    "035": "b81168506102c4bccf8dcd08daf2ef5fffc4dba52de1ff8a5e01de8214600148",
+    "036": "58f0aa995e7c96e0de90cfa02c2f5d3531e546dd929e5235b98e28997834d706"
+  },
+  "no_clean_outputs_identical": true,
+  "default_outputs": "May differ intentionally; all changed pages separately match the independent cleanup oracle. Work/output sizes differ, so this is not a same-output speedup claim.",
+  "conditions": "Same thinLTO/codegen1 Rust/macOS ARM64 profiles; fresh direct children and alternating order; input/file caches warm; deliberate feature/fuzz/API jobs completed, other desktop activity uncontrolled. wait4 per-child peak RSS.",
+  "cases": {
+    "postgresql-18-A4": {
+      "035": {
+        "median_wall_seconds": 4.736238833051175,
+        "median_peak_rss_bytes": 188694528
+      },
+      "036": {
+        "median_wall_seconds": 4.777057874947786,
+        "median_peak_rss_bytes": 194166784
+      }
+    },
+    "vkspec": {
+      "035": {
+        "median_wall_seconds": 7.725901124998927,
+        "median_peak_rss_bytes": 411746304
+      },
+      "036": {
+        "median_wall_seconds": 7.8768287498969585,
+        "median_peak_rss_bytes": 412319744
+      }
+    },
+    "riscv-unprivileged": {
+      "035": {
+        "median_wall_seconds": 1.1747507499530911,
+        "median_peak_rss_bytes": 76201984
+      },
+      "036": {
+        "median_wall_seconds": 1.189832041040063,
+        "median_peak_rss_bytes": 75956224
+      }
+    }
+  }
+}
