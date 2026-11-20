@@ -278,14 +278,19 @@ impl PdfLoader {
             .to_string_lossy()
             .to_string();
 
-        let mut examples = Vec::new();
+        let mut chunked_pages = Vec::new();
         let mut budget = ChunkBudget::new(self.limits);
-        for page in self.extract_pages_from_pdf(path)? {
-            let mut page_examples =
-                self.text_to_training_examples(&page.text, &filename, &mut budget)?;
+        self.visit_pages_from_pdf(path, |page| {
+            let chunks = self.split_text_into_chunks_with_budget(&page.text, &mut budget)?;
+            chunked_pages.push((page.page_number, chunks));
+            Ok(())
+        })?;
+        let mut examples = Vec::new();
+        for (page_number, chunks) in chunked_pages {
+            let mut page_examples = self.chunks_to_training_examples(chunks, &filename);
             for example in &mut page_examples {
                 if let Some(metadata) = &mut example.metadata {
-                    metadata["page_number"] = serde_json::json!(page.page_number);
+                    metadata["page_number"] = serde_json::json!(page_number);
                 }
             }
             examples.extend(page_examples);
@@ -297,6 +302,19 @@ impl PdfLoader {
     }
 
     pub fn extract_pages_from_pdf(&self, path: &Path) -> Result<Vec<PageContent>, PdfError> {
+        let mut pages = Vec::new();
+        self.visit_pages_from_pdf(path, |page| {
+            pages.push(page);
+            Ok(())
+        })?;
+        Ok(pages)
+    }
+
+    fn visit_pages_from_pdf(
+        &self,
+        path: &Path,
+        mut visit: impl FnMut(PageContent) -> Result<(), PdfError>,
+    ) -> Result<(), PdfError> {
         self.config.validate()?;
         let doc = if let Some(limits) = self.limits {
             let before = std::fs::metadata(path)?;
@@ -351,7 +369,6 @@ impl PdfLoader {
                 ));
             }
         }
-        let mut pages = Vec::new();
         let mut raw_bytes = 0usize;
         let mut cleaned_bytes = 0usize;
 
@@ -395,14 +412,14 @@ impl PdfLoader {
             }
 
             if !cleaned.is_empty() {
-                pages.push(PageContent {
+                visit(PageContent {
                     page_number: page_idx + 1,
                     text: cleaned,
-                });
+                })?;
             }
         }
 
-        Ok(pages)
+        Ok(())
     }
 
     fn is_garbage_text(text: &str) -> bool {
@@ -474,20 +491,19 @@ impl PdfLoader {
         text.trim().to_string()
     }
 
-    fn text_to_training_examples(
+    fn chunks_to_training_examples(
         &self,
-        text: &str,
+        chunks: Vec<String>,
         source_file: &str,
-        budget: &mut ChunkBudget,
-    ) -> Result<Vec<TrainingExample>, PdfError> {
+    ) -> Vec<TrainingExample> {
         let mut examples = Vec::new();
-        let chunks = self.split_text_into_chunks_with_budget(text, budget)?;
+        let total_chunks = chunks.len();
 
-        for (i, chunk) in chunks.iter().enumerate() {
+        for (i, chunk) in chunks.into_iter().enumerate() {
             let metadata = if self.config.include_metadata {
                 Some(serde_json::json!({
                     "chunk_index": i,
-                    "total_chunks": chunks.len(),
+                    "total_chunks": total_chunks,
                     "source_file": source_file,
                 }))
             } else {
@@ -496,13 +512,13 @@ impl PdfLoader {
 
             examples.push(TrainingExample {
                 input: chunk.clone(),
-                output: ResponseFormat::Text(chunk.clone()),
+                output: ResponseFormat::Text(chunk),
                 weight: self.config.default_weight,
                 metadata,
             });
         }
 
-        Ok(examples)
+        examples
     }
 
     #[cfg(test)]

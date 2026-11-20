@@ -1,4 +1,4 @@
-# AIRust 0.3.4 API cookbook
+# AIRust 0.3.5 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.4", default-features = false }
+airust = { version = "=0.3.5", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -325,3 +325,8 @@ A timeout enables bounded import defaults; the existing file/page/text/chunk fla
 ## Optimized PDF backend (0.3.4)
 
 Existing `PdfLoader`, `PdfImportLimits`, save methods and CLI flags keep their signatures. Enable `pdf` explicitly to select the separately versioned `airust-pdf-backend = 0.3.4`. The default core does not load it. A bounded internal fast path handles complete nonstream objects on long physical lines; complete structure traversal and fallback remain enabled. Existing saved indexes and training arrays remain usable. See [algorithm, measured results, provenance and limits](PDF-PARSER.md). The original C ABI is opt-in in the backend; AIRust's Rust importer does not enable it.
+
+
+## Pagewise PDF budget checks (0.3.5)
+
+The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conversion checks chunk count and overlap-expanded chunk bytes after each page, before extracting later pages. It stages one copy of validated chunks, releases the parser and then creates training records. `extract_pages_from_pdf` still returns complete page contents and applies file/page/raw/cleaned-text limits; it does not split chunks. If several budgets could fail, the first encountered failure may differ from older processing order. See [examples, measured behavior and limits](PDF-IMPORT-PIPELINE.md). The separately versioned backend stays at 0.3.4.

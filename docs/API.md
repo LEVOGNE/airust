@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.4 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.5 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -241,3 +241,8 @@ The optional `pdf2kb` CLI accepts `--timeout-seconds N` for a supervised child j
 ## PDF object-loading optimization (0.3.4)
 
 The optional importer selects the maintained backend without changing public loader signatures, error variants, CLI flags or knowledge formats. Source bytes, complete structure ordering and original fallback are preserved. The malformed UTF-8 object-keyword check no longer unwinds; unexpected parser panics still have the existing guard. See [performance evidence and maintained-backend contract](PDF-PARSER.md).
+
+
+## Pagewise PDF budget checks (0.3.5)
+
+The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conversion checks chunk count and overlap-expanded chunk bytes after each page, before extracting later pages. It stages one copy of validated chunks, releases the parser and then creates training records. `extract_pages_from_pdf` still returns complete page contents and applies file/page/raw/cleaned-text limits; it does not split chunks. If several budgets could fail, the first encountered failure may differ from older processing order. See [examples, measured behavior and limits](PDF-IMPORT-PIPELINE.md). The separately versioned backend stays at 0.3.4.

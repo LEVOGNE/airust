@@ -3,6 +3,27 @@
 use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
+#[test]
+fn exhausted_chunk_budgets_stop_before_extracting_later_pages() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("two-pages.pdf");
+    std::fs::write(&path, pdf_fixture::repeated_pages(2)).unwrap();
+    for (chunks, overlap, expected) in [(1, 200, "chunk count"), (1000, 950, "chunk text bytes")] {
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            chunk_overlap: overlap,
+            ..Default::default()
+        })
+        .with_limits(bounded_limits(1024 * 1024, 2, 4096, chunks));
+        let raw_error = loader
+            .extract_pages_from_pdf(&path)
+            .err()
+            .expect("both raw pages exceed the text budget");
+        assert!(raw_error.to_string().contains("extracted text bytes"));
+        let result = loader.pdf_to_training_examples(&path).unwrap_err();
+        assert!(result.to_string().contains(expected), "{result}");
+    }
+}
+
 fn bounded_limits(
     file_bytes: u64,
     pages: usize,
@@ -232,7 +253,6 @@ fn cli_limit_failures_preserve_existing_output_and_reject_overflow() {
     }
 }
 
-#[cfg(feature = "cli")]
 #[path = "support/pdf_fixture.rs"]
 mod pdf_fixture;
 

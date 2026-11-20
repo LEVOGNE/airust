@@ -1,0 +1,53 @@
+{
+  "samples": 24,
+  "repeats_per_version_case": 3,
+  "all_successful_paired_outputs_identical": true,
+  "all_failed_imports_preserve_previous_output": true,
+  "binary_sha256": {
+    "034": "e454a12a3a962b4e73671d8a9968f5454bd5a1c7edc4ac3b997cde2ba2fac5d8",
+    "035": "b81168506102c4bccf8dcd08daf2ef5fffc4dba52de1ff8a5e01de8214600148"
+  },
+  "conditions": "Same release profile/Rust/macOS ARM64; alternating order; warm input/file caches; all deliberate release builds/fuzz/API/feature runs completed; other desktop activity not controlled; no idle-machine or cold-cache claim; individual direct-child wait4 RSS",
+  "cases": {
+    "intel-sdm": {
+      "034": {
+        "median_wall_seconds": 7.354343750048429,
+        "median_peak_rss_bytes": 326795264
+      },
+      "035": {
+        "median_wall_seconds": 7.482643292052671,
+        "median_peak_rss_bytes": 328859648
+      }
+    },
+    "pdf-17-specification": {
+      "034": {
+        "median_wall_seconds": 1.4175637499429286,
+        "median_peak_rss_bytes": 363216896
+      },
+      "035": {
+        "median_wall_seconds": 1.379011832876131,
+        "median_peak_rss_bytes": 362397696
+      }
+    },
+    "ecma-262": {
+      "034": {
+        "median_wall_seconds": 1.7470331250224262,
+        "median_peak_rss_bytes": 190218240
+      },
+      "035": {
+        "median_wall_seconds": 1.7515153749845922,
+        "median_peak_rss_bytes": 189677568
+      }
+    },
+    "early-limit": {
+      "034": {
+        "median_wall_seconds": 7.391987707931548,
+        "median_peak_rss_bytes": 326565888
+      },
+      "035": {
+        "median_wall_seconds": 1.0722802500240505,
+        "median_peak_rss_bytes": 259211264
+      }
+    }
+  }
+}

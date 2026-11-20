@@ -6,7 +6,7 @@ AIRust 0.3.4 removes a measured bottleneck in the optional PDF importer. Existin
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.4", default-features = false, features = ["pdf"] }
+airust = { version = "=0.3.5", default-features = false, features = ["pdf"] }
 ```
 
 ```rust
@@ -64,3 +64,6 @@ The backend source lives in `crates/airust-pdf-backend`; the main AIRust crate r
 The fresh main-lockfile audit reports zero known vulnerabilities and three maintenance warnings for optional/transitive packages. These warnings remain visible in the [audit record](measurements/0.3.4/audit.json); an advisory scan is not an independent security audit.
 
 Format owned code with `cargo fmt --package airust`. The provenance checker formats/checks only the maintained helper and tests; formatting the entire copied upstream tree would break its exact provenance record. Never replace canonical knowledge with edited soak/fuzz output. All source inputs, canonical indexes, old binaries and raw evidence remain in the ignored local lab. [Aggregate measurements](measurements/0.3.4/) identify versions, costs and limits.
+
+
+AIRust 0.3.5 uses this same independently versioned 0.3.4 backend. It improves the surrounding page/chunk budget pipeline; see [current import results and API](PDF-IMPORT-PIPELINE.md). The 0.3.4 performance results above remain historical comparisons.

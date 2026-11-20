@@ -13,7 +13,7 @@ cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT
 For the installed converter:
 
 ```bash
-cargo install airust --version 0.3.4 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.5 --locked --features cli,pdf --bin pdf2kb
 pdf2kb INPUT.pdf OUTPUT.json --timeout-seconds 60
 ```
 

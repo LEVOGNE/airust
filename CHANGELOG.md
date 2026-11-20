@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+PDF conversion now checks chunk count and overlap-expanded text budgets while visiting each page, avoiding needless later-page extraction after a failure. Validated chunks are staged once and the parser is released before training text is duplicated. Public signatures, successful JSON and the optional backend version remain unchanged. Additional official large documents and authored format tests extend validation; original knowledge, fresh imports and raw evidence remain local. See [release results](docs/CHANGES-0.3.5.md) and [API/behavior/limits](docs/PDF-IMPORT-PIPELINE.md). No DenkMaps/MCP integration is added.
+
 ## 0.3.4
 
 Optimize optional PDF object loading with a bounded complete-nonstream-object fast path on long physical lines. Preserve source bytes, complete structure traversal, decryption, caches and original fallback. Fix UTF-8 predecessor slicing and default C-symbol collisions in the independently named optional backend. Five matched CLI runs reduce the known 494-page case from 23.36 to 0.58 seconds in the median; fifteen-document raw text/knowledge/rankings remain unchanged. See [API, results and limits](docs/PDF-PARSER.md) and [validation](docs/CHANGES-0.3.4.md). No DenkMaps/MCP integration or default-core dependency change.

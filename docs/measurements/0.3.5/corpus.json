@@ -1,0 +1,61 @@
+{
+  "version": "0.3.5",
+  "real_documents": 18,
+  "physical_pages": 15956,
+  "canonical_entries": 60266,
+  "previous_entries_retained": 33708,
+  "new_entries": 26558,
+  "new_sources": [
+    {
+      "id": "intel-sdm",
+      "name": "intel-sdm.pdf",
+      "source_url": "https://cdrdv2.intel.com/v1/dl/getContent/671200",
+      "bytes": 26664929,
+      "pages": 5364,
+      "sha256": "a4a62e6a7ba11a76c7753a195b825087306812aac39b930973f9168ee599f321"
+    },
+    {
+      "id": "pdf-17-specification",
+      "name": "pdf-17-specification.pdf",
+      "source_url": "https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf",
+      "bytes": 22491828,
+      "pages": 756,
+      "sha256": "9de0ca9e8570d6209e8bd48a355be8eb6ec376acfc3fc3ae97cd8730351417ff"
+    },
+    {
+      "id": "ecma-262",
+      "name": "ecma-262.pdf",
+      "source_url": "https://ecma-international.org/wp-content/uploads/ECMA-262.pdf",
+      "bytes": 6200735,
+      "pages": 876,
+      "sha256": "c7fd846906e0a10105289d07ecd95bce8ea334b8a223b1e33688265b6ea5c8db"
+    }
+  ],
+  "new_literal_probes": 27,
+  "new_expected_page_top_ten": {
+    "Bm25": 26,
+    "Tfidf": 18
+  },
+  "new_text_provenance_and_checked_rankings_unchanged": true,
+  "old_fifteen_document_worker": {
+    "version": "0.3.5",
+    "documents": 15,
+    "pages": 8960,
+    "chunks": 33708,
+    "all_content_and_provenance_unchanged": true,
+    "deadline": {
+      "case": "deadline-large-reference",
+      "exit_code": 1,
+      "wall_seconds": 1.0078085421118885,
+      "outer_timeout": false,
+      "output_preserved": true,
+      "worker_stopped_and_reaped": true
+    },
+    "scope": "Supervised CLI job; time budget covers worker startup/execution, not parent validation/publication or hard realtime/RAM isolation. Outer watchdog kills owned process group only if the tested job fails to stop."
+  },
+  "original_source_hashes_unchanged": 18,
+  "canonical_sha256": "c56f96134eb9d1ae61efec548b704f76484669c1faa386acbe209cc770ec496a",
+  "old_canonical_sha256_unchanged": "45d58e9e01e1ca6f5ffaab3c5ca3007f68114d01428c510f4d69b666802a7b93",
+  "retained_index_query_hits": 10,
+  "scope": "Separate new literal page probes and old 115-probe fixture; not human relevance judgments. All source data stays local."
+}

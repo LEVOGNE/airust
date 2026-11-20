@@ -1,0 +1,54 @@
+{
+  "samples": 40,
+  "repeats_per_version_case": 5,
+  "all_successful_paired_outputs_identical": true,
+  "all_failed_imports_preserve_previous_output": true,
+  "binary_sha256": {
+    "034": "e454a12a3a962b4e73671d8a9968f5454bd5a1c7edc4ac3b997cde2ba2fac5d8",
+    "035": "a7157525a5e6fed8da57ea7735f466765c555543cd2b81ca7609e245af449ac6"
+  },
+  "conditions": "Same release profile/Rust/macOS ARM64; alternating order; warm input/file caches; background build activity, no idle-machine claim; individual direct-child wait4 RSS",
+  "cases": {
+    "intel-sdm": {
+      "034": {
+        "median_wall_seconds": 7.462217667140067,
+        "median_peak_rss_bytes": 329416704
+      },
+      "035": {
+        "median_wall_seconds": 7.3243653329554945,
+        "median_peak_rss_bytes": 359333888
+      }
+    },
+    "pdf-17-specification": {
+      "034": {
+        "median_wall_seconds": 1.4305185829289258,
+        "median_peak_rss_bytes": 367181824
+      },
+      "035": {
+        "median_wall_seconds": 1.4439074171241373,
+        "median_peak_rss_bytes": 368508928
+      }
+    },
+    "ecma-262": {
+      "034": {
+        "median_wall_seconds": 2.0182023751549423,
+        "median_peak_rss_bytes": 194478080
+      },
+      "035": {
+        "median_wall_seconds": 1.6959235831163824,
+        "median_peak_rss_bytes": 195379200
+      }
+    },
+    "early-limit": {
+      "034": {
+        "median_wall_seconds": 7.404259582981467,
+        "median_peak_rss_bytes": 328564736
+      },
+      "035": {
+        "median_wall_seconds": 1.1115394590888172,
+        "median_peak_rss_bytes": 261357568
+      }
+    }
+  },
+  "status": "Superseded pre-release candidate; its full-import RSS increase was detected and corrected before publication."
+}

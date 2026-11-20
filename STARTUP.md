@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.3.4 speeds up optional PDF object loading. It keeps supervised jobs, explicit import limits and the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.3.5 checks PDF chunk budgets after each page and keeps the faster optional PDF backend. It keeps supervised jobs, explicit import limits and the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
 
 ## Try the core
 
@@ -113,13 +113,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.3.4 .
+docker build -t airust:0.3.5 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.3.4
+  airust:0.3.5
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.
@@ -194,3 +194,6 @@ an optional small linear model with replaceable bounded features, explicit train
 ## Optional evidence-backed rule proposals (0.2.25)
 
 an optional bounded rule interpreter that proposes conclusions with explicit premises, sources, revision, conflicts and incomplete-result status. Enable `reasoning` explicitly. See [API and limits](docs/REASONING.md).
+
+
+For current pagewise PDF limits, difficult-file checks and retained knowledge, see [the 0.3.5 import guide](docs/PDF-IMPORT-PIPELINE.md). The same command-line flags and library methods apply.

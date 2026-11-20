@@ -23,7 +23,7 @@ The page cap is checked before per-page text extraction. The text cap applies se
 
 A violation returns an error with the budget name and its actual/maximum value where representable. No partial import is returned. CLI conversion therefore leaves existing output untouched when any limit fails, including with --overwrite. Original text and ranking behavior are unchanged for successful imports in the tested corpus.
 
-Native parsing can allocate or perform substantial work inside one call before text limits can be checked. The byte snapshot is copied by the current PDF dependency, parser caches add memory, and training responses duplicate text. These options are not hard process-memory limits, hard CPU deadlines or a constant-memory streaming API. The existing slow first-page case remains; 0.3.3 provides optional [supervised CLI jobs](PDF-WORKERS.md) for this boundary. Library methods remain synchronous.
+Native parsing can allocate or perform substantial work inside one call before text limits can be checked. The byte snapshot is copied by the current PDF dependency, parser caches add memory, and training responses duplicate text. These options are not hard process-memory limits, hard CPU deadlines or a constant-memory streaming API. Other native calls may still block; 0.3.3 provides optional [supervised CLI jobs](PDF-WORKERS.md) for this boundary. Library methods remain synchronous.
 
 ## CLI
 
@@ -46,3 +46,6 @@ The local lab repeats the same fifteen real PDFs and literal page probes with bo
 Retained local lab data is now also explicitly excluded from the Docker build context. Docker is unavailable on the validation host; this exclusion is reviewed statically, and no executed Docker image test is claimed. Git and crate isolation checks remain in place.
 
 AIRust 0.3.4 improves the measured long-line parser path with preserved raw text and structure; the same limits and synchronous-library boundaries remain. See [parser optimization](PDF-PARSER.md).
+
+
+AIRust 0.3.5 checks chunk count and overlap-expanded chunk bytes after each page. The collecting page-extraction method keeps its existing contract. See [the current pipeline, API and measurements](PDF-IMPORT-PIPELINE.md).
