@@ -1,4 +1,4 @@
-# AIRust 0.3.1 API cookbook
+# AIRust 0.3.2 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.1", default-features = false }
+airust = { version = "=0.3.2", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -293,3 +293,19 @@ a dedicated disk-backed full-text index with atomic revisions, scoped retrieval,
 ## Safe PDF output and retained knowledge (0.3.1)
 
 With `pdf`, use `PdfLoader::save_knowledge_base_if_absent(&kb, path)` for exclusive creation. It rejects an existing or late-created destination without replacing its bytes. The parent directory must exist and support hard links. Existing `save_knowledge_base` retains explicit replacement behavior. A blank/unusable conversion returns an error; parser Rust unwinding panics are converted to an import error without returning partial results. This is not hard preemption, a memory quota or protection from aborting native code. The [PDF guide](PDF-STABILITY.md) gives commands for measurement, retained-index search, API limits and real-document results.
+
+
+## Bounded PDF imports (0.3.2)
+
+Enable `pdf` explicitly. The limits below mean input bytes, physical pages, UTF-8 text bytes and total chunks:
+
+```rust
+use airust::{PdfImportLimits, PdfLoader};
+# fn main() -> Result<(), Box<dyn std::error::Error>> {
+let limits = PdfImportLimits::new(64 * 1024 * 1024, 3000, 64 * 1024 * 1024, 50000)?;
+let loader = PdfLoader::new().with_limits(limits);
+# let _ = loader;
+# Ok(()) }
+```
+
+Call `loader.pdf_to_knowledge_base(path)?`, then use exclusive creation or explicit replacement as described above. A failed budget returns an error without a partial import. Raw, cleaned and overlap-expanded chunk text are counted separately; a chunk budget spans all pages. Existing constructors remain unbounded unless opted in. `PdfImportLimits::default()` supplies the bounded defaults. See [full contract, CLI flags and native-parser limits](PDF-LIMITS.md). These budgets are not hard process-memory or CPU quotas.

@@ -4,6 +4,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::error::Error;
 use std::fmt;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
 
@@ -117,8 +118,113 @@ impl PdfLoaderConfig {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PdfImportLimits {
+    max_file_bytes: u64,
+    max_pages: usize,
+    max_text_bytes: usize,
+    max_chunks: usize,
+}
+
+impl Default for PdfImportLimits {
+    fn default() -> Self {
+        Self {
+            max_file_bytes: 256 * 1024 * 1024,
+            max_pages: 20000,
+            max_text_bytes: 64 * 1024 * 1024,
+            max_chunks: 100000,
+        }
+    }
+}
+
+impl PdfImportLimits {
+    pub fn new(
+        max_file_bytes: u64,
+        max_pages: usize,
+        max_text_bytes: usize,
+        max_chunks: usize,
+    ) -> Result<Self, PdfError> {
+        if max_file_bytes == 0
+            || max_file_bytes >= usize::MAX as u64
+            || max_pages == 0
+            || max_text_bytes == 0
+            || max_chunks == 0
+        {
+            return Err(PdfError::InvalidConfig("PDF import limits must be positive and the file limit must leave room for one overflow-detection byte".to_owned()));
+        }
+        Ok(Self {
+            max_file_bytes,
+            max_pages,
+            max_text_bytes,
+            max_chunks,
+        })
+    }
+    pub fn max_file_bytes(&self) -> u64 {
+        self.max_file_bytes
+    }
+    pub fn max_pages(&self) -> usize {
+        self.max_pages
+    }
+    pub fn max_text_bytes(&self) -> usize {
+        self.max_text_bytes
+    }
+    pub fn max_chunks(&self) -> usize {
+        self.max_chunks
+    }
+}
+
+fn pdf_limit(kind: &str) -> PdfError {
+    PdfError::PdfError(format!(
+        "PDF import limit exceeded: {kind}; no partial import returned"
+    ))
+}
+
+fn pdf_limit_value(kind: &str, actual: u128, maximum: u128) -> PdfError {
+    PdfError::PdfError(format!("PDF import limit exceeded: {kind} ({actual}; maximum {maximum}); no partial import returned"))
+}
+
+struct ChunkBudget {
+    chunks: usize,
+    bytes: usize,
+    max_chunks: usize,
+    max_bytes: usize,
+}
+
+impl ChunkBudget {
+    fn new(limits: Option<PdfImportLimits>) -> Self {
+        let chunks = limits.map_or(usize::MAX, |l| l.max_chunks);
+        let bytes = limits.map_or(usize::MAX, |l| l.max_text_bytes);
+        Self {
+            chunks,
+            bytes,
+            max_chunks: chunks,
+            max_bytes: bytes,
+        }
+    }
+    fn take(&mut self, text: &str) -> Result<String, PdfError> {
+        let chunks = self.chunks.checked_sub(1).ok_or_else(|| {
+            pdf_limit_value(
+                "chunk count",
+                self.max_chunks as u128 + 1,
+                self.max_chunks as u128,
+            )
+        })?;
+        let bytes = self.bytes.checked_sub(text.len()).ok_or_else(|| {
+            pdf_limit_value(
+                "chunk text bytes",
+                (self.max_bytes - self.bytes) as u128 + text.len() as u128,
+                self.max_bytes as u128,
+            )
+        })?;
+        self.chunks = chunks;
+        self.bytes = bytes;
+        Ok(text.to_owned())
+    }
+}
+
 pub struct PdfLoader {
     config: PdfLoaderConfig,
+    limits: Option<PdfImportLimits>,
 }
 
 impl Default for PdfLoader {
@@ -131,11 +237,20 @@ impl PdfLoader {
     pub fn new() -> Self {
         Self {
             config: PdfLoaderConfig::default(),
+            limits: None,
         }
     }
 
     pub fn with_config(config: PdfLoaderConfig) -> Self {
-        Self { config }
+        Self {
+            config,
+            limits: None,
+        }
+    }
+
+    pub fn with_limits(mut self, limits: PdfImportLimits) -> Self {
+        self.limits = Some(limits);
+        self
     }
 
     pub fn pdf_to_knowledge_base<P: AsRef<Path>>(
@@ -164,8 +279,10 @@ impl PdfLoader {
             .to_string();
 
         let mut examples = Vec::new();
+        let mut budget = ChunkBudget::new(self.limits);
         for page in self.extract_pages_from_pdf(path)? {
-            let mut page_examples = self.text_to_training_examples(&page.text, &filename);
+            let mut page_examples =
+                self.text_to_training_examples(&page.text, &filename, &mut budget)?;
             for example in &mut page_examples {
                 if let Some(metadata) = &mut example.metadata {
                     metadata["page_number"] = serde_json::json!(page.page_number);
@@ -181,17 +298,79 @@ impl PdfLoader {
 
     pub fn extract_pages_from_pdf(&self, path: &Path) -> Result<Vec<PageContent>, PdfError> {
         self.config.validate()?;
-        let doc = checked_pdf_call("opening the document", || {
-            pdf_oxide::PdfDocument::open(path)
-        })?;
+        let doc = if let Some(limits) = self.limits {
+            let before = std::fs::metadata(path)?;
+            if !before.is_file() {
+                return Err(PdfError::InvalidPath(path.to_string_lossy().into_owned()));
+            }
+            if before.len() > limits.max_file_bytes {
+                return Err(pdf_limit_value(
+                    "input file bytes",
+                    before.len() as u128,
+                    limits.max_file_bytes as u128,
+                ));
+            }
+            let file = std::fs::File::open(path)?;
+            let metadata = file.metadata()?;
+            if !metadata.is_file() {
+                return Err(PdfError::InvalidPath(path.to_string_lossy().into_owned()));
+            }
+            if metadata.len() > limits.max_file_bytes {
+                return Err(pdf_limit_value(
+                    "input file bytes",
+                    metadata.len() as u128,
+                    limits.max_file_bytes as u128,
+                ));
+            }
+            let mut bytes = Vec::new();
+            file.take(limits.max_file_bytes + 1)
+                .read_to_end(&mut bytes)?;
+            if bytes.len() as u64 > limits.max_file_bytes {
+                return Err(pdf_limit_value(
+                    "input file bytes",
+                    bytes.len() as u128,
+                    limits.max_file_bytes as u128,
+                ));
+            }
+            checked_pdf_call("opening the bounded document snapshot", || {
+                pdf_oxide::PdfDocument::from_bytes(bytes)
+            })?
+        } else {
+            checked_pdf_call("opening the document", || {
+                pdf_oxide::PdfDocument::open(path)
+            })?
+        };
 
         let page_count = checked_pdf_call("reading the page count", || doc.page_count())?;
+        if let Some(limits) = self.limits {
+            if page_count > limits.max_pages {
+                return Err(pdf_limit_value(
+                    "page count",
+                    page_count as u128,
+                    limits.max_pages as u128,
+                ));
+            }
+        }
         let mut pages = Vec::new();
+        let mut raw_bytes = 0usize;
+        let mut cleaned_bytes = 0usize;
 
         for page_idx in 0..page_count {
             let text = checked_pdf_call(&format!("extracting page {}", page_idx + 1), || {
                 doc.extract_text(page_idx)
             })?;
+            raw_bytes = raw_bytes
+                .checked_add(text.len())
+                .ok_or_else(|| pdf_limit("extracted text bytes"))?;
+            if let Some(limits) = self.limits {
+                if raw_bytes > limits.max_text_bytes {
+                    return Err(pdf_limit_value(
+                        "extracted text bytes",
+                        raw_bytes as u128,
+                        limits.max_text_bytes as u128,
+                    ));
+                }
+            }
 
             if Self::is_garbage_text(&text) {
                 continue;
@@ -202,6 +381,18 @@ impl PdfLoader {
             } else {
                 text.trim().to_string()
             };
+            cleaned_bytes = cleaned_bytes
+                .checked_add(cleaned.len())
+                .ok_or_else(|| pdf_limit("cleaned text bytes"))?;
+            if let Some(limits) = self.limits {
+                if cleaned_bytes > limits.max_text_bytes {
+                    return Err(pdf_limit_value(
+                        "cleaned text bytes",
+                        cleaned_bytes as u128,
+                        limits.max_text_bytes as u128,
+                    ));
+                }
+            }
 
             if !cleaned.is_empty() {
                 pages.push(PageContent {
@@ -283,9 +474,14 @@ impl PdfLoader {
         text.trim().to_string()
     }
 
-    fn text_to_training_examples(&self, text: &str, source_file: &str) -> Vec<TrainingExample> {
+    fn text_to_training_examples(
+        &self,
+        text: &str,
+        source_file: &str,
+        budget: &mut ChunkBudget,
+    ) -> Result<Vec<TrainingExample>, PdfError> {
         let mut examples = Vec::new();
-        let chunks = self.split_text_into_chunks(text);
+        let chunks = self.split_text_into_chunks_with_budget(text, budget)?;
 
         for (i, chunk) in chunks.iter().enumerate() {
             let metadata = if self.config.include_metadata {
@@ -306,16 +502,26 @@ impl PdfLoader {
             });
         }
 
-        examples
+        Ok(examples)
     }
 
+    #[cfg(test)]
     fn split_text_into_chunks(&self, text: &str) -> Vec<String> {
+        self.split_text_into_chunks_with_budget(text, &mut ChunkBudget::new(None))
+            .unwrap()
+    }
+
+    fn split_text_into_chunks_with_budget(
+        &self,
+        text: &str,
+        budget: &mut ChunkBudget,
+    ) -> Result<Vec<String>, PdfError> {
         if self.config.validate().is_err() || text.trim().is_empty() {
-            return Vec::new();
+            return Ok(Vec::new());
         }
         let text = text.trim();
         if text.chars().count() <= self.config.max_chunk_size {
-            return vec![text.to_owned()];
+            return Ok(vec![budget.take(text)?]);
         }
         let segments = if self.config.split_by_paragraph {
             self.split_into_paragraph_segments(text)
@@ -352,7 +558,7 @@ impl PdfLoader {
             };
             let chunk: String = chars[start..end].iter().collect();
             if !chunk.trim().is_empty() {
-                chunks.push(chunk.trim().to_owned());
+                chunks.push(budget.take(chunk.trim())?);
             }
             if end == chars.len() {
                 break;
@@ -360,7 +566,7 @@ impl PdfLoader {
 
             start = end - self.config.chunk_overlap;
         }
-        chunks
+        Ok(chunks)
     }
 
     fn split_into_paragraph_segments(&self, text: &str) -> Vec<String> {
@@ -541,6 +747,18 @@ pub fn pdf_to_training_examples<P: AsRef<Path>>(path: P) -> Result<Vec<TrainingE
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn chunk_limits_count_utf8_bytes_instead_of_unicode_scalars() {
+        let text = "ä😀尾";
+        let mut too_small = ChunkBudget::new(Some(
+            PdfImportLimits::new(1024, 1, text.len() - 1, 1).unwrap(),
+        ));
+        assert!(too_small.take(text).is_err());
+        let mut exact =
+            ChunkBudget::new(Some(PdfImportLimits::new(1024, 1, text.len(), 1).unwrap()));
+        assert_eq!(exact.take(text).unwrap(), text);
+    }
 
     #[test]
     fn punctuation_dense_parenthesized_text_preserves_all_content() {

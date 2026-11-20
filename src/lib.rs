@@ -53,7 +53,8 @@ pub use knowledge::KnowledgeBase;
 pub use match_agent::MatchAgent;
 #[cfg(feature = "pdf")]
 pub use pdf_loader::{
-    pdf_to_knowledge_base, pdf_to_training_examples, PageContent, PdfLoader, PdfLoaderConfig,
+    pdf_to_knowledge_base, pdf_to_training_examples, PageContent, PdfImportLimits, PdfLoader,
+    PdfLoaderConfig,
 };
 pub use tfidf_agent::TfidfAgent;
 

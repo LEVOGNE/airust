@@ -1,0 +1,31 @@
+{
+  "version": "0.3.2",
+  "baseline": "0.3.1 final minimal code",
+  "documents": 15,
+  "pages": 8960,
+  "chunks": 33708,
+  "private_documents": 14,
+  "private_pages": 6472,
+  "public_document": {
+    "pages": 2488,
+    "bytes": 12131143,
+    "sha256": "7ebb2d07303fd3188438663f02f8689169298c47fb35b0662fa3aa1e05064a05",
+    "source_url": "https://docs.python.org/3.14/archives/python-3.14-docs-pdf-a4.tar.bz2",
+    "archive_sha256": "be1c6531cb7ba3bb9164ace70605be717ca71cea09520590eb718bcf074c6659"
+  },
+  "all_content_hashes_page_sets_chunk_counts_and_checked_rankings_unchanged": true,
+  "probe_source": "Separate pypdf extraction with FontTools; literal page probes, not independent human relevance labels",
+  "probe_results": {
+    "Bm25": {
+      "cases": 115,
+      "expected_page_in_top_10": 111
+    },
+    "Tfidf": {
+      "cases": 115,
+      "expected_page_in_top_10": 102
+    }
+  },
+  "omitted_pages": "Four pages: independent extraction finds three blank pages and one page-number-only page",
+  "data_retention": "Private original files remain at their source; extracted indexes, queries, reference text and raw logs are retained in ignored local-lab/pdf-stability. No private text or source paths redistributed.",
+  "candidate_policy": "PdfImportLimits::default()"
+}

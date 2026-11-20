@@ -3,6 +3,237 @@
 use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
+fn bounded_limits(
+    file_bytes: u64,
+    pages: usize,
+    text_bytes: usize,
+    chunks: usize,
+) -> airust::PdfImportLimits {
+    airust::PdfImportLimits::new(file_bytes, pages, text_bytes, chunks).unwrap()
+}
+
+#[test]
+fn bounded_pdf_file_and_page_limits_have_exact_boundaries() {
+    let path = std::path::Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    ));
+    let bytes = std::fs::metadata(path).unwrap().len();
+    let baseline = PdfLoader::new().pdf_to_training_examples(path).unwrap();
+    let bounded = PdfLoader::new()
+        .with_limits(bounded_limits(bytes, 2, 100000, 2))
+        .pdf_to_training_examples(path)
+        .unwrap();
+    assert_eq!(
+        serde_json::to_value(baseline).unwrap(),
+        serde_json::to_value(bounded).unwrap()
+    );
+    let file_error = PdfLoader::new()
+        .with_limits(bounded_limits(bytes - 1, 2, 100000, 2))
+        .pdf_to_training_examples(path)
+        .unwrap_err();
+    assert!(file_error.to_string().contains("input file bytes"));
+    let page_error = PdfLoader::new()
+        .with_limits(bounded_limits(bytes, 1, 100000, 2))
+        .pdf_to_training_examples(path)
+        .unwrap_err();
+    assert!(page_error.to_string().contains("page count"));
+}
+
+#[test]
+fn bounded_pdf_limits_reject_zero_and_overflowing_configuration() {
+    use airust::PdfImportLimits;
+    fn stable_traits<
+        T: Send + Sync + std::panic::UnwindSafe + std::panic::RefUnwindSafe + Unpin,
+    >() {
+    }
+    stable_traits::<PdfLoader>();
+    stable_traits::<PdfImportLimits>();
+    for args in [
+        (0, 1, 1, 1),
+        (u64::MAX, 1, 1, 1),
+        (1024, 0, 1, 1),
+        (1024, 1, 0, 1),
+        (1024, 1, 1, 0),
+    ] {
+        assert!(PdfImportLimits::new(args.0, args.1, args.2, args.3).is_err());
+    }
+    let limits = PdfImportLimits::default();
+    assert_eq!(limits.max_pages(), 20000);
+    assert_eq!(limits.max_file_bytes(), 256 * 1024 * 1024);
+}
+
+#[test]
+fn bounded_memory_reader_contains_the_known_header_panic() {
+    let result = PdfLoader::new()
+        .with_limits(airust::PdfImportLimits::default())
+        .pdf_to_training_examples(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/pdf/invalid-header-utf8.pdf"
+        ));
+    assert!(
+        matches!(result, Err(PdfError::PdfError(message)) if message.contains("PDF parser panicked"))
+    );
+}
+
+#[cfg(all(feature = "cli", unix))]
+#[test]
+fn cli_non_unicode_path_and_option_values_never_panic() {
+    use std::{ffi::OsString, os::unix::ffi::OsStringExt, process::Command};
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("output.json");
+    let missing = folder
+        .path()
+        .join(OsString::from_vec(b"missing-\xff.pdf".to_vec()));
+    let missing_result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(missing)
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert_eq!(missing_result.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&missing_result.stderr).contains("not a regular file"));
+    let value_result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg("--max-pages")
+        .arg(OsString::from_vec(vec![0xff]))
+        .output()
+        .unwrap();
+    assert_eq!(value_result.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&value_result.stderr).contains("valid Unicode value"));
+    assert!(!output.exists());
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn cli_escapes_terminal_sequences_in_paths_without_changing_io_paths() {
+    use std::process::Command;
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("result-\u{1b}[31m.json");
+    let result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .args([
+            concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/tests/fixtures/pdf/sentences.pdf"
+            ),
+            output.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(output.exists());
+    assert!(!result.stdout.contains(&0x1b));
+    let failed = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(folder.path().join("missing-\u{1b}[31m.pdf"))
+        .output()
+        .unwrap();
+    assert_eq!(failed.status.code(), Some(1));
+    assert!(!failed.stderr.contains(&0x1b));
+}
+
+#[test]
+fn bounded_extraction_rejects_nonregular_paths_before_reading() {
+    let folder = tempfile::tempdir().unwrap();
+    assert!(matches!(
+        PdfLoader::new()
+            .with_limits(airust::PdfImportLimits::default())
+            .extract_pages_from_pdf(folder.path()),
+        Err(PdfError::InvalidPath(_))
+    ));
+}
+
+#[test]
+fn text_and_chunk_limits_apply_across_pages_and_overlap() {
+    let path = std::path::Path::new(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    ));
+    let doc = pdf_oxide::PdfDocument::open(path).unwrap();
+    let lengths = (0..2)
+        .map(|i| doc.extract_text(i).unwrap().len())
+        .collect::<Vec<_>>();
+    let raw_total = lengths.iter().sum::<usize>();
+    let max_page = *lengths.iter().max().unwrap();
+    let raw_error = PdfLoader::new()
+        .with_limits(bounded_limits(100000, 2, max_page, 100))
+        .pdf_to_training_examples(path)
+        .unwrap_err();
+    assert!(raw_error.to_string().contains("extracted text bytes"));
+    let count_error = PdfLoader::new()
+        .with_limits(bounded_limits(100000, 2, 100000, 1))
+        .pdf_to_training_examples(path)
+        .unwrap_err();
+    assert!(count_error.to_string().contains("chunk count"));
+    let loader = PdfLoader::with_config(PdfLoaderConfig {
+        min_chunk_size: 1,
+        max_chunk_size: 20,
+        chunk_overlap: 19,
+        split_by_paragraph: false,
+        split_by_sentence: false,
+        ..Default::default()
+    })
+    .with_limits(bounded_limits(100000, 2, raw_total, 1000));
+    assert!(loader
+        .pdf_to_training_examples(path)
+        .unwrap_err()
+        .to_string()
+        .contains("chunk text bytes"));
+}
+
+#[test]
+fn chunk_budget_stops_high_overlap_before_expanding_a_whole_page() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    );
+    let loader = PdfLoader::with_config(PdfLoaderConfig {
+        min_chunk_size: 1,
+        max_chunk_size: 10,
+        chunk_overlap: 9,
+        split_by_paragraph: false,
+        split_by_sentence: false,
+        ..Default::default()
+    })
+    .with_limits(bounded_limits(100000, 2, 100000, 3));
+    assert!(loader
+        .pdf_to_training_examples(path)
+        .unwrap_err()
+        .to_string()
+        .contains("chunk count"));
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn cli_limit_failures_preserve_existing_output_and_reject_overflow() {
+    use std::process::Command;
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("output.json");
+    std::fs::write(&output, "original complete data").unwrap();
+    let input = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    );
+    for flags in [
+        vec!["--max-pages", "1"],
+        vec!["--max-chunks", "1"],
+        vec!["--max-text-mib", "0"],
+        vec!["--max-file-mib", "18446744073709551615"],
+    ] {
+        let result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+            .args([input, output.to_str().unwrap(), "--overwrite", "--verbose"])
+            .args(flags)
+            .output()
+            .unwrap();
+        assert_eq!(result.status.code(), Some(1));
+        assert_eq!(
+            std::fs::read_to_string(&output).unwrap(),
+            "original complete data"
+        );
+    }
+}
+
 #[cfg(feature = "cli")]
 #[path = "support/pdf_fixture.rs"]
 mod pdf_fixture;

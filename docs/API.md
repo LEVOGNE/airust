@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.1 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.2 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -226,3 +226,8 @@ a dedicated disk-backed full-text index with atomic revisions, scoped retrieval,
 ## PDF import stability (0.3.1)
 
 The optional `pdf` importer refuses conversion when no usable text was extracted. `PdfLoader::save_knowledge_base_if_absent` publishes complete output only if no destination exists, including concurrent writers. The CLI uses it unless `--overwrite` is explicit. Parser unwinding panics become `PdfError::PdfError` at the adapter boundary; aborts, OOM and hard per-page deadlines are not covered. See [PDF API, tests and retained-knowledge guide](PDF-STABILITY.md).
+
+
+## PDF import budgets (0.3.2)
+
+With `pdf`, `PdfLoader::new().with_limits(PdfImportLimits::default())` selects bounded input, physical-page, extracted-text and chunk policies. `PdfImportLimits::new(file_bytes, pages, text_bytes, chunks)?` validates a custom policy, and getters expose it. Limits are opt-in and preserve successful imports in the measured corpus. A violation returns an error without a partial result. See [the complete API and CLI contract](PDF-LIMITS.md) for overlap counting, defaults, terminal handling and native execution limits.

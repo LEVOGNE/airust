@@ -1,0 +1,15 @@
+{
+  "version": "0.3.2",
+  "non_unicode_cli_arguments": {
+    "before": "uncaught env::args panic, exit 101",
+    "after": "OS paths preserved; invalid numeric option returns exit 1"
+  },
+  "own_cli_terminal_messages": {
+    "before": "raw escape byte reproduced in missing-file error",
+    "after": "controls escaped; actual file path unchanged"
+  },
+  "budgets": "exact boundary, cumulative raw/cleaned/chunk UTF-8 text, high-overlap expansion, document chunk counts, invalid limits and output preservation tested",
+  "docker_context": "local-lab/ excluded; reviewed statically, no Docker executable on host",
+  "knowledge_retention": "original inputs and extracted data retained locally; no private text or source paths in public summaries",
+  "remaining_limits": "native work inside one parser call is not preempted or hard-memory bounded"
+}

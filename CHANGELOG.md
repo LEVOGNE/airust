@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+Add opt-in PDF budgets for file bytes, pages, raw/cleaned/chunk text and total chunks. Reject chunk amplification before retaining an oversized collection, handle OS-string CLI paths without argument panics, and escape controls in the CLI's own terminal output. Exclude retained lab data from the Docker context. All fifteen corpus imports match 0.3.1; native-call latency and hard-memory isolation remain open. See [API and limits](docs/PDF-LIMITS.md) and [validation](docs/CHANGES-0.3.2.md).
+
 ## 0.3.1
 
 Harden optional PDF imports: exclusive atomic output publication, refusal of empty conversions, parser-panic containment, linear parenthesis tracking and explicit package isolation for retained local lab data. Real-document comparisons, retained private knowledge and adversarial regression cases support the change. See [results and limits](docs/CHANGES-0.3.1.md).
