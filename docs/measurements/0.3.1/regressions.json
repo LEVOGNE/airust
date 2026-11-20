@@ -1,0 +1,17 @@
+{
+  "race_before": {
+    "version": "0.3.0",
+    "child_code": 0,
+    "output_created_after_raw_preview": true,
+    "concurrent_data_preserved": false,
+    "result": "BUG: output overwritten without --overwrite"
+  },
+  "race_after": {
+    "version": "0.3.1",
+    "code": 1,
+    "concurrent_data_preserved": true,
+    "stderr": "PDF conversion failed: IO Error: destination already exists\n"
+  },
+  "empty_conversion": "New library and CLI regressions reject unusable PDFs and preserve existing output",
+  "parser_panic": "Malformed UTF-8 header exposed an upstream Rust panic; adapter returns a normal error without partial result; native abort/OOM and panic-abort builds remain outside this guarantee"
+}

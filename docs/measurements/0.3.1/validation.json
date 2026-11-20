@@ -1,0 +1,42 @@
+{
+  "version": "0.3.1",
+  "full_check_script": "passed",
+  "test_groups": [
+    197,
+    664,
+    11,
+    18,
+    20,
+    16,
+    3,
+    5,
+    6,
+    3,
+    6,
+    9,
+    7,
+    9,
+    10,
+    7,
+    6,
+    6,
+    8,
+    14
+  ],
+  "default_tests": 197,
+  "all_feature_tests": 664,
+  "python_tests": 5,
+  "isolated_feature_entries": 37,
+  "strict_clippy_and_rustdoc": "passed",
+  "minimum_rust": "1.89/1.92 passed after final parser containment change",
+  "api_compatibility": "229 passed, 31 skipped by tool; baseline 0.3.0; patch mode",
+  "independent_consumer": "local passed; registry consumer required after publication",
+  "publication_gates": "Clean package and extracted tests, dry-run, exact-commit CI and registry/checksum/VCS/tag/asset equality required; recorded after source commit",
+  "scope": "Local macOS ARM64; Linux CI on final commit; no independent security certification or application integration",
+  "final_minimal_source_recheck": {
+    "all_feature_tests": 664,
+    "strict_clippy": "passed",
+    "all_15_document_output_and_ranking_comparisons": "passed",
+    "reason": "Reverted experimental allocation changes; exact-commit CI repeats full checks"
+  }
+}

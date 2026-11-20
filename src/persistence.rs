@@ -15,7 +15,12 @@ impl Drop for PendingFile {
 }
 
 pub(crate) fn atomic_write(path: &Path, bytes: &[u8]) -> io::Result<()> {
-    atomic_write_with(path, true, |file| file.write_all(bytes))
+    atomic_write_with(path, true, true, |file| file.write_all(bytes))
+}
+
+#[cfg(any(feature = "pdf", test))]
+pub(crate) fn atomic_write_new(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    atomic_write_with(path, false, false, |file| file.write_all(bytes))
 }
 
 #[cfg(feature = "cache")]
@@ -23,12 +28,13 @@ pub(crate) fn atomic_write_private_with(
     path: &Path,
     write_content: impl FnOnce(&mut fs::File) -> io::Result<()>,
 ) -> io::Result<()> {
-    atomic_write_with(path, false, write_content)
+    atomic_write_with(path, false, true, write_content)
 }
 
 fn atomic_write_with(
     path: &Path,
     preserve_permissions: bool,
+    replace: bool,
     write_content: impl FnOnce(&mut fs::File) -> io::Result<()>,
 ) -> io::Result<()> {
     let previous = match fs::symlink_metadata(path) {
@@ -48,6 +54,12 @@ fn atomic_write_with(
         Err(error) if error.kind() == io::ErrorKind::NotFound => None,
         Err(error) => return Err(error),
     };
+    if previous.is_some() && !replace {
+        return Err(io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            "destination already exists",
+        ));
+    }
     let parent = path
         .parent()
         .filter(|parent| !parent.as_os_str().is_empty())
@@ -81,7 +93,12 @@ fn atomic_write_with(
         }
         file.sync_all()?;
         drop(file);
-        fs::rename(&pending.0, path)?;
+        if replace {
+            fs::rename(&pending.0, path)?;
+        } else {
+            fs::hard_link(&pending.0, path)?;
+        }
+        drop(pending);
         #[cfg(unix)]
         fs::File::open(parent)?.sync_all()?;
         return Ok(());
@@ -90,6 +107,55 @@ fn atomic_write_with(
         io::ErrorKind::AlreadyExists,
         "could not allocate an exclusive temporary file",
     ))
+}
+
+#[cfg(test)]
+mod create_new_tests {
+    use super::*;
+
+    #[test]
+    fn exclusive_publication_preserves_existing_bytes_and_cleans_staging() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("output");
+        atomic_write_new(&path, b"complete first version").unwrap();
+        assert_eq!(
+            atomic_write_new(&path, b"replacement").unwrap_err().kind(),
+            io::ErrorKind::AlreadyExists
+        );
+        assert_eq!(fs::read(&path).unwrap(), b"complete first version");
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn concurrent_exclusive_writers_publish_exactly_one_complete_file() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("output");
+        let barrier = std::sync::Barrier::new(8);
+        let results = std::thread::scope(|scope| {
+            (0..8)
+                .map(|i| {
+                    let path = &path;
+                    let barrier = &barrier;
+                    scope.spawn(move || {
+                        barrier.wait();
+                        atomic_write_new(path, &vec![i; 65536])
+                    })
+                })
+                .collect::<Vec<_>>()
+                .into_iter()
+                .map(|thread| thread.join().unwrap())
+                .collect::<Vec<_>>()
+        });
+        assert_eq!(results.iter().filter(|r| r.is_ok()).count(), 1);
+        assert!(results
+            .iter()
+            .filter_map(|r| r.as_ref().err())
+            .all(|e| e.kind() == io::ErrorKind::AlreadyExists));
+        let bytes = fs::read(&path).unwrap();
+        assert_eq!(bytes.len(), 65536);
+        assert!(bytes.iter().all(|b| *b == bytes[0]));
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+    }
 }
 
 #[cfg(all(test, feature = "cache"))]

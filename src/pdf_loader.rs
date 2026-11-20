@@ -12,6 +12,18 @@ static SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r" {2,}").unwrap());
 static NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n{3,}").unwrap());
 static PAGE_NUMBER: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s*-?\s*\d{1,4}\s*-?\s*$").unwrap());
 
+fn checked_pdf_call<T, E: fmt::Display>(
+    phase: &str,
+    call: impl FnOnce() -> Result<T, E>,
+) -> Result<T, PdfError> {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(call)) {
+        Ok(result) => result.map_err(|e| PdfError::PdfError(format!("{phase}: {e}"))),
+        Err(_) => Err(PdfError::PdfError(format!(
+            "PDF parser panicked while {phase}; no import result returned"
+        ))),
+    }
+}
+
 #[derive(Debug)]
 pub enum PdfError {
     IoError(std::io::Error),
@@ -161,24 +173,25 @@ impl PdfLoader {
             }
             examples.extend(page_examples);
         }
+        if examples.is_empty() {
+            return Err(PdfError::PdfError("No usable text was extracted; the PDF may be empty, image-only, or use an unsupported text encoding".to_owned()));
+        }
         Ok(examples)
     }
 
     pub fn extract_pages_from_pdf(&self, path: &Path) -> Result<Vec<PageContent>, PdfError> {
         self.config.validate()?;
-        let doc =
-            pdf_oxide::PdfDocument::open(path).map_err(|e| PdfError::PdfError(format!("{}", e)))?;
+        let doc = checked_pdf_call("opening the document", || {
+            pdf_oxide::PdfDocument::open(path)
+        })?;
 
-        let page_count = doc
-            .page_count()
-            .map_err(|e| PdfError::PdfError(format!("{}", e)))?;
-
+        let page_count = checked_pdf_call("reading the page count", || doc.page_count())?;
         let mut pages = Vec::new();
 
         for page_idx in 0..page_count {
-            let text = doc
-                .extract_text(page_idx)
-                .map_err(|e| PdfError::PdfError(format!("Page {}: {}", page_idx + 1, e)))?;
+            let text = checked_pdf_call(&format!("extracting page {}", page_idx + 1), || {
+                doc.extract_text(page_idx)
+            })?;
 
             if Self::is_garbage_text(&text) {
                 continue;
@@ -385,12 +398,18 @@ impl PdfLoader {
 
         let mut sentences = Vec::new();
         let mut current = String::new();
+        let mut parenthesis_balance = 0isize;
         let chars: Vec<char> = text.chars().collect();
         let len = chars.len();
         let mut i = 0;
 
         while i < len {
             current.push(chars[i]);
+            match chars[i] {
+                '(' => parenthesis_balance += 1,
+                ')' => parenthesis_balance -= 1,
+                _ => {}
+            }
 
             if chars[i] == '.' || chars[i] == '!' || chars[i] == '?' {
                 if chars[i] == '.' && i + 2 < len && chars[i + 1] == '.' && chars[i + 2] == '.' {
@@ -400,9 +419,7 @@ impl PdfLoader {
                     continue;
                 }
 
-                let open_parens = current.chars().filter(|c| *c == '(').count();
-                let close_parens = current.chars().filter(|c| *c == ')').count();
-                if open_parens > close_parens {
+                if parenthesis_balance > 0 {
                     i += 1;
                     continue;
                 }
@@ -440,6 +457,7 @@ impl PdfLoader {
                         sentences.push(format!("{} ", trimmed));
                     }
                     current.clear();
+                    parenthesis_balance = 0;
                 }
             }
 
@@ -461,6 +479,22 @@ impl PdfLoader {
     ) -> Result<(), PdfError> {
         kb.save(Some(PathBuf::from(path.as_ref())))
             .map_err(|e| PdfError::IoError(std::io::Error::other(e.to_string())))
+    }
+
+    pub fn save_knowledge_base_if_absent<P: AsRef<Path>>(
+        &self,
+        kb: &KnowledgeBase,
+        path: P,
+    ) -> Result<(), PdfError> {
+        for example in kb.get_examples() {
+            example
+                .validate()
+                .map_err(|e| PdfError::PdfError(e.to_string()))?;
+        }
+        let bytes = serde_json::to_vec_pretty(kb.get_examples())
+            .map_err(|e| PdfError::PdfError(e.to_string()))?;
+        crate::persistence::atomic_write_new(path.as_ref(), &bytes)?;
+        Ok(())
     }
 }
 
@@ -507,6 +541,15 @@ pub fn pdf_to_training_examples<P: AsRef<Path>>(path: P) -> Result<Vec<TrainingE
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn punctuation_dense_parenthesized_text_preserves_all_content() {
+        let text = format!("({}) End.", "x.".repeat(100000));
+        assert_eq!(
+            PdfLoader::new().split_into_sentences(&text),
+            vec![format!("{text} ")]
+        );
+    }
 
     #[test]
     fn long_unicode_segments_are_bounded_and_keep_the_tail() {

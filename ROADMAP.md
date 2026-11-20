@@ -126,3 +126,7 @@ Permanent principles: optional capabilities, reproducible measurements and inspe
 ## 0.3.0 stability release
 
 Validate existing behavior and formats before adding capabilities. See the [release report](docs/CHANGES-0.3.0.md) and [stability contract](docs/STABILITY.md). Further changes require measured benefits and explicit compatibility notes.
+
+## 0.3.x document hardening before 0.4.0
+
+0.3.1 fixes measured PDF failures and preserves the local document lab. Continue with findings-driven stability patches, reproducible real-document comparisons and bounded adversarial campaigns. Do not create versions merely to reach a count. General document/passages features for 0.4.0 remain deferred until the stability gates are met. Known parser latency and resource-boundary limitations must remain visible. See [PDF stability](docs/PDF-STABILITY.md).

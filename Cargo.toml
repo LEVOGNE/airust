@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.3.0"
+version = "0.3.1"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -347,3 +347,15 @@ required-features=["disk-index"]
 [[example]]
 name="disk_benchmark"
 required-features=["disk-index"]
+
+[[example]]
+name="pdf_stability"
+required-features=["pdf","quality-gates"]
+
+[[example]]
+name="pdf_parser_profile"
+required-features=["pdf"]
+
+[[example]]
+name="saved_knowledge"
+required-features=["retrieval"]

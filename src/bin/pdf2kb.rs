@@ -126,7 +126,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(parent) = output.parent().filter(|path| !path.as_os_str().is_empty()) {
         fs::create_dir_all(parent)?;
     }
-    loader.save_knowledge_base(&knowledge, &output)?;
+    if overwrite {
+        loader.save_knowledge_base(&knowledge, &output)?;
+    } else {
+        loader.save_knowledge_base_if_absent(&knowledge, &output)?;
+    }
     println!(
         "Saved {} training examples to {}",
         knowledge.get_examples().len(),

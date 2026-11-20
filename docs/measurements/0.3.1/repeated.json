@@ -1,0 +1,71 @@
+{
+  "profile": "Same standalone release defaults, three separate processes per version, alternating baseline/candidate after the full local check script completed",
+  "samples": [
+    {
+      "source": "private_494_page_case",
+      "version": "0.3.0",
+      "samples": 3,
+      "import_ms": [
+        25070.205459,
+        24115.254,
+        22582.205292000002
+      ],
+      "median_import_ms": 24115.254,
+      "peak_rss_mib": [
+        576.75,
+        572.46875,
+        572.28125
+      ]
+    },
+    {
+      "source": "private_494_page_case",
+      "version": "0.3.1",
+      "samples": 3,
+      "import_ms": [
+        25798.277667000002,
+        27838.804416,
+        26129.042875
+      ],
+      "median_import_ms": 26129.042875,
+      "peak_rss_mib": [
+        572.40625,
+        572.40625,
+        572.328125
+      ]
+    },
+    {
+      "source": "public_python_2488_pages",
+      "version": "0.3.0",
+      "samples": 3,
+      "import_ms": [
+        7209.386875,
+        7661.732958,
+        7146.198458
+      ],
+      "median_import_ms": 7209.386875,
+      "peak_rss_mib": [
+        320.109375,
+        373.0,
+        359.796875
+      ]
+    },
+    {
+      "source": "public_python_2488_pages",
+      "version": "0.3.1",
+      "samples": 3,
+      "import_ms": [
+        7907.579042,
+        7136.256084000001,
+        6841.66525
+      ],
+      "median_import_ms": 7136.256084000001,
+      "peak_rss_mib": [
+        393.109375,
+        385.71875,
+        378.921875
+      ]
+    }
+  ],
+  "limits": "Single host; no significance or universal improvement claim. Descriptive process RSS includes parsing, indexing and checks. Index export is disabled for these repetitions.",
+  "candidate_revision": "Pre-final allocation experiment. It motivated restoring the original phase and chunk ownership. These timings are not a performance claim for the final minimal release."
+}

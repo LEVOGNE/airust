@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.3.0 verifies the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.3.1 hardens PDF imports and retains the 0.3.0 checks of the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
 
 ## Try the core
 
@@ -30,7 +30,7 @@ cargo run --locked --features cli --bin airust -- cli interactive
 cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json
 ```
 
-The output is a training file. Existing output files require the explicit `--overwrite` flag. Unknown flags, invalid chunk settings, and using the same file as input and output are rejected. Use `--` before a filename that begins with a dash. Each passage includes its source filename, page number, and chunk position. Image-only PDFs require separate optical character recognition; AIRust has no OCR engine.
+The output is a training file. Version 0.3.1 rejects empty conversions and protects destinations created while conversion is running. See the [PDF stability and retained-knowledge guide](docs/PDF-STABILITY.md). Existing output files require the explicit `--overwrite` flag. Unknown flags, invalid chunk settings, and using the same file as input and output are rejected. Use `--` before a filename that begins with a dash. Each passage includes its source filename, page number, and chunk position. Image-only PDFs require separate optical character recognition; AIRust has no OCR engine.
 
 To see the available options:
 
@@ -111,13 +111,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.3.0 .
+docker build -t airust:0.3.1 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.3.0
+  airust:0.3.1
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.

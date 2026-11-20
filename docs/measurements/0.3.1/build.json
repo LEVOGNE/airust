@@ -1,0 +1,22 @@
+{
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: aarch64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8\n",
+  "profile": "Standalone application release defaults, same feature set and compiler for both; root package LTO settings are not inherited by a dependency",
+  "features": [
+    "pdf",
+    "retrieval",
+    "quality-gates"
+  ],
+  "artifacts": {
+    "baseline": {
+      "cargo_lock_sha256": "866e7400cd8588b48196448e4e10333df5352445042dcf32d1ec4b406b7df139",
+      "binary_sha256": "6276e67a82c1c69fadf6512f7286482a93bef259e4894638a5e9c58a67ce1036"
+    },
+    "candidate": {
+      "cargo_lock_sha256": "32395aa8fc9a01d2fab5f3e031c00b7608845b69466cc27c9ffb9e1ee6797943",
+      "binary_sha256": "b2ebec3e2ab1d03630c173dd1487ddac6694cd23812e18664c5d65b26f25255e"
+    }
+  },
+  "independent_parser": "pypdf with FontTools in the bundled Python runtime",
+  "limits": "Descriptive local macOS ARM64 runs; background load; per-document indexes. Source/queries and complete raw metrics retained privately.",
+  "final_candidate_revision": "Minimal bug fixes; original extraction/chunking phase and allocation ownership retained"
+}

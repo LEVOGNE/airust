@@ -1,0 +1,20 @@
+{
+  "version": "0.3.1",
+  "seed": 20261120,
+  "authored_special_inputs": 6,
+  "deterministic_mutations": 128,
+  "total_inputs": 134,
+  "before_fix_unexpected_exits": {
+    "101": 1
+  },
+  "after_fix_exit_codes": {
+    "1": 91,
+    "0": 43
+  },
+  "after_fix_unexpected_exits": 0,
+  "after_fix_timeouts": 0,
+  "fixed_input": "tests/fixtures/pdf/invalid-header-utf8.pdf",
+  "classifier_correction": "Initial signal-only classifier missed Rust panic exit 101; all non-0/1 exits now count as unexpected",
+  "worker_limits": "Separate child processes: 3 CPU seconds, 4 wall seconds, 8 MiB output per file. Timeouts are harness containment, not a built-in parser time guarantee.",
+  "scope": "Deterministic malformed-input robustness probes, not exhaustive fuzzing or independent security certification."
+}

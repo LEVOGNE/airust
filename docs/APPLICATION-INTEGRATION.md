@@ -1,4 +1,4 @@
-# AIRust 0.3.0 application integration guide
+# AIRust 0.3.1 application integration guide
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.0", default-features = false,
+airust = { version = "=0.3.1", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 

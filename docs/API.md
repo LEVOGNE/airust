@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.0 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.1 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -222,3 +222,7 @@ trusted feedback curation, versioned datasets, grouped training and explicit qua
 ## Optional disk search index (0.2.30)
 
 a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. Enable `disk-index` explicitly. See [contract](DISK-INDEX.md) and [release report](CHANGES-0.2.30.md).
+
+## PDF import stability (0.3.1)
+
+The optional `pdf` importer refuses conversion when no usable text was extracted. `PdfLoader::save_knowledge_base_if_absent` publishes complete output only if no destination exists, including concurrent writers. The CLI uses it unless `--overwrite` is explicit. Parser unwinding panics become `PdfError::PdfError` at the adapter boundary; aborts, OOM and hard per-page deadlines are not covered. See [PDF API, tests and retained-knowledge guide](PDF-STABILITY.md).

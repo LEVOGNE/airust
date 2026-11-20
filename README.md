@@ -1,13 +1,14 @@
-# AIRust 0.3.0
+# AIRust 0.3.1
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.0 is a stability release. It closes a model-import validation gap, makes disk-state reads consistent with their size checks, and checks every Cargo feature independently. Existing search behavior and versioned data formats are retained. Start with the [migration guide](docs/MIGRATION-0.3.0.md), [stability contract](docs/STABILITY.md), or [executed results and limits](docs/CHANGES-0.3.0.md). Extra capabilities remain optional. No DenkMaps or MCP integration is performed.
+Version 0.3.1 hardens optional PDF imports. It protects output created by a concurrent writer, refuses empty conversions and catches Rust parser panics as import errors. The document lab compares 15 PDFs with 8,960 pages against 0.3.0 and retains the extracted knowledge locally. See [PDF results and limits](docs/PDF-STABILITY.md) and the [release report](docs/CHANGES-0.3.1.md). The default library stays independent of PDF processing. No DenkMaps or MCP integration is performed.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.1](docs/PDF-STABILITY.md) | Protect PDF outputs and reject failed imports without losing existing data. | Make large-document processing safer and retain reusable knowledge. |
 | [0.3.0](docs/CHANGES-0.3.0.md) | Validate imports consistently, check feature isolation, and test existing data files. | Upgrade with a clear compatibility and validation record. |
 | [0.2.26](docs/QUALITY-GATES.md) | Compare identified search runs against explicit quality and resource rules. | Show regressions before approving a change. |
 | [0.2.27](docs/EVIDENCE-FRESHNESS.md) | Check proof dependencies against current facts, rules and source versions. | Find conclusions that need renewed review. |
@@ -15,7 +16,7 @@ Version 0.3.0 is a stability release. It closes a model-import validation gap, m
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.0, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.1, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -67,7 +68,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.0", default-features = false }
+airust = { version = "=0.3.1", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -238,7 +239,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **195 default tests and 656 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **197 default tests and 664 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
