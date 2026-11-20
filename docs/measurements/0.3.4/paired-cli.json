@@ -1,0 +1,99 @@
+{
+  "samples": 40,
+  "cases": 4,
+  "repeats_per_version": 5,
+  "all_paired_output_json_hashes_equal": true,
+  "profile": "Root AIRust thinLTO/codegen1 release profiles, same Rust1.98/macOS ARM64; candidate SDK source matches0.3.3 exceptpackageversion/backend selection",
+  "order": "Fresh process per sample; alternating version order within repeats; input/filecache reused, no claim of cold disk or complete background isolation",
+  "scope": "Whole CLI conversion including import/chunking/JSON/atomic output, not only search or native extraction",
+  "binaries_sha256": {
+    "033": "7bdb03607cf19568e8197127db814fb296feaf380eb5c4acb934f64061f5ab48",
+    "034": "cc3e4144709933c38dcaaf3f0f756033d6c82038bd21349412f21020d324c243"
+  },
+  "cases_detail": [
+    {
+      "case": "pdf-09",
+      "mode": "file",
+      "summaries": [
+        {
+          "version": "033",
+          "samples": 5,
+          "min_seconds": 1.1820501668844372,
+          "median_seconds": 1.2059255000203848,
+          "max_seconds": 1.2975060411263257
+        },
+        {
+          "version": "034",
+          "samples": 5,
+          "min_seconds": 1.1723276250995696,
+          "median_seconds": 1.185083291027695,
+          "max_seconds": 1.1939562079496682
+        }
+      ],
+      "all_paired_output_json_hashes_equal": true
+    },
+    {
+      "case": "pdf-11",
+      "mode": "file",
+      "summaries": [
+        {
+          "version": "033",
+          "samples": 5,
+          "min_seconds": 0.49958512489683926,
+          "median_seconds": 0.5008792078588158,
+          "max_seconds": 0.5086615418549627
+        },
+        {
+          "version": "034",
+          "samples": 5,
+          "min_seconds": 0.08692229120060802,
+          "median_seconds": 0.08833420788869262,
+          "max_seconds": 0.08852891600690782
+        }
+      ],
+      "all_paired_output_json_hashes_equal": true
+    },
+    {
+      "case": "pdf-12",
+      "mode": "memory",
+      "summaries": [
+        {
+          "version": "033",
+          "samples": 5,
+          "min_seconds": 22.86960708280094,
+          "median_seconds": 23.362094790907577,
+          "max_seconds": 23.42636958300136
+        },
+        {
+          "version": "034",
+          "samples": 5,
+          "min_seconds": 0.5710365830454975,
+          "median_seconds": 0.5822617909871042,
+          "max_seconds": 0.5879881661385298
+        }
+      ],
+      "all_paired_output_json_hashes_equal": true
+    },
+    {
+      "case": "pdf-15",
+      "mode": "memory",
+      "summaries": [
+        {
+          "version": "033",
+          "samples": 5,
+          "min_seconds": 6.975792875047773,
+          "median_seconds": 7.090619249967858,
+          "max_seconds": 7.153762666974217
+        },
+        {
+          "version": "034",
+          "samples": 5,
+          "min_seconds": 6.824043584056199,
+          "median_seconds": 6.982831875095144,
+          "max_seconds": 7.167607875075191
+        }
+      ],
+      "all_paired_output_json_hashes_equal": true
+    }
+  ]
+}

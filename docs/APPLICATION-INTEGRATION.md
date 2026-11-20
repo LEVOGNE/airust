@@ -1,4 +1,4 @@
-# AIRust 0.3.3 application integration guide
+# AIRust 0.3.4 application integration guide
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.3", default-features = false,
+airust = { version = "=0.3.4", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -129,3 +129,5 @@ The disk adapter has its own coherent record/FTS revision. Existing DatasetManag
 ## Document-import preparation
 
 Keep document parsing outside the application's database transaction. For a blocking PDF deadline, the optional converter supports [supervised jobs](PDF-WORKERS.md); ordinary `PdfLoader` remains synchronous. Validate the complete output, map stable source/revision/page/chunk identities into general KnowledgeEntry records, and publish only a completed application-owned index update. Preserve original files and reusable indexes. The retained lab demonstrates content comparisons, update/rebuild checks and failure preservation; it does not test an actual DenkMaps adapter or its SQLite/permission behavior. No such integration is performed by these releases.
+
+AIRust 0.3.4 improves the optional PDF preparation step with the same API and preserved source text/structure. See [parser results and limits](PDF-PARSER.md). Existing application transaction, permission and identity responsibilities remain unchanged; no actual DenkMaps adapter is installed or modified.

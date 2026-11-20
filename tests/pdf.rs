@@ -64,16 +64,14 @@ fn bounded_pdf_limits_reject_zero_and_overflowing_configuration() {
 }
 
 #[test]
-fn bounded_memory_reader_contains_the_known_header_panic() {
+fn bounded_memory_reader_rejects_bad_header_without_native_panic() {
     let result = PdfLoader::new()
         .with_limits(airust::PdfImportLimits::default())
         .pdf_to_training_examples(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/fixtures/pdf/invalid-header-utf8.pdf"
         ));
-    assert!(
-        matches!(result, Err(PdfError::PdfError(message)) if message.contains("PDF parser panicked"))
-    );
+    assert!(matches!(result, Err(PdfError::PdfError(message)) if !message.contains("panicked")));
 }
 
 #[cfg(all(feature = "cli", unix))]
@@ -348,7 +346,8 @@ fn malformed_unicode_header_returns_a_conversion_error_without_process_panic() {
         .output()
         .unwrap();
     assert_eq!(result.status.code(), Some(1));
-    assert!(String::from_utf8_lossy(&result.stderr).contains("PDF parser panicked"));
+    assert!(String::from_utf8_lossy(&result.stderr).contains("PDF conversion failed"));
+    assert!(!String::from_utf8_lossy(&result.stderr).contains("panicked"));
     assert!(!output.exists());
 }
 

@@ -1,0 +1,25 @@
+{
+  "version": "0.3.4",
+  "binary": "Final main-checkout release build, not the preliminary SDK clone",
+  "binary_sha256": "e454a12a3a962b4e73671d8a9968f5454bd5a1c7edc4ac3b997cde2ba2fac5d8",
+  "adversarial_cases": 134,
+  "outer_watchdog_timeouts": 0,
+  "abnormal_parent_exits": 0,
+  "all_failed_outputs_preserved": true,
+  "owned_worker_fault": {
+    "version": "0.3.4",
+    "fault": "SIGKILL to the direct worker created by the tested converter",
+    "parent_exit_code": 1,
+    "previous_output_preserved": true,
+    "worker_no_longer_exists": true,
+    "elapsed_seconds": 0.26628254097886384,
+    "scope": "Owned local worker fault injection. Not a test of actual system-wide OOM or cleanup after forcibly killing the parent."
+  },
+  "retained_index_reuse": {
+    "entries": 33708,
+    "unique_ids": 33708,
+    "canonical_export_sha256": "45d58e9e01e1ca6f5ffaab3c5ca3007f68114d01428c510f4d69b666802a7b93",
+    "bounded_query_hits": 10
+  },
+  "original_inputs_unchanged": 15
+}

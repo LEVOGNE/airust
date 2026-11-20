@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+Optimize optional PDF object loading with a bounded complete-nonstream-object fast path on long physical lines. Preserve source bytes, complete structure traversal, decryption, caches and original fallback. Fix UTF-8 predecessor slicing and default C-symbol collisions in the independently named optional backend. Five matched CLI runs reduce the known 494-page case from 23.36 to 0.58 seconds in the median; fifteen-document raw text/knowledge/rankings remain unchanged. See [API, results and limits](docs/PDF-PARSER.md) and [validation](docs/CHANGES-0.3.4.md). No DenkMaps/MCP integration or default-core dependency change.
+
 ## 0.3.3
 
 Add optional supervised PDF conversion with time budgets, bounded diagnostics, bounded accepted JSON and parent-controlled atomic publication. The real slow-case deadline preserves prior output; all fifteen successful corpus imports retain checked text and provenance. Stateful real-PDF index soak results, frozen release sources and reusable knowledge remain retained. See [commands and limits](docs/PDF-WORKERS.md) and [validation](docs/CHANGES-0.3.3.md). Library/ranking APIs remain unchanged; no DenkMaps or MCP integration.

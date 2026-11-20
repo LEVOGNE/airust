@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-cargo fmt --all -- --check
+cargo fmt --package airust -- --check
 cargo test --workspace --locked
 cargo test --workspace --all-features --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings

@@ -1,13 +1,14 @@
-# AIRust 0.3.3
+# AIRust 0.3.4
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.3 adds supervised PDF jobs with time budgets, bounded diagnostics and parent-controlled output publication. The real slow case stops safely at its chosen deadline; all 15 PDFs, with 8,960 pages and 33,708 chunks, preserve checked content and provenance when given enough time. Combined real-PDF index runs also pass repeated update/rebuild and concurrent-read checks. See [worker commands and limits](docs/PDF-WORKERS.md), [import budgets](docs/PDF-LIMITS.md) and the [release report](docs/CHANGES-0.3.3.md). Knowledge and raw evidence remain local. No DenkMaps or MCP integration is performed.
+Version 0.3.4 speeds up PDF object loading while preserving structure and text. In five matched CLI runs, the known 494-page case improves from 23.36 to 0.58 seconds in the median. All 15 PDFs retain identical raw page text, imported knowledge and checked rankings. The known UTF-8 object-header panic is fixed. See [results, API and limits](docs/PDF-PARSER.md) and the [release report](docs/CHANGES-0.3.4.md). The optimized PDF backend stays optional; the default core remains unchanged. Knowledge and evidence are retained locally. No DenkMaps or MCP integration is performed.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.4](docs/PDF-PARSER.md) | Read complete small PDF objects without repeatedly scanning huge physical lines. | Import the measured slow documents faster while keeping their structure and text. |
 | [0.3.3](docs/PDF-WORKERS.md) | Run PDF conversion in an owned child with a time budget and validated output. | Stop a blocking parser job while protecting previous knowledge. |
 | [0.3.2](docs/PDF-LIMITS.md) | Apply explicit import budgets and reject unsafe argument handling. | Stop oversized imports before publishing partial output. |
 | [0.3.1](docs/PDF-STABILITY.md) | Protect PDF outputs and reject failed imports without losing existing data. | Make large-document processing safer and retain reusable knowledge. |
@@ -18,7 +19,7 @@ Version 0.3.3 adds supervised PDF jobs with time budgets, bounded diagnostics an
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.3, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.4, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -70,7 +71,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.3", default-features = false }
+airust = { version = "=0.3.4", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -241,7 +242,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **197 default tests and 687 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **197 default tests and 688 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
@@ -376,6 +377,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/quality.rs` | Optional descriptive retrieval-quality metrics and query-summary contracts. |
 | `src/provenance.rs` | Optional validated source locations and shared entry-to-source bindings. |
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
+| `crates/airust-pdf-backend/` | Optional maintained parser backend with exact upstream provenance and separate regression checks. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
 | `scripts/measure.py` | Development-only CPU, memory and wall-time wrapper for timed executables. |

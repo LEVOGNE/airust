@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.3.3"
+version = "0.3.4"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -24,7 +24,7 @@ thiserror = "1.0"
 unicode-normalization = "0.1"
 regex = "1.5"
 tokio = { version = "1.0", features = ["full"], optional = true }
-pdf_oxide = { version = "0.3.78", optional = true }
+pdf_oxide = { package = "airust-pdf-backend", version = "=0.3.4", path = "crates/airust-pdf-backend", optional = true }
 axum = { version = "0.7", features = ["multipart", "ws"], optional = true }
 rusqlite = { version = "0.43", features = ["bundled"], optional = true }
 reqwest = { version = "0.12", features = ["json"], optional = true }

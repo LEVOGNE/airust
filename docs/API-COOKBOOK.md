@@ -1,4 +1,4 @@
-# AIRust 0.3.3 API cookbook
+# AIRust 0.3.4 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.3", default-features = false }
+airust = { version = "=0.3.4", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -320,3 +320,8 @@ cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT
 ```
 
 A timeout enables bounded import defaults; the existing file/page/text/chunk flags override them. The child receives only a private result path. The parent validates the bounded complete result, then performs atomic final publication. Failure preserves old output, and lifecycle messages report actual elapsed time. This is a CLI stability capability: the synchronous library `PdfLoader` API is unchanged. See the [complete contract](PDF-WORKERS.md) for settings, process cleanup and real-time/RAM/disk limits.
+
+
+## Optimized PDF backend (0.3.4)
+
+Existing `PdfLoader`, `PdfImportLimits`, save methods and CLI flags keep their signatures. Enable `pdf` explicitly to select the separately versioned `airust-pdf-backend = 0.3.4`. The default core does not load it. A bounded internal fast path handles complete nonstream objects on long physical lines; complete structure traversal and fallback remain enabled. Existing saved indexes and training arrays remain usable. See [algorithm, measured results, provenance and limits](PDF-PARSER.md). The original C ABI is opt-in in the backend; AIRust's Rust importer does not enable it.

@@ -749,6 +749,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn unexpected_parser_unwind_remains_an_import_error() {
+        let result = checked_pdf_call("a future parser failure", || -> Result<(), &str> {
+            panic!("injected parser unwind");
+        });
+        assert!(
+            matches!(result, Err(PdfError::PdfError(message)) if message.contains("panicked") && message.contains("no import result"))
+        );
+    }
+
+    #[test]
     fn chunk_limits_count_utf8_bytes_instead_of_unicode_scalars() {
         let text = "ä😀尾";
         let mut too_small = ChunkBudget::new(Some(

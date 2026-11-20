@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.3 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.4 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -236,3 +236,8 @@ With `pdf`, `PdfLoader::new().with_limits(PdfImportLimits::default())` selects b
 ## Supervised PDF conversion (0.3.3)
 
 The optional `pdf2kb` CLI accepts `--timeout-seconds N` for a supervised child job and `--max-result-mib N` for bounded result acceptance. It enables bounded importer defaults, validates complete output in the parent and preserves old destinations on failure. Library signatures remain unchanged. This does not turn synchronous `PdfLoader` calls into interruptible `WorkControl` operations. See [commands, lifecycle and limits](PDF-WORKERS.md).
+
+
+## PDF object-loading optimization (0.3.4)
+
+The optional importer selects the maintained backend without changing public loader signatures, error variants, CLI flags or knowledge formats. Source bytes, complete structure ordering and original fallback are preserved. The malformed UTF-8 object-keyword check no longer unwinds; unexpected parser panics still have the existing guard. See [performance evidence and maintained-backend contract](PDF-PARSER.md).

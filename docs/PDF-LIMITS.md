@@ -44,3 +44,5 @@ Tests cover exact file/page boundaries, cumulative and overlap-expanded text, cr
 The local lab repeats the same fifteen real PDFs and literal page probes with bounded defaults and compares all content hashes, page sets, chunk counts and ranked IDs against 0.3.1. Adversarial tests use the same authored inputs and deterministic mutations as the [0.3.1 campaign](PDF-STABILITY.md). These are bounded robustness probes, not exhaustive security certification or independent relevance judgments.
 
 Retained local lab data is now also explicitly excluded from the Docker build context. Docker is unavailable on the validation host; this exclusion is reviewed statically, and no executed Docker image test is claimed. Git and crate isolation checks remain in place.
+
+AIRust 0.3.4 improves the measured long-line parser path with preserved raw text and structure; the same limits and synchronous-library boundaries remain. See [parser optimization](PDF-PARSER.md).

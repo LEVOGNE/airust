@@ -44,8 +44,9 @@ dependencies = [
 
 [[package]]
 name = "airust"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
+ "airust-pdf-backend",
  "axum",
  "chrono",
  "fastembed",
@@ -53,7 +54,6 @@ dependencies = [
  "hnsw_rs",
  "once_cell",
  "ort",
- "pdf_oxide",
  "petgraph",
  "postcard",
  "regex",
@@ -71,6 +71,51 @@ dependencies = [
  "unicode-normalization",
  "unicode-segmentation",
  "url",
+]
+
+[[package]]
+name = "airust-pdf-backend"
+version = "0.3.4"
+dependencies = [
+ "aes",
+ "base64 0.23.1",
+ "bitflags",
+ "brotli",
+ "byteorder",
+ "bytes",
+ "cbc",
+ "chrono",
+ "encoding_rs",
+ "env_logger",
+ "fax 0.3.0",
+ "flate2",
+ "getrandom 0.4.3",
+ "image",
+ "jpeg-decoder",
+ "libc",
+ "log",
+ "md-5",
+ "memchr",
+ "nom 8.0.0",
+ "office_oxide",
+ "phf",
+ "qcms",
+ "quick-xml",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "smallvec",
+ "stringprep",
+ "subsetter",
+ "taffy",
+ "thiserror 2.0.21",
+ "ttf-parser",
+ "unicode-bidi",
+ "unicode-linebreak",
+ "unicode-normalization",
+ "uuid",
+ "weezl 0.2.1",
 ]
 
 [[package]]
@@ -2188,53 +2233,6 @@ name = "pastey"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
-
-[[package]]
-name = "pdf_oxide"
-version = "0.3.78"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95b1ecc1a60a314fbd1aea5fe8f700ec32af1efa70fef5c6879162444da3437d"
-dependencies = [
- "aes",
- "base64 0.23.1",
- "bitflags",
- "brotli",
- "byteorder",
- "bytes",
- "cbc",
- "chrono",
- "encoding_rs",
- "env_logger",
- "fax 0.3.0",
- "flate2",
- "getrandom 0.4.3",
- "image",
- "jpeg-decoder",
- "libc",
- "log",
- "md-5",
- "memchr",
- "nom 8.0.0",
- "office_oxide",
- "phf",
- "qcms",
- "quick-xml",
- "regex",
- "serde",
- "serde_json",
- "sha2 0.11.1",
- "smallvec",
- "stringprep",
- "subsetter",
- "taffy",
- "thiserror 2.0.21",
- "ttf-parser",
- "unicode-bidi",
- "unicode-linebreak",
- "unicode-normalization",
- "uuid",
- "weezl 0.2.1",
-]
 
 [[package]]
 name = "percent-encoding"

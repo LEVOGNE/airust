@@ -1,5 +1,7 @@
 # Supervised PDF conversion
 
+AIRust 0.3.4 retains this API and optimizes the previously slow parser case; the older timings below identify the 0.3.3 checks. See [current parser results](PDF-PARSER.md).
+
 AIRust 0.3.3 adds an optional supervised process for PDF conversion. Use it when a parser call may take too long. This is a stability boundary around the existing importer; the knowledge engine and ranking APIs are unchanged.
 
 ## Run a bounded job
@@ -11,7 +13,7 @@ cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT
 For the installed converter:
 
 ```bash
-cargo install airust --version 0.3.3 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.4 --locked --features cli,pdf --bin pdf2kb
 pdf2kb INPUT.pdf OUTPUT.json --timeout-seconds 60
 ```
 
