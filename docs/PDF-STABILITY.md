@@ -1,5 +1,7 @@
 # PDF stability and retained knowledge
 
+Later stabilization: [0.3.2 import budgets](PDF-LIMITS.md) and [0.3.3 supervised jobs](PDF-WORKERS.md) extend these protections. The real-document evidence below identifies its original 0.3.1 baseline.
+
 PDF support remains optional. These tests exercise the existing importer and search engine without a DenkMaps or MCP integration.
 
 ## What 0.3.1 fixes

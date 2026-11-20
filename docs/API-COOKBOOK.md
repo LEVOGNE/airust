@@ -1,4 +1,4 @@
-# AIRust 0.3.2 API cookbook
+# AIRust 0.3.3 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.2", default-features = false }
+airust = { version = "=0.3.3", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -309,3 +309,14 @@ let loader = PdfLoader::new().with_limits(limits);
 ```
 
 Call `loader.pdf_to_knowledge_base(path)?`, then use exclusive creation or explicit replacement as described above. A failed budget returns an error without a partial import. Raw, cleaned and overlap-expanded chunk text are counted separately; a chunk budget spans all pages. Existing constructors remain unbounded unless opted in. `PdfImportLimits::default()` supplies the bounded defaults. See [full contract, CLI flags and native-parser limits](PDF-LIMITS.md). These budgets are not hard process-memory or CPU quotas.
+
+
+## Supervised PDF jobs (0.3.3)
+
+For a blocking parser deadline, use the explicit converter process:
+
+```bash
+cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT.json --timeout-seconds 60 --max-result-mib 192
+```
+
+A timeout enables bounded import defaults; the existing file/page/text/chunk flags override them. The child receives only a private result path. The parent validates the bounded complete result, then performs atomic final publication. Failure preserves old output, and lifecycle messages report actual elapsed time. This is a CLI stability capability: the synchronous library `PdfLoader` API is unchanged. See the [complete contract](PDF-WORKERS.md) for settings, process cleanup and real-time/RAM/disk limits.

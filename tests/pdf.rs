@@ -506,3 +506,311 @@ fn pdf_cli_rejects_bad_options_and_preserves_existing_files() {
         .get_examples()
         .is_empty());
 }
+
+#[cfg(feature = "cli")]
+#[test]
+fn supervised_cli_preserves_config_and_complete_output() {
+    use std::process::Command;
+    let folder = tempfile::tempdir().unwrap();
+    let plain = folder.path().join("plain.json");
+    let supervised = folder.path().join("supervised.json");
+    let input = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    );
+    let settings = [
+        "--min-chunk",
+        "5",
+        "--max-chunk",
+        "80",
+        "--overlap",
+        "10",
+        "--weight",
+        "0.75",
+        "--no-metadata",
+        "--no-clean",
+        "--no-paragraph-split",
+        "--no-sentence-split",
+        "--no-dehyphenate",
+        "--keep-page-numbers",
+    ];
+    let a = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(input)
+        .arg(&plain)
+        .args(settings)
+        .output()
+        .unwrap();
+    assert!(a.status.success(), "{}", String::from_utf8_lossy(&a.stderr));
+    let b = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(input)
+        .arg(&supervised)
+        .args(settings)
+        .args(["--timeout-seconds", "30", "--verbose"])
+        .output()
+        .unwrap();
+    assert!(b.status.success(), "{}", String::from_utf8_lossy(&b.stderr));
+    assert_eq!(
+        std::fs::read(&plain).unwrap(),
+        std::fs::read(&supervised).unwrap()
+    );
+    let stderr = String::from_utf8_lossy(&b.stderr);
+    assert!(stderr.contains("Starting PDF worker"));
+    assert!(stderr.contains("output validated"));
+    let stdout = String::from_utf8_lossy(&b.stdout);
+    assert!(stdout.contains("Raw preview:"));
+    assert!(stdout.contains("Cleaned preview:"));
+    assert_eq!(stdout.matches("Saved ").count(), 1);
+    assert!(!stdout.contains("airust-pdf-worker-"));
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn supervised_failures_never_replace_old_output() {
+    use std::process::Command;
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("saved.json");
+    std::fs::write(&output, b"old owner data").unwrap();
+    for fixture in [
+        "blank.pdf",
+        "broken.pdf",
+        "encrypted.pdf",
+        "invalid-header-utf8.pdf",
+    ] {
+        let input = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/pdf")
+            .join(fixture);
+        let result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+            .arg(input)
+            .arg(&output)
+            .args(["--timeout-seconds", "30", "--overwrite"])
+            .output()
+            .unwrap();
+        assert_eq!(result.status.code(), Some(1));
+        assert!(String::from_utf8_lossy(&result.stderr).contains("worker failed"));
+        assert_eq!(std::fs::read(&output).unwrap(), b"old owner data");
+    }
+    let input = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    );
+    let result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(input)
+        .arg(&output)
+        .args(["--timeout-seconds", "30", "--max-pages", "1", "--overwrite"])
+        .output()
+        .unwrap();
+    assert_eq!(result.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&result.stderr).contains("page count"));
+    assert_eq!(std::fs::read(&output).unwrap(), b"old owner data");
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn supervised_settings_reject_invalid_limits_before_work() {
+    use std::process::Command;
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("saved.json");
+    std::fs::write(&output, b"old owner data").unwrap();
+    let input = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    );
+    for flags in [
+        vec!["--timeout-seconds", "0"],
+        vec!["--timeout-seconds", "18446744073709551615"],
+        vec!["--max-result-mib", "1"],
+        vec!["--timeout-seconds", "30", "--max-result-mib", "0"],
+        vec![
+            "--timeout-seconds",
+            "30",
+            "--max-result-mib",
+            "18446744073709551615",
+        ],
+    ] {
+        let result = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+            .arg(input)
+            .arg(&output)
+            .arg("--overwrite")
+            .args(flags)
+            .output()
+            .unwrap();
+        assert_eq!(result.status.code(), Some(1));
+        assert_eq!(std::fs::read(&output).unwrap(), b"old owner data");
+        assert!(!String::from_utf8_lossy(&result.stderr).contains("Starting PDF worker"));
+    }
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn supervised_parent_rejects_oversized_result_before_publication() {
+    let folder = tempfile::tempdir().unwrap();
+    let input = folder.path().join("many.pdf");
+    let output = folder.path().join("old.json");
+    std::fs::write(&input, pdf_fixture::repeated_pages(200)).unwrap();
+    std::fs::write(&output, b"keep old result").unwrap();
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(&input)
+        .arg(&output)
+        .args([
+            "--timeout-seconds",
+            "30",
+            "--max-result-mib",
+            "1",
+            "--overwrite",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(result.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&result.stderr).contains("result byte budget"));
+    assert_eq!(std::fs::read(&output).unwrap(), b"keep old result");
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn supervised_output_created_during_work_keeps_its_owner() {
+    use std::{
+        io::{BufRead, BufReader},
+        process::{Child, Command, Stdio},
+        sync::mpsc,
+        time::{Duration, Instant},
+    };
+    struct Guard(Child);
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+    let folder = tempfile::tempdir().unwrap();
+    let input = folder.path().join("many.pdf");
+    let output = folder.path().join("shared.json");
+    std::fs::write(&input, pdf_fixture::repeated_pages(500)).unwrap();
+    let mut child = Guard(
+        Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+            .arg(&input)
+            .arg(&output)
+            .args(["--timeout-seconds", "30"])
+            .stderr(Stdio::piped())
+            .stdout(Stdio::null())
+            .spawn()
+            .unwrap(),
+    );
+    let stderr = child.0.stderr.take().unwrap();
+    let (tx, rx) = mpsc::channel();
+    let reader = std::thread::spawn(move || {
+        for line in BufReader::new(stderr).lines() {
+            if line.unwrap().starts_with("Starting PDF worker") {
+                let _ = tx.send(());
+            }
+        }
+    });
+    rx.recv_timeout(Duration::from_secs(30))
+        .expect("worker start notification");
+    std::fs::write(&output, b"concurrent owner data").unwrap();
+    let deadline = Instant::now() + Duration::from_secs(35);
+    let status = loop {
+        if let Some(s) = child.0.try_wait().unwrap() {
+            break s;
+        }
+        assert!(Instant::now() < deadline);
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    reader.join().unwrap();
+    assert_eq!(status.code(), Some(1));
+    assert_eq!(std::fs::read(&output).unwrap(), b"concurrent owner data");
+}
+
+#[cfg(all(feature = "cli", unix))]
+#[test]
+fn supervised_cli_handles_platform_path_bytes_without_panicking() {
+    use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+    let folder = tempfile::tempdir().unwrap();
+    let input = folder
+        .path()
+        .join(OsString::from_vec(b"source-\xff.pdf".to_vec()));
+    let output = folder
+        .path()
+        .join(OsString::from_vec(b"output-\xfe.json".to_vec()));
+    let bytes = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/fixtures/pdf/sentences.pdf"
+    ))
+    .unwrap();
+    std::fs::write(folder.path().join("control.pdf"), &bytes).unwrap();
+    if let Err(error) = std::fs::write(&input, &bytes) {
+        eprintln!("Filesystem cannot create a raw-byte path fixture: {error}");
+        let rejected = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+            .args(["--timeout-seconds", "30", "--"])
+            .arg(&input)
+            .arg(&output)
+            .output()
+            .unwrap();
+        assert_eq!(rejected.status.code(), Some(1));
+        assert!(!output.exists());
+        return;
+    }
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .args(["--timeout-seconds", "30", "--"])
+        .arg(input)
+        .arg(&output)
+        .output()
+        .unwrap();
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(output.is_file());
+}
+
+#[cfg(all(feature = "cli", unix))]
+#[test]
+fn closed_console_streams_do_not_panic_or_change_file_outcomes() {
+    use std::{
+        os::{fd::OwnedFd, unix::net::UnixStream},
+        process::{Command, Stdio},
+    };
+    fn closed_stream() -> Stdio {
+        let (reader, writer) = UnixStream::pair().unwrap();
+        drop(reader);
+        let fd: OwnedFd = writer.into();
+        Stdio::from(fd)
+    }
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("knowledge.json");
+    let converted = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/pdf/sentences.pdf"
+        ))
+        .arg(&output)
+        .args(["--timeout-seconds", "30", "--verbose"])
+        .stdout(closed_stream())
+        .stderr(closed_stream())
+        .status()
+        .unwrap();
+    assert!(converted.success());
+    let original = std::fs::read(&output).unwrap();
+    let examples: Vec<airust::agent::TrainingExample> = serde_json::from_slice(&original).unwrap();
+    assert!(!examples.is_empty());
+    let help = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg("--help")
+        .stdout(closed_stream())
+        .stderr(closed_stream())
+        .status()
+        .unwrap();
+    assert!(help.success());
+    let failed = Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/pdf/broken.pdf"
+        ))
+        .arg(&output)
+        .args(["--timeout-seconds", "30", "--overwrite"])
+        .stdout(closed_stream())
+        .stderr(closed_stream())
+        .status()
+        .unwrap();
+    assert_eq!(failed.code(), Some(1));
+    assert_eq!(std::fs::read(&output).unwrap(), original);
+}

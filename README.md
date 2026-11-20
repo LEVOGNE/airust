@@ -1,13 +1,14 @@
-# AIRust 0.3.2
+# AIRust 0.3.3
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.2 adds explicit PDF import limits for input bytes, pages, extracted text and chunk counts. The CLI also accepts operating-system paths without argument panics and escapes controls in its own terminal messages. All 15 tested PDFs, with 8,960 pages and 33,708 chunks, retain their checked content and rankings. See [limits and API](docs/PDF-LIMITS.md), [real-document results](docs/PDF-STABILITY.md) and the [release report](docs/CHANGES-0.3.2.md). Retained knowledge stays local and is excluded from Git, crates and Docker build context. The default library stays independent of PDF processing. No DenkMaps or MCP integration is performed.
+Version 0.3.3 adds supervised PDF jobs with time budgets, bounded diagnostics and parent-controlled output publication. The real slow case stops safely at its chosen deadline; all 15 PDFs, with 8,960 pages and 33,708 chunks, preserve checked content and provenance when given enough time. Combined real-PDF index runs also pass repeated update/rebuild and concurrent-read checks. See [worker commands and limits](docs/PDF-WORKERS.md), [import budgets](docs/PDF-LIMITS.md) and the [release report](docs/CHANGES-0.3.3.md). Knowledge and raw evidence remain local. No DenkMaps or MCP integration is performed.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.3](docs/PDF-WORKERS.md) | Run PDF conversion in an owned child with a time budget and validated output. | Stop a blocking parser job while protecting previous knowledge. |
 | [0.3.2](docs/PDF-LIMITS.md) | Apply explicit import budgets and reject unsafe argument handling. | Stop oversized imports before publishing partial output. |
 | [0.3.1](docs/PDF-STABILITY.md) | Protect PDF outputs and reject failed imports without losing existing data. | Make large-document processing safer and retain reusable knowledge. |
 | [0.3.0](docs/CHANGES-0.3.0.md) | Validate imports consistently, check feature isolation, and test existing data files. | Upgrade with a clear compatibility and validation record. |
@@ -17,7 +18,7 @@ Version 0.3.2 adds explicit PDF import limits for input bytes, pages, extracted 
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.2, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.3, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -69,7 +70,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.2", default-features = false }
+airust = { version = "=0.3.3", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -240,7 +241,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **197 default tests and 675 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The current release passes **197 default tests and 687 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits
@@ -327,7 +328,7 @@ cargo run --locked --features cli --bin airust -- cli query tfidf "What is AIRus
 Convert a sample PDF into training data:
 
 ```bash
-cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json
+cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json --timeout-seconds 60
 ```
 
 Start the optional dashboard:

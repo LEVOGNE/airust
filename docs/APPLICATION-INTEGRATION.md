@@ -1,4 +1,4 @@
-# AIRust 0.3.1 application integration guide
+# AIRust 0.3.3 application integration guide
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds candidate knowledge, compares text, assembles bounded evidence and 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.1", default-features = false,
+airust = { version = "=0.3.3", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -124,3 +124,8 @@ trusted feedback curation, versioned datasets, grouped training and explicit qua
 a dedicated disk-backed full-text index with atomic revisions, scoped retrieval, bounded original-record export and integrity checks. Enable `disk-index` explicitly. See [contract](DISK-INDEX.md) and [release report](CHANGES-0.2.30.md).
 
 The disk adapter has its own coherent record/FTS revision. Existing DatasetManager RAM snapshots do not cover it automatically. Coordinate external source generations before combining disk hits with vectors/graphs/provenance. Apply explicit quality gates, recheck proof receipts, inspect explanations and review curated training data before model promotion. ModelRegistry is a caller-owned slot; persist/authenticate its state and keep source/database ownership in the application.
+
+
+## Document-import preparation
+
+Keep document parsing outside the application's database transaction. For a blocking PDF deadline, the optional converter supports [supervised jobs](PDF-WORKERS.md); ordinary `PdfLoader` remains synchronous. Validate the complete output, map stable source/revision/page/chunk identities into general KnowledgeEntry records, and publish only a completed application-owned index update. Preserve original files and reusable indexes. The retained lab demonstrates content comparisons, update/rebuild checks and failure preservation; it does not test an actual DenkMaps adapter or its SQLite/permission behavior. No such integration is performed by these releases.

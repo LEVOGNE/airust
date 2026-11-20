@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+Add optional supervised PDF conversion with time budgets, bounded diagnostics, bounded accepted JSON and parent-controlled atomic publication. The real slow-case deadline preserves prior output; all fifteen successful corpus imports retain checked text and provenance. Stateful real-PDF index soak results, frozen release sources and reusable knowledge remain retained. See [commands and limits](docs/PDF-WORKERS.md) and [validation](docs/CHANGES-0.3.3.md). Library/ranking APIs remain unchanged; no DenkMaps or MCP integration.
+
 ## 0.3.2
 
 Add opt-in PDF budgets for file bytes, pages, raw/cleaned/chunk text and total chunks. Reject chunk amplification before retaining an oversized collection, handle OS-string CLI paths without argument panics, and escape controls in the CLI's own terminal output. Exclude retained lab data from the Docker context. All fifteen corpus imports match 0.3.1; native-call latency and hard-memory isolation remain open. See [API and limits](docs/PDF-LIMITS.md) and [validation](docs/CHANGES-0.3.2.md).

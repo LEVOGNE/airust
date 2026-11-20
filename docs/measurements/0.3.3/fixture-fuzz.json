@@ -1,0 +1,20 @@
+{
+  "version": "0.3.3",
+  "seed": 2026112003,
+  "cases": 4096,
+  "mutation_categories": 8,
+  "source": "Owned two-page sentence fixture",
+  "accepted": 2583,
+  "normal_errors": 1513,
+  "outer_watchdog_timeouts": 0,
+  "worker_deadline_errors": 0,
+  "contained_parser_panics": 17,
+  "every_failed_import_preserved_previous_output": true,
+  "elapsed_seconds": 168.56307491706684,
+  "binary_sha256": "7bdb03607cf19568e8197127db814fb296feaf380eb5c4acb934f64061f5ab48",
+  "scope": "Deterministic owned-fixture byte edits, truncation, deletion, insertion, duplication and malformed stream/page/object markers. Not exhaustive grammar fuzzing, corpus completeness, OS isolation or independent security certification.",
+  "limits": "Worker1s, result1MiB, file1MiB, text1MiB,8pages,1000chunks; outer4s, inherited CPU3s/outputfile8MiB.",
+  "unexpected_parent_exit_codes": 0,
+  "repeated_after_console_fix": true,
+  "known_contained_panic_location": "pdf_oxide 0.3.78 document.rs:25363; same malformed UTF-8 header path as the 0.3.1 regression"
+}

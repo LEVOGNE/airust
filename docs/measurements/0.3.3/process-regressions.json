@@ -1,0 +1,13 @@
+{
+  "version": "0.3.3",
+  "fault": "SIGKILL to the direct worker created by the tested converter",
+  "parent_exit_code": 1,
+  "previous_output_preserved": true,
+  "worker_no_longer_exists": true,
+  "elapsed_seconds": 0.26172691700048745,
+  "scope": "Owned local worker fault injection. Not a test of actual system-wide OOM or cleanup after forcibly killing the parent.",
+  "closed_console_regression": {
+    "before": "closed stderr on worker start and closed stdout on help caused panic exit101",
+    "after": "success with both streams closed returns0 and publishes complete knowledge; malformed input returns1 and preserves prior output"
+  }
+}

@@ -23,7 +23,7 @@ The page cap is checked before per-page text extraction. The text cap applies se
 
 A violation returns an error with the budget name and its actual/maximum value where representable. No partial import is returned. CLI conversion therefore leaves existing output untouched when any limit fails, including with --overwrite. Original text and ranking behavior are unchanged for successful imports in the tested corpus.
 
-Native parsing can allocate or perform substantial work inside one call before text limits can be checked. The byte snapshot is copied by the current PDF dependency, parser caches add memory, and training responses duplicate text. These options are not hard process-memory limits, hard CPU deadlines or a constant-memory streaming API. The existing slow first-page case remains; separately bounded worker jobs are a further stability task.
+Native parsing can allocate or perform substantial work inside one call before text limits can be checked. The byte snapshot is copied by the current PDF dependency, parser caches add memory, and training responses duplicate text. These options are not hard process-memory limits, hard CPU deadlines or a constant-memory streaming API. The existing slow first-page case remains; 0.3.3 provides optional [supervised CLI jobs](PDF-WORKERS.md) for this boundary. Library methods remain synchronous.
 
 ## CLI
 

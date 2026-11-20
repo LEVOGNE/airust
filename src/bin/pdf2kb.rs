@@ -1,5 +1,22 @@
 use airust::pdf_loader::{PdfImportLimits, PdfLoader, PdfLoaderConfig};
-use std::{env, fs, path::PathBuf};
+use std::{env, fs, path::PathBuf, time::Duration};
+
+macro_rules! output {
+    ($($argument:tt)*) => {{
+        use std::io::Write as _;
+        let _ = writeln!(std::io::stdout().lock(), $($argument)*);
+    }};
+}
+
+macro_rules! diagnostic {
+    ($($argument:tt)*) => {{
+        use std::io::Write as _;
+        let _ = writeln!(std::io::stderr().lock(), $($argument)*);
+    }};
+}
+
+#[path = "pdf2kb/worker.rs"]
+mod worker;
 
 fn option_value(
     args: &mut impl Iterator<Item = std::ffi::OsString>,
@@ -13,7 +30,7 @@ fn option_value(
 
 fn main() {
     if let Err(error) = run() {
-        eprintln!(
+        diagnostic!(
             "PDF conversion failed: {}",
             terminal_text(&error.to_string())
         );
@@ -22,29 +39,31 @@ fn main() {
 }
 
 fn print_help() {
-    println!("pdf2kb INPUT.pdf [OUTPUT.json] [OPTIONS]");
-    println!("Default output: knowledge/<input-name>.json");
-    println!("--min-chunk N        Preferred minimum character count (default 50)");
-    println!("--max-chunk N        Maximum character count (default 1000)");
-    println!("--overlap N          Overlap character count (default 200)");
-    println!("--weight N           Finite nonnegative example weight (default 1)");
-    println!("--no-metadata        Omit import provenance");
-    println!("--no-sentence-split  Disable sentence boundary splitting");
-    println!("--paragraph-split    Prefer paragraph boundaries (default)");
-    println!("--no-paragraph-split Disable paragraph boundary splitting");
-    println!("--no-clean           Disable text cleaning");
-    println!("--no-dehyphenate     Keep hyphenated line breaks");
-    println!("--keep-page-numbers  Keep standalone page-number lines");
-    println!("--verbose           Show bounded text previews");
-    println!("--overwrite         Explicitly replace an existing output file");
-    println!("--max-file-mib N    Bound actual input bytes (default in bounded mode: 256 MiB)");
-    println!("--max-pages N       Bound physical pages (default in bounded mode: 20000)");
-    println!(
+    output!("pdf2kb INPUT.pdf [OUTPUT.json] [OPTIONS]");
+    output!("Default output: knowledge/<input-name>.json");
+    output!("--min-chunk N        Preferred minimum character count (default 50)");
+    output!("--max-chunk N        Maximum character count (default 1000)");
+    output!("--overlap N          Overlap character count (default 200)");
+    output!("--weight N           Finite nonnegative example weight (default 1)");
+    output!("--no-metadata        Omit import provenance");
+    output!("--no-sentence-split  Disable sentence boundary splitting");
+    output!("--paragraph-split    Prefer paragraph boundaries (default)");
+    output!("--no-paragraph-split Disable paragraph boundary splitting");
+    output!("--no-clean           Disable text cleaning");
+    output!("--no-dehyphenate     Keep hyphenated line breaks");
+    output!("--keep-page-numbers  Keep standalone page-number lines");
+    output!("--verbose           Show bounded text previews");
+    output!("--overwrite         Explicitly replace an existing output file");
+    output!("--max-file-mib N    Bound actual input bytes (default in bounded mode: 256 MiB)");
+    output!("--max-pages N       Bound physical pages (default in bounded mode: 20000)");
+    output!(
         "--max-text-mib N    Bound raw, cleaned and chunk text bytes separately (default: 64 MiB)"
     );
-    println!("--max-chunks N      Bound chunks across all pages (default in bounded mode: 100000)");
-    println!("Limits are opt-in. Selecting any limit enables the other bounded-mode defaults.");
-    println!("--                  End options; remaining arguments are file paths");
+    output!("--max-chunks N      Bound chunks across all pages (default in bounded mode: 100000)");
+    output!("--timeout-seconds N  Run conversion in a supervised child; enables bounded defaults");
+    output!("--max-result-mib N  Bound worker JSON accepted by the parent (default 256 MiB)");
+    output!("Limits are opt-in. Selecting any limit enables the other bounded-mode defaults.");
+    output!("--                  End options; remaining arguments are file paths");
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -59,6 +78,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut max_pages = defaults.max_pages();
     let mut max_text_bytes = defaults.max_text_bytes();
     let mut max_chunks = defaults.max_chunks();
+    let mut timeout = None;
+    let mut result_limit = None;
     let mut args = env::args_os().skip(1);
     while let Some(arg) = args.next() {
         if positional_only {
@@ -81,7 +102,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             "--version" | "-V" => {
-                println!("pdf2kb {}", airust::VERSION);
+                output!("pdf2kb {}", airust::VERSION);
                 return Ok(());
             }
             "--min-chunk" => {
@@ -123,6 +144,31 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 max_chunks = option_value(&mut args, "--max-chunks")?.parse()?;
                 bounded = true;
             }
+            "--timeout-seconds" => {
+                let seconds = option_value(&mut args, "--timeout-seconds")?.parse::<u64>()?;
+                if seconds == 0 {
+                    return Err("--timeout-seconds must be positive".into());
+                }
+                let duration = Duration::from_secs(seconds);
+                std::time::Instant::now()
+                    .checked_add(duration)
+                    .ok_or("timeout is too large")?;
+                timeout = Some(duration);
+                bounded = true;
+            }
+            "--max-result-mib" => {
+                let bytes = option_value(&mut args, "--max-result-mib")?
+                    .parse::<u64>()?
+                    .checked_mul(1024 * 1024)
+                    .ok_or("result byte limit overflow")?;
+                if bytes == 0 || bytes >= usize::MAX as u64 {
+                    return Err(
+                        "result limit must be positive and leave room for one detection byte"
+                            .into(),
+                    );
+                }
+                result_limit = Some(bytes);
+            }
             "--" => positional_only = true,
             value if value.starts_with('-') => {
                 return Err(format!("Unknown option: {value}").into())
@@ -135,6 +181,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     if paths.len() > 2 {
         return Err("Expected one input path and at most one output path".into());
+    }
+    if result_limit.is_some() && timeout.is_none() {
+        return Err("--max-result-mib requires --timeout-seconds".into());
     }
     config.validate()?;
     let limits = if bounded {
@@ -168,6 +217,26 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if output.exists() && !overwrite {
         return Err("Output already exists; pass --overwrite to replace it".into());
     }
+    if let Some(timeout) = timeout {
+        let (knowledge, diagnostics) = worker::convert(
+            &config,
+            limits.unwrap_or_default(),
+            input,
+            verbose,
+            timeout,
+            result_limit.unwrap_or(256 * 1024 * 1024),
+        )?;
+        if verbose {
+            for line in String::from_utf8_lossy(&diagnostics).lines() {
+                if !line.starts_with("Saved ") {
+                    output!("{}", terminal_text(line));
+                }
+            }
+        }
+        let loader = PdfLoader::with_config(config);
+        publish(&loader, &knowledge, &output, overwrite)?;
+        return Ok(());
+    }
     if verbose {
         let mut raw_config = config.clone();
         raw_config.clean_text = false;
@@ -178,9 +247,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             raw_loader
         };
         let pages = raw_loader.extract_pages_from_pdf(input)?;
-        println!("Raw preview:");
+        output!("Raw preview:");
         for page in pages.iter().take(3) {
-            println!("Page {}: {}", page.page_number, preview(&page.text, 300));
+            output!("Page {}: {}", page.page_number, preview(&page.text, 300));
         }
     }
     let loader = PdfLoader::with_config(config);
@@ -191,20 +260,29 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     };
     let knowledge = loader.pdf_to_knowledge_base(input)?;
     if verbose {
-        println!("Cleaned preview:");
+        output!("Cleaned preview:");
         for (index, example) in knowledge.get_examples().iter().take(5).enumerate() {
-            println!("Chunk {index}: {}", preview(&example.input, 300));
+            output!("Chunk {index}: {}", preview(&example.input, 300));
         }
     }
+    publish(&loader, &knowledge, &output, overwrite)
+}
+
+fn publish(
+    loader: &PdfLoader,
+    knowledge: &airust::knowledge::KnowledgeBase,
+    output: &std::path::Path,
+    overwrite: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
     if let Some(parent) = output.parent().filter(|path| !path.as_os_str().is_empty()) {
         fs::create_dir_all(parent)?;
     }
     if overwrite {
-        loader.save_knowledge_base(&knowledge, &output)?;
+        loader.save_knowledge_base(knowledge, output)?;
     } else {
-        loader.save_knowledge_base_if_absent(&knowledge, &output)?;
+        loader.save_knowledge_base_if_absent(knowledge, output)?;
     }
-    println!(
+    output!(
         "Saved {} training examples to {}",
         knowledge.get_examples().len(),
         terminal_text(&output.to_string_lossy())
