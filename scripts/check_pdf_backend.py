@@ -8,9 +8,10 @@ import subprocess
 def main():
     root = Path(__file__).resolve().parents[1]
     backend = root / "crates/airust-pdf-backend"
+    host = next(line.split(": ", 1)[1] for line in subprocess.check_output(["rustc", "-vV"], text=True).splitlines() if line.startswith("host: "))
     metadata = json.loads(subprocess.check_output([
         "cargo", "metadata", "--manifest-path", str(backend / "Cargo.toml"),
-        "--format-version", "1", "--locked", "--offline"
+        "--format-version", "1", "--locked", "--offline", "--filter-platform", host
     ], text=True))
     package = next(p for p in metadata["packages"] if p["name"] == "pdf_oxide" and p["version"] == "0.3.78")
     original = Path(package["manifest_path"]).parent
