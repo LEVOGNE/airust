@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9
+
+Track trimmed boundaries as PDF chunk windows advance, skip empty windows without temporary strings and validate chunk/UTF-8 quotas before retaining text. Keep public APIs, successful knowledge formats, boundary choices and budget errors compatible. Further official large PDFs, generated Unicode windows, malformed inputs and explicit synthetic/real cost comparisons support the change. Knowledge and raw evidence remain retained. See [results](docs/CHANGES-0.3.9.md) and [API/controls/limits](docs/PDF-OVERLAP.md). The optional backend stays 0.3.4. No DenkMaps/MCP integration.
+
 ## 0.3.8
 
 Preserve original separators and indentation during PDF sentence/paragraph segmentation instead of trimming and inserting whitespace. Long-page knowledge chunks become contiguous excerpts of the extracted/cleaned source; outer trimming and chunk budgets remain. Corrected imports can change chunk IDs and ranking, so older knowledge is retained separately. Further official large PDFs, authored format cases and damaged inputs extend validation. See [results](docs/CHANGES-0.3.8.md) and [API/upgrade/limits](docs/PDF-CHUNKS.md). Optional backend remains 0.3.4. No DenkMaps/MCP integration.

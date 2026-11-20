@@ -1,0 +1,42 @@
+{
+  "samples": 24,
+  "binary_sha256": {
+    "038": "44f9a836bcdc5b2d27fad2e293118b9ffd1f0aee0ec1fe17d8c3b8ec1420b0b3",
+    "039": "be6964a9c88aff03208fce66014b5077164764987ea357e4ac782637240a80f1"
+  },
+  "every_cli_output_matches_same_version_api_export": true,
+  "conditions": "Same thinLTO/codegen1 Rust/macOS ARM64 profiles; fresh children, alternating order, warm input/file caches; deliberate build/validation/fuzz work completed, other desktop activity uncontrolled. Per-child wait4 peak RSS.",
+  "output_policy": "All paired outputs are byte-identical; each output also matches its version/mode API export.",
+  "cases": {
+    "r-reference": {
+      "038": {
+        "median_wall_seconds": 5.701764415949583,
+        "median_peak_rss_bytes": 301940736
+      },
+      "039": {
+        "median_wall_seconds": 5.6839173750486225,
+        "median_peak_rss_bytes": 304332800
+      }
+    },
+    "octave": {
+      "038": {
+        "median_wall_seconds": 2.0679932918865234,
+        "median_peak_rss_bytes": 144785408
+      },
+      "039": {
+        "median_wall_seconds": 2.0544601250439882,
+        "median_peak_rss_bytes": 146063360
+      }
+    },
+    "numpy-ref": {
+      "038": {
+        "median_wall_seconds": 4.177186333108693,
+        "median_peak_rss_bytes": 157564928
+      },
+      "039": {
+        "median_wall_seconds": 4.205182084115222,
+        "median_peak_rss_bytes": 159825920
+      }
+    }
+  }
+}

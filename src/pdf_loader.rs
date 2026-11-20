@@ -202,6 +202,27 @@ impl ChunkBudget {
         }
     }
     fn take(&mut self, text: &str) -> Result<String, PdfError> {
+        self.take_bytes(text.len())?;
+        Ok(text.to_owned())
+    }
+    fn take_chars(&mut self, text: &[char]) -> Result<String, PdfError> {
+        if self.chunks > 0
+            && text
+                .len()
+                .checked_mul(4)
+                .is_some_and(|maximum| self.bytes >= maximum)
+        {
+            let chunk: String = text.iter().collect();
+            self.take_bytes(chunk.len())?;
+            return Ok(chunk);
+        }
+        let bytes = text.iter().map(|c| c.len_utf8()).sum();
+        self.take_bytes(bytes)?;
+        let mut chunk = String::with_capacity(bytes);
+        chunk.extend(text);
+        Ok(chunk)
+    }
+    fn take_bytes(&mut self, length: usize) -> Result<(), PdfError> {
         let chunks = self.chunks.checked_sub(1).ok_or_else(|| {
             pdf_limit_value(
                 "chunk count",
@@ -209,16 +230,44 @@ impl ChunkBudget {
                 self.max_chunks as u128,
             )
         })?;
-        let bytes = self.bytes.checked_sub(text.len()).ok_or_else(|| {
+        let bytes = self.bytes.checked_sub(length).ok_or_else(|| {
             pdf_limit_value(
                 "chunk text bytes",
-                (self.max_bytes - self.bytes) as u128 + text.len() as u128,
+                (self.max_bytes - self.bytes) as u128 + length as u128,
                 self.max_bytes as u128,
             )
         })?;
         self.chunks = chunks;
         self.bytes = bytes;
-        Ok(text.to_owned())
+        Ok(())
+    }
+}
+
+#[derive(Default)]
+struct TrimmedWindow {
+    first: usize,
+    scanned_end: usize,
+    last: Option<usize>,
+}
+
+impl TrimmedWindow {
+    fn get<'a>(&mut self, text: &'a [char], start: usize, end: usize) -> &'a [char] {
+        let mut last = end;
+        while last > self.scanned_end && text[last - 1].is_whitespace() {
+            last -= 1;
+        }
+        if last > self.scanned_end {
+            self.last = Some(last - 1);
+        }
+        self.scanned_end = end;
+        self.first = self.first.max(start);
+        while self.first < end && text[self.first].is_whitespace() {
+            self.first += 1;
+        }
+        match self.last {
+            Some(last) if self.first <= last => &text[self.first..=last],
+            _ => &text[..0],
+        }
     }
 }
 
@@ -603,6 +652,7 @@ impl PdfLoader {
         }
         let mut chunks = Vec::new();
         let mut start = 0usize;
+        let mut trimmed = TrimmedWindow::default();
         while start < chars.len() {
             let hard_end = start
                 .saturating_add(self.config.max_chunk_size)
@@ -621,9 +671,9 @@ impl PdfLoader {
                     .copied()
                     .unwrap_or(hard_end)
             };
-            let chunk: String = chars[start..end].iter().collect();
-            if !chunk.trim().is_empty() {
-                chunks.push(budget.take(chunk.trim())?);
+            let chunk = trimmed.get(&chars, start, end);
+            if !chunk.is_empty() {
+                chunks.push(budget.take_chars(chunk)?);
             }
             if end == chars.len() {
                 break;
@@ -800,6 +850,79 @@ pub fn pdf_to_training_examples<P: AsRef<Path>>(path: P) -> Result<Vec<TrainingE
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn monotonic_trim_windows_match_unicode_string_trimming() {
+        let alphabet = [
+            'A', 'ä', '😀', '尾', ' ', '\t', '\r', '\n', '\u{85}', '\u{a0}', '\u{2003}',
+            '\u{3000}', '\u{200b}',
+        ];
+        let mut state = 0x0390_2026_1120u64;
+        for _ in 0..2048 {
+            let mut chars = Vec::new();
+            for _ in 0..128 {
+                state ^= state << 13;
+                state ^= state >> 7;
+                state ^= state << 17;
+                chars.push(alphabet[state as usize % alphabet.len()]);
+            }
+            let mut trimmed = TrimmedWindow::default();
+            let mut start = 0;
+            let mut end = 17;
+            while start < chars.len() {
+                let expected: String = chars[start..end].iter().collect();
+                let actual: String = trimmed.get(&chars, start, end).iter().collect();
+                assert_eq!(actual, expected.trim());
+                start += 1 + state as usize % 7;
+                end = (end + 1 + (state >> 8) as usize % 7)
+                    .max(start)
+                    .min(chars.len());
+            }
+        }
+    }
+
+    #[test]
+    fn whitespace_heavy_overlap_preserves_budgeted_output() {
+        let text = format!("A{}B", " \u{2003}\t\r\n".repeat(20000));
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            min_chunk_size: 1,
+            max_chunk_size: 1000,
+            chunk_overlap: 999,
+            split_by_paragraph: false,
+            split_by_sentence: false,
+            ..Default::default()
+        });
+        let mut exact = ChunkBudget::new(Some(PdfImportLimits::new(1024, 1, 2, 2).unwrap()));
+        assert_eq!(
+            loader
+                .split_text_into_chunks_with_budget(&text, &mut exact)
+                .unwrap(),
+            ["A", "B"]
+        );
+        let mut limited = ChunkBudget::new(Some(PdfImportLimits::new(1024, 1, 2, 1).unwrap()));
+        assert!(loader
+            .split_text_into_chunks_with_budget(&text, &mut limited)
+            .unwrap_err()
+            .to_string()
+            .contains("chunk count"));
+    }
+
+    #[test]
+    fn char_budgets_match_string_budgets_without_consuming_failed_reservations() {
+        for bytes in [1, 8, 9, 20] {
+            let limits = PdfImportLimits::new(1024, 1, bytes, 2).unwrap();
+            let mut strings = ChunkBudget::new(Some(limits));
+            let mut chars = ChunkBudget::new(Some(limits));
+            for text in ["ä😀尾", "A", "B"] {
+                let a = strings.take(text).map_err(|e| e.to_string());
+                let b = chars
+                    .take_chars(&text.chars().collect::<Vec<_>>())
+                    .map_err(|e| e.to_string());
+                assert_eq!(a, b);
+                assert_eq!((strings.chunks, strings.bytes), (chars.chunks, chars.bytes));
+            }
+        }
+    }
 
     #[test]
     fn sentence_and_paragraph_segmentation_preserves_source_text() {

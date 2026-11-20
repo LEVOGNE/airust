@@ -1,4 +1,4 @@
-# AIRust 0.3.8 API cookbook
+# AIRust 0.3.9 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.8", default-features = false }
+airust = { version = "=0.3.9", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -345,3 +345,8 @@ With the optional `pdf` feature, `PdfLoader::preview_pages_from_pdf(path, maximu
 ## Faithful PDF chunks (0.3.8)
 
 The existing optional PDF API now preserves source characters when selecting sentence and paragraph cut positions. Every chunk is a contiguous excerpt of the extracted/cleaned page; outer chunk whitespace is still trimmed. No new method, flag or JSON field is added. Long-page chunks, IDs and rankings can change, so retain old exports and explicitly rebuild derived indexes under a new source/configuration revision. See [API, commands, tests and limits](PDF-CHUNKS.md).
+
+
+## PDF overlap processing (0.3.9)
+
+Existing `PdfLoader` configuration and methods are unchanged. Overlapping windows now track trimmed edges, skip empty windows without temporary strings and check chunk/UTF-8 quotas before retaining output. Source-excerpt fidelity, boundary choices, budget semantics and JSON fields remain compatible. Existing 0.3.8 exports need no reimport for this optimization. High overlap still repeats nonempty content. See [API, commands, measurements and limits](PDF-OVERLAP.md).

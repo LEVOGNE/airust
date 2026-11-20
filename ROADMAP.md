@@ -144,3 +144,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.8 corrects measured chunk-text fidelity while retaining native extraction, cleanup controls and resource limits. Current imports and old snapshots are kept separately, with explicit derived-index rebuilding. Further changes remain findings-driven; no 0.4.0 expansion or application/MCP integration is included. See [chunk contract](docs/PDF-CHUNKS.md).
+
+
+0.3.9 reduces measured overlap-processing waste while keeping source-excerpt fidelity and existing APIs/budget semantics. Real imports and synthetic extracted-text stress measurements remain separate. Further changes stay findings-driven; 0.4.0 expansion and application/MCP integration remain deferred. See [overlap controls and limits](docs/PDF-OVERLAP.md).
