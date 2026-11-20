@@ -26,3 +26,7 @@ The local check script passes 197 default and 664 all-feature tests, five Python
 Clean packaging, extracted-crate tests, a publication dry-run and exact-commit CI gate release. A registry consumer and equality of crate checksum, VCS commit, annotated tag and GitHub asset verify the published artifact. Those post-commit results are recorded by the release verification process.
 
 These are regression and bounded robustness checks, not an independent penetration audit, proof of perfect extraction or a hard native-parser memory/time bound. Further 0.3.x hardening remains findings-driven; 0.4.0 feature work is deferred.
+
+## Package isolation
+
+Release preflight caught unanchored Cargo include patterns selecting a local lab README and a dependency license file. No artifact was published. Top-level metadata patterns are now anchored and `local-lab/**` is explicitly excluded. `scripts/check_package.py` checks the selected package paths against intended repository areas, and runs in `test.sh`. Its `--allow-dirty` flag is used only with the read-only `cargo package --list` inspection; actual release packaging requires a clean commit. The package list also passes under Cargo 1.89. See [Cargo include-pattern semantics](https://doc.rust-lang.org/cargo/reference/manifest.html#the-exclude-and-include-fields).

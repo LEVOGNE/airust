@@ -135,3 +135,5 @@ cargo run --locked --features disk-index --example disk_index > /dev/null
 cargo run --locked --features disk-index --example disk_benchmark -- 1000 disk > /dev/null
 
 python3 -B scripts/check_features.py
+
+python3 -B scripts/check_package.py

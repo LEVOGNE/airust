@@ -54,3 +54,7 @@ cargo run --release --locked --features pdf --example pdf_parser_profile -- INPU
 ```
 
 The optional export is created exclusively and contains document text. Store it as application data. Benchmark stdout contains metrics, IDs and hashes rather than the source text; a hash is an identity check, not anonymization or authentication. Measure cancellation, corruption, scope and source-position behavior again when relevant code or parser versions change. New general passage-indexing features remain deferred to a later 0.4.0 decision.
+
+## Package isolation
+
+Release preflight caught unanchored Cargo include patterns selecting a local lab README and a dependency license file. No artifact was published. Top-level metadata patterns are now anchored and `local-lab/**` is explicitly excluded. `scripts/check_package.py` checks the selected package paths against intended repository areas, and runs in `test.sh`. Its `--allow-dirty` flag is used only with the read-only `cargo package --list` inspection; actual release packaging requires a clean commit. The package list also passes under Cargo 1.89. See [Cargo include-pattern semantics](https://doc.rust-lang.org/cargo/reference/manifest.html#the-exclude-and-include-fields).

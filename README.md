@@ -4,7 +4,7 @@
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.1 hardens optional PDF imports. It protects output created by a concurrent writer, refuses empty conversions and catches Rust parser panics as import errors. The document lab compares 15 PDFs with 8,960 pages against 0.3.0 and retains the extracted knowledge locally. See [PDF results and limits](docs/PDF-STABILITY.md) and the [release report](docs/CHANGES-0.3.1.md). The default library stays independent of PDF processing. No DenkMaps or MCP integration is performed.
+Version 0.3.1 hardens optional PDF imports. It protects output created by a concurrent writer, refuses empty conversions and catches Rust parser panics as import errors. The document lab compares 15 PDFs with 8,960 pages against 0.3.0 and retains the extracted knowledge locally. See [PDF results and limits](docs/PDF-STABILITY.md) and the [release report](docs/CHANGES-0.3.1.md). Package checks also keep local lab files outside the published crate. The default library stays independent of PDF processing. No DenkMaps or MCP integration is performed.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |

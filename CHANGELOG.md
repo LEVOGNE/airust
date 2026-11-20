@@ -2,7 +2,7 @@
 
 ## 0.3.1
 
-Harden optional PDF imports: exclusive atomic output publication, refusal of empty conversions, parser-panic containment and linear parenthesis tracking. Real-document comparisons, retained private knowledge and adversarial regression cases support the change. See [results and limits](docs/CHANGES-0.3.1.md).
+Harden optional PDF imports: exclusive atomic output publication, refusal of empty conversions, parser-panic containment, linear parenthesis tracking and explicit package isolation for retained local lab data. Real-document comparisons, retained private knowledge and adversarial regression cases support the change. See [results and limits](docs/CHANGES-0.3.1.md).
 
 ## 0.3.0
 

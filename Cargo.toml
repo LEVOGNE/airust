@@ -12,7 +12,7 @@ keywords = ["search", "knowledge", "matching", "retrieval", "reranking"]
 categories = ["text-processing", "algorithms"]
 documentation = "https://docs.rs/airust"
 repository = "https://github.com/LEVOGNE/airust"
-include = ["Cargo.toml", "Cargo.lock", "src/**", "build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "scripts/**", "tests/**", "docs/**", "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md", "LICENSE", "test.sh", "Dockerfile", ".dockerignore", "!**/.DS_Store", "!**/._*"]
+include = ["/Cargo.toml", "/Cargo.lock", "src/**", "/build.rs", "knowledge/train.json", "data/pdf/sample.pdf", "examples/**", "scripts/**", "tests/**", "docs/**", "/README.md", "/STARTUP.md", "/CHANGELOG.md", "/CONTRIBUTING.md", "/ROADMAP.md", "/LICENSE", "/test.sh", "/Dockerfile", "/.dockerignore", "!**/.DS_Store", "!**/._*", "!local-lab/**"]
  
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
