@@ -1,0 +1,426 @@
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -170,6 +170,8 @@
+ pub mod object;
+ pub mod objstm;
+ pub mod parser;
++// AIRust modification: bounded object-loading adapter; see UPSTREAM.md.
++mod airust_small_object;
+ /// Parser configuration options
+ pub mod parser_config;
+ pub mod xref;
+@@ -303,6 +305,7 @@
+ 
+ // Python bindings (optional)
+ #[cfg(feature = "python")]
++
+ mod python;
+ 
+ // WASM bindings (optional)
+--- a/src/document.rs
++++ b/src/document.rs
+@@ -1,4 +1,9 @@
+ //! PDF document model.
++
++// AIRust modifications: bounded small-object loading and byte-safe object-keyword checks.
++// See UPSTREAM.md for the original release and maintained patch.
++
++use crate::airust_small_object::short_object_bounds;
+ 
+ use crate::encryption::EncryptionHandler;
+ use crate::error::{Error, Result};
+@@ -3437,48 +3442,64 @@
+         // Holding one guard for seek+read prevents the split-lock race (#398 Race A)
+         // where a concurrent thread can re-seek the shared BufReader between our
+         // seek() and read_until() calls.
+-        let (header_bytes, full_header) = {
++        let (header_bytes, full_header, short_body) = {
+             let mut reader = self.reader.lock_or_recover();
+             reader.seek(SeekFrom::Start(offset))?;
+-
+-            // Read bytes for object header (e.g., "1 0 obj")
+-            let mut header_bytes = Vec::new();
+-            let bytes_read = reader.read_until(b'\n', &mut header_bytes)?;
+-
+-            if bytes_read == 0 {
+-                let msg = format!("Unexpected EOF while reading object {} header", obj_ref.id);
+-                log::warn!("{}", msg);
+-                // also push into structured sink so
+-                // callers can retrieve as data via flatten_warnings.
+-                self.push_structured_warning(crate::extractors::warnings::Warning {
+-                    category: crate::extractors::warnings::WarningCategory::EofPremature,
+-                    page: None,
+-                    message: msg,
+-                    spec_section: Some("7.5"),
+-                });
+-                return Err(Error::UnexpectedEof);
+-            }
+-
+-            let line = String::from_utf8_lossy(&header_bytes);
+-
+-            // Issue #45: Handle multi-line object headers
+-            let mut full_header = line.to_string();
+-            let max_header_lines = 5;
+-            let mut lines_read = 1;
+-
+-            while !has_standalone_obj_keyword(&full_header) && lines_read < max_header_lines {
+-                let mut next_bytes = Vec::new();
+-                let next_read = reader.read_until(b'\n', &mut next_bytes)?;
+-                if next_read == 0 {
+-                    break;
++            let mut probe = Vec::new();
++            let available = reader.fill_buf()?;
++            if available.len() >= 4096 && !available[..4096].contains(&b'\n') {
++                reader.by_ref().take(4096).read_to_end(&mut probe)?;
++            }
++            if let Some((header_end, object_end)) = short_object_bounds(&probe) {
++                (
++                    probe[..header_end].to_vec(),
++                    String::from_utf8_lossy(&probe[..header_end]).into_owned(),
++                    Some(probe[header_end..object_end].to_vec()),
++                )
++            } else {
++                if !probe.is_empty() {
++                    reader.seek(SeekFrom::Start(offset))?;
+                 }
+-                let next_line = String::from_utf8_lossy(&next_bytes);
+-                full_header.push(' ');
+-                full_header.push_str(&next_line);
+-                lines_read += 1;
+-            }
+-            // Reader guard drops here — before any recursive fallback calls.
+-            (header_bytes, full_header)
++
++                // Read bytes for object header (e.g., "1 0 obj")
++                let mut header_bytes = Vec::new();
++                let bytes_read = reader.read_until(b'\n', &mut header_bytes)?;
++
++                if bytes_read == 0 {
++                    let msg = format!("Unexpected EOF while reading object {} header", obj_ref.id);
++                    log::warn!("{}", msg);
++                    // also push into structured sink so
++                    // callers can retrieve as data via flatten_warnings.
++                    self.push_structured_warning(crate::extractors::warnings::Warning {
++                        category: crate::extractors::warnings::WarningCategory::EofPremature,
++                        page: None,
++                        message: msg,
++                        spec_section: Some("7.5"),
++                    });
++                    return Err(Error::UnexpectedEof);
++                }
++
++                let line = String::from_utf8_lossy(&header_bytes);
++
++                // Issue #45: Handle multi-line object headers
++                let mut full_header = line.to_string();
++                let max_header_lines = 5;
++                let mut lines_read = 1;
++
++                while !has_standalone_obj_keyword(&full_header) && lines_read < max_header_lines {
++                    let mut next_bytes = Vec::new();
++                    let next_read = reader.read_until(b'\n', &mut next_bytes)?;
++                    if next_read == 0 {
++                        break;
++                    }
++                    let next_line = String::from_utf8_lossy(&next_bytes);
++                    full_header.push(' ');
++                    full_header.push_str(&next_line);
++                    lines_read += 1;
++                }
++                // Reader guard drops here — before any recursive fallback calls.
++                (header_bytes, full_header, None)
++            }
+         };
+ 
+         // Verify object header format
+@@ -3516,12 +3537,16 @@
+                     }
+                 }
+ 
+-                log::warn!("Malformed object header at offset {}: {}", offset, full_header.trim());
++                log::warn!(
++                    "Malformed object header at offset {}: {}",
++                    offset,
++                    full_header.trim()
++                );
+                 return Err(Error::ParseError {
+                     offset: offset as usize,
+                     reason: format!("Expected object header, found: {}", full_header.trim()),
+                 });
+-            },
++            }
+         };
+ 
+         let _obj_pos = obj_pos;
+@@ -3572,88 +3597,89 @@
+ 
+         // Check if there's content after "obj" on the same line
+         // Some PDFs have "N G obj\n<<..." while others have "N G obj<<..." on one line
+-        let mut data = Vec::new();
+-
+-        // Find where "obj" ends in the original bytes
+-        // We need to include anything after "obj" in the header line
+-        if let Some(obj_keyword_pos) = header_bytes.windows(3).position(|w| w == b"obj") {
+-            let after_obj_pos = obj_keyword_pos + 3; // "obj" is 3 bytes
+-
+-            // Skip whitespace after "obj"
+-            let mut content_start = after_obj_pos;
+-            while content_start < header_bytes.len()
+-                && (header_bytes[content_start] == b' '
+-                    || header_bytes[content_start] == b'\t'
+-                    || header_bytes[content_start] == b'\r')
++        let short = short_body.is_some();
++        let mut data = short_body.unwrap_or_default();
++        if !short {
++            // Find where "obj" ends in the original bytes
++            // We need to include anything after "obj" in the header line
++            if let Some(obj_keyword_pos) = header_bytes.windows(3).position(|w| w == b"obj") {
++                let after_obj_pos = obj_keyword_pos + 3; // "obj" is 3 bytes
++
++                // Skip whitespace after "obj"
++                let mut content_start = after_obj_pos;
++                while content_start < header_bytes.len()
++                    && (header_bytes[content_start] == b' '
++                        || header_bytes[content_start] == b'\t'
++                        || header_bytes[content_start] == b'\r')
++                {
++                    content_start += 1;
++                }
++
++                // If there's a newline, skip it (normal case: "N G obj\n")
++                // If there's content (like "<<"), include it (malformed case: "N G obj<<...")
++                if content_start < header_bytes.len() && header_bytes[content_start] != b'\n' {
++                    // There's content on the same line after "obj" - include it
++                    data.extend_from_slice(&header_bytes[content_start..]);
++                    log::debug!(
++                        "Object {} has content after 'obj' on header line ({} bytes)",
++                        obj_ref.id,
++                        header_bytes.len() - content_start
++                    );
++                }
++            }
++
++            // --- Phase 2: read body under a single lock guard (#398 Race A) ---
++            // Use byte limit instead of line count — large uncompressed streams can have
++            // hundreds of thousands of short lines (e.g., vector path drawing commands).
++            const MAX_BYTES: usize = 100 * 1024 * 1024; // 100 MB safety limit
++
+             {
+-                content_start += 1;
+-            }
+-
+-            // If there's a newline, skip it (normal case: "N G obj\n")
+-            // If there's content (like "<<"), include it (malformed case: "N G obj<<...")
+-            if content_start < header_bytes.len() && header_bytes[content_start] != b'\n' {
+-                // There's content on the same line after "obj" - include it
+-                data.extend_from_slice(&header_bytes[content_start..]);
+-                log::debug!(
+-                    "Object {} has content after 'obj' on header line ({} bytes)",
+-                    obj_ref.id,
+-                    header_bytes.len() - content_start
+-                );
+-            }
+-        }
+-
+-        // --- Phase 2: read body under a single lock guard (#398 Race A) ---
+-        // Use byte limit instead of line count — large uncompressed streams can have
+-        // hundreds of thousands of short lines (e.g., vector path drawing commands).
+-        const MAX_BYTES: usize = 100 * 1024 * 1024; // 100 MB safety limit
+-
+-        {
+-            let mut reader = self.reader.lock_or_recover();
+-            loop {
+-                let mut chunk = Vec::new();
+-                let bytes_read = reader.read_until(b'\n', &mut chunk)?;
+-
+-                if data.len() > MAX_BYTES {
+-                    log::warn!(
+-                        "Object {} exceeded maximum byte limit ({} bytes), truncating",
+-                        obj_ref.id,
+-                        MAX_BYTES
+-                    );
+-                    break;
+-                }
+-
+-                if bytes_read == 0 {
+-                    let msg = format!(
++                let mut reader = self.reader.lock_or_recover();
++                loop {
++                    let mut chunk = Vec::new();
++                    let bytes_read = reader.read_until(b'\n', &mut chunk)?;
++
++                    if data.len() > MAX_BYTES {
++                        log::warn!(
++                            "Object {} exceeded maximum byte limit ({} bytes), truncating",
++                            obj_ref.id,
++                            MAX_BYTES
++                        );
++                        break;
++                    }
++
++                    if bytes_read == 0 {
++                        let msg = format!(
+                         "Unexpected EOF while reading object {} (no endobj found after {} bytes)",
+                         obj_ref.id,
+                         data.len()
+                     );
+-                    log::warn!("{}", msg);
+-                    // structured-warnings sink.
+-                    self.push_structured_warning(crate::extractors::warnings::Warning {
+-                        category: crate::extractors::warnings::WarningCategory::EofPremature,
+-                        page: None,
+-                        message: msg,
+-                        spec_section: Some("7.5"),
+-                    });
+-                    // Don't fail - try to parse what we have
+-                    break;
+-                }
+-
+-                // Check if we reached endobj
+-                if chunk.contains(&b'e') {
+-                    // Find "endobj" in the chunk (working with bytes, not chars)
+-                    if let Some(endobj_pos) = find_substring(&chunk, b"endobj") {
+-                        // Include everything before "endobj" but not "endobj" itself
+-                        data.extend_from_slice(&chunk[..endobj_pos]);
++                        log::warn!("{}", msg);
++                        // structured-warnings sink.
++                        self.push_structured_warning(crate::extractors::warnings::Warning {
++                            category: crate::extractors::warnings::WarningCategory::EofPremature,
++                            page: None,
++                            message: msg,
++                            spec_section: Some("7.5"),
++                        });
++                        // Don't fail - try to parse what we have
+                         break;
+                     }
++
++                    // Check if we reached endobj
++                    if chunk.contains(&b'e') {
++                        // Find "endobj" in the chunk (working with bytes, not chars)
++                        if let Some(endobj_pos) = find_substring(&chunk, b"endobj") {
++                            // Include everything before "endobj" but not "endobj" itself
++                            data.extend_from_slice(&chunk[..endobj_pos]);
++                            break;
++                        }
++                    }
++
++                    data.extend_from_slice(&chunk);
+                 }
+-
+-                data.extend_from_slice(&chunk);
+-            }
+-        }
+-
++            }
++        }
+         // Parse the object data
+         log::debug!(
+             "About to parse object {} gen {} ({} bytes)",
+@@ -3684,7 +3710,7 @@
+                     error_kind
+                 );
+                 Object::Null
+-            },
++            }
+         };
+ 
+         // Decrypt string values inside this uncompressed object before
+@@ -25261,6 +25287,7 @@
+ /// preprints) without disturbing legitimate data tables — sailing scores,
+ /// IRS forms, and the CJK traffic-volume grid all stay well below both
+ /// bars.
++
+ fn looks_like_prose_table(table: &crate::structure::Table) -> bool {
+     let mut total = 0usize;
+     let mut sentence_tails = 0usize;
+@@ -25360,7 +25387,7 @@
+ fn has_standalone_obj_keyword(s: &str) -> bool {
+     for (i, _) in s.match_indices("obj") {
+         // Skip "endobj" — check if preceded by "end"
+-        if i >= 3 && &s[i - 3..i] == "end" {
++        if i >= 3 && &s.as_bytes()[i - 3..i] == b"end" {
+             continue;
+         }
+         // Must be at a word boundary: preceded by whitespace, digit, or start of string
+--- /dev/null
++++ b/src/airust_small_object.rs
+@@ -0,0 +1,79 @@
++use crate::parser::parse_object;
++
++pub(crate) fn short_object_bounds(bytes: &[u8]) -> Option<(usize, usize)> {
++    let bytes = &bytes[..bytes.len().min(4096)];
++    fn white(byte: u8) -> bool {
++        matches!(byte, 9 | 10 | 12 | 13 | 32)
++    }
++    fn delimiter(byte: u8) -> bool {
++        white(byte)
++            || matches!(
++                byte,
++                b'(' | b')' | b'<' | b'>' | b'[' | b']' | b'{' | b'}' | b'/' | b'%'
++            )
++    }
++    let mut i = 0;
++    while i < bytes.len() && white(bytes[i]) {
++        i += 1;
++    }
++    let start = i;
++    while i < bytes.len() && bytes[i].is_ascii_digit() {
++        i += 1;
++    }
++    std::str::from_utf8(&bytes[start..i])
++        .ok()?
++        .parse::<u32>()
++        .ok()?;
++    if i == bytes.len() || !white(bytes[i]) {
++        return None;
++    }
++    while i < bytes.len() && white(bytes[i]) {
++        i += 1;
++    }
++    let start = i;
++    while i < bytes.len() && bytes[i].is_ascii_digit() {
++        i += 1;
++    }
++    std::str::from_utf8(&bytes[start..i])
++        .ok()?
++        .parse::<u16>()
++        .ok()?;
++    if i == bytes.len() || !white(bytes[i]) {
++        return None;
++    }
++    while i < bytes.len() && white(bytes[i]) {
++        i += 1;
++    }
++    if bytes.get(i..i + 3)? != b"obj" {
++        return None;
++    }
++    let header_end = i + 3;
++    if !delimiter(*bytes.get(header_end)?) {
++        return None;
++    }
++    let body = &bytes[header_end..];
++    let (remaining, object) = parse_object(body).ok()?;
++    if matches!(object, crate::object::Object::Stream { .. }) {
++        return None;
++    }
++    let object_end = bytes.len() - remaining.len();
++    let mut tail = remaining;
++    loop {
++        while tail.first().is_some_and(|b| white(*b)) {
++            tail = &tail[1..];
++        }
++        if tail.first() == Some(&b'%') {
++            let end = tail.iter().position(|b| matches!(*b, b'\n' | b'\r'))?;
++            tail = &tail[end..];
++        } else {
++            break;
++        }
++    }
++    if !tail.starts_with(b"endobj") {
++        return None;
++    }
++    if !tail.get(6).is_some_and(|b| delimiter(*b)) {
++        return None;
++    }
++    Some((header_end, object_end))
++}

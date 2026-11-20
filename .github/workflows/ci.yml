@@ -75,3 +75,20 @@ jobs:
             rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
       - run: cargo check --all-features --all-targets --locked
       - run: cargo clean -p airust
+
+  pdf-backend:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target/pdf-backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo test --manifest-path crates/airust-pdf-backend/Cargo.toml --test regressions --locked
+      - run: python3 scripts/check_pdf_backend.py
+      - run: cargo package --manifest-path crates/airust-pdf-backend/Cargo.toml --locked
+      - uses: dtolnay/rust-toolchain@1.89.0
+      - run: cargo +1.89.0 check --manifest-path crates/airust-pdf-backend/Cargo.toml --lib --locked
