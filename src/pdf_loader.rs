@@ -635,23 +635,16 @@ impl PdfLoader {
     }
 
     fn split_into_paragraph_segments(&self, text: &str) -> Vec<String> {
-        let paragraphs: Vec<&str> = text.split("\n\n").collect();
         let mut segments = Vec::new();
 
-        for para in paragraphs {
-            let trimmed = para.trim();
-            if trimmed.is_empty() {
-                continue;
-            }
-
-            if trimmed.chars().count() <= self.config.max_chunk_size {
-                segments.push(format!("{}\n\n", trimmed));
+        for para in text.split_inclusive("\n\n") {
+            if para.chars().count() <= self.config.max_chunk_size {
+                segments.push(para.to_owned());
             } else if self.config.split_by_sentence {
-                let sentences = self.split_into_sentences(trimmed);
+                let sentences = self.split_into_sentences(para);
                 segments.extend(sentences);
-                segments.push("\n\n".to_string());
             } else {
-                segments.push(format!("{}\n\n", trimmed));
+                segments.push(para.to_owned());
             }
         }
 
@@ -723,11 +716,7 @@ impl PdfLoader {
 
                 let next_pos = skip_whitespace(&chars, i + 1);
                 if next_pos >= len || chars[next_pos].is_uppercase() || chars[next_pos] == '\n' {
-                    let trimmed = current.trim().to_string();
-                    if !trimmed.is_empty() {
-                        sentences.push(format!("{} ", trimmed));
-                    }
-                    current.clear();
+                    sentences.push(std::mem::take(&mut current));
                     parenthesis_balance = 0;
                 }
             }
@@ -735,9 +724,8 @@ impl PdfLoader {
             i += 1;
         }
 
-        let trimmed = current.trim().to_string();
-        if !trimmed.is_empty() {
-            sentences.push(trimmed);
+        if !current.is_empty() {
+            sentences.push(current);
         }
 
         sentences
@@ -814,6 +802,104 @@ mod tests {
     use super::*;
 
     #[test]
+    fn sentence_and_paragraph_segmentation_preserves_source_text() {
+        let text = "Start.\nNext!\t  More?\r\nLast.\n\n\n    Code();\n\tTail.";
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            max_chunk_size: 20,
+            chunk_overlap: 0,
+            min_chunk_size: 1,
+            ..Default::default()
+        });
+        assert_eq!(loader.split_into_sentences(text).concat(), text);
+        assert_eq!(loader.split_into_paragraph_segments(text).concat(), text);
+    }
+
+    #[test]
+    fn every_chunk_is_a_contiguous_excerpt_of_the_cleaned_page() {
+        let text = "Start.\nNext!\t  More?\r\nLast.\n\n\n    Code();\n\tTail. More content. End.";
+        for paragraphs in [false, true] {
+            for sentences in [false, true] {
+                for overlap in [0, 4, 19] {
+                    let loader = PdfLoader::with_config(PdfLoaderConfig {
+                        max_chunk_size: 20,
+                        chunk_overlap: overlap,
+                        min_chunk_size: 1,
+                        split_by_paragraph: paragraphs,
+                        split_by_sentence: sentences,
+                        ..Default::default()
+                    });
+                    let chunks = loader.split_text_into_chunks(text);
+                    assert!(!chunks.is_empty());
+                    for chunk in &chunks {
+                        assert!(text.contains(chunk), "fabricated excerpt: {chunk:?}");
+                        assert!(chunk.chars().count() <= 20);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn generated_chunk_cases_preserve_content_and_character_limits() {
+        let pieces = [
+            "Alpha.",
+            "\n",
+            "\n\n",
+            "\t  ",
+            "\r\n",
+            " Ä😀尾 ",
+            "Dr. Name ",
+            "3.14!",
+            " (x.) ",
+            "Lower?",
+            "    code();",
+        ];
+        let mut state = 0x0202_6112_0038u64;
+        for case in 0..2048 {
+            let mut text = format!("Case{case}: ");
+            for _ in 0..20 {
+                state ^= state << 13;
+                state ^= state >> 7;
+                state ^= state << 17;
+                text.push_str(pieces[state as usize % pieces.len()]);
+            }
+            text.push_str(" END尾");
+            let maximum = 5 + state as usize % 76;
+            for paragraphs in [false, true] {
+                for sentences in [false, true] {
+                    for overlap in [0, maximum / 2, maximum - 1] {
+                        let loader = PdfLoader::with_config(PdfLoaderConfig {
+                            min_chunk_size: 1,
+                            max_chunk_size: maximum,
+                            chunk_overlap: overlap,
+                            split_by_paragraph: paragraphs,
+                            split_by_sentence: sentences,
+                            ..Default::default()
+                        });
+                        assert_eq!(loader.split_into_sentences(&text).concat(), text);
+                        assert_eq!(loader.split_into_paragraph_segments(&text).concat(), text);
+                        let chunks = loader.split_text_into_chunks(&text);
+                        assert!(chunks.len() <= text.chars().count());
+                        assert!(chunks.iter().all(|chunk| !chunk.is_empty()
+                            && chunk.chars().count() <= maximum
+                            && text.contains(chunk)));
+                        if overlap == 0 {
+                            let original: String =
+                                text.chars().filter(|c| !c.is_whitespace()).collect();
+                            let joined: String = chunks
+                                .concat()
+                                .chars()
+                                .filter(|c| !c.is_whitespace())
+                                .collect();
+                            assert_eq!(joined, original);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn unexpected_parser_unwind_remains_an_import_error() {
         let result = checked_pdf_call("a future parser failure", || -> Result<(), &str> {
             panic!("injected parser unwind");
@@ -838,10 +924,7 @@ mod tests {
     #[test]
     fn punctuation_dense_parenthesized_text_preserves_all_content() {
         let text = format!("({}) End.", "x.".repeat(100000));
-        assert_eq!(
-            PdfLoader::new().split_into_sentences(&text),
-            vec![format!("{text} ")]
-        );
+        assert_eq!(PdfLoader::new().split_into_sentences(&text), vec![text]);
     }
 
     #[test]

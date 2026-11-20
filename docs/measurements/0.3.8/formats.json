@@ -1,0 +1,176 @@
+[
+  {
+    "case": "owned-1000",
+    "version": "037",
+    "expected": "text",
+    "pages": 1000,
+    "exit_code": 0,
+    "seconds": 0.3455676247831434,
+    "chunks": 3000,
+    "pages_with_chunks": 1000,
+    "sha256": "3141088378fb1f328cee5b42e76f529e9ac814f66e4ea45c485f40e912604001"
+  },
+  {
+    "case": "owned-1000",
+    "version": "038",
+    "expected": "text",
+    "pages": 1000,
+    "exit_code": 0,
+    "seconds": 0.33613441698253155,
+    "chunks": 3000,
+    "pages_with_chunks": 1000,
+    "sha256": "3141088378fb1f328cee5b42e76f529e9ac814f66e4ea45c485f40e912604001"
+  },
+  {
+    "case": "object-streams-1000",
+    "version": "037",
+    "expected": "text",
+    "pages": 1000,
+    "exit_code": 0,
+    "seconds": 0.3337682920973748,
+    "chunks": 3000,
+    "pages_with_chunks": 1000,
+    "sha256": "2006339a8e7a7076c9e1f255bde0f006803a7a873f3c94276bcdec5e6cec32d1"
+  },
+  {
+    "case": "object-streams-1000",
+    "version": "038",
+    "expected": "text",
+    "pages": 1000,
+    "exit_code": 0,
+    "seconds": 0.3401214999612421,
+    "chunks": 3000,
+    "pages_with_chunks": 1000,
+    "sha256": "2006339a8e7a7076c9e1f255bde0f006803a7a873f3c94276bcdec5e6cec32d1"
+  },
+  {
+    "case": "rotations",
+    "version": "037",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.016844708006829023,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "7c5a90314b256cc459ce2a7070bbbb4732724c6e62336197993955995ae2ef35"
+  },
+  {
+    "case": "rotations",
+    "version": "038",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.021603291854262352,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "7c5a90314b256cc459ce2a7070bbbb4732724c6e62336197993955995ae2ef35"
+  },
+  {
+    "case": "aes128-empty-user",
+    "version": "037",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.015205958159640431,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "a76fdfee40f83768830cc546a211d1896e1a6fbc3e09c0098f375b522955cbdd"
+  },
+  {
+    "case": "aes128-empty-user",
+    "version": "038",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.02386137517169118,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "a76fdfee40f83768830cc546a211d1896e1a6fbc3e09c0098f375b522955cbdd"
+  },
+  {
+    "case": "aes256-empty-user",
+    "version": "037",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.025195916881784797,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "78d914ac2c143dfb014a947100009509ae1a17fea07f64f005980fb173e1f5e1"
+  },
+  {
+    "case": "aes256-empty-user",
+    "version": "038",
+    "expected": "text",
+    "pages": 8,
+    "exit_code": 0,
+    "seconds": 0.020545250037685037,
+    "chunks": 24,
+    "pages_with_chunks": 8,
+    "sha256": "78d914ac2c143dfb014a947100009509ae1a17fea07f64f005980fb173e1f5e1"
+  },
+  {
+    "case": "aes256-protected",
+    "version": "037",
+    "expected": "password_error",
+    "pages": 8,
+    "exit_code": 1,
+    "seconds": 0.005601875018328428,
+    "previous_output_preserved": true,
+    "error": "PDF conversion failed: PDF Error: No usable text was extracted; the PDF may be empty, image-only, or use an unsupported text encoding\n"
+  },
+  {
+    "case": "aes256-protected",
+    "version": "038",
+    "expected": "password_error",
+    "pages": 8,
+    "exit_code": 1,
+    "seconds": 0.005142583046108484,
+    "previous_output_preserved": true,
+    "error": "PDF conversion failed: PDF Error: No usable text was extracted; the PDF may be empty, image-only, or use an unsupported text encoding\n"
+  },
+  {
+    "case": "unicode",
+    "version": "037",
+    "expected": "text",
+    "pages": 3,
+    "exit_code": 0,
+    "seconds": 0.019615041092038155,
+    "chunks": 3,
+    "pages_with_chunks": 3,
+    "sha256": "2e05d468aa10e647c1c0daf73e58e1301005646dae5613c05091fb9c992ebf57",
+    "all_unicode_phrases_preserved": true
+  },
+  {
+    "case": "unicode",
+    "version": "038",
+    "expected": "text",
+    "pages": 3,
+    "exit_code": 0,
+    "seconds": 0.021399582969024777,
+    "chunks": 3,
+    "pages_with_chunks": 3,
+    "sha256": "2e05d468aa10e647c1c0daf73e58e1301005646dae5613c05091fb9c992ebf57",
+    "all_unicode_phrases_preserved": true
+  },
+  {
+    "case": "image-only-128",
+    "version": "037",
+    "expected": "no_text",
+    "pages": 128,
+    "exit_code": 1,
+    "seconds": 0.007669207872822881,
+    "previous_output_preserved": true,
+    "error": "PDF conversion failed: PDF Error: No usable text was extracted; the PDF may be empty, image-only, or use an unsupported text encoding\n"
+  },
+  {
+    "case": "image-only-128",
+    "version": "038",
+    "expected": "no_text",
+    "pages": 128,
+    "exit_code": 1,
+    "seconds": 0.00747045804746449,
+    "previous_output_preserved": true,
+    "error": "PDF conversion failed: PDF Error: No usable text was extracted; the PDF may be empty, image-only, or use an unsupported text encoding\n"
+  }
+]

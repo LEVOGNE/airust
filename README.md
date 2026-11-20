@@ -1,13 +1,14 @@
-# AIRust 0.3.7
+# AIRust 0.3.8
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.7 fixes the PDF preview: verbose mode extracts only its first three usable pages before conversion. It avoids a second full extraction and no longer masks an earlier chunk-budget failure with a later preview error. Successful imports retain the same text and JSON as 0.3.6 in the tested corpus. See [API, commands and limits](docs/PDF-PREVIEW.md) and the [release report](docs/CHANGES-0.3.7.md). The optional PDF backend stays at 0.3.4. No DenkMaps or MCP integration is added.
+Version 0.3.8 preserves existing line breaks and indentation when long PDF pages are divided into knowledge chunks. Sentence and paragraph boundaries no longer rewrite the page text. Public APIs and JSON fields stay compatible, but corrected imports can change chunks and rankings. Preserve old exports and rebuild derived indexes explicitly. See [API, commands, upgrade advice and limits](docs/PDF-CHUNKS.md) and the [release report](docs/CHANGES-0.3.8.md). The optional backend remains 0.3.4. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.8](docs/PDF-CHUNKS.md) | Preserve source characters when splitting long PDF pages. | Avoid rewriting existing separators during chunking. |
 | [0.3.7](docs/PDF-PREVIEW.md) | Extract only the usable pages displayed in a PDF preview. | Reduce repeated extraction and preserve early import-budget rejection. |
 | [0.3.6](docs/PDF-TEXT-FIDELITY.md) | Preserve numeric data, paragraph breaks and normalized Unicode when cleaning PDF text. | Avoid misleading joined numbers and unnecessary loss of technical content. |
 | [0.3.5](docs/PDF-IMPORT-PIPELINE.md) | Check chunk budgets while processing pages and retain one staged copy. | Reject over-budget imports earlier while preserving existing knowledge. |
@@ -22,9 +23,9 @@ Version 0.3.7 fixes the PDF preview: verbose mode extracts only its first three 
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The 0.3.7 checks cover 24 real PDFs with 28,914 physical pages, 144 preview comparisons, and 197 default / 698 all-feature tests. Complete imports and fixed rankings match 0.3.6. The retained local knowledge contains 105,647 entries, including all previous 91,766 entries unchanged. Damaged-file checks run 4,096 inputs in both normal and verbose modes and preserve previous output on every failed import. A preview validates only its visited prefix; native opening and extraction still have no hard library CPU or RAM limit. See [results and remaining limits](docs/CHANGES-0.3.7.md).
+The full suite passes 197 default and 702 all-feature tests. The 0.3.8 corpus checks cover 27 real PDFs / 32,796 physical pages. All 120,489 current chunks match contiguous excerpts of their extracted/cleaned pages; none of the previous populated pages is lost. The fix changes 16,765 pages and 74 fixed rank lists, without gaining or losing an expected-page top-ten hit in the 236 literal probes. The fresh local knowledge export and all older exports remain available separately. See [results and limits](docs/CHANGES-0.3.8.md).
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.7, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.8, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -76,7 +77,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.7", default-features = false }
+airust = { version = "=0.3.8", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

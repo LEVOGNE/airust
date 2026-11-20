@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.7 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.8 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -256,3 +256,8 @@ The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatu
 ## Bounded PDF preview (0.3.7)
 
 With the optional `pdf` feature, `PdfLoader::preview_pages_from_pdf(path, maximum)` returns up to `maximum` usable pages with original physical page numbers and configured cleaning. It stops extracting after that prefix; zero is invalid. Whole-file and total-page limits still apply; visited raw/cleaned text counts toward text limits. It does not split chunks, validate later pages or impose a native-call time/RAM bound. The verbose CLI now uses it for three raw pages. See [the complete API, commands, upgrade contract and limits](PDF-PREVIEW.md).
+
+
+## Faithful PDF chunks (0.3.8)
+
+The existing optional PDF API now preserves source characters when selecting sentence and paragraph cut positions. Every chunk is a contiguous excerpt of the extracted/cleaned page; outer chunk whitespace is still trimmed. No new method, flag or JSON field is added. Long-page chunks, IDs and rankings can change, so retain old exports and explicitly rebuild derived indexes under a new source/configuration revision. See [API, commands, tests and limits](PDF-CHUNKS.md).

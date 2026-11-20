@@ -141,3 +141,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.7 limits PDF previews to useful prefixes, verifies more official references and preserves current knowledge, full-import text and ranking behavior. Native opening/resource limits remain explicit. General 0.4.0 expansion and application/MCP integration remain separate. See [preview contract](docs/PDF-PREVIEW.md).
+
+
+0.3.8 corrects measured chunk-text fidelity while retaining native extraction, cleanup controls and resource limits. Current imports and old snapshots are kept separately, with explicit derived-index rebuilding. Further changes remain findings-driven; no 0.4.0 expansion or application/MCP integration is included. See [chunk contract](docs/PDF-CHUNKS.md).

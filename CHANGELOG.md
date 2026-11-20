@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.8
+
+Preserve original separators and indentation during PDF sentence/paragraph segmentation instead of trimming and inserting whitespace. Long-page knowledge chunks become contiguous excerpts of the extracted/cleaned source; outer trimming and chunk budgets remain. Corrected imports can change chunk IDs and ranking, so older knowledge is retained separately. Further official large PDFs, authored format cases and damaged inputs extend validation. See [results](docs/CHANGES-0.3.8.md) and [API/upgrade/limits](docs/PDF-CHUNKS.md). Optional backend remains 0.3.4. No DenkMaps/MCP integration.
+
 ## 0.3.7
 
 Limit PDF previews to the requested usable prefix and use that API for the verbose CLI. Avoid duplicate full extraction and preserve early chunk-budget failures. Whole-file/page budgets remain enforced; a preview is not validation of later pages. Successful corpus imports, rankings and JSON remain identical to 0.3.6. More official large PDFs, difficult formats and damaged inputs are checked; knowledge and raw evidence remain local. See [results](docs/CHANGES-0.3.7.md) and [API/commands/limits](docs/PDF-PREVIEW.md). The optional backend remains 0.3.4. No DenkMaps/MCP integration.

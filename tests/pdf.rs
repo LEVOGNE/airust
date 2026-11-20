@@ -4,6 +4,49 @@ use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
 #[test]
+fn long_import_chunks_retain_original_line_breaks() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("line-breaks.pdf");
+    let lines = [
+        "First sentence.",
+        "Second sentence.",
+        "Third sentence.",
+        "Fourth sentence.",
+    ];
+    let mut contents = "BT /F1 12 Tf 40 740 Td ".to_owned();
+    for (i, line) in lines.iter().enumerate() {
+        if i != 0 {
+            contents.push_str("0 -28 Td ");
+        }
+        contents.push_str(&format!("({line}) Tj "));
+    }
+    contents.push_str("ET");
+    std::fs::write(&path, pdf_fixture::pages_with_contents(&[contents])).unwrap();
+    for clean_text in [false, true] {
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            max_chunk_size: 40,
+            min_chunk_size: 10,
+            chunk_overlap: 5,
+            clean_text,
+            ..Default::default()
+        });
+        let pages = loader.extract_pages_from_pdf(&path).unwrap();
+        let examples = loader.pdf_to_training_examples(&path).unwrap();
+        assert!(examples.len() > 1);
+        assert!(examples.iter().any(|e| e.input.contains('\n')));
+        for example in examples {
+            assert!(
+                pages[0].text.contains(&example.input),
+                "fabricated excerpt: {:?}",
+                example.input
+            );
+            assert!(example.input.chars().count() <= 40);
+            assert_eq!(example.metadata.as_ref().unwrap()["page_number"], 1);
+        }
+    }
+}
+
+#[test]
 fn preview_stops_at_usable_pages_and_preserves_physical_positions() {
     let folder = tempfile::tempdir().unwrap();
     let path = folder.path().join("sparse.pdf");
