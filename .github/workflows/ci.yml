@@ -87,7 +87,16 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            ~/.cargo/registry
+            target/pdf-backend
+          key: pdf-backend-${{ runner.os }}-${{ hashFiles('crates/airust-pdf-backend/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            pdf-backend-${{ runner.os }}-${{ hashFiles('crates/airust-pdf-backend/Cargo.lock') }}-
       - run: cargo test --manifest-path crates/airust-pdf-backend/Cargo.toml --test regressions --locked
+      - run: cargo check --manifest-path crates/airust-pdf-backend/Cargo.toml --features c-api --lib --locked
       - run: python3 scripts/check_pdf_backend.py
       - run: cargo package --manifest-path crates/airust-pdf-backend/Cargo.toml --locked
       - uses: dtolnay/rust-toolchain@1.89.0

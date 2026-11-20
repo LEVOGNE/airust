@@ -9,7 +9,14 @@
  /// Parser configuration options
  pub mod parser_config;
  pub mod xref;
-@@ -303,6 +305,7 @@
+@@ -298,11 +300,13 @@
+ pub mod ocr;
+ 
+ // C FFI for Go, Node.js, C# bindings (not available on wasm32)
+-#[cfg(not(target_arch = "wasm32"))]
++// AIRust modification: explicit opt-in prevents C symbol collisions in Rust applications.
++#[cfg(all(not(target_arch = "wasm32"), feature = "c-api"))]
+ pub mod ffi;
  
  // Python bindings (optional)
  #[cfg(feature = "python")]

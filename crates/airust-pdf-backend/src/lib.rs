@@ -300,7 +300,8 @@ pub mod hybrid;
 pub mod ocr;
 
 // C FFI for Go, Node.js, C# bindings (not available on wasm32)
-#[cfg(not(target_arch = "wasm32"))]
+// AIRust modification: explicit opt-in prevents C symbol collisions in Rust applications.
+#[cfg(all(not(target_arch = "wasm32"), feature = "c-api"))]
 pub mod ffi;
 
 // Python bindings (optional)
