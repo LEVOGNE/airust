@@ -1,13 +1,14 @@
-# AIRust 0.3.6
+# AIRust 0.3.7
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.6 corrects PDF text cleaning. Line joining protects digit boundaries and blank paragraphs, internal numeric rows are retained, and Unicode is normalized again after cleaning. Existing APIs and formats remain compatible, but corrected imports can change text, chunk IDs and rankings. Older knowledge exports remain intact. See [current behavior, controls and limits](docs/PDF-TEXT-FIDELITY.md) and the [release report](docs/CHANGES-0.3.6.md). The PDF backend stays optional and unchanged at 0.3.4. No DenkMaps or MCP integration is added.
+Version 0.3.7 fixes the PDF preview: verbose mode extracts only its first three usable pages before conversion. It avoids a second full extraction and no longer masks an earlier chunk-budget failure with a later preview error. Successful imports retain the same text and JSON as 0.3.6 in the tested corpus. See [API, commands and limits](docs/PDF-PREVIEW.md) and the [release report](docs/CHANGES-0.3.7.md). The optional PDF backend stays at 0.3.4. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.7](docs/PDF-PREVIEW.md) | Extract only the usable pages displayed in a PDF preview. | Reduce repeated extraction and preserve early import-budget rejection. |
 | [0.3.6](docs/PDF-TEXT-FIDELITY.md) | Preserve numeric data, paragraph breaks and normalized Unicode when cleaning PDF text. | Avoid misleading joined numbers and unnecessary loss of technical content. |
 | [0.3.5](docs/PDF-IMPORT-PIPELINE.md) | Check chunk budgets while processing pages and retain one staged copy. | Reject over-budget imports earlier while preserving existing knowledge. |
 | [0.3.4](docs/PDF-PARSER.md) | Read complete small PDF objects without repeatedly scanning huge physical lines. | Import the measured slow documents faster while keeping their structure and text. |
@@ -21,7 +22,9 @@ Version 0.3.6 corrects PDF text cleaning. Line joining protects digit boundaries
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.6, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The 0.3.7 checks cover 24 real PDFs with 28,914 physical pages, 144 preview comparisons, and 197 default / 698 all-feature tests. Complete imports and fixed rankings match 0.3.6. The retained local knowledge contains 105,647 entries, including all previous 91,766 entries unchanged. Damaged-file checks run 4,096 inputs in both normal and verbose modes and preserve previous output on every failed import. A preview validates only its visited prefix; native opening and extraction still have no hard library CPU or RAM limit. See [results and remaining limits](docs/CHANGES-0.3.7.md).
+
+The [release history](CHANGELOG.md) explains every completed step through 0.3.7, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -73,7 +76,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.6", default-features = false }
+airust = { version = "=0.3.7", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

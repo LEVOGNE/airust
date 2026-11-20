@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.7
+
+Limit PDF previews to the requested usable prefix and use that API for the verbose CLI. Avoid duplicate full extraction and preserve early chunk-budget failures. Whole-file/page budgets remain enforced; a preview is not validation of later pages. Successful corpus imports, rankings and JSON remain identical to 0.3.6. More official large PDFs, difficult formats and damaged inputs are checked; knowledge and raw evidence remain local. See [results](docs/CHANGES-0.3.7.md) and [API/commands/limits](docs/PDF-PREVIEW.md). The optional backend remains 0.3.4. No DenkMaps/MCP integration.
+
 ## 0.3.6
 
 Correct PDF text cleaning: keep digit boundaries and blank paragraphs, join chained wraps without losing match boundaries, normalize Unicode after transformations and retain internal numeric lines. Existing API/JSON formats remain compatible; corrected text can change chunks, offsets and rankings. The expanded 21-document corpus, independent cleanup oracle, fixed literal probes, difficult formats and malformed inputs validate the changes. Old knowledge and raw evidence remain local. See [results](docs/CHANGES-0.3.6.md) and [API/controls/upgrade/limits](docs/PDF-TEXT-FIDELITY.md). The optional backend stays 0.3.4. No DenkMaps/MCP integration is added.

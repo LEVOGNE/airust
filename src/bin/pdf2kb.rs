@@ -246,9 +246,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             raw_loader
         };
-        let pages = raw_loader.extract_pages_from_pdf(input)?;
+        let pages = raw_loader.preview_pages_from_pdf(input, 3)?;
         output!("Raw preview:");
-        for page in pages.iter().take(3) {
+        for page in &pages {
             output!("Page {}: {}", page.page_number, preview(&page.text, 300));
         }
     }

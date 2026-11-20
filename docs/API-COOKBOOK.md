@@ -1,4 +1,4 @@
-# AIRust 0.3.6 API cookbook
+# AIRust 0.3.7 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.6", default-features = false }
+airust = { version = "=0.3.7", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -335,3 +335,8 @@ The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conver
 ## Corrected PDF cleaning (0.3.6)
 
 The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatures. Digit boundaries and blank paragraphs are protected during line joining; chained wraps are handled in one pass; Unicode is normalized after transformations. Page-number filtering is restricted to first/last nonempty extracted lines. Set `remove_page_numbers = false` for literal numeric edge data and `dehyphenate = false` for meaningful hyphens. `clean_text = false` bypasses AIRust cleaning in PDF import. Corrected imports can change chunks, offsets and ranking: preserve old exports, reimport explicitly and rebuild derived data under a new source/configuration revision. See [full behavior, examples, measurements and limits](PDF-TEXT-FIDELITY.md). The parser backend remains exactly 0.3.4.
+
+
+## Bounded PDF preview (0.3.7)
+
+With the optional `pdf` feature, `PdfLoader::preview_pages_from_pdf(path, maximum)` returns up to `maximum` usable pages with original physical page numbers and configured cleaning. It stops extracting after that prefix; zero is invalid. Whole-file and total-page limits still apply; visited raw/cleaned text counts toward text limits. It does not split chunks, validate later pages or impose a native-call time/RAM bound. The verbose CLI now uses it for three raw pages. See [the complete API, commands, upgrade contract and limits](PDF-PREVIEW.md).

@@ -283,7 +283,7 @@ impl PdfLoader {
         self.visit_pages_from_pdf(path, |page| {
             let chunks = self.split_text_into_chunks_with_budget(&page.text, &mut budget)?;
             chunked_pages.push((page.page_number, chunks));
-            Ok(())
+            Ok(true)
         })?;
         let mut examples = Vec::new();
         for (page_number, chunks) in chunked_pages {
@@ -305,7 +305,25 @@ impl PdfLoader {
         let mut pages = Vec::new();
         self.visit_pages_from_pdf(path, |page| {
             pages.push(page);
-            Ok(())
+            Ok(true)
+        })?;
+        Ok(pages)
+    }
+
+    pub fn preview_pages_from_pdf(
+        &self,
+        path: &Path,
+        maximum: usize,
+    ) -> Result<Vec<PageContent>, PdfError> {
+        if maximum == 0 {
+            return Err(PdfError::InvalidConfig(
+                "preview page maximum must be greater than zero".to_owned(),
+            ));
+        }
+        let mut pages = Vec::new();
+        self.visit_pages_from_pdf(path, |page| {
+            pages.push(page);
+            Ok(pages.len() < maximum)
         })?;
         Ok(pages)
     }
@@ -313,7 +331,7 @@ impl PdfLoader {
     fn visit_pages_from_pdf(
         &self,
         path: &Path,
-        mut visit: impl FnMut(PageContent) -> Result<(), PdfError>,
+        mut visit: impl FnMut(PageContent) -> Result<bool, PdfError>,
     ) -> Result<(), PdfError> {
         self.config.validate()?;
         let doc = if let Some(limits) = self.limits {
@@ -411,11 +429,13 @@ impl PdfLoader {
                 }
             }
 
-            if !cleaned.is_empty() {
-                visit(PageContent {
+            if !cleaned.is_empty()
+                && !visit(PageContent {
                     page_number: page_idx + 1,
                     text: cleaned,
-                })?;
+                })?
+            {
+                break;
             }
         }
 

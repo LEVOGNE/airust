@@ -4,6 +4,123 @@ use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
 #[test]
+fn preview_stops_at_usable_pages_and_preserves_physical_positions() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("sparse.pdf");
+    let contents = [
+        String::new(),
+        "BT /F1 12 Tf 40 740 Td (First useful page with enough words to retain.) Tj ET".to_owned(),
+        String::new(),
+        "BT /F1 12 Tf 40 740 Td (Second useful page with different text to retain.) Tj ET"
+            .to_owned(),
+    ];
+    std::fs::write(&path, pdf_fixture::pages_with_contents(&contents)).unwrap();
+    for clean_text in [true, false] {
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            clean_text,
+            ..Default::default()
+        });
+        let full = loader.extract_pages_from_pdf(&path).unwrap();
+        assert_eq!(
+            full.iter().map(|p| p.page_number).collect::<Vec<_>>(),
+            [2, 4]
+        );
+        for maximum in [1, 2, usize::MAX] {
+            let preview = loader.preview_pages_from_pdf(&path, maximum).unwrap();
+            assert_eq!(preview.len(), maximum.min(full.len()));
+            for (a, b) in preview.iter().zip(&full) {
+                assert_eq!(a.page_number, b.page_number);
+                assert_eq!(a.text, b.text);
+            }
+        }
+    }
+}
+
+#[test]
+fn preview_enforces_whole_file_limits_and_visited_text_limits() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("two-pages.pdf");
+    let bytes = pdf_fixture::repeated_pages(2);
+    std::fs::write(&path, &bytes).unwrap();
+    let loader = PdfLoader::new().with_limits(bounded_limits(bytes.len() as u64, 2, 4096, 1));
+    assert_eq!(loader.preview_pages_from_pdf(&path, 1).unwrap().len(), 1);
+    for result in [
+        loader.preview_pages_from_pdf(&path, 2),
+        loader.extract_pages_from_pdf(&path),
+    ] {
+        assert!(result
+            .err()
+            .expect("full text exceeds budget")
+            .to_string()
+            .contains("extracted text bytes"));
+    }
+    for (file_bytes, pages, text, expected) in [
+        (bytes.len() as u64 - 1, 2, 4096, "input file bytes"),
+        (bytes.len() as u64, 1, 4096, "page count"),
+        (bytes.len() as u64, 2, 1, "extracted text bytes"),
+    ] {
+        let error = PdfLoader::new()
+            .with_limits(bounded_limits(file_bytes, pages, text, 1))
+            .preview_pages_from_pdf(&path, 1)
+            .err()
+            .expect("preview exceeds budget");
+        assert!(error.to_string().contains(expected), "{error}");
+    }
+    assert_eq!(std::fs::read(path).unwrap(), bytes);
+}
+
+#[test]
+fn preview_validates_arguments_before_io_and_accepts_empty_documents() {
+    let missing = std::path::Path::new("missing-preview-test.pdf");
+    assert!(matches!(
+        PdfLoader::new().preview_pages_from_pdf(missing, 0),
+        Err(PdfError::InvalidConfig(_))
+    ));
+    let loader = PdfLoader::with_config(PdfLoaderConfig {
+        max_chunk_size: 0,
+        ..Default::default()
+    });
+    assert!(matches!(
+        loader.preview_pages_from_pdf(missing, 1),
+        Err(PdfError::InvalidConfig(_))
+    ));
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("blank.pdf");
+    std::fs::write(&path, pdf_fixture::pages_with_contents(&[String::new()])).unwrap();
+    assert!(PdfLoader::new()
+        .preview_pages_from_pdf(&path, 3)
+        .unwrap()
+        .is_empty());
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn verbose_preview_does_not_scan_the_document_before_chunk_failure() {
+    let folder = tempfile::tempdir().unwrap();
+    let input = folder.path().join("many-pages.pdf");
+    let output = folder.path().join("previous.json");
+    std::fs::write(&input, pdf_fixture::repeated_pages(500)).unwrap();
+    std::fs::write(&output, b"previous knowledge").unwrap();
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"))
+        .arg(&input)
+        .arg(&output)
+        .args([
+            "--verbose",
+            "--max-text-mib",
+            "1",
+            "--max-chunks",
+            "1",
+            "--overwrite",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(result.status.code(), Some(1));
+    let message = String::from_utf8_lossy(&result.stderr);
+    assert!(message.contains("chunk count"), "{message}");
+    assert_eq!(std::fs::read(output).unwrap(), b"previous knowledge");
+}
+
+#[test]
 fn imported_pdf_keeps_internal_numbers_and_wrapped_ranges() {
     let folder = tempfile::tempdir().unwrap();
     let path = folder.path().join("numbers-and-ranges.pdf");

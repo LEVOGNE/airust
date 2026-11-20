@@ -1,0 +1,80 @@
+{
+  "samples": 36,
+  "binary_sha256": {
+    "036": "58f0aa995e7c96e0de90cfa02c2f5d3531e546dd929e5235b98e28997834d706",
+    "037": "43b39600cfeefa11a807d6c2e827127533bbdad4514fa93ce1af1455ef302e90"
+  },
+  "all_paired_outputs_identical": true,
+  "verbose_displayed_preview_identical": true,
+  "output_policy": "Every default/verbose old/new pair has identical complete JSON output.",
+  "earlier_measurement_retained": "037-paired overlaps final strict documentation checks; quiet rerun is the reported comparison.",
+  "conditions": "Same thinLTO/codegen1 Rust/macOS ARM64 profiles; fresh direct children and alternating order; input/file caches warm; deliberate feature/fuzz/API jobs completed, other desktop activity uncontrolled. wait4 per-child peak RSS.",
+  "cases": {
+    "gcc": {
+      "default": {
+        "036": {
+          "median_wall_seconds": 3.0655556248966604,
+          "median_peak_rss_bytes": 154353664
+        },
+        "037": {
+          "median_wall_seconds": 3.09059041691944,
+          "median_peak_rss_bytes": 146522112
+        }
+      },
+      "verbose": {
+        "036": {
+          "median_wall_seconds": 4.774625207995996,
+          "median_peak_rss_bytes": 137101312
+        },
+        "037": {
+          "median_wall_seconds": 3.0662959590554237,
+          "median_peak_rss_bytes": 125009920
+        }
+      }
+    },
+    "gdb": {
+      "default": {
+        "036": {
+          "median_wall_seconds": 2.3409910420887172,
+          "median_peak_rss_bytes": 115818496
+        },
+        "037": {
+          "median_wall_seconds": 2.625048999907449,
+          "median_peak_rss_bytes": 122355712
+        }
+      },
+      "verbose": {
+        "036": {
+          "median_wall_seconds": 4.487989874789491,
+          "median_peak_rss_bytes": 133201920
+        },
+        "037": {
+          "median_wall_seconds": 3.1581692500039935,
+          "median_peak_rss_bytes": 122978304
+        }
+      }
+    },
+    "pgfmanual": {
+      "default": {
+        "036": {
+          "median_wall_seconds": 4.049512000055984,
+          "median_peak_rss_bytes": 269729792
+        },
+        "037": {
+          "median_wall_seconds": 4.15574225015007,
+          "median_peak_rss_bytes": 269074432
+        }
+      },
+      "verbose": {
+        "036": {
+          "median_wall_seconds": 7.50401758402586,
+          "median_peak_rss_bytes": 276692992
+        },
+        "037": {
+          "median_wall_seconds": 4.832832416053861,
+          "median_peak_rss_bytes": 271482880
+        }
+      }
+    }
+  }
+}

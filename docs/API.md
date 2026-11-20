@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.6 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.7 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -251,3 +251,8 @@ The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conver
 ## Corrected PDF cleaning (0.3.6)
 
 The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatures. Digit boundaries and blank paragraphs are protected during line joining; chained wraps are handled in one pass; Unicode is normalized after transformations. Page-number filtering is restricted to first/last nonempty extracted lines. Set `remove_page_numbers = false` for literal numeric edge data and `dehyphenate = false` for meaningful hyphens. `clean_text = false` bypasses AIRust cleaning in PDF import. Corrected imports can change chunks, offsets and ranking: preserve old exports, reimport explicitly and rebuild derived data under a new source/configuration revision. See [full behavior, examples, measurements and limits](PDF-TEXT-FIDELITY.md). The parser backend remains exactly 0.3.4.
+
+
+## Bounded PDF preview (0.3.7)
+
+With the optional `pdf` feature, `PdfLoader::preview_pages_from_pdf(path, maximum)` returns up to `maximum` usable pages with original physical page numbers and configured cleaning. It stops extracting after that prefix; zero is invalid. Whole-file and total-page limits still apply; visited raw/cleaned text counts toward text limits. It does not split chunks, validate later pages or impose a native-call time/RAM bound. The verbose CLI now uses it for three raw pages. See [the complete API, commands, upgrade contract and limits](PDF-PREVIEW.md).

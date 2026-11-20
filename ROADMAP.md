@@ -138,3 +138,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.6 continues stabilization by correcting PDF text fidelity and testing further official large references. Old knowledge remains intact, changed text is audited, and callers explicitly rebuild derived data. No 0.4.0 feature expansion or application/MCP integration is included.
+
+
+0.3.7 limits PDF previews to useful prefixes, verifies more official references and preserves current knowledge, full-import text and ranking behavior. Native opening/resource limits remain explicit. General 0.4.0 expansion and application/MCP integration remain separate. See [preview contract](docs/PDF-PREVIEW.md).
