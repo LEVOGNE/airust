@@ -53,7 +53,7 @@ jobs:
           restore-keys: |
             rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
             rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
-      - run: cargo check --all-targets --features web,bots,async,colors,plotting,embeddings,hybrid,graph,context-assembly,provenance,cache,hnsw,versioning,quality,reranking,advanced-search,storage,sqlite-storage,retrieval,snapshots,execution,shared-index,adaptive,feedback,learned-ranking,reasoning,quality-gates,evidence-freshness,rank-explanations,training-pipeline,disk-index --locked
+      - run: cargo check --all-targets --features web,bots,async,colors,plotting,embeddings,hybrid,graph,context-assembly,provenance,cache,hnsw,versioning,quality,reranking,advanced-search,storage,sqlite-storage,retrieval,snapshots,execution,shared-index,adaptive,feedback,learned-ranking,reasoning,quality-gates,evidence-freshness,rank-explanations,training-pipeline,disk-index,documents --locked
       - run: cargo clean -p airust
   local-embedding-rust:
     runs-on: ubuntu-latest

@@ -2,9 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.15 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.0 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
+
+Version 0.4.0 keeps existing core signatures and knowledge formats. Cargo requires an explicit compatibility-range update; see [document identity, positions and upgrade](DOCUMENTS.md) and [current validation](CHANGES-0.4.0.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
@@ -295,3 +297,15 @@ With `pdf`, every `PdfLoader` extraction/preview/conversion first traverses the 
 ## Compact PDF validation (0.3.15)
 
 The optional `pdf` feature keeps one compact child-reference iterator per active branch, scheduling only the next child. All actual-page, subtree-count, duplicate, depth and reference-work checks remain. Public signatures, error categories, flags and data formats remain. Existing knowledge does not need migration or reindexing for this optimization. See [API, upgrade and limits](PDF-PAGE-TREE-MEMORY.md) and [executed tests and costs](CHANGES-0.3.15.md).
+
+## Document revisions and text positions (0.4.0)
+
+Enable `documents` for `DocumentSnapshot`, `SourceFingerprint`, `Passage`, `TextSpace` and `DocumentLimits`. It enables only provenance and SHA-256 alongside the existing core. No PDF/model/database/transport dependency is required.
+
+Hash original bytes with `SourceFingerprint::from_bytes` or `from_reader`. Build an immutable snapshot with `DocumentSnapshot::new` or `from_pages`; supply a stable document ID and explicit processing recipe. `passage(start, end)` and `page_passage(number)` create checked positions. `resolve` rejects a different revision even when its text has the same length. `verify_source` compares the original bytes explicitly.
+
+Use `to_entry` to index a passage. Before projecting entry-relative retrieval offsets, call `validate_entry`, then `subspan(snapshot, hit.span.start, hit.span.end)`. `source_reference` supplies existing provenance with an explicit snapshot coordinate space. Repeated equal text retains different occurrence IDs.
+
+`to_json(max_bytes)` includes escape expansion in its output limit. Restore the snapshot with `from_json(json, &limits)` and passages with `snapshot.passage_from_json(json, &limits)`. The format version, exact text hash, complete revision, page partition and passage bounds are checked. Application code retains snapshots and coordinates its existing persistence or `DatasetManager` publication; no competing authoritative store is added.
+
+All spans are exclusive-end UTF-8 byte ranges in the complete supplied text snapshot. They are not original PDF bytes, graphical coordinates or grapheme indexes. Hashes identify data and do not prove authenticity or complete extraction. No existing knowledge migration is automatic. See [complete API, defaults, format and upgrade](DOCUMENTS.md), [example](../examples/documents.rs) and [executed tests/benchmarks](CHANGES-0.4.0.md).

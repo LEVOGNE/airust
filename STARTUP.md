@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.3.15 retains actual PDF page-tree validation with compact pending references. Incorrect declarations or unsafe structures fail without replacing existing knowledge. See [PDF API and upgrade](docs/PDF-PAGE-COUNTS.md), [current validation](docs/CHANGES-0.3.15.md) and [migration](docs/MIGRATION-0.3.0.md). Existing search, matching, graph, retrieval, storage and ranking methods remain. Use Rust 1.89 or newer for provider-neutral features; the optional local ONNX adapter needs Rust 1.92. Run commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.4.0 adds optional document revisions and checked text positions while retaining existing core APIs, knowledge formats and PDF behavior. See [document API and upgrade](docs/DOCUMENTS.md), [current validation](docs/CHANGES-0.4.0.md) and [API cookbook](docs/API-COOKBOOK.md). Use Rust 1.89 or newer for provider-neutral features; optional local ONNX adapters need Rust 1.92. No DenkMaps/MCP integration is included. Run commands from the source checkout.
 
 ## Try the core
 
@@ -26,7 +26,7 @@ cargo run --locked --features cli --bin airust -- cli interactive
 
 ## Import a PDF
 
-Version 0.3.15 keeps the same import API and flags; full page-tree validation rejects incorrect root/subtree counts before extraction. Version 0.3.4 introduced the parser optimization. Its optional backend optimizes long-line object loading without rewriting source PDFs or dropping structure. See [measured results and limits](docs/PDF-PARSER.md).
+Version 0.4.0 retains the 0.3.15 import API and flags; full page-tree validation rejects incorrect root/subtree counts before extraction. Version 0.3.4 introduced the parser optimization. Its optional backend optimizes long-line object loading without rewriting source PDFs or dropping structure. See [measured results and limits](docs/PDF-PARSER.md).
 
 ```bash
 cargo run --locked --features cli,pdf --bin pdf2kb -- data/pdf/sample.pdf /tmp/airust-sample.json --timeout-seconds 60
@@ -113,13 +113,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.3.15 .
+docker build -t airust:0.4.0 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.3.15
+  airust:0.4.0
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.
@@ -202,3 +202,7 @@ For current pagewise PDF limits, difficult-file checks and retained knowledge, s
 See [the 0.3.6 cleaning controls and migration notes](docs/PDF-TEXT-FIDELITY.md) before rebuilding PDF-derived indexes. Older knowledge exports remain valid.
 
 The [current memory/API guide](docs/PDF-PAGE-TREE-MEMORY.md) explains the implementation change, reproducible checks and remaining limits. Existing knowledge files require no migration.
+
+## Keep exact document positions
+
+Run `cargo run --locked --features documents --example documents`. Supply a stable document ID, source fingerprint, processing recipe and exact text. Keep the immutable snapshot with its passages. Read [the document guide](docs/DOCUMENTS.md) before mapping search snippets: offsets belong to the snapshot, and stale revisions must fail. Existing knowledge is never automatically rewritten or deleted.

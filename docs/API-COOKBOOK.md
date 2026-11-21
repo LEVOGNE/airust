@@ -1,6 +1,6 @@
-# AIRust 0.3.15 API cookbook
+# AIRust 0.4.0 API cookbook
 
-For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
+For 0.4.0, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.0.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -8,11 +8,12 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.15", default-features = false }
+airust = { version = "=0.4.0", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
 | --- | --- | --- |
+| `documents` | Revision-bound UTF-8 passages, physical page spans and checked source/text JSON | [DOCUMENTS](DOCUMENTS.md), `documents` |
 | None | Shared lexical index, BM25/TF-IDF, matching, duplicates and lexical relation suggestions | [API](API.md), `core` |
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
 | `local-embeddings` | Explicit local E5/ONNX inference | [LOCAL-EMBEDDINGS](LOCAL-EMBEDDINGS.md), `semantic_quality` |
@@ -36,6 +37,8 @@ airust = { version = "=0.3.15", default-features = false }
 
 Rust 1.89 supports the provider-independent features. The local ONNX adapters need Rust 1.92. The default library requires no model, network service, HTTP server or database. Existing CLI/PDF/web integrations remain separately opt-in. `reranking` does not enable embeddings; `local-reranking` and `local-embeddings` can be selected separately or together with the same runtime-library path.
 
+For exact document revisions and text ranges, enable `documents` and read [the document guide](DOCUMENTS.md). It enables only provenance and SHA-256, independently of PDF, retrieval, models and storage.
+
 ## 2. Understand ownership before combining APIs
 
 | Type | Owns | Useful access |
@@ -45,6 +48,7 @@ Rust 1.89 supports the provider-independent features. The local ONNX adapters ne
 | `HnswIndex` | One SemanticIndex and derived topology over shared buffers | `semantic()` borrows; `into_semantic()` consumes |
 | `VersionedIndex` | One Engine, revision heads and optional snapshots | `index()` borrows; `into_index()` consumes and ends history bookkeeping |
 | `DatasetManager` / `DatasetSnapshot` | Published immutable data generation / retained read view | Prepare off-lock, publish with CAS, read every component from one view |
+| `DocumentSnapshot` / `Passage` | Shared immutable text/source identity / revision-bound ranges | Exact UTF-8 slicing, page spans, JSON and provenance; no authoritative database |
 | `TextIndex` | One privately analyzed lexical index and positions | Explicit analyzer and original-text phrase evidence |
 | `MemoryStore` / `SqliteStore` | Authoritative generic records with a revision lineage | Atomic batches, pages and staged snapshots |
 | `Retriever` / `RetrievalResponse` | Source/provider borrows / only selected owned output | Full encoded JSON budget; no second source corpus |
@@ -379,3 +383,17 @@ With `pdf`, every `PdfLoader` extraction/preview/conversion first traverses the 
 ## Compact PDF validation (0.3.15)
 
 The optional `pdf` feature keeps one compact child-reference iterator per active branch, scheduling only the next child. All actual-page, subtree-count, duplicate, depth and reference-work checks remain. Public signatures, error categories, flags and data formats remain. Existing knowledge does not need migration or reindexing for this optimization. See [API, upgrade and limits](PDF-PAGE-TREE-MEMORY.md) and [executed tests and costs](CHANGES-0.3.15.md).
+
+## Document revisions and text positions (0.4.0)
+
+Enable `documents` for `DocumentSnapshot`, `SourceFingerprint`, `Passage`, `TextSpace` and `DocumentLimits`. It enables only provenance and SHA-256 alongside the existing core. No PDF/model/database/transport dependency is required.
+
+Hash original bytes with `SourceFingerprint::from_bytes` or `from_reader`. Build an immutable snapshot with `DocumentSnapshot::new` or `from_pages`; supply a stable document ID and explicit processing recipe. `passage(start, end)` and `page_passage(number)` create checked positions. `resolve` rejects a different revision even when its text has the same length. `verify_source` compares the original bytes explicitly.
+
+Use `to_entry` to index a passage. Before projecting entry-relative retrieval offsets, call `validate_entry`, then `subspan(snapshot, hit.span.start, hit.span.end)`. `source_reference` supplies existing provenance with an explicit snapshot coordinate space. Repeated equal text retains different occurrence IDs.
+
+`to_json(max_bytes)` includes escape expansion in its output limit. Restore the snapshot with `from_json(json, &limits)` and passages with `snapshot.passage_from_json(json, &limits)`. The format version, exact text hash, complete revision, page partition and passage bounds are checked. Application code retains snapshots and coordinates its existing persistence or `DatasetManager` publication; no competing authoritative store is added.
+
+All spans are exclusive-end UTF-8 byte ranges in the complete supplied text snapshot. They are not original PDF bytes, graphical coordinates or grapheme indexes. Hashes identify data and do not prove authenticity or complete extraction. No existing knowledge migration is automatic. See [complete API, defaults, format and upgrade](DOCUMENTS.md), [example](../examples/documents.rs) and [executed tests/benchmarks](CHANGES-0.4.0.md).
+
+For an entry restored from knowledge JSON, take its reserved `metadata["airust_document"]` descriptor and restore it with `snapshot.passage_from_json` under the configured input limit. Then call `validate_entry` before projecting offsets. Keep the exact snapshot revision available; a filename or first matching phrase cannot restore a trustworthy location. The [public document-validation program](validation-0.4.0/documents.rs) demonstrates this flow on returned hits.

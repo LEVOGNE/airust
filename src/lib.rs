@@ -1,6 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
 
+#[cfg(feature = "documents")]
+pub mod documents;
+
 mod persistence;
 mod ranking;
 

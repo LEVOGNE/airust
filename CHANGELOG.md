@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 — Document revisions and reliable text positions
+
+Added optional `documents`: source fingerprints, immutable text snapshots, explicit physical page maps and revision-bound UTF-8 passages. Added bounded checked JSON, deterministic version-one identities, exact entry/retrieval projection and existing-provenance composition. Source/text/recipe/page changes invalidate old positions; old knowledge remains untouched. Core signatures and PDF backend 0.3.5 remain. See [API and upgrade](docs/DOCUMENTS.md) and [validation with limits](docs/CHANGES-0.4.0.md). No DenkMaps/MCP integration.
+
+
 ## 0.3.15 — Compact PDF page-tree validation
 
 Reduced temporary pending-work memory for wide PDF trees without changing structural checks or public APIs. Added a deterministic 128-tree nested-count property regression, three official large-manual checks (one retained control), independent extraction/search probes and reproducible isolated memory measurements. All previous knowledge is retained. This is the final planned 0.3.x stability release; further patches require concrete defects. See [executed tests, benchmarks and limits](docs/CHANGES-0.3.15.md) and [API/upgrade](docs/PDF-PAGE-TREE-MEMORY.md). No DenkMaps/MCP integration.

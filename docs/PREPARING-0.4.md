@@ -1,42 +1,28 @@
-# Preparing a focused AIRust 0.4 release
+# AIRust 0.4.0 scope and acceptance decisions
 
-The 0.3.x work has produced measured changes: cheaper token-overlap matching, shared entry identifiers and explicit rejection of the covered incomplete PDF imports. Version 0.3.14 additionally validates root/subtree page counts before extraction; 0.3.15 reduces pending metadata memory and closes the planned stability cycle. The stability reports retain successful cases, failed experiments, source hashes and limits. Version numbers do not certify every possible input. Continue 0.3.x patches when another reproducible defect appears.
+The planned 0.3.x cycle ended at 0.3.15. Version 0.4.0 implements the focused optional document contract proposed during that cycle. It preserves existing core APIs and knowledge while identifying exact text revisions and their positions. Read [the implemented API](DOCUMENTS.md) and [executed evidence](CHANGES-0.4.0.md).
 
-## Reuse the current contracts
+## Reuse instead of duplicate
 
-| Existing capability | Use in the next stage | Remaining gap to test |
-| --- | --- | --- |
-| `KnowledgeEntry` | Keep application-owned IDs, text and optional metadata. | A filename alone cannot identify two different source documents. |
-| `SourceReference` / provenance `TextSpan` | Keep explicit source revisions and validated UTF-8 ranges. | Revisions are caller-provided opaque strings; the reference does not verify current source bytes. |
-| Retrieval `ExcerptSpan` | Slice the exact knowledge entry text using byte offsets. | Entry offsets do not automatically locate the original PDF, page or cleaned document text. |
-| `DatasetManager` | Prepare complete replacements and publish a consistent revision. | The application still supplies coherent source/text/configuration identities. |
-| `WorkControl` | Report real phases/counts and cooperative stops. | A blocking native parser call needs the existing worker boundary. |
-| Storage and derived caches | Preserve originals and validate derived representations. | A new document contract must not create a competing authoritative database. |
-
-See the existing [provenance](PROVENANCE.md), [retrieval](RETRIEVAL.md), [snapshot](SNAPSHOTS.md), [execution](EXECUTION.md) and [cache](CACHE.md) guides before adding another module.
-
-## First candidate: an optional text snapshot and passage contract
-
-Evaluate one small provider-neutral contract. It should associate an application-owned document ID, identified source revision, processing recipe and exact UTF-8 text snapshot. A passage should refer to that snapshot and a validated exclusive-end byte range. Record physical page numbers separately when they are known. A changed source or cleanup recipe must produce a new explicit revision.
-
-Raw PDF bytes, extracted text, cleaned text and knowledge-entry text are different coordinate spaces. Report exactly which one a position belongs to. Do not derive original PDF byte positions by adding offsets from cleaned text. A trustworthy mapping requires retained transformation evidence; missing evidence should remain explicit.
-
-Compose with `SourceReference`, `ExcerptSpan` and `DatasetManager`. Keep models, OCR, durable storage and transport adapters optional. Preserve old exports and stage a complete bounded candidate before publishing a replacement. Start with a private prototype and reusable acceptance fixtures; no new API is promised by this document.
-
-## Acceptance work before publication
-
-| Case | Required observation |
+| Existing capability | How 0.4.0 composes with it |
 | --- | --- |
-| Two sources with the same basename | Distinct stable document identities; no entry overwrite. |
-| Changed bytes under the same path | A stale revision is detected; old knowledge remains available. |
-| NFC, ligatures, emoji and combining marks | Every declared range slices the identified text at UTF-8 boundaries. |
-| Cleanup changes text length | Coordinate space remains explicit; no invented source mapping. |
-| Repeated identical passages | Each occurrence retains its own location in the identified snapshot. |
-| Worker failure or budget exhaustion | No partially prepared document becomes current. |
-| Damaged PDF declares too few pages | Reuse 0.3.14 page-tree/count validation. Keep content/glyph coverage separate; a successful structural check alone does not prove perfect extraction. |
-| Source/text/configuration mismatch | Validation rejects the candidate before publication. |
-| Real large-document reuse | Compare build/load/query/update costs and peak RSS with the existing APIs. |
+| `KnowledgeEntry` | A checked passage becomes a generic entry with a revision/range descriptor. |
+| Provenance `TextSpan` and `SourceReference` | Reuse UTF-8 bounds and attach the document revision, physical page and explicit coordinate-space metadata. |
+| Retrieval `ExcerptSpan` | Validate the entry, then project its original-text byte range through `Passage::subspan`. |
+| `DatasetManager` | Stage entries and source references using existing prepare/publish checks. Applications retain the corresponding document snapshots. |
+| Existing storage | Persist complete checked JSON in the application's current transaction. No competing authoritative store is introduced. |
+| PDF loader and workers | Keep 0.3.15 extraction/validation behavior and existing native-process boundaries; documents do not enable PDF automatically. |
 
-Use the retained 35-PDF corpus (49,086 physical pages, 167,942 entries) and authored edge cases. The historical root-count diagnostics, fixed structurally in 0.3.14, show why a snapshot's byte identity and extraction coverage need separate evidence. A hash can identify supplied text without proving every original page was extracted. Keep real and synthetic costs separate. Repeat complete-result and independent-consumer checks. Review Cargo pre-1.0 compatibility deliberately: moving from 0.3.x to 0.4.x permits breaking changes but does not require them.
+## Completed acceptance work
 
-The first 0.4 release should solve one demonstrated contract gap and include its API guide, upgrade path and evidence. The document/passage proposal is preparation, not an implemented or published feature. No DenkMaps or MCP integration is part of this work.
+Twenty-six document tests include same-basename separation, changed-source and same-length changed-text rejection, recipe/text-space/page-map identity, Unicode boundaries, repeated occurrences, bounded JSON and source readers, independent version-one hash fixtures, retained clones/readers and staged dataset replacement. The 4,096-edit manifest property test retains the original state and validates every successful restoration.
+
+Fresh real-document checks use all 35 retained PDFs / 49,086 physical pages. The 48,983 provided native text pages yield complete page passages plus 146,949 selected relative ranges. Snapshot/passages restore, provenance and entry descriptors remain checked. Current/previous-core results agree on 632 literal probes over identical new page entries. Quiet restore/index/position costs remain separate from native validation timings.
+
+The old 167,942-entry knowledge export and all eight checkpoints remain byte-identical. New snapshots and derived page entries are additional retained artifacts, not an automatic replacement of the old chunked corpus. The private seven-test design prototype remains historical evidence; the public 0.4.0 implementation has its own tests, durable format and measured scope.
+
+## Boundaries that remain deliberate
+
+Raw source bytes, extracted text, cleaned text and entry text are different coordinate spaces. A passage identifies exact snapshot UTF-8 bytes. It does not invent original PDF bytes, drawing positions, printed page labels, OCR or extraction completeness. Hashes identify supplied data rather than authenticate it. Applications coordinate stable source input, access rules, persistence and snapshot retention across requests.
+
+Cargo requires an explicit move from the 0.3 range to 0.4. Existing core signatures are checked at patch compatibility despite that new range. Future changes should address concrete measured gaps and retain failed examples. Model quality, OCR, database adapters and transports are separate work. No DenkMaps or MCP integration is included.

@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.3.15"
+version = "0.4.0"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -46,6 +46,7 @@ getrandom = { version = "=0.4.3", optional = true }
 
 [features]
 default = []
+documents = ["provenance", "dep:sha2"]
 disk-index = ["sqlite-storage", "retrieval", "rusqlite/hooks"]
 training-pipeline = ["feedback", "learned-ranking", "quality-gates"]
 rank-explanations = ["learned-ranking", "feedback"]
@@ -359,3 +360,7 @@ required-features=["pdf"]
 [[example]]
 name="saved_knowledge"
 required-features=["retrieval"]
+
+[[example]]
+name = "documents"
+required-features = ["documents"]

@@ -1,0 +1,78 @@
+{
+  "version": "0.4.0",
+  "processes": 12,
+  "repeats_per_case": 3,
+  "groups": [
+    {
+      "id": "vkspec",
+      "physical_pages": 5491,
+      "provided_pages": 5491,
+      "text_bytes": 11541621,
+      "snapshot_json_bytes": 12217824,
+      "revision": "b348a43e6d6faf0474aeb14c3e3d435e932f2cf4df2cc8b9059a8c79f78ae0a6",
+      "medians": {
+        "process_wall_seconds": 2.2214978327974677,
+        "process_peak_rss_bytes": 517144576,
+        "snapshot_restore_ms": 27.63075,
+        "positions_and_entries_ms": 28.24925,
+        "current_lexical_index_ms": 470.377375,
+        "query_comparisons_ms": 566.904166,
+        "clone_10000_ms": 0.020083
+      }
+    },
+    {
+      "id": "scipy",
+      "physical_pages": 3582,
+      "provided_pages": 3581,
+      "text_bytes": 6370133,
+      "snapshot_json_bytes": 6831248,
+      "revision": "88b00a406fbf3dcd3d238ea0d67123e7719dd2d1cbf04c7697316f1e890c3544",
+      "medians": {
+        "process_wall_seconds": 1.510692333104089,
+        "process_peak_rss_bytes": 368328704,
+        "snapshot_restore_ms": 15.364667,
+        "positions_and_entries_ms": 16.333750000000002,
+        "current_lexical_index_ms": 275.607333,
+        "query_comparisons_ms": 483.732792,
+        "clone_10000_ms": 0.020916
+      }
+    },
+    {
+      "id": "racket-reference",
+      "physical_pages": 1438,
+      "provided_pages": 1438,
+      "text_bytes": 2443621,
+      "snapshot_json_bytes": 2618702,
+      "revision": "271a2b3d20a761d689525329d70467cb545d85dfdaaaad0f9eb2a71c24661ff4",
+      "medians": {
+        "process_wall_seconds": 0.624144250061363,
+        "process_peak_rss_bytes": 135806976,
+        "snapshot_restore_ms": 5.980084,
+        "positions_and_entries_ms": 6.39075,
+        "current_lexical_index_ms": 103.793875,
+        "query_comparisons_ms": 222.088542,
+        "clone_10000_ms": 0.020458999999999998
+      }
+    },
+    {
+      "id": "pdf-12",
+      "physical_pages": 494,
+      "provided_pages": 494,
+      "text_bytes": 1100303,
+      "snapshot_json_bytes": 1153599,
+      "revision": "83dc614f386e970e1e7274200cbcf17743a0df63d1ff6047c85bb0dde35bdb16",
+      "medians": {
+        "process_wall_seconds": 0.2141489170026034,
+        "process_peak_rss_bytes": 65634304,
+        "snapshot_restore_ms": 2.547292,
+        "positions_and_entries_ms": 2.4540830000000002,
+        "current_lexical_index_ms": 47.224292,
+        "query_comparisons_ms": 39.248208999999996,
+        "clone_10000_ms": 0.020458
+      }
+    }
+  ],
+  "binary_sha256": "8e74f8bc2bf6dd42b3f58bafa7eaa9a80550ab47993833d1fef4eb5481e11000",
+  "conditions": "Fresh release processes after deliberate builds, native validation, audits and other checks finished; alternating case order; same compiler and Cargo default release profile. Warm file/input caches; other desktop activity uncontrolled.",
+  "scope": "Existing retained snapshots, no native PDF extraction in this restore workload. Timers separate JSON restore/hash/page-validation, all page position/entry work, current lexical build and combined old/new query checks. Complete process peak includes both0.4.0and0.3.15lexicalengines, snapshot/export/restoredviews, entry/JSONbuffers and roundtripvalidation. Not oneindex/snapshotRAMrequirement or parser-onlyspeed/semanticquality/coldcapacity claim."
+}

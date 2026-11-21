@@ -167,3 +167,8 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 ## Close the planned 0.3.x cycle
 
 0.3.15 is the final planned stability release. It reduces measured PDF validation memory and expands real-document evidence and retained knowledge. Additional 0.3.x patches require concrete defects; there is no target patch count. The next planned scope is the small optional document/revision/position API described in [0.4 preparation](docs/PREPARING-0.4.md). Keep source identity, Unicode coordinates and extracted-text offsets explicit; validate the prototype before publishing 0.4.0. No DenkMaps or MCP integration belongs to this work.
+
+
+## 0.4.0: implemented document contract
+
+The optional document feature promotes the tested prototype to a bounded, versioned text-snapshot/passage API. Source/text/recipe/page identity, UTF-8 bounds, explicit coordinate spaces and checked restoration precede application adapters. Existing core APIs and knowledge formats remain. See [API and migration](docs/DOCUMENTS.md) and [executed evidence](docs/CHANGES-0.4.0.md). Future work requires concrete measurements and retained failures; semantic/OCR improvements and transport integrations remain separate.
