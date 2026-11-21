@@ -42,7 +42,7 @@ All complete outputs remain byte-identical. Slower individual samples remain in 
 
 ## Separate bounded-preview costs
 
-Eighteen fresh processes request one usable page through the library API, with three alternating repeats per version/case. Each selects one aliased version in the same comparison binary. Both use the common unchanged backend 0.3.5; the prerelease recipe overrides both aliases with that byte-identical local backend. The public reproduction recipe uses both exact registry versions. This independent harness uses Cargo's default release profile, with the same compiler and warm input/file caches within the comparison.
+Eighteen fresh processes request one usable page through the library API, with three alternating repeats per version/case. Each selects one aliased version in the same comparison binary. Both use the common unchanged backend 0.3.5; the prerelease recipe overrides both aliases with that byte-identical local backend. The public reproduction recipe uses the exact previous registry pin and the verified extracted current registry source as a path dependency, separating compatible patch versions into different Cargo source identities. This independent harness uses Cargo's default release profile, with the same compiler and warm input/file caches within the comparison.
 
 API time includes file opening, native metadata, the first usable page, cleanup and projection; result hashing/stdout is excluded. Process wall/RSS include those checks and the native parser inside this process. These numbers are separate from converter parent RSS and pure-validator cost.
 
