@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3 — Faster construction and BM25
+
+Count a bounded prefix of borrowed tokens through sorted grouping, stream long-entry tails and use the standard randomly seeded hash dictionary for shared vocabulary lookups. Prepare query IDF once, compute BM25 normalization once per candidate and retain borrowed scores until top-K winners are selected. Allocate matched-term explanations only for winners. Preserve exact arithmetic order, deterministic ties/scopes, shared index memory, TF-IDF hints, knowledge/cache formats and MCP response version one. Add independent extreme-parameter/full-scan, batch-boundary/Unicode and deferred-explanation regressions. Recheck retained knowledge, real MCP/schema replies, minimum Rust, compatibility and memory/build/query costs. Backend remains 0.3.5; no DenkMaps integration. See [API behavior](docs/CORE-PERFORMANCE.md) and [results/limits](docs/CHANGES-0.4.3.md).
+
 ## 0.4.2 — Leaner core and MCP response schemas
 
 Share immutable vocabulary, identifiers and normalized duplicate text internally. Avoid temporary owned token maps during normal insertion. Lazily reuse complete TF-IDF document norms while corpus statistics remain unchanged; invalidate on lexical changes and fall back to exact computation on cache contention/poisoning. Add cancellation checks inside cold norm calculations. Every MCP tool advertises a self-contained JSON Schema 2020-12 response schema for success and structured errors. Add exact old/new ranking/cache tests, adversarial cache cases, real-document schema validation and measured memory/latency comparisons. Public signatures, knowledge formats, MCP payload version one and PDF backend 0.3.5 remain. No DenkMaps integration. See [API behavior](docs/CORE-PERFORMANCE.md) and [executed results/limits](docs/CHANGES-0.4.2.md).

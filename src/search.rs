@@ -40,21 +40,11 @@ impl Bm25Config {
         self.b
     }
 
-    pub(crate) fn term_score(
-        self,
-        tf: usize,
-        df: usize,
-        count: usize,
-        length: usize,
-        average: f64,
-    ) -> f64 {
-        if tf == 0 || count == 0 || average <= 0.0 {
-            return 0.0;
-        }
-        let idf = (1.0 + (count as f64 - df as f64 + 0.5) / (df as f64 + 0.5)).ln();
+    pub(crate) fn length_norm(self, length: usize, average: f64) -> f64 {
+        1.0 - self.b + self.b * length as f64 / average
+    }
+    pub(crate) fn term_score(self, tf: usize, idf: f64, norm: f64) -> f64 {
         let tf = tf as f64;
-
-        let norm = 1.0 - self.b + self.b * length as f64 / average;
         if self.k1 >= 1.0 {
             idf * tf * (1.0 + 1.0 / self.k1) / (norm + tf / self.k1)
         } else {
@@ -92,4 +82,8 @@ pub struct SearchResult<'a> {
 
 pub(crate) fn tfidf_idf(count: usize, df: usize) -> f64 {
     ((count as f64 + 1.0) / (df as f64 + 1.0)).ln() + 1.0
+}
+
+pub(crate) fn bm25_idf(count: usize, df: usize) -> f64 {
+    (1.0 + (count as f64 - df as f64 + 0.5) / (df as f64 + 0.5)).ln()
 }

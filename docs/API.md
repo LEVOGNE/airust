@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.2 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.3 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.2 shares repeated internal text, reuses completed TF-IDF document norms and adds MCP response schemas while retaining existing signatures and knowledge formats. See [MCP API and limits](MCP.md), [security](MCP-SECURITY.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.2.md).
+Version 0.4.3 accelerates construction and ranking, retains the 0.4.2 memory sharing/TF-IDF reuse and preserves existing signatures, knowledge formats and MCP response schemas. See [MCP API and limits](MCP.md), [security](MCP-SECURITY.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.3.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
@@ -316,11 +316,18 @@ With `execution`, `match_controlled(input, &MatchOptions, &WorkControl)` and `re
 
 ## Optional MCP
 
-With `mcp`, use `mcp::McpServer` and `mcp::McpLimits` to expose a fixed read-only collection over guarded stdio/asynchronous I/O. The `airust-mcp` binary ships in this crate. See the [complete API and tool arguments](MCP.md), [security model](MCP-SECURITY.md) and [public protocol validator](validation-0.4.2/README.md). No application database or DenkMaps integration is performed.
+With `mcp`, use `mcp::McpServer` and `mcp::McpLimits` to expose a fixed read-only collection over guarded stdio/asynchronous I/O. The `airust-mcp` binary ships in this crate. See the [complete API and tool arguments](MCP.md), [security model](MCP-SECURITY.md) and [public protocol validator](validation-0.4.3/README.md). No application database or DenkMaps integration is performed.
 
 
-## Core allocation and TF-IDF reuse (0.4.2)
+## Core construction and ranking (0.4.3)
 
 Public entry fields remain owned strings. Internally, entries share immutable vocabulary, ID and normalized-duplicate strings. BM25 does not allocate a TF-IDF norm cache. A TF-IDF query lazily retains complete document norms for candidates it visits. Later queries reuse them while corpus statistics remain identical. Text changes, insertions, successful removals and clear invalidate this derived state. Metadata-only updates keep it valid. Scores and deterministic ordering retain the existing formulas.
 
 Busy or poisoned cache hints fall back to exact computation without waiting for a lock. Cancellation checkpoints also occur inside a cold norm calculation; incomplete calculations are never published. This is an internal optimization, with no new required feature or cache-file setting. See [examples, cache compatibility, memory costs and limits](CORE-PERFORMANCE.md).
+
+The first 1,024 borrowed tokens of an entry are sorted and counted in a bounded batch. Remaining tokens continue through the streaming path. This avoids an unbounded whole-document token buffer. The internal vocabulary uses Rust's default randomly seeded `HashMap`; source entries, per-entry terms and candidate/result ordering remain ordered independently. No custom weak hasher is introduced.
+
+Known query terms keep their existing lexical order. BM25 IDF is calculated once per query term, document normalization once per candidate, and the original arithmetic order is preserved. The top-K heap holds borrowed candidates and scores; matched-term strings are allocated only for winners. TF-IDF benefits from the same selection path and keeps its existing norm-cache invalidation rules. Controlled scoring/materialization checks cancellation within long term loops. No new configuration or public method is required.
+
+
+After deletions, an empty vocabulary releases its hash allocation. A large dictionary is compacted when its word count falls below a quarter of the retained capacity; a separate high-water value avoids relying on deleted-slot bookkeeping. Small tables keep limited headroom. This adds an occasional rehash cost to deletion, can temporarily hold old and replacement tables, and does not alter retained reader contents. The dictionary, including this capacity hint, remains derived internal state and is not serialized.

@@ -44,7 +44,7 @@ The arrows represent possible library calls. No external application is integrat
 
 An entry has an application-owned `id`, searchable `text`, and optional JSON `metadata`. The original text and metadata remain available in results.
 
-Derived data includes normalized text, term frequencies, and text length. Inverted postings map a term to entries that contain it. A separate normalized-text map tracks exact duplicate groups.
+Derived data includes normalized text, term frequencies, and text length. A randomly seeded standard hash dictionary looks up a term; its inverted postings retain ordered entry IDs. Query/result ordering never iterates that dictionary. A separate normalized-text map tracks exact duplicate groups.
 
 `upsert()` validates an entry before changing the index. An existing ID means replacement. It removes old postings and duplicate references before inserting the replacement. `remove()` removes those references along with the entry. Unchanged documents are not tokenized again.
 
@@ -58,7 +58,7 @@ The default `search()` mode is BM25. It scores matching terms using document fre
 
 `SearchAlgorithm::Tfidf` uses term frequencies with smoothed inverse document frequency and cosine similarity. These are lexical vectors. They do not encode learned meanings or synonyms.
 
-Both modes find candidate entries through shared postings. A bounded heap retains only the requested top results. Selection retains O(K) results for limit K; candidate IDs can still occupy O(M) memory for M candidates. A query without term overlap has no results. Scores are positive and finite. Equal scores use ascending entry IDs. Context filters restrict eligible entries while corpus statistics still describe the complete index.
+Both modes find candidate entries through shared postings. A bounded heap retains borrowed candidates and scores for only the requested top results. Matched-term strings are created after selection. Query-local BM25 IDF and per-document normalization preserve the existing arithmetic order. Selection retains O(K) results for limit K; candidate IDs can still occupy O(M) memory for M candidates. A query without term overlap has no results. Scores are positive and finite. Equal scores use ascending entry IDs. Context filters restrict eligible entries while corpus statistics still describe the complete index.
 
 The API exposes scores as evidence for ranking. BM25 scores are unbounded relevance values. TF-IDF cosine scores lie between zero and one. Neither is a calibrated probability.
 
@@ -214,3 +214,8 @@ The five tools return structured evidence and explicit missing bindings. The hos
 ## 0.4.2 internal reuse
 
 Private index strings use shared immutable allocations. Public entries and formats retain their owned data. TF-IDF hints are lazy, bounded by visited document count and tied to one unchanged corpus-statistics state. Queries use nonblocking cache lookups; contention/poisoning computes the exact norm instead. An index clone can share existing hints until that clone changes lexical data. Hints never become source-of-truth knowledge or persisted model data. See [the full contract](CORE-PERFORMANCE.md).
+
+
+## 0.4.3 construction and query preparation
+
+The initial 1,024 borrowed tokens are sorted/grouped into term frequencies; any remaining tokens stream into the same frequency map. Vocabulary lookups use `std::collections::HashMap` with its default randomized hasher, retaining shared `Arc<str>` words. Public entries, normalized duplicate groups and per-document term maps preserve their formats/order. Queries prepare known words and IDF once, score candidates in the existing deterministic order, then materialize explanations only for winners. See [the full core contract and measured costs](CORE-PERFORMANCE.md).

@@ -1,0 +1,186 @@
+{
+  "profiler": "dhat 0.3.3, external-only",
+  "rust": "1.89.0",
+  "both_features": [],
+  "samples_per_version_and_prefix": 1,
+  "positive_queries": 10,
+  "passes": 2,
+  "all_positive_probes_return_hits": true,
+  "all_tracked_index_heap_released": true,
+  "scope": "Tracked allocations for an owned index, excluding preloaded source/profiler overhead/OS RSS. Default clone, no shared-index. Build/warm/clone/drop phases. Instrumented timings are not latency measurements. Sorted-tree/hash prototypes are retained separately and excluded from final timing claims.",
+  "cases": [
+    {
+      "entries": 1000,
+      "previous": {
+        "build": {
+          "live_blocks": 41737,
+          "live_bytes": 10277183,
+          "peak_bytes": 10357183,
+          "total_blocks": 42738,
+          "total_bytes": 11170382
+        },
+        "cloned": {
+          "live_blocks": 75243,
+          "live_bytes": 19534886,
+          "peak_bytes": 19534886,
+          "total_blocks": 90238,
+          "total_bytes": 21194827
+        },
+        "entries": 1000,
+        "mode": "previous",
+        "released_all": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 19534886,
+          "total_blocks": 90238,
+          "total_bytes": 21194827
+        },
+        "released_clone": {
+          "live_blocks": 41849,
+          "live_bytes": 10309567,
+          "peak_bytes": 19534886,
+          "total_blocks": 90238,
+          "total_bytes": 21194827
+        },
+        "scope": "DHAT-instrumented tracked heap for owned index clones of preloaded records; excludes preloaded source and profiler overhead. Timings under instrumentation are not performance measurements.",
+        "warmed": {
+          "live_blocks": 41849,
+          "live_bytes": 10309567,
+          "peak_bytes": 10357183,
+          "total_blocks": 56844,
+          "total_bytes": 11969508
+        }
+      },
+      "current": {
+        "build": {
+          "live_blocks": 39030,
+          "live_bytes": 9694935,
+          "peak_bytes": 9776726,
+          "total_blocks": 51656,
+          "total_bytes": 20375898
+        },
+        "cloned": {
+          "live_blocks": 69829,
+          "live_bytes": 18370390,
+          "peak_bytes": 18370390,
+          "total_blocks": 83979,
+          "total_bytes": 29267747
+        },
+        "entries": 1000,
+        "mode": "current",
+        "released_all": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 18370390,
+          "total_blocks": 83979,
+          "total_bytes": 29267747
+        },
+        "released_clone": {
+          "live_blocks": 39142,
+          "live_bytes": 9727319,
+          "peak_bytes": 18370390,
+          "total_blocks": 83979,
+          "total_bytes": 29267747
+        },
+        "scope": "DHAT-instrumented tracked heap for owned index clones of preloaded records; excludes preloaded source and profiler overhead. Timings under instrumentation are not performance measurements.",
+        "warmed": {
+          "live_blocks": 39142,
+          "live_bytes": 9727319,
+          "peak_bytes": 9776726,
+          "total_blocks": 53292,
+          "total_bytes": 20624676
+        }
+      },
+      "build_live_bytes_reduction_percent": 5.6654435364243305,
+      "build_live_blocks_reduction_percent": 6.485851882023141,
+      "build_total_allocations_reduction_percent": -20.866676026018993
+    },
+    {
+      "entries": 10000,
+      "previous": {
+        "build": {
+          "live_blocks": 345126,
+          "live_bytes": 91520933,
+          "peak_bytes": 92320933,
+          "total_blocks": 356279,
+          "total_bytes": 101294302
+        },
+        "cloned": {
+          "live_blocks": 652051,
+          "live_bytes": 175226194,
+          "peak_bytes": 175226194,
+          "total_blocks": 794646,
+          "total_bytes": 192277647
+        },
+        "entries": 10000,
+        "mode": "previous",
+        "released_all": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 175226194,
+          "total_blocks": 794646,
+          "total_bytes": 192277647
+        },
+        "released_clone": {
+          "live_blocks": 346308,
+          "live_bytes": 91865877,
+          "peak_bytes": 175226194,
+          "total_blocks": 794646,
+          "total_bytes": 192277647
+        },
+        "scope": "DHAT-instrumented tracked heap for owned index clones of preloaded records; excludes preloaded source and profiler overhead. Timings under instrumentation are not performance measurements.",
+        "warmed": {
+          "live_blocks": 346308,
+          "live_bytes": 91865877,
+          "peak_bytes": 92320933,
+          "total_blocks": 488903,
+          "total_bytes": 108917330
+        }
+      },
+      "current": {
+        "build": {
+          "live_blocks": 322888,
+          "live_bytes": 86102837,
+          "peak_bytes": 86903698,
+          "total_blocks": 451911,
+          "total_bytes": 198377266
+        },
+        "cloned": {
+          "live_blocks": 607575,
+          "live_bytes": 164390002,
+          "peak_bytes": 164390002,
+          "total_blocks": 745804,
+          "total_bytes": 278446151
+        },
+        "entries": 10000,
+        "mode": "current",
+        "released_all": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 164390002,
+          "total_blocks": 745804,
+          "total_bytes": 278446151
+        },
+        "released_clone": {
+          "live_blocks": 324070,
+          "live_bytes": 86447781,
+          "peak_bytes": 164390002,
+          "total_blocks": 745804,
+          "total_bytes": 278446151
+        },
+        "scope": "DHAT-instrumented tracked heap for owned index clones of preloaded records; excludes preloaded source and profiler overhead. Timings under instrumentation are not performance measurements.",
+        "warmed": {
+          "live_blocks": 324070,
+          "live_bytes": 86447781,
+          "peak_bytes": 86903698,
+          "total_blocks": 462299,
+          "total_bytes": 200503930
+        }
+      },
+      "build_live_bytes_reduction_percent": 5.920062025591455,
+      "build_live_blocks_reduction_percent": 6.44344384369766,
+      "build_total_allocations_reduction_percent": -26.84188515180519
+    }
+  ],
+  "binary_sha256": "3c84b35fd171b4b5451b785b6c989bade7fea7505307e5819507cf3a04ef3603"
+}
