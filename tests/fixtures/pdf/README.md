@@ -6,3 +6,8 @@ These minimal test PDFs were generated for AIRust and contain no private documen
 
 
 The owned `forms-depth-10.pdf`, `forms-depth-11.pdf` and `fallback-count-depth-50.pdf` fixtures contain explicit text witnesses inside nested Form XObjects or a page tree without a root Count. They reproduce complete supported extraction and rejection after work-limit exhaustion. They contain no third-party/private document text. Their source generation and structural inventory remain retained in the PDF stability lab; independent backend tests generate the same kinds of structures in Rust.
+
+
+`count-underdeclared.pdf`, `count-overdeclared.pdf`, `count-subtrees-forged.pdf` and `count-subtrees-correct.pdf` are owned fixtures with distinct page witnesses. The forged subtree counts add up to the correct root total while lying about individual branches. Tests require explicit rejection before partial output and preserve existing files in direct/supervised modes. Generation remains in the retained `fixtures-0314.py` lab harness; no private/third-party document text is included.
+
+`count-empty-root-orphans.pdf` contains an empty live page tree and two unreachable page objects. Library extraction and prefix preview must return zero pages; the converter must preserve old output when no usable text is available. The old native zero-count rescue must not import these orphan objects.

@@ -4,6 +4,97 @@ use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
 #[test]
+fn declared_root_and_subtree_counts_cannot_hide_pages() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pdf");
+    let loader = PdfLoader::new();
+    let pages = loader
+        .extract_pages_from_pdf(&root.join("count-subtrees-correct.pdf"))
+        .unwrap();
+    assert_eq!(pages.len(), 3);
+    for (index, marker) in ["AIRUSTFIRST", "AIRUSTFINAL", "AIRUSTTHIRD"]
+        .iter()
+        .enumerate()
+    {
+        assert_eq!(pages[index].page_number, index + 1);
+        assert!(pages[index].text.contains(marker));
+    }
+    let empty = root.join("count-empty-root-orphans.pdf");
+    assert!(loader.extract_pages_from_pdf(&empty).unwrap().is_empty());
+    assert!(loader.preview_pages_from_pdf(&empty, 1).unwrap().is_empty());
+    for fixture in [
+        "count-underdeclared.pdf",
+        "count-overdeclared.pdf",
+        "count-subtrees-forged.pdf",
+    ] {
+        let path = root.join(fixture);
+        for error in [
+            loader
+                .extract_pages_from_pdf(&path)
+                .err()
+                .expect("invalid page tree"),
+            loader
+                .preview_pages_from_pdf(&path, 1)
+                .err()
+                .expect("invalid page tree"),
+            loader.pdf_to_training_examples(&path).unwrap_err(),
+        ] {
+            assert!(matches!(error, PdfError::PdfError(_)));
+            assert!(error.to_string().contains("page count mismatch"), "{error}");
+            assert!(error.to_string().contains("actual"), "{error}");
+        }
+    }
+}
+
+#[test]
+fn actual_page_limits_apply_even_when_the_declared_count_is_smaller() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/pdf/count-underdeclared.pdf");
+    let loader = PdfLoader::new()
+        .with_limits(airust::PdfImportLimits::new(1024 * 1024, 1, 1024 * 1024, 1000).unwrap());
+    let error = loader
+        .preview_pages_from_pdf(&path, 1)
+        .err()
+        .expect("actual page count exceeds budget");
+    assert!(
+        error.to_string().contains("page count (2; maximum 1)"),
+        "{error}"
+    );
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn wrong_declared_counts_preserve_existing_output_in_all_cli_modes() {
+    let folder = tempfile::tempdir().unwrap();
+    let output = folder.path().join("retained.json");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pdf");
+    for fixture in [
+        "count-underdeclared.pdf",
+        "count-overdeclared.pdf",
+        "count-subtrees-forged.pdf",
+    ] {
+        for supervised in [false, true] {
+            std::fs::write(&output, b"previous complete knowledge").unwrap();
+            let mut command = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"));
+            command
+                .arg(root.join(fixture))
+                .arg(&output)
+                .arg("--overwrite");
+            if supervised {
+                command.args(["--timeout-seconds", "30"]);
+            }
+            let result = command.output().unwrap();
+            assert_eq!(result.status.code(), Some(1));
+            assert!(String::from_utf8_lossy(&result.stderr).contains("page count mismatch"));
+            assert_eq!(
+                std::fs::read(&output).unwrap(),
+                b"previous complete knowledge"
+            );
+            assert_eq!(std::fs::read_dir(folder.path()).unwrap().count(), 1);
+        }
+    }
+}
+
+#[test]
 fn structural_limits_return_errors_instead_of_partial_knowledge() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pdf");
     let loader = PdfLoader::with_config(PdfLoaderConfig {

@@ -14,7 +14,7 @@ The 0.3.x series stabilizes existing capabilities before the next feature stage.
 | Failures | Bounded damaged-input tests, deadlines/owned-worker failures and old-output preservation. |
 | Publication | Clean package, extracted tests, exact-commit CI, registry-only consumer and matching artifact identities. |
 
-The [0.3.10 report](CHANGES-0.3.10.md) records the expanded PDF corpus and cleaner fix. The [0.3.11 report](CHANGES-0.3.11.md) records matching and real-knowledge stability work. The [0.3.12 report](CHANGES-0.3.12.md) measures shared identifiers, and the [0.3.13 report](CHANGES-0.3.13.md) addresses the demonstrated native structure-limit omissions. Each report distinguishes observed results from inherited proof. Completion of these gates permits planning a focused 0.4.0; it is not a claim that all possible documents or workloads are flawless.
+The [0.3.10 report](CHANGES-0.3.10.md) records the expanded PDF corpus and cleaner fix. The [0.3.11 report](CHANGES-0.3.11.md) records matching and real-knowledge stability work. The [0.3.12 report](CHANGES-0.3.12.md) measures shared identifiers, and the [0.3.13 report](CHANGES-0.3.13.md) addresses the demonstrated native structure-limit omissions. The [0.3.14 report](CHANGES-0.3.14.md) independently validates complete reachable page trees and fixes the root/subtree count gap. Each report distinguishes observed results from inherited proof. Completion of these gates permits planning a focused 0.4.0; it is not a claim that all possible documents or workloads are flawless.
 
 ## Boundaries that remain explicit
 
@@ -32,3 +32,10 @@ Before implementing it, retain failing examples for filename collisions, changed
 The 0.3.12 structural tests reproduce skipped text in deeply nested Form XObjects and incomplete fallback page counting after a depth limit. These were existing 0.3.4 backend behaviors. Version 0.3.13 pins backend 0.3.5 and turns all eight demonstrated incomplete successes into explicit errors. Supported known witnesses remain complete; failed direct and supervised imports preserve old output. Repeated extraction tests reject partial cached success while allowing complete results from valid caches. See [the original findings](CHANGES-0.3.12.md) and [the fix, measurements and limits](CHANGES-0.3.13.md).
 
 The 64-level recursive prototype failed a default-stack test and was rejected. The published fix retains existing native limits. Other best-effort recovery and extraction heuristics remain explicit boundaries. Continue 0.3.x maintenance for a new reproducible defect; do not generate releases solely to fill version numbers.
+
+
+## Declared page-count closure in 0.3.14
+
+The historical positive root-count diagnostic and newly forged subtree counts are rejected before extraction. Every reachable branch is checked against actual leaves, repeated/cyclic object references fail, and the backend count must agree afterward for nonempty live trees. Empty live trees return no pages without invoking the parser's orphan-recovery path. Configured page limits count actual leaves. See [API, new validation budgets and preview behavior](PDF-PAGE-COUNTS.md).
+
+This structural closure does not certify perfect content/glyph recovery or all source coordinate mappings. Prefix previews validate the complete page-tree metadata and only their visited content. Continue retaining concrete counterexamples and measuring costs before further releases.

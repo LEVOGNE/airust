@@ -1,13 +1,14 @@
-# AIRust 0.3.13
+# AIRust 0.3.14
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.13 rejects incomplete PDF imports when the covered native depth or processing limits are exhausted. Earlier versions could silently omit deeply nested text or return a partial fallback page count. The optional backend is now 0.3.5; existing API signatures and saved formats remain. See [API and upgrade](docs/PDF-STRUCTURE-LIMITS.md) and [executed results](docs/CHANGES-0.3.13.md). No DenkMaps or MCP integration is added.
+Version 0.3.14 independently counts the reachable PDF page tree before extracting text. Incorrect root or subtree counts, repeated page references and malformed branches fail explicitly. A successful preview also requires a valid complete page-tree structure. Existing data formats and public methods remain; the optional backend stays 0.3.5. See [API and upgrade](docs/PDF-PAGE-COUNTS.md) and [executed results](docs/CHANGES-0.3.14.md). No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.14](docs/PDF-PAGE-COUNTS.md) | Validate actual PDF page-tree counts before extracting text. | Prevent hidden or duplicated pages from inconsistent metadata. |
 | [0.3.13](docs/PDF-STRUCTURE-LIMITS.md) | Reject covered PDF work-limit failures explicitly. | Protect existing knowledge from incomplete imports. |
 | [0.3.12](docs/SHARED-IDENTIFIERS.md) | Reuse entry identifiers across word lists and duplicate groups. | Reduce repeated ID allocations in large indexes. |
 | [0.3.11](docs/TOKEN-MATCHING.md) | Calculate character explanations after selecting token matches. | Avoid expensive comparisons for discarded candidates. |
@@ -28,9 +29,9 @@ Version 0.3.13 rejects incomplete PDF imports when the covered native depth or p
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation passes 202 default tests and 715 all-feature tests. The retained corpus contains 160,085 entries from 33 PDFs / 46,756 physical pages. Current comparisons cover complete search/matching results, updates against full rebuilds, JSON/cache compatibility and concurrent readers. All previous knowledge remains retained. See [current PDF checks and limits](docs/CHANGES-0.3.13.md), [memory measurements](docs/CHANGES-0.3.12.md) and [0.3.x stability gates](docs/STABILITY-0.3.md).
+Validation passes 202 default tests and 728 all-feature tests. The retained corpus contains 160,085 entries from 33 PDFs / 46,756 physical pages. Current comparisons cover complete search/matching results, updates against full rebuilds, JSON/cache compatibility and concurrent readers. All previous knowledge remains retained. See [current PDF checks and limits](docs/CHANGES-0.3.14.md), [memory measurements](docs/CHANGES-0.3.12.md) and [0.3.x stability gates](docs/STABILITY-0.3.md).
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.13, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.14, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -82,7 +83,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.13", default-features = false }
+airust = { version = "=0.3.14", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -390,6 +391,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/agent.rs`, `src/*_agent.rs` | Compatibility with the existing agent API. |
 | `crates/airust-pdf-backend/` | Optional maintained parser backend with exact upstream provenance and separate regression checks. |
 | `src/pdf_loader.rs`, `src/bin/`, `src/web/` | Import and user-interface integrations. |
+| `src/pdf_page_tree.rs` | Private PDF-only page-tree/count validation before extraction. |
 | `examples/` | Runnable examples, a small runtime comparison, and a scalable index benchmark. |
 | `scripts/measure.py` | Development-only CPU, memory and wall-time wrapper for timed executables. |
 | `tests/` | Cross-module tests and regression cases. |

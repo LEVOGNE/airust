@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.14
+
+Independently validate the reachable PDF page tree before extraction. Compare every present root/subtree count with actual leaves, reject duplicate/cyclic or malformed structures, bound validation work and enforce configured page limits on actual leaves. Require the parser count to agree. Preserve old output on direct/supervised failure. Public APIs/formats and backend 0.3.5 remain unchanged. See [results](docs/CHANGES-0.3.14.md) and [API/upgrade/limits](docs/PDF-PAGE-COUNTS.md). No DenkMaps/MCP integration.
+
 ## 0.3.13
 
 Reject covered native Form depth/processing exhaustion and incomplete fallback page counts. Restore local Form state before propagating errors and avoid caching failed span results as successful extraction. Preserve existing public APIs/formats and earlier knowledge. Pin optional backend 0.3.5, with maintained provenance and four new backend regressions; add public library/direct-worker output-preservation checks. See [results](docs/CHANGES-0.3.13.md) and [API/upgrade/limits](docs/PDF-STRUCTURE-LIMITS.md). No DenkMaps/MCP integration.

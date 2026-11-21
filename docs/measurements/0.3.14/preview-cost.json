@@ -1,0 +1,70 @@
+{
+  "processes": 18,
+  "versions": [
+    "0.3.13",
+    "0.3.14"
+  ],
+  "all_returned_page_text_and_physical_numbers_identical": true,
+  "binary_sha256": "f15e3dae7428078cd74426e080fd8a84c8626de75085ee73e47e425d36915823",
+  "groups": [
+    {
+      "id": "vkspec",
+      "physical_pages": 5491,
+      "result_sha256": "555ccee372df154dfa07174693854ff3f9ac62307ccebb592fd55c07957441d0",
+      "medians": {
+        "0.3.13": {
+          "repeats": 3,
+          "api_ms": 1872.6942499999998,
+          "wall_seconds": 2.0314012079034,
+          "process_peak_rss_bytes": 229949440
+        },
+        "0.3.14": {
+          "repeats": 3,
+          "api_ms": 1868.2634999999998,
+          "wall_seconds": 1.875282707856968,
+          "process_peak_rss_bytes": 230293504
+        }
+      }
+    },
+    {
+      "id": "scipy",
+      "physical_pages": 3582,
+      "result_sha256": "f6edc18e7c0dc92b049a91ab0d60c7e87911607deefee415e5407f567a2995d9",
+      "medians": {
+        "0.3.13": {
+          "repeats": 3,
+          "api_ms": 2039.188083,
+          "wall_seconds": 2.0469495421275496,
+          "process_peak_rss_bytes": 317227008
+        },
+        "0.3.14": {
+          "repeats": 3,
+          "api_ms": 2052.584042,
+          "wall_seconds": 2.0599038749933243,
+          "process_peak_rss_bytes": 317865984
+        }
+      }
+    },
+    {
+      "id": "pdf-12",
+      "physical_pages": 494,
+      "result_sha256": "5029f8d29eec15922ec537584a4f92bce84004c11629e69a5f567eae0638aba9",
+      "medians": {
+        "0.3.13": {
+          "repeats": 3,
+          "api_ms": 144.85595800000002,
+          "wall_seconds": 0.15043612499721348,
+          "process_peak_rss_bytes": 76742656
+        },
+        "0.3.14": {
+          "repeats": 3,
+          "api_ms": 144.88400000000001,
+          "wall_seconds": 0.15034725004807115,
+          "process_peak_rss_bytes": 76742656
+        }
+      }
+    }
+  ],
+  "conditions": "Alternating fresh release processes, three repeats per case/version, same comparison binary/compiler/profile and unchanged backend3.5. Local prerelease build patches both aliases to that identical backend source. Warm input/file caches; deliberate other validation/build work complete; other desktop activity uncontrolled.",
+  "scope": "preview_pages_from_pdf(path,1) includes file opening/native metadata/first usable page/cleanup/projection. New version validates full tree metadata before prefix content. API time excludes result hashing/JSON stdout; process wall/RSS include them and native parser in this process. Not converter-supervisor RSS, pure-validator cost, cold-start or general speed guarantee. Canonical/source files unchanged."
+}

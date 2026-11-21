@@ -1,4 +1,4 @@
-# AIRust 0.3.13 API cookbook
+# AIRust 0.3.14 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.13", default-features = false }
+airust = { version = "=0.3.14", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -370,3 +370,8 @@ Word lists and duplicate groups reuse immutable entry identifiers. Public IDs st
 ## PDF structure-limit failures (0.3.13)
 
 Existing `PdfLoader`, `PdfImportLimits`, CLI flags and JSON formats remain. The optional backend is pinned to 0.3.5. Covered Form depth/processing exhaustion and fallback page-count depth exhaustion now fail the import instead of returning incomplete success. Retain existing knowledge on error. A bounded preview still validates only its visited prefix. See [API, upgrade and limits](PDF-STRUCTURE-LIMITS.md) and [executed checks](CHANGES-0.3.13.md).
+
+
+## Validated PDF page counts (0.3.14)
+
+With `pdf`, every `PdfLoader` extraction/preview/conversion first traverses the complete reachable page tree without trusting `/Count`. Present counts must match actual leaves at every subtree. Incorrect counts, duplicate/cyclic references, malformed branches or validation-budget exhaustion return existing `PdfError` categories. The parser count must agree afterward for nonempty live trees; empty trees return no pages without invoking orphan recovery. Preview still extracts only its usable prefix, but validates structural metadata for the whole document. No public method, field, flag or mandatory core dependency is added; backend 0.3.5 remains unchanged. See [API, budgets, upgrade and limits](PDF-PAGE-COUNTS.md) and [executed checks](CHANGES-0.3.14.md).

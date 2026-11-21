@@ -1,0 +1,9 @@
+[package]
+name="airust-preview-comparison"
+version="0.0.0"
+edition="2021"
+[dependencies]
+previous={package="airust",version="=0.3.13",default-features=false,features=["pdf"]}
+current={package="airust",version="=0.3.14",default-features=false,features=["pdf"]}
+sha2="0.10"
+serde_json="1"

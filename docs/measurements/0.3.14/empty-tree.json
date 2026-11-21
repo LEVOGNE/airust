@@ -1,0 +1,18 @@
+{
+  "fixture_sha256": "db7e840e54f1eaa29cc9d0ec92eb401398d214174afaed1cfd50c2508986fa95",
+  "cases": [
+    {
+      "version": "0313",
+      "exit": 0,
+      "imported_orphan_records": 2
+    },
+    {
+      "version": "0314",
+      "exit": 1,
+      "no_usable_text": true,
+      "previous_output_preserved": true
+    }
+  ],
+  "current_library_contract": "Zero pages for an empty reachable tree, without native orphan-recovery scanning; separately checked by public library/preview regressions and independent consumer.",
+  "scope": "Owned zero-page live tree with two unreachable page objects. Old converter imports orphan records; current converter rejects empty conversion and preserves old output. No canonical/source changes."
+}

@@ -159,3 +159,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.13 closes the demonstrated native Form/fallback-page-count omissions with explicit errors at existing work limits. Retain supported complete results, old output on failure and cross-API cache correctness. Fresh real-document, malformed-input and publication checks belong to its report. Next, use the [0.4 preparation gates](docs/PREPARING-0.4.md) to evaluate a small optional document/passage contract against existing source, snapshot and excerpt APIs. No application or transport integration is included.
+
+
+0.3.14 adds a bounded, independent PDF page-tree/count check before extraction, closing the positive root-count omission and checking intermediate counts as well. Keep backend 0.3.5 unchanged and measure complete conversion plus bounded-preview costs separately. Future text snapshots should reuse this structural check while keeping extraction coverage, byte identity and Unicode coordinate spaces separate. See [results](docs/CHANGES-0.3.14.md) and [0.4 preparation](docs/PREPARING-0.4.md).

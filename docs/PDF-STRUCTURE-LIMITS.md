@@ -1,5 +1,7 @@
 # PDF structure failures in AIRust 0.3.13
 
+This guide records 0.3.13. Version 0.3.14 also fixes the declared-count recovery gap described below; see [current page-count validation](PDF-PAGE-COUNTS.md).
+
 A PDF can place text inside reusable blocks called Form XObjects. Earlier versions could stop at a nesting or processing limit and still report success with missing text. Fallback page counting could also return a partial count after reaching its depth limit.
 
 Version 0.3.13 reports an import error on these covered paths. It restores local Form state before propagating the error and avoids storing failed span results as successful cache entries. The optional backend is pinned to `airust-pdf-backend = 0.3.5`. Its original licenses, notices, source hashes and maintained patch remain available in `crates/airust-pdf-backend`.

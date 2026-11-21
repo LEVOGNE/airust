@@ -8,6 +8,9 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
 
+#[path = "pdf_page_tree.rs"]
+mod page_tree;
+
 static DEHYPHEN: Lazy<Regex> = Lazy::new(|| Regex::new(r"-[\t ]*\r?\n[\t ]*").unwrap());
 static SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r" {2,}").unwrap());
 static NEWLINES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\n{3,}").unwrap());
@@ -426,7 +429,18 @@ impl PdfLoader {
             })?
         };
 
+        let validated_count = checked_pdf_call("validating the page tree", || {
+            page_tree::validated_page_count(&doc, self.limits.map(|limits| limits.max_pages))
+        })?;
+        if validated_count == 0 {
+            return Ok(());
+        }
         let page_count = checked_pdf_call("reading the page count", || doc.page_count())?;
+        if page_count != validated_count {
+            return Err(PdfError::PdfError(format!(
+                "page count mismatch: parser reported {page_count}, validated tree contains {validated_count}; no partial import returned"
+            )));
+        }
         if let Some(limits) = self.limits {
             if page_count > limits.max_pages {
                 return Err(pdf_limit_value(

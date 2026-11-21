@@ -13,7 +13,7 @@ cargo run --release --locked --features cli,pdf --bin pdf2kb -- INPUT.pdf OUTPUT
 For the installed converter:
 
 ```bash
-cargo install airust --version 0.3.13 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.14 --locked --features cli,pdf --bin pdf2kb
 pdf2kb INPUT.pdf OUTPUT.json --timeout-seconds 60
 ```
 
@@ -60,3 +60,6 @@ AIRust 0.3.6 retains these budget/worker APIs and intentionally corrects text cl
 
 
 Current 0.3.13 also rejects the covered native Form/page-count work-limit omissions. See [API and upgrade](PDF-STRUCTURE-LIMITS.md) and [fresh validation](CHANGES-0.3.13.md). Historical measurements above retain their identified release scopes.
+
+
+Version 0.3.14 validates full page-tree metadata before extraction, including previews, and rejects inconsistent declared counts. See [current API and budgets](PDF-PAGE-COUNTS.md). Historical timing and recovery claims above keep their identified release scopes.
