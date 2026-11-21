@@ -1,13 +1,14 @@
-# AIRust 0.3.11
+# AIRust 0.3.12
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.11 removes unnecessary character-distance work from token-overlap matching. It first selects the best token matches, then calculates the full character explanation for the returned entries. IDs, scores, ordering and public APIs remain compatible. This helps compare longer passages in large collections. See [API and limits](docs/TOKEN-MATCHING.md) and [executed results](docs/CHANGES-0.3.11.md). The optional PDF backend remains 0.3.4. No DenkMaps or MCP integration is added.
+Version 0.3.12 reduces repeated identifier storage in word lists and duplicate groups. These lists now share immutable IDs while keeping the same public entries, ordering and data formats. Existing JSON and derived caches remain usable. See [API and upgrade](docs/SHARED-IDENTIFIERS.md) and [executed results](docs/CHANGES-0.3.12.md). The optional PDF backend remains 0.3.4. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.12](docs/SHARED-IDENTIFIERS.md) | Reuse entry identifiers across word lists and duplicate groups. | Reduce repeated ID allocations in large indexes. |
 | [0.3.11](docs/TOKEN-MATCHING.md) | Calculate character explanations after selecting token matches. | Avoid expensive comparisons for discarded candidates. |
 | [0.3.10](docs/PDF-CLEANING-PASS.md) | Complete Latin-ligature expansion and combine initial cleaning steps. | Correct st forms and reduce intermediate text copying. |
 | [0.3.9](docs/PDF-OVERLAP.md) | Avoid temporary copies while processing overlapping chunks. | Reduce wasted work while retaining knowledge and budget behavior. |
@@ -26,9 +27,9 @@ Version 0.3.11 removes unnecessary character-distance work from token-overlap ma
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation passes 200 default tests and 711 all-feature tests. The retained corpus contains 160,085 entries from 33 PDFs / 46,756 physical pages. Version 0.3.10 verified every cleaned page against an independent oracle. Version 0.3.11 compares complete matching results and exercises real knowledge through updates, full rebuilds, JSON round trips and concurrent readers. All previous knowledge remains retained. See [results and limits](docs/CHANGES-0.3.11.md) and the [0.3.x stability gates](docs/STABILITY-0.3.md).
+Validation passes 202 default tests and 713 all-feature tests. The retained corpus contains 160,085 entries from 33 PDFs / 46,756 physical pages. Current comparisons cover complete search/matching results, updates against full rebuilds, JSON/cache compatibility and concurrent readers. All previous knowledge remains retained. See [measurements and limits](docs/CHANGES-0.3.12.md) and [0.3.x stability gates](docs/STABILITY-0.3.md).
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.11, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.12, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -36,7 +37,7 @@ To keep related data consistent, enable `snapshots` and acquire one `manager.sna
 
 To assess evidence, enable `retrieval` and add `.with_evidence_policy(EvidencePolicy::default())`. Run `cargo run --features retrieval --example evidence_assessment`. The fixed twelve-case evaluation includes a false acceptance and a false rejection to show the limits of word coverage.
 
-In the 0.3.11 fixture with 500,000 short synthetic records and three retained copies, `shared-index` lowers median process peak RSS from 3.376 to 1.171 GiB across three runs. A changed clone still pays to detach shared data. See [current measurements and limits](docs/CHANGES-0.3.11.md) and the [original sharing design](docs/CHANGES-0.2.20.md).
+In the 0.3.12 fixture with 500,000 short synthetic records and three retained copies, `shared-index` lowers median process peak RSS from 2.895 to 0.981 GiB across three runs. A changed clone still pays to detach shared data. In a separate 160,085-entry real-corpus validation workload, shared identifiers lower median process peak RSS by 22.08% against 0.3.11. These processes retain several complete working views; the figures do not describe every application or one index's memory requirement. See [measurements and limits](docs/CHANGES-0.3.12.md) and the [original sharing design](docs/CHANGES-0.2.20.md).
 
 ## What it does
 
@@ -80,7 +81,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.11", default-features = false }
+airust = { version = "=0.3.12", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

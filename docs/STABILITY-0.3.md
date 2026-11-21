@@ -25,3 +25,8 @@ Native PDF reading order/glyph decoding and cleaning are heuristic. Image-only P
 The first proposed scope is a general document-and-passage contract. It should identify source/configuration revisions and passage positions without confusing cleaned-text offsets with original PDF byte positions. It should work with existing generic entries and optional adapters, preserve failure atomicity and expose real phase/count progress.
 
 Before implementing it, retain failing examples for filename collisions, changed-source revisions, Unicode offsets and cleaning-induced text changes. Compare a small optional prototype against the existing APIs. Keep model loading, application integrations and transport formats separate. Controlled matching and bounded batch ingestion can follow as separately measured steps. No automatic 0.4.0 publication follows merely from finishing this checklist.
+
+
+## Current native follow-up from 0.3.12 probes
+
+The additional structural tests reproduce skipped text in deeply nested Form XObjects and incomplete fallback page counting after a depth limit. These are existing 0.3.4 backend behaviors. Preserve the fixtures and require complete text within supported limits or an explicit error when a work limit prevents completion. Validate repeated calls so a partial result cannot become a successful cached result. Resolve and measure this follow-up before approving 0.4.x expansion. See [the 0.3.12 findings](CHANGES-0.3.12.md).

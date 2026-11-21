@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.12
+
+Reuse immutable entry IDs in word lists and normalized duplicate groups, including cache reconstruction. Reduce repeated ID allocations without changing public entry types, ordering, query/matching results, clone isolation or JSON/cache formats. Validate real-knowledge and synthetic resource costs separately. Source data and all earlier exports remain retained. See [results](docs/CHANGES-0.3.12.md) and [API/upgrade/limits](docs/SHARED-IDENTIFIERS.md). Backend stays 0.3.4; no DenkMaps/MCP integration.
+
 ## 0.3.11
 
 Defer character-distance explanations until token-overlap winners are selected. Preserve complete result IDs, ordering, scores and explanations while avoiding expensive distances for discarded candidates. Add full-comparison regressions and real-knowledge stability/benchmark evidence. Existing PDF behavior, backend 0.3.4 and retained knowledge remain. See [results](docs/CHANGES-0.3.11.md), [API and limits](docs/TOKEN-MATCHING.md) and [0.3.x gates](docs/STABILITY-0.3.md). No DenkMaps/MCP integration.

@@ -6,6 +6,7 @@ use crate::ranking::TopK;
 use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 use thiserror::Error;
 
 #[cfg(feature = "shared-index")]
@@ -86,8 +87,8 @@ pub struct IndexStats {
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
     documents: BTreeMap<String, Shared<IndexedEntry>>,
-    postings: BTreeMap<String, Shared<BTreeMap<String, usize>>>,
-    normalized_ids: BTreeMap<String, Shared<BTreeSet<String>>>,
+    postings: BTreeMap<String, Shared<BTreeMap<Arc<str>, usize>>>,
+    normalized_ids: BTreeMap<String, Shared<BTreeSet<Arc<str>>>>,
     total_tokens: usize,
 }
 
@@ -152,12 +153,11 @@ impl KnowledgeIndex {
         let char_length = normalized.chars().count();
         let length = terms.values().sum();
         let previous = self.remove(&entry.id);
+        let id: Arc<str> = Arc::from(entry.id.as_str());
         for (term, count) in &terms {
-            shared_mut(self.postings.entry(term.clone()).or_default())
-                .insert(entry.id.clone(), *count);
+            shared_mut(self.postings.entry(term.clone()).or_default()).insert(id.clone(), *count);
         }
-        shared_mut(self.normalized_ids.entry(normalized.clone()).or_default())
-            .insert(entry.id.clone());
+        shared_mut(self.normalized_ids.entry(normalized.clone()).or_default()).insert(id);
         self.total_tokens += length;
         self.documents.insert(
             entry.id.clone(),
@@ -329,7 +329,7 @@ impl KnowledgeIndex {
                             }
                         }
                     }
-                    candidates.insert(id.as_str());
+                    candidates.insert(id.as_ref());
                 }
             }
         }
@@ -487,7 +487,7 @@ impl KnowledgeIndex {
                 exact_ids
                     .into_iter()
                     .flat_map(|ids| ids.iter())
-                    .map(|id| shared_ref(&self.documents[id])),
+                    .map(|id| shared_ref(&self.documents[id.as_ref()])),
             ),
             MatchStrategy::TokenOverlap => Box::new(
                 self.candidates(query_terms.iter().copied())
@@ -582,7 +582,11 @@ impl KnowledgeIndex {
         self.normalized_ids
             .values()
             .filter(|ids| ids.len() > 1)
-            .map(|ids| ids.iter().map(|id| &self.documents[id].entry).collect())
+            .map(|ids| {
+                ids.iter()
+                    .map(|id| &self.documents[id.as_ref()].entry)
+                    .collect()
+            })
             .collect()
     }
 
@@ -642,7 +646,7 @@ impl KnowledgeIndex {
         terms
             .into_iter()
             .filter_map(|term| self.postings.get(term))
-            .flat_map(|postings| postings.keys().map(String::as_str))
+            .flat_map(|postings| postings.keys().map(|id| id.as_ref()))
             .collect()
     }
 }
@@ -786,9 +790,10 @@ impl PreparedCache {
                 .documents
                 .remove(&entry.id)
                 .expect("validated cached source ID");
+            let id: Arc<str> = Arc::from(entry.id.as_str());
             for (term, &frequency) in &cached.terms {
                 shared_mut(index.postings.entry(term.clone()).or_default())
-                    .insert(entry.id.clone(), frequency);
+                    .insert(id.clone(), frequency);
             }
             shared_mut(
                 index
@@ -796,7 +801,7 @@ impl PreparedCache {
                     .entry(cached.normalized.clone())
                     .or_default(),
             )
-            .insert(entry.id.clone());
+            .insert(id);
             index.documents.insert(
                 entry.id.clone(),
                 shared_new(IndexedEntry {
@@ -920,6 +925,83 @@ mod token_match_tests {
         for limit in [1, 10, 100] {
             check_complete_comparison(&index, &query, 0.0, limit);
         }
+    }
+}
+
+#[cfg(test)]
+mod identifier_tests {
+    use super::*;
+
+    #[test]
+    fn identifiers_keep_original_unicode_and_control_bytes() {
+        let mut ids = vec![
+            "é".to_owned(),
+            "e\u{301}".to_owned(),
+            "a\0b".to_owned(),
+            " a ".to_owned(),
+            format!("{}a", "資料/😀/".repeat(100)),
+            format!("{}b", "資料/😀/".repeat(100)),
+        ];
+        let index = KnowledgeIndex::from_entries(
+            ids.iter().map(|id| KnowledgeEntry::new(id, "shared words")),
+        )
+        .unwrap();
+        ids.sort();
+        assert_eq!(index.len(), ids.len());
+        let json = index.to_json().unwrap();
+        let restored = KnowledgeIndex::from_json(&json).unwrap();
+        assert_eq!(restored.to_json().unwrap(), json);
+        for view in [&index, &restored] {
+            for id in &ids {
+                assert_eq!(&view.get(id).unwrap().id, id);
+            }
+            let hits = view.search("shared", ids.len());
+            assert_eq!(
+                hits.iter().map(|hit| &hit.entry.id).collect::<Vec<_>>(),
+                ids.iter().collect::<Vec<_>>()
+            );
+            let groups = view.duplicates();
+            assert_eq!(groups.len(), 1);
+            assert_eq!(
+                groups[0].iter().map(|entry| &entry.id).collect::<Vec<_>>(),
+                ids.iter().collect::<Vec<_>>()
+            );
+        }
+    }
+
+    #[test]
+    fn retained_views_keep_long_identifiers_after_removal_and_clear() {
+        let prefix = "long/document/資料/".repeat(32);
+        let ids: Vec<_> = (0..32).map(|i| format!("{prefix}{i:03}")).collect();
+        let mut index = KnowledgeIndex::from_entries(
+            ids.iter()
+                .map(|id| KnowledgeEntry::new(id, "original shared words")),
+        )
+        .unwrap();
+        let original_json = index.to_json().unwrap();
+        let retained = index.clone();
+        for id in ids.iter().take(16) {
+            index
+                .upsert(KnowledgeEntry::new(id, "replacement marker"))
+                .unwrap();
+        }
+        for id in ids.iter().skip(16) {
+            assert_eq!(index.remove(id).unwrap().id, *id);
+        }
+        let rebuilt = KnowledgeIndex::from_entries(index.entries().cloned()).unwrap();
+        assert_eq!(index.to_json().unwrap(), rebuilt.to_json().unwrap());
+        assert_eq!(index.search("replacement", 100).len(), 16);
+        index.clear();
+        assert!(index.is_empty());
+        assert_eq!(retained.to_json().unwrap(), original_json);
+        for id in &ids {
+            assert_eq!(&retained.get(id).unwrap().id, id);
+        }
+        assert_eq!(
+            retained.find_matches("original shared words", 100).len(),
+            32
+        );
+        assert_eq!(retained.relate(&ids[0], 100).unwrap().len(), 31);
     }
 }
 

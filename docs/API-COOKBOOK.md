@@ -1,4 +1,4 @@
-# AIRust 0.3.11 API cookbook
+# AIRust 0.3.12 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.11", default-features = false }
+airust = { version = "=0.3.12", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -360,3 +360,8 @@ Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatu
 ## Efficient token-overlap matching (0.3.11)
 
 `Engine::match_with_options` with `MatchStrategy::TokenOverlap` ranks by shared-word overlap. Character similarity is calculated after selecting the returned entries; all returned fields retain their meaning and exact values. No method, flag or JSON field changes. Candidate collection and token scoring still depend on the corpus, and character explanation work still scales with the requested limit. See [API, measured examples and limits](TOKEN-MATCHING.md) and [0.3.x stability gates](STABILITY-0.3.md).
+
+
+## Shared entry identifiers (0.3.12)
+
+Word lists and duplicate groups reuse immutable entry identifiers. Public IDs stay ordinary strings; lookup, stable ordering, updates, clone isolation and serialized formats keep their existing contracts. No new API or flag is needed. The optional `shared-index` feature additionally shares larger immutable payloads between index clones. See [API, compatibility and limits](SHARED-IDENTIFIERS.md) and [measured results](CHANGES-0.3.12.md).

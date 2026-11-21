@@ -32,3 +32,6 @@ cargo build --release --locked --features shared-index,snapshots,execution --exa
 ```
 
 All-feature and shared-only regressions check unchanged old records/metadata, returned removed values, scores, normalized duplicate sets, retained generations and concurrent independent writers. Private boundary tests verify sharing before edits and detachment afterward. Existing cache/semantic/provenance/retrieval tests remain enabled. No application integration is performed.
+
+
+Since 0.3.12, word lists and duplicate groups in all builds reuse immutable entry IDs. The optional `shared-index` feature also shares larger analysis/posting payloads across cloned indexes. Without that feature, map/value state still copies independently while immutable ID backing may be shared. Both configurations preserve mutation isolation. See [identifier behavior](SHARED-IDENTIFIERS.md) and [current measurements](CHANGES-0.3.12.md).

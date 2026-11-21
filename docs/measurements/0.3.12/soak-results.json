@@ -1,0 +1,106 @@
+{
+  "all_incremental_rebuilds_identical": true,
+  "all_roundtrip_and_concurrent_signatures_identical": true,
+  "baseline_export_sha256": "ce9941192d429c12ffc53631df5c5f02d1508c66f6fb075c769c7eebf50c048c",
+  "build_ms": 5876.2412079999995,
+  "cancelled_and_expired_searches_rejected": true,
+  "clone_and_detach_ms": 36.675959,
+  "concurrent": {
+    "elapsed_ms": 2040.810959,
+    "latency": {
+      "bm25": {
+        "max_ms": 16.257333,
+        "p50_ms": 8.31225,
+        "p95_ms": 16.255917,
+        "p99_ms": 16.257333,
+        "samples": 80
+      },
+      "tfidf": {
+        "max_ms": 210.7895,
+        "p50_ms": 100.56237499999999,
+        "p95_ms": 210.772625,
+        "p99_ms": 210.7895,
+        "samples": 80
+      }
+    },
+    "queries_per_reader": 40,
+    "readers": 4
+  },
+  "entries": 160085,
+  "features": [
+    "execution",
+    "shared-index"
+  ],
+  "fixture": "real-corpus-readiness-v1",
+  "initial_search": {
+    "bm25": {
+      "max_ms": 16.135958,
+      "p50_ms": 10.420874999999999,
+      "p95_ms": 16.135958,
+      "p99_ms": 16.135958,
+      "samples": 10
+    },
+    "tfidf": {
+      "max_ms": 216.49770800000002,
+      "p50_ms": 102.205334,
+      "p95_ms": 216.49770800000002,
+      "p99_ms": 216.49770800000002,
+      "samples": 10
+    }
+  },
+  "parse_ms": 398.458792,
+  "queries": [
+    "memory ordering",
+    "vector matrix",
+    "type inference",
+    "permission",
+    "array broadcasting",
+    "object stream",
+    "parallel thread",
+    "function",
+    "memory",
+    "airustabsentmarker723981"
+  ],
+  "rebuild": {
+    "max_ms": 6180.559459,
+    "p50_ms": 5760.034958,
+    "p95_ms": 6040.320334,
+    "p99_ms": 6180.559459,
+    "samples": 32
+  },
+  "repeated_search": {
+    "bm25": {
+      "max_ms": 15.684833,
+      "p50_ms": 8.591750000000001,
+      "p95_ms": 15.104334,
+      "p99_ms": 15.288917000000001,
+      "samples": 320
+    },
+    "tfidf": {
+      "max_ms": 365.0555,
+      "p50_ms": 97.550459,
+      "p95_ms": 215.381542,
+      "p99_ms": 224.169166,
+      "samples": 320
+    }
+  },
+  "retained_clone_unchanged": true,
+  "rounds": 32,
+  "roundtrip": {
+    "max_ms": 8474.794542,
+    "p50_ms": 5729.535709000001,
+    "p95_ms": 6095.521792,
+    "p99_ms": 8474.794542,
+    "samples": 32
+  },
+  "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+  "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+  "update_delete_128": {
+    "max_ms": 2.419292,
+    "p50_ms": 2.100416,
+    "p95_ms": 2.336541,
+    "p99_ms": 2.419292,
+    "samples": 32
+  },
+  "version": "0.3.12"
+}

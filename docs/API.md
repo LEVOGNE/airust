@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.11 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.12 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -276,3 +276,8 @@ Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatu
 ## Efficient token-overlap matching (0.3.11)
 
 `Engine::match_with_options` with `MatchStrategy::TokenOverlap` ranks by shared-word overlap. Character similarity is calculated after selecting the returned entries; all returned fields retain their meaning and exact values. No method, flag or JSON field changes. Candidate collection and token scoring still depend on the corpus, and character explanation work still scales with the requested limit. See [API, measured examples and limits](TOKEN-MATCHING.md) and [0.3.x stability gates](STABILITY-0.3.md).
+
+
+## Shared entry identifiers (0.3.12)
+
+Word lists and duplicate groups reuse immutable entry identifiers. Public IDs stay ordinary strings; lookup, stable ordering, updates, clone isolation and serialized formats keep their existing contracts. No new API or flag is needed. The optional `shared-index` feature additionally shares larger immutable payloads between index clones. See [API, compatibility and limits](SHARED-IDENTIFIERS.md) and [measured results](CHANGES-0.3.12.md).

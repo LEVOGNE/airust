@@ -153,3 +153,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.11 reduces unnecessary character-distance work in token-overlap matching while preserving complete results. Real-knowledge update/rebuild, JSON, concurrency and resource checks strengthen the [0.3.x stability gates](docs/STABILITY-0.3.md). The next proposed scope is a small optional document/passage contract with explicit source revisions and truthful position semantics; implement and measure it separately before a 0.4.x release. No application/MCP integration is included.
+
+
+0.3.12 addresses repeated entry-ID allocations identified by the real-corpus profile. Complete results, caches, raw IDs and retained views must remain compatible; isolated prototypes precede final paired resource checks. Further targeted malformed-structure tests and the [0.3.x gates](docs/STABILITY-0.3.md) precede 0.4.x expansion. No application/MCP integration is included.
