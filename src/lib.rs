@@ -4,6 +4,9 @@
 #[cfg(feature = "documents")]
 pub mod documents;
 
+#[cfg(feature = "mcp")]
+pub mod mcp;
+
 mod persistence;
 mod ranking;
 

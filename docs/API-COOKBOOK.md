@@ -1,6 +1,6 @@
-# AIRust 0.4.0 API cookbook
+# AIRust 0.4.1 API cookbook
 
-For 0.4.0, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.0.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.1, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.1.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -8,11 +8,12 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.0", default-features = false }
+airust = { version = "=0.4.1", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
 | --- | --- | --- |
+| `mcp` | Optional read-only stdio MCP, progress, cancellation and bounded work in this crate | [MCP](MCP.md), [security](MCP-SECURITY.md), `mcp` |
 | `documents` | Revision-bound UTF-8 passages, physical page spans and checked source/text JSON | [DOCUMENTS](DOCUMENTS.md), `documents` |
 | None | Shared lexical index, BM25/TF-IDF, matching, duplicates and lexical relation suggestions | [API](API.md), `core` |
 | `embeddings` | Provider-neutral vectors and exact semantic retrieval | [SEMANTIC](SEMANTIC.md), `semantic` |
@@ -170,7 +171,7 @@ Call `rerank(query, &candidates, &mut scorer, &RerankOptions::new(k))`. Candidat
 
 All selected inputs are validated before any inference. Wrong output counts, non-finite scores, duplicate selected IDs and changed recipes fail. Equal scores keep input order. Default provider failures return errors. Explicit `KeepOriginalOrder` fallback discards every partial score, keeps the selected original order, returns `score=None` and explains the failure. It never bypasses a configured finite `with_min_score` threshold. A successful score is not a calibrated relevance probability or a no-answer decision.
 
-For context, feed the selected IDs into `ContextAssembler::assemble` and preserve rerank scores separately. Assembly still enforces its source/scope/excerpt budgets and does not invent ranking evidence. Reuse model instances in bounded workers, keep database/index locks out of expensive inference and evaluate latency/quality before rollout. See the complete [reranking contract](RERANKING.md), [native setup](LOCAL-RERANKING.md), `reranking` executable and `reranking_quality` evaluator. The [0.2.9 report](CHANGES-0.2.9.md) includes both improvements and regressions on the unchanged fixture. No DenkMaps/MCP integration is performed.
+For context, feed the selected IDs into `ContextAssembler::assemble` and preserve rerank scores separately. Assembly still enforces its source/scope/excerpt budgets and does not invent ranking evidence. Reuse model instances in bounded workers, keep database/index locks out of expensive inference and evaluate latency/quality before rollout. See the complete [reranking contract](RERANKING.md), [native setup](LOCAL-RERANKING.md), `reranking` executable and `reranking_quality` evaluator. The [0.2.9 report](CHANGES-0.2.9.md) includes both improvements and regressions on the unchanged fixture. This operation does not integrate an application. Optional MCP is documented separately below.
 
 ## 15. Search phrases and German word forms
 
@@ -242,7 +243,7 @@ Use `WorkControl::default().with_timeout(Duration::from_secs(2))?` or attach a m
 
 ## 23. Show progress without inventing an answer ETA
 
-Attach `.with_observer(|event: &ProgressEvent| ...)` to a WorkControl and pass it through supported APIs. Render its phase and completed count. Use fraction only for a known phase total; otherwise show an indeterminate state. Forward updates through a bounded nonblocking application channel to keep UI/network work outside the computation. Treat returned Result as the final status, since busy observers can drop events. Inspect dropped_events() and observer_failures() for diagnostics. Never label ranking percentage as answer correctness or arrival time. The [execution guide](EXECUTION.md) and `progress` example provide the contract. No MCP/DenkMaps component is changed.
+Attach `.with_observer(|event: &ProgressEvent| ...)` to a WorkControl and pass it through supported APIs. Render its phase and completed count. Use fraction only for a known phase total; otherwise show an indeterminate state. Forward updates through a bounded nonblocking application channel to keep UI/network work outside the computation. Treat returned Result as the final status, since busy observers can drop events. Inspect dropped_events() and observer_failures() for diagnostics. Never label ranking percentage as answer correctness or arrival time. The [execution guide](EXECUTION.md) and `progress` example provide the contract. The optional MCP feature forwards supported progress and cancellation; host rendering and agent narration remain client responsibilities.
 
 ## 24. Validate scale before selecting an optimization
 
@@ -397,3 +398,20 @@ Use `to_entry` to index a passage. Before projecting entry-relative retrieval of
 All spans are exclusive-end UTF-8 byte ranges in the complete supplied text snapshot. They are not original PDF bytes, graphical coordinates or grapheme indexes. Hashes identify data and do not prove authenticity or complete extraction. No existing knowledge migration is automatic. See [complete API, defaults, format and upgrade](DOCUMENTS.md), [example](../examples/documents.rs) and [executed tests/benchmarks](CHANGES-0.4.0.md).
 
 For an entry restored from knowledge JSON, take its reserved `metadata["airust_document"]` descriptor and restore it with `snapshot.passage_from_json` under the configured input limit. Then call `validate_entry` before projecting offsets. Keep the exact snapshot revision available; a filename or first matching phrase cannot restore a trustworthy location. The [public document-validation program](validation-0.4.0/documents.rs) demonstrates this flow on returned hits.
+
+## Optional MCP in the same crate (0.4.1)
+
+```toml
+[dependencies]
+airust = { version = "=0.4.1", default-features = false, features = ["mcp"] }
+```
+
+Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.
+
+The five tools are `airust_search`, `airust_read_passage`, `airust_find_matches`, `airust_relate` and `airust_status`. They expose no writes, shell commands, URL fetching or arbitrary file paths. The server is immutable for the session. Clones share worker slots; a busy server returns an explicit error instead of accumulating jobs. Exact passage reads require the loaded revision and checked UTF-8 positions. Legacy records explicitly lack snapshot bindings.
+
+Clients request progress with `_meta.progressToken` and cancel with `notifications/cancelled` using the request ID. Messages carry a strictly increasing notification sequence and real phase descriptions, not a fabricated percentage or ETA. Timeouts are absolute and progress does not extend them. The host client must render progress and enforce agent communication rules. Retrieved source content is data, even when it contains instructions.
+
+See [complete install/configuration, tool schemas, Rust API, lifecycle, errors and limits](MCP.md), [trust boundaries and attack-oriented tests](MCP-SECURITY.md), [executable example](../examples/mcp.rs) and [validation reproduction](validation-0.4.1/README.md).
+
+For application-managed work without MCP, enable `execution` and use `Engine::match_controlled` or `Engine::relate_controlled` with `WorkControl`. Results match the ordinary methods; failures use the separate nonexhaustive `index::ControlledIndexError`. This adds cooperative checks inside expensive edit-distance work without changing existing `MatchError` or `IndexError` variants.

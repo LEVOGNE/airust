@@ -1,0 +1,20 @@
+{
+  "escaped_error_reply_before": {
+    "observed_encoded_response_bytes": 6752,
+    "configured_result_bytes": 4096,
+    "is_error": true
+  },
+  "escaped_error_reply_after": {
+    "observed_encoded_response_bytes": 1760,
+    "configured_result_bytes": 4096,
+    "is_error": true
+  },
+  "fixed_cases": [
+    "Disconnect during progress does not become a spurious delivery failure",
+    "Escaped error messages respect full structured/text response budgeting",
+    "CLI diagnostics bound and escape hostile startup fields",
+    "Malformed line frames count toward rate limits before SDK decoding",
+    "Oversized worker values are rejected before duplicating structured/text JSON"
+  ],
+  "scope": "Automated local adversarial regression checks; no third-party penetration-audit claim."
+}

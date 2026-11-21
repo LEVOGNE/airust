@@ -1,0 +1,90 @@
+{
+  "conditions": "15 fresh release server processes, warm local files, alternating case order over 3 repeats, after all deliberate builds/checks ended. Child RSS includes startup/index/snapshots/runtime/transport; Python validator excluded. Search timings include progress/transport and exclude exact passage follow-up calls. No extraction or relevance judgment; three repeats do not establish tail-latency/cold-start/capacity guarantees.",
+  "cases": [
+    {
+      "id": "canonical",
+      "processes": 3,
+      "startup_to_initialized_median_ms": 6283.349124947563,
+      "server_lifetime_peak_rss_median_bytes": 2379595776,
+      "concurrent_four_request_median_ms": 22.437124978750944,
+      "bm25": {
+        "samples": 210,
+        "median_ms": 18.803521525114775,
+        "max_ms": 103.64879108965397
+      },
+      "tfidf": {
+        "samples": 210,
+        "median_ms": 155.9380415128544,
+        "max_ms": 859.0930001810193
+      }
+    },
+    {
+      "id": "vkspec",
+      "processes": 3,
+      "startup_to_initialized_median_ms": 421.2437500245869,
+      "server_lifetime_peak_rss_median_bytes": 173244416,
+      "concurrent_four_request_median_ms": 5.496124969795346,
+      "bm25": {
+        "samples": 6,
+        "median_ms": 5.079832975752652,
+        "max_ms": 5.266209132969379
+      },
+      "tfidf": {
+        "samples": 6,
+        "median_ms": 28.802209068089724,
+        "max_ms": 30.934874899685383
+      }
+    },
+    {
+      "id": "scipy",
+      "processes": 3,
+      "startup_to_initialized_median_ms": 278.32537493668497,
+      "server_lifetime_peak_rss_median_bytes": 125452288,
+      "concurrent_four_request_median_ms": 6.018166895955801,
+      "bm25": {
+        "samples": 6,
+        "median_ms": 5.743979476392269,
+        "max_ms": 6.256165914237499
+      },
+      "tfidf": {
+        "samples": 6,
+        "median_ms": 40.840853936970234,
+        "max_ms": 42.12045902386308
+      }
+    },
+    {
+      "id": "racket-reference",
+      "processes": 3,
+      "startup_to_initialized_median_ms": 101.47004202008247,
+      "server_lifetime_peak_rss_median_bytes": 50429952,
+      "concurrent_four_request_median_ms": 2.8232501354068518,
+      "bm25": {
+        "samples": 6,
+        "median_ms": 2.1699584322050214,
+        "max_ms": 2.4244580417871475
+      },
+      "tfidf": {
+        "samples": 6,
+        "median_ms": 7.845562417060137,
+        "max_ms": 9.05537512153387
+      }
+    },
+    {
+      "id": "pdf-12",
+      "processes": 3,
+      "startup_to_initialized_median_ms": 45.29770812951028,
+      "server_lifetime_peak_rss_median_bytes": 25821184,
+      "concurrent_four_request_median_ms": 2.3555830121040344,
+      "bm25": {
+        "samples": 6,
+        "median_ms": 1.639499911107123,
+        "max_ms": 1.9592908211052418
+      },
+      "tfidf": {
+        "samples": 6,
+        "median_ms": 3.630083636380732,
+        "max_ms": 6.212957901880145
+      }
+    }
+  ]
+}

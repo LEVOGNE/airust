@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 — Optional bounded MCP in the same crate
+
+Added `mcp`, the `airust-mcp` stdio executable and an immutable public `McpServer` API. Five read-only tools expose lexical search, exact revision-bound passage reads, matching, shared-term suggestions and status. Added client-requested progress, cancellation, absolute time budgets, bounded workers/frames/results and connection flood/ID guards. Controlled matching/relations check expensive edit-distance work. Added raw-protocol, attack-oriented and executable tests, retained-knowledge checks and detailed [MCP](docs/MCP.md) / [security](docs/MCP-SECURITY.md) guides. Existing APIs, knowledge and PDF backend 0.3.5 remain. No DenkMaps integration. See [results and limits](docs/CHANGES-0.4.1.md).
+
 ## 0.4.0 — Document revisions and reliable text positions
 
 Added optional `documents`: source fingerprints, immutable text snapshots, explicit physical page maps and revision-bound UTF-8 passages. Added bounded checked JSON, deterministic version-one identities, exact entry/retrieval projection and existing-provenance composition. Source/text/recipe/page changes invalidate old positions; old knowledge remains untouched. Core signatures and PDF backend 0.3.5 remain. See [API and upgrade](docs/DOCUMENTS.md) and [validation with limits](docs/CHANGES-0.4.0.md). No DenkMaps/MCP integration.

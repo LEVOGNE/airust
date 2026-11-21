@@ -1,6 +1,10 @@
 # Security and operating boundaries
 
-AIRust's default knowledge core is an in-memory library. Optional local inference, dashboard, file administration, crawler, and process controls add separate operating boundaries. The existing web boundaries were introduced in 0.1.9; the optional embedding boundary is described below. Validation results belong in the versioned release reports.
+AIRust's default knowledge core is an in-memory library. Optional MCP, local inference, dashboard, file administration, crawler, and process controls add separate operating boundaries. The existing web boundaries were introduced in 0.1.9; the optional embedding boundary is described below. Validation results belong in the versioned release reports.
+
+## Local read-only MCP
+
+The optional `mcp` feature in this crate uses stdio and opens no HTTP port. It exposes only a startup-selected immutable collection through bounded search, passage reads, matching, relation suggestions and status. Its message/frame/worker/result guards, cancellation and exact snapshot bindings are described in [MCP.md](MCP.md). Read [MCP-SECURITY.md](MCP-SECURITY.md) for trust boundaries, adversarial tests, prompt-injection responsibilities and remaining limits. The connected client can read the loaded collection; this is not remote or multi-tenant authorization. The web token and administrative flags below do not configure MCP.
 
 ## Bind address and authentication
 

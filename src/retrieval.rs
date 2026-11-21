@@ -601,7 +601,10 @@ impl Write for BoundedWriter {
         Ok(())
     }
 }
-fn bounded_json(value: &impl Serialize, limit: usize) -> Result<Option<String>, RetrievalError> {
+pub(crate) fn bounded_json(
+    value: &impl Serialize,
+    limit: usize,
+) -> Result<Option<String>, RetrievalError> {
     let mut w = BoundedWriter {
         bytes: Vec::new(),
         limit,
@@ -616,7 +619,7 @@ fn bounded_json(value: &impl Serialize, limit: usize) -> Result<Option<String>, 
         String::from_utf8(w.bytes).map_err(|_| RetrievalError::Output("non-UTF8 JSON"))?,
     ))
 }
-fn metadata_safe(value: &Value) -> bool {
+pub(crate) fn metadata_safe(value: &Value) -> bool {
     let mut stack = vec![(value, 1usize)];
     let mut count = 0usize;
     while let Some((v, depth)) = stack.pop() {

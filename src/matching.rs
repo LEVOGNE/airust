@@ -179,6 +179,49 @@ mod bounded_tests {
             }
         }
     }
+
+    #[cfg(feature = "execution")]
+    #[test]
+    fn controlled_distance_matches_independent_unicode_oracle() {
+        let mut words = vec![String::new()];
+        let mut frontier = words.clone();
+        for _ in 0..4 {
+            frontier = frontier
+                .iter()
+                .flat_map(|word| ['a', 'ä', '🌍'].map(|c| format!("{word}{c}")))
+                .collect();
+            words.extend(frontier.iter().cloned());
+        }
+        for a in &words {
+            for b in &words {
+                let oracle = strsim::levenshtein(a, b);
+                for maximum in [None, Some(0), Some(1), Some(2), Some(4), Some(usize::MAX)] {
+                    let actual = distance_checked(a, b, maximum, &mut || Ok::<_, ()>(())).unwrap();
+                    assert_eq!(
+                        actual,
+                        maximum.is_none_or(|n| oracle <= n).then_some(oracle)
+                    );
+                }
+            }
+        }
+    }
+
+    #[cfg(feature = "execution")]
+    #[test]
+    fn controlled_distance_checks_inside_a_long_row() {
+        let text = "ab".repeat(20000);
+        let mut checks = 0;
+        let result = distance_checked(&text, &text, None, &mut || {
+            checks += 1;
+            if checks == 10 {
+                Err("cancelled inside row")
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(result, Err("cancelled inside row"));
+        assert_eq!(checks, 10);
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -186,4 +229,69 @@ pub struct MatchResult<'a> {
     pub entry: &'a KnowledgeEntry,
     pub score: f64,
     pub similarity: Similarity,
+}
+
+#[cfg(feature = "execution")]
+pub(crate) fn distance_checked<E>(
+    a: &str,
+    b: &str,
+    maximum: Option<usize>,
+    checkpoint: &mut impl FnMut() -> Result<(), E>,
+) -> Result<Option<usize>, E> {
+    checkpoint()?;
+    let a: Vec<char> = a.chars().collect();
+    let b: Vec<char> = b.chars().collect();
+    checkpoint()?;
+    let (a, b) = if a.len() < b.len() { (b, a) } else { (a, b) };
+    let limit = maximum
+        .unwrap_or(a.len().max(b.len()))
+        .min(a.len().max(b.len()));
+    if a.len().abs_diff(b.len()) > limit {
+        return Ok(None);
+    }
+    if a.is_empty() {
+        return Ok((b.len() <= limit).then_some(b.len()));
+    }
+    if b.is_empty() {
+        return Ok((a.len() <= limit).then_some(a.len()));
+    }
+    let unreachable = limit + 1;
+    let mut previous = vec![unreachable; b.len() + 1];
+    let mut current = vec![unreachable; b.len() + 1];
+    for (i, cell) in previous
+        .iter_mut()
+        .enumerate()
+        .take(limit.saturating_add(1))
+    {
+        *cell = i;
+    }
+    for (index, left) in a.iter().enumerate() {
+        checkpoint()?;
+        let row = index + 1;
+        let start = row.saturating_sub(limit).max(1);
+        let end = row.saturating_add(limit).min(b.len());
+        current[0] = if row <= limit { row } else { unreachable };
+        if start > 1 {
+            current[start - 1] = unreachable;
+        }
+        let mut best = current[0];
+        for column in start..=end {
+            if column.is_multiple_of(256) {
+                checkpoint()?;
+            }
+            current[column] = (previous[column] + 1)
+                .min(current[column - 1] + 1)
+                .min(previous[column - 1] + usize::from(*left != b[column - 1]));
+            best = best.min(current[column]);
+        }
+        if end < b.len() {
+            current[end + 1] = unreachable;
+        }
+        if best > limit {
+            return Ok(None);
+        }
+        std::mem::swap(&mut previous, &mut current);
+    }
+    checkpoint()?;
+    Ok((previous[b.len()] <= limit).then_some(previous[b.len()]))
 }

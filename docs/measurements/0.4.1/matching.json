@@ -1,0 +1,49 @@
+{
+  "indexed_prefixes": [
+    1000,
+    10000
+  ],
+  "parsed_records": 167942,
+  "matching_cases_per_prefix": 72,
+  "relation_cases_per_prefix": 12,
+  "all_results_equal_to_0_4_0_and_controlled": true,
+  "all_matching_cases_returned_hits": true,
+  "fuzzy_source_entries_by_prefix": {
+    "1000": 1,
+    "10000": 12
+  },
+  "quiet_repeats": 3,
+  "quiet_prefix": 10000,
+  "rust": "1.89.0",
+  "both_features": [
+    "execution"
+  ],
+  "conditions": "Ordinary calls timed in pairs, alternating order by query. Exact/token use 12 full source entries; fuzzy probes edit 24..128-character entries. Result checks/controlled oracle/serialization excluded. Warm source/index; not user relevance labels or a universal speed claim.",
+  "cases": [
+    {
+      "strategy": "Exact",
+      "paired_samples": 72,
+      "previous_median_us": 23.459,
+      "current_median_us": 21.354,
+      "previous_total_ms": 1.7513779999999999,
+      "current_total_ms": 1.6450429999999998
+    },
+    {
+      "strategy": "Fuzzy",
+      "paired_samples": 72,
+      "previous_median_us": 5510.396000000001,
+      "current_median_us": 5362.021000000001,
+      "previous_total_ms": 383.042244,
+      "current_total_ms": 376.998252
+    },
+    {
+      "strategy": "TokenOverlap",
+      "paired_samples": 72,
+      "previous_median_us": 31302.125,
+      "current_median_us": 31183.792,
+      "previous_total_ms": 1928.8157879999999,
+      "current_total_ms": 1912.809419
+    }
+  ],
+  "binary_sha256": "b61f8efc4b6fcbac02f35cad5429e8f8bfe0061060f48dcf6ab294374dee3a69"
+}

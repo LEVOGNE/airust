@@ -137,6 +137,11 @@ cargo run --locked --features disk-index --example disk_benchmark -- 1000 disk >
 cargo test --no-default-features --features documents --test documents --locked
 cargo run --locked --features documents --example documents
 
+cargo test --no-default-features --features mcp --test mcp --test mcp_cli --test controlled_matching --locked
+cargo run --locked --features mcp --example mcp
+
+python3 -B scripts/check_mcp_dependencies.py
+
 python3 -B scripts/check_features.py
 
 python3 -B scripts/check_package.py

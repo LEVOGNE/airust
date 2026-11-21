@@ -1,13 +1,14 @@
-# AIRust 0.4.0
+# AIRust 0.4.1
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.4.0 adds optional document revisions and reliable text positions. A passage identifies one exact UTF-8 text snapshot, so changed sources, text, recipes or page maps cannot silently reuse old locations. Existing knowledge and core methods remain usable. See [the document guide](docs/DOCUMENTS.md), [API cookbook](docs/API-COOKBOOK.md) and [executed validation](docs/CHANGES-0.4.0.md). PDF behavior and backend 0.3.5 remain unchanged. No DenkMaps or MCP integration is added.
+Version 0.4.1 adds optional, read-only MCP in this same crate. Clients can search loaded knowledge, compare text, review suggested connections and retrieve exact revision-bound passages. Work reports progress and supports cancellation and absolute time limits. Bounded messages, worker slots and responses help contain abusive requests. See the [complete MCP guide](docs/MCP.md), [security model](docs/MCP-SECURITY.md), [API cookbook](docs/API-COOKBOOK.md) and [executed validation](docs/CHANGES-0.4.1.md). The default library and PDF backend 0.3.5 remain independent. No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.1](docs/MCP.md) | Optional local MCP with read-only tools, exact citations, progress and cancellation. | Give agents bounded access to selected knowledge without a separate AIRust crate. |
 | [0.4.0](docs/DOCUMENTS.md) | Bind passages to identified source/text revisions and checked UTF-8 ranges. | Keep citations and text positions attached to their exact document version. |
 | [0.3.15](docs/PDF-PAGE-TREE-MEMORY.md) | Keep compact pending PDF child references. | Reduce validation memory while retaining count and resource checks. |
 | [0.3.14](docs/PDF-PAGE-COUNTS.md) | Validate actual PDF page-tree counts before extracting text. | Prevent hidden or duplicated pages from inconsistent metadata. |
@@ -31,13 +32,13 @@ Version 0.4.0 adds optional document revisions and reliable text positions. A pa
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation covers 202 default tests, 758 all-feature tests, 38 isolated feature entries and independent consumers. The retained knowledge remains 167,942 entries from 35 PDFs / 49,086 physical pages. New document checks cover Unicode, repeated passages, revision changes, bounded JSON, retained readers and projection from retrieval spans. See [current results and limits](docs/CHANGES-0.4.0.md). All previous knowledge remains retained.
+Validation passes 202 default tests, 783 all-feature checks (including 36 documentation examples) and 39 isolated feature entries. It covers raw MCP messages, executable stdin/stdout and retained real PDF-derived knowledge. The retained knowledge remains 167,942 entries from 35 PDFs / 49,086 physical pages. Previous document snapshots and all older knowledge stay available. See [actual results, measurements and limits](docs/CHANGES-0.4.1.md).
 
 Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Run `cargo run --features documents --example documents`. Positions are bytes in an identified text snapshot; original PDF bytes and graphical coordinates are separate. Restoring a snapshot rechecks its hashes, page partition and revision. A hash identifies supplied data rather than authenticating its meaning or extraction coverage.
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.0. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.1. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -74,6 +75,19 @@ The default `search()`, matching, and `relate()` methods compare words and chara
 
 `relate()` explains its suggestions with shared words. The optional rule engine explains its proposals with explicit premises and sources. Your application reviews these results before storing a hierarchy, prerequisite or contradiction.
 
+## Optional MCP for agents
+
+Install the executable from the same crate:
+
+```bash
+cargo install airust --version 0.4.1 --locked --no-default-features --features mcp --bin airust-mcp
+airust-mcp --knowledge /absolute/path/knowledge.json
+```
+
+Use `--document /absolute/path/snapshot.json` for exact document revision/range citations. The five tools search, read a loaded passage, find matches, suggest relations and report status. They cannot write knowledge, run shell commands, fetch URLs or open client-supplied paths. All loaded data is readable by the connected client, so select the collection deliberately.
+
+The server sends progress when the client supplies a token. A loading indicator and spoken explanations depend on the host client/agent; server instructions ask the agent to explain its work but cannot force it. MCP alone adds no HTTP listener, database or model. Read [installation, schemas, examples and every limit](docs/MCP.md) and [attack coverage and remaining responsibilities](docs/MCP-SECURITY.md). These protections are tested; they are not a guarantee against every attack.
+
 ## Try the source checkout
 
 Use Rust 1.89 or newer for the core and provider-neutral embeddings. The optional local ONNX adapters need Rust 1.92. From the project directory:
@@ -90,7 +104,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.0", default-features = false }
+airust = { version = "=0.4.1", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -381,6 +395,8 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 | `src/text_search.rs` | Optional configurable analysis, bounded required phrases and original UTF-8 evidence over shared ranking storage. |
 | `src/text.rs` | Shared tokenization and Unicode normalization. |
 | `src/matching.rs` | Character and token comparisons. |
+| `src/mcp.rs`, `src/mcp/transport.rs`, `src/bin/airust-mcp.rs` | Optional read-only MCP, bounded transport/workers, progress, cancellation and the same-crate executable. |
+| `src/documents.rs` | Immutable source/text revisions and checked UTF-8 passage positions. |
 | `src/search.rs` | Search modes, BM25 settings, and result types. |
 | `src/context.rs` | Search filters for IDs and metadata. |
 | `src/knowledge.rs` | Generic knowledge entries and the existing training collection. |

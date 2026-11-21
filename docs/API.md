@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.0 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.1 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.0 keeps existing core signatures and knowledge formats. Cargo requires an explicit compatibility-range update; see [document identity, positions and upgrade](DOCUMENTS.md) and [current validation](CHANGES-0.4.0.md).
+Version 0.4.1 adds optional MCP and controlled matching/relations while retaining existing signatures and knowledge formats. See [MCP API and limits](MCP.md), [security](MCP-SECURITY.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.1.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
@@ -309,3 +309,11 @@ Use `to_entry` to index a passage. Before projecting entry-relative retrieval of
 `to_json(max_bytes)` includes escape expansion in its output limit. Restore the snapshot with `from_json(json, &limits)` and passages with `snapshot.passage_from_json(json, &limits)`. The format version, exact text hash, complete revision, page partition and passage bounds are checked. Application code retains snapshots and coordinates its existing persistence or `DatasetManager` publication; no competing authoritative store is added.
 
 All spans are exclusive-end UTF-8 byte ranges in the complete supplied text snapshot. They are not original PDF bytes, graphical coordinates or grapheme indexes. Hashes identify data and do not prove authenticity or complete extraction. No existing knowledge migration is automatic. See [complete API, defaults, format and upgrade](DOCUMENTS.md), [example](../examples/documents.rs) and [executed tests/benchmarks](CHANGES-0.4.0.md).
+
+## Controlled matching and relations
+
+With `execution`, `match_controlled(input, &MatchOptions, &WorkControl)` and `relate_controlled(id, limit, &WorkControl)` preserve the ordinary result semantics while checking cancellation/deadlines. They return additive `index::ControlledIndexError`, which wraps execution, index and matching errors. Existing error types and methods remain unchanged. Edit-distance work checks inside long rows as well as between entries; control remains cooperative.
+
+## Optional MCP
+
+With `mcp`, use `mcp::McpServer` and `mcp::McpLimits` to expose a fixed read-only collection over guarded stdio/asynchronous I/O. The `airust-mcp` binary ships in this crate. See the [complete API and tool arguments](MCP.md), [security model](MCP-SECURITY.md) and [public protocol validator](validation-0.4.1/README.md). No application database or DenkMaps integration is performed.

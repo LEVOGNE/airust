@@ -68,6 +68,18 @@ pub enum IndexError {
     Json(#[from] serde_json::Error),
 }
 
+#[cfg(feature = "execution")]
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum ControlledIndexError {
+    #[error(transparent)]
+    Execution(#[from] crate::execution::ExecutionError),
+    #[error(transparent)]
+    Match(#[from] MatchError),
+    #[error(transparent)]
+    Index(#[from] IndexError),
+}
+
 #[derive(Debug, Clone)]
 struct IndexedEntry {
     entry: KnowledgeEntry,
@@ -475,9 +487,41 @@ impl KnowledgeIndex {
     }
 
     fn match_validated(&self, input: &str, options: &MatchOptions) -> Vec<MatchResult<'_>> {
+        match self.match_checked(
+            input,
+            options,
+            || Ok::<_, std::convert::Infallible>(()),
+            #[cfg(feature = "execution")]
+            None,
+        ) {
+            Ok(result) => result,
+            Err(error) => match error {},
+        }
+    }
+
+    #[cfg(feature = "execution")]
+    pub fn match_controlled(
+        &self,
+        input: &str,
+        options: &MatchOptions,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Vec<MatchResult<'_>>, ControlledIndexError> {
+        control.checkpoint()?;
+        options.validate()?;
+        Ok(self.match_checked(input, options, || control.checkpoint(), Some(control))?)
+    }
+
+    fn match_checked<E>(
+        &self,
+        input: &str,
+        options: &MatchOptions,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<Vec<MatchResult<'_>>, E> {
+        checkpoint()?;
         let normalized = text::normalize(input);
         if normalized.is_empty() || options.limit == 0 {
-            return Vec::new();
+            return Ok(Vec::new());
         }
         let query_terms: BTreeSet<&str> = text::tokens_normalized(&normalized).collect();
         let query_len = normalized.chars().count();
@@ -490,14 +534,35 @@ impl KnowledgeIndex {
                     .map(|id| shared_ref(&self.documents[id.as_ref()])),
             ),
             MatchStrategy::TokenOverlap => Box::new(
-                self.candidates(query_terms.iter().copied())
-                    .into_iter()
-                    .map(|id| shared_ref(&self.documents[id])),
+                self.candidates_checked(
+                    query_terms.iter().copied(),
+                    &mut checkpoint,
+                    #[cfg(feature = "execution")]
+                    control.is_some(),
+                    #[cfg(not(feature = "execution"))]
+                    false,
+                )?
+                .into_iter()
+                .map(|id| shared_ref(&self.documents[id])),
             ),
             MatchStrategy::Fuzzy => Box::new(self.documents.values().map(shared_ref)),
         };
         let mut results = TopK::new(options.limit);
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(crate::execution::WorkPhase::Ranking, 0, None);
+        }
+        #[cfg(feature = "execution")]
+        let mut visited = 0usize;
         for document in candidates {
+            checkpoint()?;
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                visited += 1;
+                if visited.is_multiple_of(128) {
+                    control.progress(crate::execution::WorkPhase::Ranking, visited, None);
+                }
+            }
             let shared = query_terms
                 .iter()
                 .filter(|term| document.terms.contains_key(**term))
@@ -526,16 +591,31 @@ impl KnowledgeIndex {
                 0.0
             } else {
                 let distance = if options.strategy == MatchStrategy::Fuzzy {
-                    let Some(distance) = crate::matching::bounded_distance(
+                    let Some(distance) = checked_distance(
                         &normalized,
                         &document.normalized,
-                        crate::matching::distance_limit(max_len, options.min_similarity),
-                    ) else {
+                        Some(crate::matching::distance_limit(
+                            max_len,
+                            options.min_similarity,
+                        )),
+                        &mut checkpoint,
+                        #[cfg(feature = "execution")]
+                        control,
+                    )?
+                    else {
                         continue;
                     };
                     distance
                 } else {
-                    crate::matching::levenshtein_distance(&normalized, &document.normalized)
+                    checked_distance(
+                        &normalized,
+                        &document.normalized,
+                        None,
+                        &mut checkpoint,
+                        #[cfg(feature = "execution")]
+                        control,
+                    )?
+                    .unwrap_or(max_len)
                 };
                 1.0 - distance as f64 / max_len as f64
             };
@@ -566,16 +646,25 @@ impl KnowledgeIndex {
         let mut results = results.finish();
         if options.strategy == MatchStrategy::TokenOverlap {
             for result in &mut results {
+                checkpoint()?;
                 if !result.similarity.exact {
                     let document = &self.documents[&result.entry.id];
-                    let distance =
-                        crate::matching::levenshtein_distance(&normalized, &document.normalized);
+                    let distance = checked_distance(
+                        &normalized,
+                        &document.normalized,
+                        None,
+                        &mut checkpoint,
+                        #[cfg(feature = "execution")]
+                        control,
+                    )?
+                    .unwrap_or(query_len.max(document.char_length));
                     result.similarity.character =
                         1.0 - distance as f64 / query_len.max(document.char_length) as f64;
                 }
             }
         }
-        results
+        checkpoint()?;
+        Ok(results)
     }
 
     pub fn duplicates(&self) -> Vec<Vec<&KnowledgeEntry>> {
@@ -595,6 +684,43 @@ impl KnowledgeIndex {
             .documents
             .get(id)
             .ok_or_else(|| IndexError::UnknownId(id.to_owned()))?;
+        match self.relate_checked(
+            source,
+            id,
+            limit,
+            || Ok::<_, std::convert::Infallible>(()),
+            #[cfg(feature = "execution")]
+            None,
+        ) {
+            Ok(result) => Ok(result),
+            Err(error) => match error {},
+        }
+    }
+
+    #[cfg(feature = "execution")]
+    pub fn relate_controlled(
+        &self,
+        id: &str,
+        limit: usize,
+        control: &crate::execution::WorkControl,
+    ) -> Result<Vec<RelationSuggestion>, ControlledIndexError> {
+        control.checkpoint()?;
+        let source = self
+            .documents
+            .get(id)
+            .ok_or_else(|| IndexError::UnknownId(id.to_owned()))?;
+        Ok(self.relate_checked(source, id, limit, || control.checkpoint(), Some(control))?)
+    }
+
+    fn relate_checked<E>(
+        &self,
+        source: &IndexedEntry,
+        id: &str,
+        limit: usize,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<Vec<RelationSuggestion>, E> {
+        checkpoint()?;
         if limit == 0 {
             return Ok(Vec::new());
         }
@@ -603,9 +729,30 @@ impl KnowledgeIndex {
             .keys()
             .filter(|term| !text::is_stopword(term))
             .collect();
-        let candidates = self.candidates(source_terms.iter().map(|term| term.as_str()));
+        let candidates = self.candidates_checked(
+            source_terms.iter().map(|term| term.as_str()),
+            &mut checkpoint,
+            #[cfg(feature = "execution")]
+            control.is_some(),
+            #[cfg(not(feature = "execution"))]
+            false,
+        )?;
         let mut suggestions = TopK::new(limit);
+        #[cfg(feature = "execution")]
+        if let Some(control) = control {
+            control.progress(crate::execution::WorkPhase::Ranking, 0, None);
+        }
+        #[cfg(feature = "execution")]
+        let mut visited = 0usize;
         for target_id in candidates {
+            checkpoint()?;
+            #[cfg(feature = "execution")]
+            if let Some(control) = control {
+                visited += 1;
+                if visited.is_multiple_of(128) {
+                    control.progress(crate::execution::WorkPhase::Ranking, visited, None);
+                }
+            }
             if target_id == id {
                 continue;
             }
@@ -629,6 +776,7 @@ impl KnowledgeIndex {
                 });
             }
         }
+        checkpoint()?;
         Ok(suggestions.finish())
     }
 
@@ -642,12 +790,30 @@ impl KnowledgeIndex {
         Self::from_entries(serde_json::from_str::<Vec<KnowledgeEntry>>(json)?)
     }
 
-    fn candidates<'a>(&'a self, terms: impl IntoIterator<Item = &'a str>) -> BTreeSet<&'a str> {
-        terms
-            .into_iter()
-            .filter_map(|term| self.postings.get(term))
-            .flat_map(|postings| postings.keys().map(|id| id.as_ref()))
-            .collect()
+    fn candidates_checked<'a, 't, E>(
+        &'a self,
+        terms: impl IntoIterator<Item = &'t str>,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+        controlled: bool,
+    ) -> Result<BTreeSet<&'a str>, E> {
+        if !controlled {
+            return Ok(terms
+                .into_iter()
+                .filter_map(|term| self.postings.get(term))
+                .flat_map(|postings| postings.keys().map(|id| id.as_ref()))
+                .collect());
+        }
+        let mut result = BTreeSet::new();
+        for term in terms {
+            checkpoint()?;
+            if let Some(postings) = self.postings.get(term) {
+                for id in postings.keys() {
+                    checkpoint()?;
+                    result.insert(id.as_ref());
+                }
+            }
+        }
+        Ok(result)
     }
 }
 
@@ -1095,4 +1261,22 @@ mod sharing_tests {
         assert!(changed.normalized_ids.is_empty());
         assert_eq!(original.len(), 2);
     }
+}
+
+fn checked_distance<E>(
+    a: &str,
+    b: &str,
+    maximum: Option<usize>,
+    checkpoint: &mut impl FnMut() -> Result<(), E>,
+    #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+) -> Result<Option<usize>, E> {
+    #[cfg(feature = "execution")]
+    if control.is_some() {
+        return crate::matching::distance_checked(a, b, maximum, checkpoint);
+    }
+    let _ = checkpoint;
+    Ok(match maximum {
+        Some(maximum) => crate::matching::bounded_distance(a, b, maximum),
+        None => Some(crate::matching::levenshtein_distance(a, b)),
+    })
 }

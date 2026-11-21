@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.4.0 adds optional document revisions and checked text positions while retaining existing core APIs, knowledge formats and PDF behavior. See [document API and upgrade](docs/DOCUMENTS.md), [current validation](docs/CHANGES-0.4.0.md) and [API cookbook](docs/API-COOKBOOK.md). Use Rust 1.89 or newer for provider-neutral features; optional local ONNX adapters need Rust 1.92. No DenkMaps/MCP integration is included. Run commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.4.1 adds read-only MCP in the same crate, with progress, cancellation and bounded work. See [MCP setup](docs/MCP.md), [security](docs/MCP-SECURITY.md), [current validation](docs/CHANGES-0.4.1.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features, including MCP, use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
 
 ## Try the core
 
@@ -113,13 +113,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.4.0 .
+docker build -t airust:0.4.1 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.4.0
+  airust:0.4.1
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.
@@ -206,3 +206,11 @@ The [current memory/API guide](docs/PDF-PAGE-TREE-MEMORY.md) explains the implem
 ## Keep exact document positions
 
 Run `cargo run --locked --features documents --example documents`. Supply a stable document ID, source fingerprint, processing recipe and exact text. Keep the immutable snapshot with its passages. Read [the document guide](docs/DOCUMENTS.md) before mapping search snippets: offsets belong to the snapshot, and stale revisions must fail. Existing knowledge is never automatically rewritten or deleted.
+
+## Local read-only MCP
+
+```bash
+cargo run --locked --no-default-features --features mcp --bin airust-mcp -- --knowledge /absolute/path/knowledge.json
+```
+
+Use one or more `--document /absolute/path/snapshot.json` options instead for revision-bound page entries. Standard output is reserved for MCP JSON-RPC; diagnostic counts use standard error. Configure the client with a direct executable and argument list. The [MCP guide](docs/MCP.md) explains installation, all five tools, progress display, cancellation and resource defaults. Read the [security model](docs/MCP-SECURITY.md): the connected client can read the entire supplied collection, and source text must remain untrusted data.

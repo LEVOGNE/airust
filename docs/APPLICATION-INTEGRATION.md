@@ -1,14 +1,14 @@
-# AIRust 0.3.6 application integration guide
+# AIRust 0.4.1 application integration guide
 
-For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
+Read the [support contract](STABILITY.md), [current validation](CHANGES-0.4.1.md), [document positions](DOCUMENTS.md) and [optional MCP](MCP.md). This is an adapter design guide; no DenkMaps integration is performed.
 
-AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. This release changes no DenkMaps or MCP code and does not establish production readiness for a real application dataset.
+AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. The optional MCP transport is now available in this same crate, while application data synchronization and DenkMaps remain separate work. These examples do not establish production readiness for an application dataset.
 
 ## 1. Start with the smallest dependency
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.6", default-features = false,
+airust = { version = "=0.4.1", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -137,3 +137,7 @@ AIRust 0.3.5 keeps these application APIs and adds earlier PDF chunk-budget reje
 
 
 AIRust 0.3.6 changes PDF-derived text intentionally. Treat a reimport as a new derived-data revision and rebuild affected indexes/excerpts/vectors rather than merging chunk IDs blindly. [Cleaning controls and migration advice](PDF-TEXT-FIDELITY.md) describe the existing API. No adapter or application storage is changed.
+
+## Optional agent access without a separate AIRust crate
+
+Enable `mcp` and use `airust-mcp` or `McpServer` for a deliberately selected read-only snapshot. The transport does not connect an application database, enforce its user rights or automatically refresh an index. A later application adapter must retain its own authorization and publication rules before handing records to the server. Follow [MCP configuration and tools](MCP.md) and [security boundaries](MCP-SECURITY.md).

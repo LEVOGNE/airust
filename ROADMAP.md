@@ -6,6 +6,8 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.1 | Optional read-only MCP in the same crate, progress, cancellation and bounded work | Implemented; see [API/security](docs/MCP.md) and [validation](docs/CHANGES-0.4.1.md). |
+| 0.4.0 | Document revisions and reliable UTF-8 positions | Implemented; see [document contract](docs/DOCUMENTS.md). |
 | 0.2.0 | Optional embeddings and exact semantic retrieval | Implemented; see the release report for validation. |
 | 0.2.1 | Hybrid lexical and semantic retrieval | Implemented; see the release report for validation. |
 | 0.2.2 | Generic graph model and bounded algorithms | Implemented; see the release report for validation. |
