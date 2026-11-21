@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.3.9 reduces temporary copying and repeated whitespace work in overlapping PDF chunks while keeping existing APIs and knowledge formats. See [commands and limits](docs/PDF-OVERLAP.md). It keeps supervised jobs, explicit import limits and the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.3.10 completes Latin-ligature cleaning and reduces intermediate text copies. Existing controls and APIs remain compatible; corrected text can require explicitly rebuilding derived indexes. See [commands and limits](docs/PDF-CLEANING-PASS.md). It keeps supervised jobs, explicit import limits and the existing search, matching, graph, retrieval, storage and ranking APIs. See [migration](docs/MIGRATION-0.3.0.md) and [validation results](docs/CHANGES-0.3.0.md). Use Rust 1.89 or newer for the core, provider interface, and hybrid search; the optional local ONNX adapter needs Rust 1.92. Run these commands from the source checkout.
 
 ## Try the core
 
@@ -113,13 +113,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.3.9 .
+docker build -t airust:0.3.10 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.3.9
+  airust:0.3.10
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.

@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.9 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -266,3 +266,8 @@ The existing optional PDF API now preserves source characters when selecting sen
 ## PDF overlap processing (0.3.9)
 
 Existing `PdfLoader` configuration and methods are unchanged. Overlapping windows now track trimmed edges, skip empty windows without temporary strings and check chunk/UTF-8 quotas before retaining output. Source-excerpt fidelity, boundary choices, budget semantics and JSON fields remain compatible. Existing 0.3.8 exports need no reimport for this optimization. High overlap still repeats nonempty content. See [API, commands, measurements and limits](PDF-OVERLAP.md).
+
+
+## Combined PDF cleaning (0.3.10)
+
+Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatures U+FB00–U+FB06, including the two st forms, while combining the first NFC/ligature/control stage into one pass. It preserves later composition and existing cleaning controls; no public signature or JSON field changes. The explicit helper is unbounded; `clean_text: false` bypasses it during import. Corrected text can affect derived chunks and indexes. See [API, commands, upgrade advice, measurements and limits](PDF-CLEANING-PASS.md).

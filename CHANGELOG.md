@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.10
+
+Expand the two missing st presentation ligatures and combine the initial NFC/Latin-ligature/control-cleaning stage into one pass. Avoid repeated whole-text replacement copies while preserving later composition and existing controls. Public methods/JSON fields remain compatible; corrected text can change derived chunks and indexes. Further official large PDFs, an independent oracle, malformed inputs and separate helper/PDF measurements support the change. Knowledge and evidence remain retained. See [results](docs/CHANGES-0.3.10.md) and [API/upgrade/limits](docs/PDF-CLEANING-PASS.md). Optional backend stays 0.3.4. No DenkMaps/MCP integration.
+
 ## 0.3.9
 
 Track trimmed boundaries as PDF chunk windows advance, skip empty windows without temporary strings and validate chunk/UTF-8 quotas before retaining text. Keep public APIs, successful knowledge formats, boundary choices and budget errors compatible. Further official large PDFs, generated Unicode windows, malformed inputs and explicit synthetic/real cost comparisons support the change. Knowledge and raw evidence remain retained. See [results](docs/CHANGES-0.3.9.md) and [API/controls/limits](docs/PDF-OVERLAP.md). The optional backend stays 0.3.4. No DenkMaps/MCP integration.

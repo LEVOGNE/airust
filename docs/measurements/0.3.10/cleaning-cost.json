@@ -1,0 +1,99 @@
+{
+  "samples": 36,
+  "versions": [
+    "0.3.9",
+    "0.3.10"
+  ],
+  "repeats": 3,
+  "all_output_sha256_pairs_identical": true,
+  "binary_sha256": "be5cbf1f1b65d8ab8f8a1704b5c4b8cea616e134cda1cd71c36a52fb0fa7e52d",
+  "configuration": "Public clean_text; dehyphenate=false,remove_page_numbers=false. No new st ligatures in these cost inputs; correction checked separately.",
+  "conditions": "Same release binary contains pinned registry/current APIs. Fresh alternating children, wait4 per-child peak RSS, method timing excludes input construction/output hashing. Deliberate other build/validation/fuzz work completed; other desktop activity uncontrolled.",
+  "scope": "Owned supplied-text helper cost. Process peak RSS includes input/output/runtime; not native PDF parsing, global allocation counts or a hard RAM/CPU guarantee.",
+  "cases": [
+    {
+      "mode": "ascii",
+      "input_budget_bytes": 1048576,
+      "medians": {
+        "039": {
+          "method_seconds": 0.016040084,
+          "peak_rss_bytes": 15925248
+        },
+        "0310": {
+          "method_seconds": 0.015244042,
+          "peak_rss_bytes": 11698176
+        }
+      }
+    },
+    {
+      "mode": "ascii",
+      "input_budget_bytes": 16777216,
+      "medians": {
+        "039": {
+          "method_seconds": 0.245826166,
+          "peak_rss_bytes": 160743424
+        },
+        "0310": {
+          "method_seconds": 0.239547625,
+          "peak_rss_bytes": 76775424
+        }
+      }
+    },
+    {
+      "mode": "latin",
+      "input_budget_bytes": 1048576,
+      "medians": {
+        "039": {
+          "method_seconds": 0.014409209,
+          "peak_rss_bytes": 15712256
+        },
+        "0310": {
+          "method_seconds": 0.012695709,
+          "peak_rss_bytes": 11550720
+        }
+      }
+    },
+    {
+      "mode": "latin",
+      "input_budget_bytes": 16777216,
+      "medians": {
+        "039": {
+          "method_seconds": 0.237356417,
+          "peak_rss_bytes": 151715840
+        },
+        "0310": {
+          "method_seconds": 0.206616667,
+          "peak_rss_bytes": 72204288
+        }
+      }
+    },
+    {
+      "mode": "controls",
+      "input_budget_bytes": 1048576,
+      "medians": {
+        "039": {
+          "method_seconds": 0.0158155,
+          "peak_rss_bytes": 15761408
+        },
+        "0310": {
+          "method_seconds": 0.014145625,
+          "peak_rss_bytes": 11403264
+        }
+      }
+    },
+    {
+      "mode": "controls",
+      "input_budget_bytes": 16777216,
+      "medians": {
+        "039": {
+          "method_seconds": 0.248598166,
+          "peak_rss_bytes": 164511744
+        },
+        "0310": {
+          "method_seconds": 0.222896541,
+          "peak_rss_bytes": 68943872
+        }
+      }
+    }
+  ]
+}

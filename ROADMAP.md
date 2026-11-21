@@ -147,3 +147,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.9 reduces measured overlap-processing waste while keeping source-excerpt fidelity and existing APIs/budget semantics. Real imports and synthetic extracted-text stress measurements remain separate. Further changes stay findings-driven; 0.4.0 expansion and application/MCP integration remain deferred. See [overlap controls and limits](docs/PDF-OVERLAP.md).
+
+
+0.3.10 completes the limited Latin-ligature cleaning policy and reduces intermediate text copies. Independent normalization checks, actual document comparisons and separate helper/import measurements precede further changes. Old knowledge remains retained; 0.4.0 expansion and application/MCP integration stay deferred. See [cleaning contract](docs/PDF-CLEANING-PASS.md).

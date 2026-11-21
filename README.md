@@ -1,13 +1,14 @@
-# AIRust 0.3.9
+# AIRust 0.3.10
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.9 reduces repeated work when PDF chunks overlap. It skips empty whitespace windows without temporary strings and checks budgets before retaining chunk text. Public APIs and knowledge formats remain compatible. See [API, commands and limits](docs/PDF-OVERLAP.md) and [measured results](docs/CHANGES-0.3.9.md). The optional PDF backend remains 0.3.4. No DenkMaps or MCP integration is added.
+Version 0.3.10 fixes the two missing Latin st-ligature expansions and combines the first PDF cleaning stage into one pass. It avoids repeated whole-text replacement copies while keeping existing controls and public APIs. Inputs containing the corrected forms can change text; retain old exports and rebuild derived indexes explicitly where needed. See [API, commands and limits](docs/PDF-CLEANING-PASS.md) and [release results](docs/CHANGES-0.3.10.md). The optional backend remains 0.3.4. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.10](docs/PDF-CLEANING-PASS.md) | Complete Latin-ligature expansion and combine initial cleaning steps. | Correct st forms and reduce intermediate text copying. |
 | [0.3.9](docs/PDF-OVERLAP.md) | Avoid temporary copies while processing overlapping chunks. | Reduce wasted work while retaining knowledge and budget behavior. |
 | [0.3.8](docs/PDF-CHUNKS.md) | Preserve source characters when splitting long PDF pages. | Avoid rewriting existing separators during chunking. |
 | [0.3.7](docs/PDF-PREVIEW.md) | Extract only the usable pages displayed in a PDF preview. | Reduce repeated extraction and preserve early import-budget rejection. |
@@ -24,9 +25,9 @@ Version 0.3.9 reduces repeated work when PDF chunks overlap. It skips empty whit
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-The full suite passes 197 default and 705 all-feature tests. The corpus checks cover 30 real PDFs / 40,154 physical pages. Complete imports and fixed search rankings match 0.3.8. All 142,482 current chunks are contiguous source excerpts; the previous 120,489 entries remain unchanged. Older knowledge, new sources and raw measurements stay retained locally. Synthetic chunker stress and actual PDF timings are reported separately in [0.3.9 results and limits](docs/CHANGES-0.3.9.md).
+Validation passes 197 default tests and 708 all-feature tests. The corpus checks cover 33 PDFs / 46,756 physical pages, with every cleaned page matching an independent oracle. Complete exports and fixed rankings match 0.3.9 for these documents. The 4,096 generated cleaning cases include 2,480 corrected results containing the missing st forms. The current local export contains 160,085 entries; all previous knowledge remains retained. Helper CPU/RSS measurements and actual PDF timings are reported separately in [0.3.10 results and limits](docs/CHANGES-0.3.10.md).
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.9, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+The [release history](CHANGELOG.md) explains every completed step through 0.3.10, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -78,7 +79,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.9", default-features = false }
+airust = { version = "=0.3.10", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

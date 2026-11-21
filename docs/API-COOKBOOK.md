@@ -1,4 +1,4 @@
-# AIRust 0.3.9 API cookbook
+# AIRust 0.3.10 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.9", default-features = false }
+airust = { version = "=0.3.10", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -350,3 +350,8 @@ The existing optional PDF API now preserves source characters when selecting sen
 ## PDF overlap processing (0.3.9)
 
 Existing `PdfLoader` configuration and methods are unchanged. Overlapping windows now track trimmed edges, skip empty windows without temporary strings and check chunk/UTF-8 quotas before retaining output. Source-excerpt fidelity, boundary choices, budget semantics and JSON fields remain compatible. Existing 0.3.8 exports need no reimport for this optimization. High overlap still repeats nonempty content. See [API, commands, measurements and limits](PDF-OVERLAP.md).
+
+
+## Combined PDF cleaning (0.3.10)
+
+Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatures U+FB00–U+FB06, including the two st forms, while combining the first NFC/ligature/control stage into one pass. It preserves later composition and existing cleaning controls; no public signature or JSON field changes. The explicit helper is unbounded; `clean_text: false` bypasses it during import. Corrected text can affect derived chunks and indexes. See [API, commands, upgrade advice, measurements and limits](PDF-CLEANING-PASS.md).

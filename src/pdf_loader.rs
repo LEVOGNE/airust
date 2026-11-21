@@ -525,19 +525,21 @@ impl PdfLoader {
     }
 
     pub fn clean_text(&self, raw: &str) -> String {
-        let mut text: String = raw.nfc().collect();
-
-        text = text
-            .replace('\u{FB00}', "ff")
-            .replace('\u{FB01}', "fi")
-            .replace('\u{FB02}', "fl")
-            .replace('\u{FB03}', "ffi")
-            .replace('\u{FB04}', "ffl");
-
-        text = text
-            .chars()
-            .filter(|c| !c.is_control() || *c == '\n' || *c == '\t' || *c == '\r')
-            .collect();
+        let mut text = String::with_capacity(raw.len());
+        for c in raw.nfc() {
+            if c.is_control() && c != '\n' && c != '\t' && c != '\r' {
+                continue;
+            }
+            match c {
+                '\u{FB00}' => text.push_str("ff"),
+                '\u{FB01}' => text.push_str("fi"),
+                '\u{FB02}' => text.push_str("fl"),
+                '\u{FB03}' => text.push_str("ffi"),
+                '\u{FB04}' => text.push_str("ffl"),
+                '\u{FB05}' | '\u{FB06}' => text.push_str("st"),
+                _ => text.push(c),
+            }
+        }
 
         if self.config.dehyphenate {
             let mut joined = String::new();
@@ -850,6 +852,42 @@ pub fn pdf_to_training_examples<P: AsRef<Path>>(path: P) -> Result<Vec<TrainingE
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cleaning_expands_all_latin_presentation_ligatures() {
+        let loader = PdfLoader::new();
+        assert_eq!(loader.clean_text("ﬀ ﬁ ﬂ ﬃ ﬄ ﬅ ﬆ"), "ff fi fl ffi ffl st st");
+        assert_eq!(loader.clean_text("firﬅ coﬆ"), "first cost");
+    }
+
+    #[test]
+    fn combined_cleaning_preserves_composition_order_and_numeric_boundaries() {
+        let loader = PdfLoader::with_config(PdfLoaderConfig {
+            remove_page_numbers: false,
+            ..Default::default()
+        });
+        let input = "A\0\u{301} ﬆ \u{1100}-\n\u{1161}\tText\r\n10-\n20";
+        let expected = "Á st 가 Text\n10-\n20";
+        assert_eq!(loader.clean_text(input), expected);
+        assert_eq!(loader.clean_text(expected), expected);
+    }
+
+    #[test]
+    fn latin_ligature_cleaning_does_not_apply_general_compatibility_folding() {
+        let loader = PdfLoader::new();
+        assert_eq!(loader.clean_text("① Ⅳ ℌ ﬓ ﬆ"), "① Ⅳ ℌ ﬓ st");
+        let input = "42\nﬀ ﬁ ﬂ ﬃ ﬄ ﬅ ﬆ\n43";
+        for numbers in [false, true] {
+            let loader = PdfLoader::with_config(PdfLoaderConfig {
+                remove_page_numbers: numbers,
+                ..Default::default()
+            });
+            let text = loader.clean_text(input);
+            assert!(text.contains("ff fi fl ffi ffl st st"));
+            assert_eq!(text.contains("42"), !numbers);
+            assert_eq!(text.contains("43"), !numbers);
+        }
+    }
 
     #[test]
     fn monotonic_trim_windows_match_unicode_string_trimming() {
