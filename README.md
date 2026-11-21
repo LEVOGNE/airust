@@ -1,13 +1,14 @@
-# AIRust 0.4.1
+# AIRust 0.4.2
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.4.1 adds optional, read-only MCP in this same crate. Clients can search loaded knowledge, compare text, review suggested connections and retrieve exact revision-bound passages. Work reports progress and supports cancellation and absolute time limits. Bounded messages, worker slots and responses help contain abusive requests. See the [complete MCP guide](docs/MCP.md), [security model](docs/MCP-SECURITY.md), [API cookbook](docs/API-COOKBOOK.md) and [executed validation](docs/CHANGES-0.4.1.md). The default library and PDF backend 0.3.5 remain independent. No DenkMaps integration is included.
+Version 0.4.2 reduces repeated index allocations and reuses completed TF-IDF document calculations. The optional MCP tools now advertise full response schemas so clients can check returned data. Search results, source text and saved knowledge formats stay compatible with 0.4.1. See [core performance and API behavior](docs/CORE-PERFORMANCE.md), [MCP setup](docs/MCP.md), [security boundaries](docs/MCP-SECURITY.md) and [executed tests and measurements](docs/CHANGES-0.4.2.md). The default library remains feature-free. No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.2](docs/CORE-PERFORMANCE.md) | Shared index text and reusable TF-IDF calculations; MCP response schemas. | Use less repeated storage and let clients validate structured answers. |
 | [0.4.1](docs/MCP.md) | Optional local MCP with read-only tools, exact citations, progress and cancellation. | Give agents bounded access to selected knowledge without a separate AIRust crate. |
 | [0.4.0](docs/DOCUMENTS.md) | Bind passages to identified source/text revisions and checked UTF-8 ranges. | Keep citations and text positions attached to their exact document version. |
 | [0.3.15](docs/PDF-PAGE-TREE-MEMORY.md) | Keep compact pending PDF child references. | Reduce validation memory while retaining count and resource checks. |
@@ -32,13 +33,15 @@ Version 0.4.1 adds optional, read-only MCP in this same crate. Clients can searc
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation passes 202 default tests, 783 all-feature checks (including 36 documentation examples) and 39 isolated feature entries. It covers raw MCP messages, executable stdin/stdout and retained real PDF-derived knowledge. The retained knowledge remains 167,942 entries from 35 PDFs / 49,086 physical pages. Previous document snapshots and all older knowledge stay available. See [actual results, measurements and limits](docs/CHANGES-0.4.1.md).
+Validation passes **212 default tests, 795 all-feature checks including 36 documentation examples, and 39 isolated feature entries**, with strict lint/documentation checks and independent comparisons against 0.4.1. The retained knowledge remains **167,942 entries from 35 PDFs / 49,086 physical pages**. Tests compare exact ranking values before and after updates and check real MCP replies with a separate JSON Schema validator. Previous documents, snapshots and all older knowledge stay available. See [test counts, measured costs and limits](docs/CHANGES-0.4.2.md).
+
+In the 10,000-entry allocator profile, the live index uses **18.32% less heap**. Repeated TF-IDF queries over the full retained collection improve from **167.50 to 22.81 ms** in the median. Initial index construction increases from **7.08 to 8.15 seconds**; repeated BM25 is slightly slower in that run. These are measured workload results, so reuse a stable index when possible and read the [complete comparisons and limits](docs/CHANGES-0.4.2.md).
 
 Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Run `cargo run --features documents --example documents`. Positions are bytes in an identified text snapshot; original PDF bytes and graphical coordinates are separate. Restoring a snapshot rechecks its hashes, page partition and revision. A hash identifies supplied data rather than authenticating its meaning or extraction coverage.
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.1. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.2. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -80,11 +83,13 @@ The default `search()`, matching, and `relate()` methods compare words and chara
 Install the executable from the same crate:
 
 ```bash
-cargo install airust --version 0.4.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
 Use `--document /absolute/path/snapshot.json` for exact document revision/range citations. The five tools search, read a loaded passage, find matches, suggest relations and report status. They cannot write knowledge, run shell commands, fetch URLs or open client-supplied paths. All loaded data is readable by the connected client, so select the collection deliberately.
+
+Every tool advertises an `outputSchema` for its version-one structured response, including errors. Clients can validate the shape while still checking `isError`, source bindings and revisions. A schema does not establish that source content is true or authorized.
 
 The server sends progress when the client supplies a token. A loading indicator and spoken explanations depend on the host client/agent; server instructions ask the agent to explain its work but cannot force it. MCP alone adds no HTTP listener, database or model. Read [installation, schemas, examples and every limit](docs/MCP.md) and [attack coverage and remaining responsibilities](docs/MCP-SECURITY.md). These protections are tested; they are not a guarantee against every attack.
 
@@ -104,7 +109,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.1", default-features = false }
+airust = { version = "=0.4.2", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

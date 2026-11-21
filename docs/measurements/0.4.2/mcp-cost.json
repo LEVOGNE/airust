@@ -1,0 +1,192 @@
+{
+  "conditions": "30 fresh release servers (Rust 1.98), five cases, 3 repeats per version, alternating old/current and case order. No deliberate concurrent builds/checks. Warm files and uncontrolled desktop activity. Local request/progress/result transport included, passage follow-up excluded. Each process has a fixed query sequence; TF-IDF becomes partly warmed across queries. No transcript/general-schema-validator overhead inside timers. RSS is single child lifetime peak including startup/index/snapshot/runtime/transport, excludes Python validator. Startup ends at initialized, before tools/list. No native extraction, independent cold-query, p95/p99 or hard-capacity claim.",
+  "previous_binary_sha256": "a2fdd39899ce4eb2a5e1d5f28ebbedea3935048b168b938f792e70291ba2d2a0",
+  "current_binary_sha256": "3513f1ae23ef87399092bdcd9f9b590f57377b3111f44e28bd7061aead6f6d6a",
+  "cases": [
+    {
+      "id": "canonical",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 6933.774959063157,
+          "server_lifetime_peak_rss_median_bytes": 2379726848,
+          "four_concurrent_requests_median_ms": 23.620208026841283,
+          "bm25": {
+            "samples": 210,
+            "median_ms": 21.010625059716403,
+            "max_ms": 134.1925000306219
+          },
+          "tfidf": {
+            "samples": 210,
+            "median_ms": 171.84268753044307,
+            "max_ms": 1360.5563330929726
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 8061.396584147587,
+          "server_lifetime_peak_rss_median_bytes": 1927053312,
+          "four_concurrent_requests_median_ms": 25.613958947360516,
+          "bm25": {
+            "samples": 210,
+            "median_ms": 21.296020946465433,
+            "max_ms": 143.73295800760388
+          },
+          "tfidf": {
+            "samples": 210,
+            "median_ms": 35.926458542235196,
+            "max_ms": 245.75925013050437
+          }
+        }
+      }
+    },
+    {
+      "id": "vkspec",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 450.6518749985844,
+          "server_lifetime_peak_rss_median_bytes": 174030848,
+          "four_concurrent_requests_median_ms": 6.417582975700498,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 5.855103954672813,
+            "max_ms": 11.548457900062203
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 32.263624598272145,
+            "max_ms": 59.62262488901615
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 500.3478748258203,
+          "server_lifetime_peak_rss_median_bytes": 145162240,
+          "four_concurrent_requests_median_ms": 6.067292066290975,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 4.93579194881022,
+            "max_ms": 12.374584097415209
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 26.572750532068312,
+            "max_ms": 51.908374996855855
+          }
+        }
+      }
+    },
+    {
+      "id": "scipy",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 306.7496658768505,
+          "server_lifetime_peak_rss_median_bytes": 125370368,
+          "four_concurrent_requests_median_ms": 6.399917183443904,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 6.2165624694898725,
+            "max_ms": 16.385332914069295
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 41.17441701237112,
+            "max_ms": 94.79466686025262
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 317.86566716618836,
+          "server_lifetime_peak_rss_median_bytes": 106053632,
+          "four_concurrent_requests_median_ms": 5.735625047236681,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 5.855916533619165,
+            "max_ms": 11.948584113270044
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 24.767645983956754,
+            "max_ms": 90.86333308368921
+          }
+        }
+      }
+    },
+    {
+      "id": "racket-reference",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 109.86729199066758,
+          "server_lifetime_peak_rss_median_bytes": 50528256,
+          "four_concurrent_requests_median_ms": 3.1543339136987925,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 2.5142079684883356,
+            "max_ms": 4.121667006984353
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 9.813312673941255,
+            "max_ms": 17.171707935631275
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 124.3220828473568,
+          "server_lifetime_peak_rss_median_bytes": 43499520,
+          "four_concurrent_requests_median_ms": 2.9471658635884523,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 2.5288539472967386,
+            "max_ms": 3.794959047809243
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 6.784687517210841,
+            "max_ms": 12.313292128965259
+          }
+        }
+      }
+    },
+    {
+      "id": "pdf-12",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 48.98683400824666,
+          "server_lifetime_peak_rss_median_bytes": 25935872,
+          "four_concurrent_requests_median_ms": 2.693791873753071,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 1.9005205249413848,
+            "max_ms": 3.541500074788928
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 5.234687123447657,
+            "max_ms": 10.533791966736317
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 51.199667155742645,
+          "server_lifetime_peak_rss_median_bytes": 22921216,
+          "four_concurrent_requests_median_ms": 2.869834192097187,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 1.7633335664868355,
+            "max_ms": 2.663165796548128
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 3.638832946307957,
+            "max_ms": 10.376750025898218
+          }
+        }
+      }
+    }
+  ]
+}

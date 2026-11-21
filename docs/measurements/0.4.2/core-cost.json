@@ -1,0 +1,168 @@
+{
+  "conditions": "12 fresh Rust 1.89 release children, both cache/execution/shared-index, 3 repeats, alternating old/new order per repeat. Same owned source records and 70 fixed literal queries. Build excludes full-file decoding and owned-record preparation; query timers exclude serialization. First pass is partly warmed across overlapping candidates. Repeated passes reuse the same index. Warm files, unrelated desktop activity uncontrolled; no p95/p99 guarantee. RSS includes full JSON decoding before prefix selection, not isolated index heap.",
+  "cases": [
+    {
+      "entries": 10000,
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "build_median_ms": 419.279542,
+          "lifetime_child_peak_rss_median_bytes": 467959808,
+          "first_pass": {
+            "bm25": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 815.9375,
+              "median_us": 815.9375,
+              "max_us": 5881.5830000000005
+            },
+            "tfidf": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 5185.2295,
+              "median_us": 5185.2295,
+              "max_us": 43991.583
+            }
+          },
+          "repeated_passes": {
+            "bm25": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 794.062,
+              "median_us": 794.062,
+              "max_us": 5246.042
+            },
+            "tfidf": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 5033.646000000001,
+              "median_us": 5033.646000000001,
+              "max_us": 42509.959
+            }
+          }
+        },
+        "current": {
+          "processes": 3,
+          "build_median_ms": 404.487917,
+          "lifetime_child_peak_rss_median_bytes": 467943424,
+          "first_pass": {
+            "bm25": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 878.7085,
+              "median_us": 878.7085,
+              "max_us": 7661.958
+            },
+            "tfidf": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 1166.4375,
+              "median_us": 1166.4375,
+              "max_us": 53613.166
+            }
+          },
+          "repeated_passes": {
+            "bm25": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 781.1869999999999,
+              "median_us": 781.1869999999999,
+              "max_us": 8538.5
+            },
+            "tfidf": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 718.229,
+              "median_us": 718.229,
+              "max_us": 8651.0
+            }
+          }
+        }
+      },
+      "build_time_reduction_percent": 3.5278670954091096,
+      "repeated_tfidf_time_reduction_percent": 85.73143602072932
+    },
+    {
+      "entries": 167942,
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "build_median_ms": 7079.977666,
+          "lifetime_child_peak_rss_median_bytes": 2347827200,
+          "first_pass": {
+            "bm25": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 20537.0625,
+              "median_us": 20537.0625,
+              "max_us": 138078.5
+            },
+            "tfidf": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 169345.70799999998,
+              "median_us": 169345.70799999998,
+              "max_us": 1091714.5829999999
+            }
+          },
+          "repeated_passes": {
+            "bm25": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 19538.1665,
+              "median_us": 19538.1665,
+              "max_us": 135601.208
+            },
+            "tfidf": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 167504.375,
+              "median_us": 167504.375,
+              "max_us": 1421112.875
+            }
+          }
+        },
+        "current": {
+          "processes": 3,
+          "build_median_ms": 8150.072749999999,
+          "lifetime_child_peak_rss_median_bytes": 1901494272,
+          "first_pass": {
+            "bm25": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 19146.188000000002,
+              "median_us": 19146.188000000002,
+              "max_us": 113229.791
+            },
+            "tfidf": {
+              "samples": 210,
+              "positive_samples": 210,
+              "positive_median_us": 33306.22900000001,
+              "median_us": 33306.22900000001,
+              "max_us": 231676.0
+            }
+          },
+          "repeated_passes": {
+            "bm25": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 20576.375,
+              "median_us": 20576.375,
+              "max_us": 127502.375
+            },
+            "tfidf": {
+              "samples": 420,
+              "positive_samples": 420,
+              "positive_median_us": 22810.6875,
+              "median_us": 22810.6875,
+              "max_us": 139130.25
+            }
+          }
+        }
+      },
+      "build_time_reduction_percent": -15.114385023259192,
+      "repeated_tfidf_time_reduction_percent": 86.38203479759858
+    }
+  ],
+  "binary_sha256": "c76f5499f8dc60510587264ab03be37a978b76a1ae74105fce20533cf4b9c4cf"
+}

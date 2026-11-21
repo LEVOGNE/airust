@@ -1,5 +1,6 @@
 #![doc = include_str!("../docs/MCP.md")]
 
+mod schema;
 mod transport;
 use crate::{
     documents::{DocumentLimits, DocumentSnapshot, Passage},
@@ -993,5 +994,5 @@ fn definitions(limits: &McpLimits) -> Vec<Tool> {
         ("airust_relate","Suggest shared-term relationships for a loaded entry ID. Suggestions require review and are not logical facts.",json!({"id":string(limits.max_id_bytes),"limit":limit,"timeout_ms":timeout}),vec!["id"]),
         ("airust_status","Inspect loaded entry/document counts and bounded worker usage. No source paths or credentials are returned.",json!({}),vec![]),
     ];
-    specs.into_iter().map(|(name,description,properties,required)|{let schema=json!({"type":"object","properties":properties,"required":required,"additionalProperties":false}).as_object().cloned().unwrap_or_default();Tool::new(name,description,schema).with_annotations(ToolAnnotations::new().read_only(true).destructive(false).idempotent(true).open_world(false))}).collect()
+    specs.into_iter().map(|(name,description,properties,required)|{let schema=json!({"type":"object","properties":properties,"required":required,"additionalProperties":false}).as_object().cloned().unwrap_or_default();Tool::new(name,description,schema).with_raw_output_schema(self::schema::output(name)).with_annotations(ToolAnnotations::new().read_only(true).destructive(false).idempotent(true).open_world(false))}).collect()
 }

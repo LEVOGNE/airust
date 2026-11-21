@@ -1,13 +1,13 @@
-# Optional MCP in AIRust 0.4.1
+# Optional MCP in AIRust 0.4.2
 
-AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included.
+AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 adds response schemas and uses the optimized core index.
 
 Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `execution`, Tokio and the official Rust MCP SDK, pinned to `rmcp = 3.11.0`. It does not enable PDF parsing, HTTP, SQLite, embeddings, native models, training or the existing web application. The default library remains feature-free. Rust 1.89 supports this feature.
 
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -19,7 +19,7 @@ Alternatively, load exact snapshots created by `DocumentSnapshot::to_json`:
 airust-mcp --document /absolute/path/manual-snapshot.json --document /absolute/path/second-snapshot.json
 ```
 
-This indexes each nonblank supplied page as one entry, or one complete entry for a snapshot without a page map. Blank pages remain in the snapshot. A page or nonpaged text exceeding the entry limit is rejected, not silently cut. For custom chunking, construct passage entries and call `McpServer::new(entries, snapshots, limits)` in Rust. `new` registers the snapshots but indexes only the supplied entries. See [the document API](DOCUMENTS.md).
+This indexes each nonblank supplied page as one entry, or one complete entry for a snapshot without a page map. Blank pages remain in the snapshot. A page or nonpaged text exceeding the entry limit is rejected, not silently cut. For custom chunking, construct passage entries and call `McpServer::new(entries, snapshots, limits)` in Rust. `new` registers the snapshots but indexes only the supplied entries. This is an indexing choice, not an access-control boundary: `airust_read_passage` can read any valid range in every registered snapshot. Register only snapshots the client may read. See [the document API](DOCUMENTS.md).
 
 Choose `--knowledge` once **or** one or more `--document` options. There is no default filesystem scan. Relative paths resolve from the process directory; absolute paths make client configuration clearer. Files are opened only at startup. Replacing a file later does not mutate the running collection: restart with the intended data.
 
@@ -100,6 +100,21 @@ When a snapshot and reserved entry descriptor are both loaded, AIRust validates 
 
 Tool responses contain `structuredContent` and an SDK-compatible textual JSON copy in `content`. Successful content has `schema_version: 1`, `operation` and `data`. Returned source content is marked `untrusted_source_content: true`. Result budgets account for **both copies and JSON escaping**. Reducing hit count or excerpt size can resolve an `output_budget` error. `read_passage` remains bounded even for a large snapshot.
 
+## Response schemas
+
+All five tools advertise an `outputSchema` in `tools/list`; Rust callers inspect it through `tool_definitions()[...].output_schema`. Each is a self-contained JSON Schema 2020-12 object with local `$defs` references. No URL is fetched to resolve it. Definitions are cached and shared rather than rebuilt for each discovery request. The [complete version-one bundle](schemas/mcp-output-v1.json) is included in the crate.
+
+Validate **`result.structuredContent`**, not the entire JSON-RPC message or its textual content block. Each tool schema has two alternatives:
+
+- Success: `schema_version: 1`, that tool's fixed `operation`, and typed `data`. Known nested ranking, evidence, source, passage, match, relation and status fields are described.
+- Tool failure: `schema_version: 1` and a structured `error` object containing `code` and `message`. The outer result also has `isError: true`.
+
+Check `isError` before reading success data. The textual JSON copy contains the same object. A JSON-RPC protocol error has a different outer shape; cancellation can produce no tool result at all. Keep those lifecycle paths separate. Existing payload fields and `schema_version` remain version one. Clients supporting earlier AIRust releases should tolerate absent `outputSchema`; this release always supplies it for its five tools.
+
+The schema validates structure and fixed declarations. It cannot establish source authenticity, permissions, factual truth, cross-field span ordering, a hash match or byte-range membership. AIRust's runtime checks still validate bindings and ranges, and the client still owns its authorization and rendering. Metadata can contain arbitrary untrusted JSON. Reject unexpected schemas/references in a hostile-server setting rather than enabling unrestricted remote resolution.
+
+AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Public reproduction programs](validation-0.4.2/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
+
 ## Progress, cancellation and agent communication
 
 The server supplies an `instructions` string during discovery/initialization. It asks the agent to explain its work before longer operations, request progress, treat source text as data, cite exact revisions and explain limitations afterward. **This is guidance to the client/agent, not an enforceable agent policy.** AIRust cannot force an LLM to speak or draw a loading bar. Configure the host agent's own rules and progress UI as well.
@@ -126,7 +141,7 @@ A useful host rule is: "Before longer AIRust work, state the action and scope. S
 
 ## Protocol and errors
 
-The official SDK handles JSON-RPC and lifecycle negotiation. Wire tests exercise legacy `initialize` / `notifications/initialized` with protocol `2025-11-25`, and `2026-07-28` discovery with required per-request protocol/client-capability metadata. For modern discovery, use `server/discover` and the SDK's request metadata helpers, or the [public wire validator](validation-0.4.1/mcp_probe.py). This release does not advertise HTTP, subscriptions, persistent tasks, resource subscriptions, prompts or sampling. Tool calls complete in one response; input continuations are rejected explicitly.
+The official SDK handles JSON-RPC and lifecycle negotiation. Wire tests exercise legacy `initialize` / `notifications/initialized` with protocol `2025-11-25`, and `2026-07-28` discovery with required per-request protocol/client-capability metadata. For modern discovery, use `server/discover` and the SDK's request metadata helpers, or the [public wire validator](validation-0.4.2/mcp_probe.py). This release does not advertise HTTP, subscriptions, persistent tasks, resource subscriptions, prompts or sampling. Tool calls complete in one response; input continuations are rejected explicitly.
 
 Unknown tools and unsupported list cursors use JSON-RPC invalid-params errors. Ordinary invalid arguments, worker saturation, missing revisions, deadlines and output limits return a tool response with `isError: true` and a structured `error.code` / bounded `error.message`. Codes include `invalid_arguments`, `argument_budget`, `busy`, `deadline_exceeded`, `invalid_data`, `operation_failed`, `output_budget`, `progress_token_budget`, `progress_token_in_use` and `unsupported_continuation`. A cancelled request normally receives no response. Protocol or connection-budget violations can close the connection instead of amplifying an error flood.
 
@@ -161,6 +176,6 @@ These are work/payload bounds, not a precise process-RAM quota. Index vocabulary
 
 ## References and validation
 
-The implementation uses the [official Rust SDK](https://github.com/modelcontextprotocol/rust-sdk). Progress and cancellation follow the [MCP progress pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/progress) and [stdio cancellation pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/cancellation). AIRust's local threat model is narrower than a remote authorized MCP service; see the [official security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices).
+Structured responses follow the [official tools/output-schema contract](https://modelcontextprotocol.io/specification/2026-07-28/server/tools). The implementation uses the [official Rust SDK](https://github.com/modelcontextprotocol/rust-sdk). Progress and cancellation follow the [MCP progress pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/progress) and [stdio cancellation pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/cancellation). AIRust's local threat model is narrower than a remote authorized MCP service; see the [official security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices).
 
-See [executed results](CHANGES-0.4.1.md), [security tests](../tests/mcp.rs), [executable tests](../tests/mcp_cli.rs), [controlled matching tests](../tests/controlled_matching.rs) and the public validator. Test evidence establishes behavior for those cases and platforms; it is not an independent penetration audit or a guarantee against all attacks.
+See [executed results](CHANGES-0.4.2.md), [security tests](../tests/mcp.rs), [executable tests](../tests/mcp_cli.rs), [controlled matching tests](../tests/controlled_matching.rs) and the public validator. Test evidence establishes behavior for those cases and platforms; it is not an independent penetration audit or a guarantee against all attacks.

@@ -21,12 +21,12 @@ The arrows represent possible library calls. No external application is integrat
 
 | Module | Responsibility |
 | --- | --- |
-| `mcp` | Optional guarded read-only transport over immutable Engine/documents, bounded workers and core execution controls; packaged in the same crate. |
+| `mcp` | Bundled input/output schemas and optional guarded read-only transport over immutable Engine/documents, bounded workers and core execution controls; packaged in the same crate. |
 | `documents` | Identified source/text revisions, immutable snapshots and checked UTF-8 passages composed with provenance. |
 | `text_search` | Optional positional wrapper over shared Engine storage/ranking, configurable Unicode/German analysis and bounded phrase evidence. |
 | `text` | Normalize Unicode, split words and numbers, and count terms. |
 | `knowledge` | Represent generic entries and relation suggestions; retain the existing training collection. |
-| `index` | Own entries, postings, and the central `Engine` operations. |
+| `index` | Own entries/postings, share immutable vocabulary/IDs/normalized duplicates, reuse valid TF-IDF norms and implement central `Engine` operations. |
 | `search` | Define BM25 parameters, TF-IDF retrieval, and search results. |
 | `matching` | Compare character edits and token overlap. |
 | `context` | Restrict eligible entries by ID and metadata. |
@@ -209,3 +209,8 @@ a dedicated disk-backed full-text index with atomic revisions, scoped retrieval,
 `McpServer` owns an immutable Engine and optional registered document snapshots behind one shared data reference. Its clones share a bounded worker semaphore; every connection gets separate request/progress/rate state. The private SDK handler is reachable through guarded `serve` entry points. Startup files are explicit and read-only. Tool calls do not mutate the index, read arbitrary paths, execute commands or fetch URLs. Core matching and relations use additive controlled methods; cancellation reaches inner edit-distance work.
 
 The five tools return structured evidence and explicit missing bindings. The host client/agent owns permissions, model policy, progress rendering and narration. There is no DenkMaps adapter or application data synchronization. See [API and lifecycle](MCP.md) and [security](MCP-SECURITY.md).
+
+
+## 0.4.2 internal reuse
+
+Private index strings use shared immutable allocations. Public entries and formats retain their owned data. TF-IDF hints are lazy, bounded by visited document count and tied to one unchanged corpus-statistics state. Queries use nonblocking cache lookups; contention/poisoning computes the exact norm instead. An index clone can share existing hints until that clone changes lexical data. Hints never become source-of-truth knowledge or persisted model data. See [the full contract](CORE-PERFORMANCE.md).

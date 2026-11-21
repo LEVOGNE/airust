@@ -6,7 +6,7 @@ use airust::{
     KnowledgeEntry,
 };
 use serde_json::{json, Value};
-use std::time::Duration;
+use std::{collections::BTreeMap, time::Duration};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader, DuplexStream, ReadHalf, WriteHalf},
     task::JoinHandle,
@@ -16,12 +16,31 @@ struct Client {
     reader: BufReader<ReadHalf<DuplexStream>>,
     writer: WriteHalf<DuplexStream>,
     task: JoinHandle<Result<(), airust::mcp::McpError>>,
+    validators: BTreeMap<String, jsonschema::Validator>,
+    pending: BTreeMap<String, String>,
 }
 impl Client {
     fn new(server: McpServer) -> Self {
         Self::with_capacity(server, 256 * 1024)
     }
     fn with_capacity(server: McpServer, capacity: usize) -> Self {
+        let validators = server
+            .tool_definitions()
+            .into_iter()
+            .map(|tool| {
+                let schema = Value::Object(
+                    tool.output_schema
+                        .as_ref()
+                        .expect("output schema")
+                        .as_ref()
+                        .clone(),
+                );
+                (
+                    tool.name.to_string(),
+                    jsonschema::validator_for(&schema).unwrap(),
+                )
+            })
+            .collect();
         let (client, stream) = tokio::io::duplex(capacity);
         let (reader, writer) = tokio::io::split(client);
         let (r, w) = tokio::io::split(stream);
@@ -29,9 +48,17 @@ impl Client {
             reader: BufReader::new(reader),
             writer,
             task: tokio::spawn(server.serve(r, w)),
+            validators,
+            pending: BTreeMap::new(),
         }
     }
     async fn send(&mut self, value: Value) {
+        if value["method"] == "tools/call" && value.get("id").is_some() {
+            self.pending.insert(
+                value["id"].to_string(),
+                value["params"]["name"].as_str().unwrap().to_owned(),
+            );
+        }
         let mut bytes = serde_json::to_vec(&value).unwrap();
         bytes.push(b'\n');
         self.writer.write_all(&bytes).await.unwrap();
@@ -43,7 +70,29 @@ impl Client {
             .unwrap()
             .unwrap();
         assert!(!line.is_empty(), "unexpected MCP EOF");
-        serde_json::from_str(&line).unwrap()
+        let value: Value = serde_json::from_str(&line).unwrap();
+        if let Some(name) = value
+            .get("id")
+            .and_then(|id| self.pending.remove(&id.to_string()))
+        {
+            if let Some(output) = value["result"].get("structuredContent") {
+                let validator = self.validators.get(&name).unwrap();
+                let errors = validator
+                    .iter_errors(output)
+                    .map(|e| e.to_string())
+                    .collect::<Vec<_>>();
+                assert!(errors.is_empty(), "{name}: {errors:?}");
+                let text: Value =
+                    serde_json::from_str(value["result"]["content"][0]["text"].as_str().unwrap())
+                        .unwrap();
+                assert_eq!(&text, output);
+                assert_eq!(
+                    value["result"]["isError"].as_bool().unwrap_or(false),
+                    output.get("error").is_some()
+                );
+            }
+        }
+        value
     }
     async fn initialize(&mut self) {
         self.send(json!({"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"airust-wire-test","version":"1"}}})).await;
@@ -603,4 +652,67 @@ async fn malicious_source_text_stays_data_and_missing_snapshots_stay_explicit() 
     let response = client.call(3, "airust_status", json!({})).await;
     assert_eq!(data(&response)["read_only"], true);
     client.finish().await;
+}
+
+#[tokio::test]
+async fn advertised_output_contracts_reject_wrong_tools_and_nested_corruption() {
+    let server = McpServer::from_documents([snapshot()], McpLimits::default()).unwrap();
+    let validators = server
+        .tool_definitions()
+        .into_iter()
+        .map(|t| {
+            let output = Value::Object(t.output_schema.unwrap().as_ref().clone());
+            (
+                t.name.to_string(),
+                jsonschema::validator_for(&output).unwrap(),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let mut client = Client::new(server);
+    client.initialize().await;
+    let response = client
+        .call(1, "airust_search", json!({"query":"ownership"}))
+        .await;
+    let output = &response["result"]["structuredContent"];
+    assert!(!validators["airust_status"].is_valid(output));
+    let mut broken = output.clone();
+    broken["data"]["retrieval"]["hits"][0]["evidence"]["score"] = json!("not a number");
+    assert!(!validators["airust_search"].is_valid(&broken));
+    let mut broken = output.clone();
+    broken["data"]["sources"][0]["passage"]["revision"] = json!("invalid revision");
+    assert!(!validators["airust_search"].is_valid(&broken));
+    let mut broken = output.clone();
+    broken.as_object_mut().unwrap().remove("data");
+    assert!(!validators["airust_search"].is_valid(&broken));
+    let error = client
+        .call(2, "airust_search", json!({"query":"ownership","limit":0}))
+        .await;
+    let error = &error["result"]["structuredContent"];
+    for validator in validators.values() {
+        assert!(validator.is_valid(error));
+    }
+    let mut broken = error.clone();
+    broken["error"].as_object_mut().unwrap().remove("code");
+    assert!(!validators["airust_search"].is_valid(&broken));
+    client.finish().await;
+}
+
+#[test]
+fn public_schema_bundle_and_pruned_tool_schemas_are_valid_and_bounded() {
+    let bundle: Value =
+        serde_json::from_str(include_str!("../docs/schemas/mcp-output-v1.json")).unwrap();
+    let _ = jsonschema::validator_for(&bundle).unwrap();
+    let tools = server(McpLimits::default()).tool_definitions();
+    for tool in &tools {
+        let value = Value::Object(tool.output_schema.as_ref().unwrap().as_ref().clone());
+        assert_eq!(
+            value["$schema"],
+            "https://json-schema.org/draft/2020-12/schema"
+        );
+        let _ = jsonschema::validator_for(&value).unwrap();
+        assert!(
+            value["$defs"].as_object().unwrap().len() < bundle["$defs"].as_object().unwrap().len()
+        );
+    }
+    assert!(serde_json::to_vec(&tools).unwrap().len() < 64 * 1024);
 }

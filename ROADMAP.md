@@ -6,6 +6,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.2 | Leaner core, reusable TF-IDF norms and MCP output schemas | Implemented; see [core behavior](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.2.md). |
 | 0.4.1 | Optional read-only MCP in the same crate, progress, cancellation and bounded work | Implemented; see [API/security](docs/MCP.md) and [validation](docs/CHANGES-0.4.1.md). |
 | 0.4.0 | Document revisions and reliable UTF-8 positions | Implemented; see [document contract](docs/DOCUMENTS.md). |
 | 0.2.0 | Optional embeddings and exact semantic retrieval | Implemented; see the release report for validation. |
@@ -42,7 +43,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 The target 0.2.x sequence requires additive, Cargo-compatible APIs. A breaking change needs a separately justified compatibility boundary. Publishing and verifying the current release precedes work on the next.
 
-The 0.2.10–0.2.12 sequence is implemented with separate validation and releases. Reranking remains workload-dependent. Phrase/German analysis is explicit. Storage adapters own original records and do not persist the RAM search index or alter existing application schemas. Compact retrieval stays transport-independent without a built-in MCP server. AIRust composes maintained libraries when justified instead of duplicating every subsystem.
+The 0.2.10–0.2.12 sequence is implemented with separate validation and releases. Reranking remains workload-dependent. Phrase/German analysis is explicit. Storage adapters own original records and do not persist the RAM search index or alter existing application schemas. Compact retrieval stays transport-independent; optional MCP was subsequently added in 0.4.1 in this same crate. AIRust composes maintained libraries when justified instead of duplicating every subsystem.
 
 ## 1. Maintain the tested 0.1.9 baseline
 

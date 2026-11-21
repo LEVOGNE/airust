@@ -8,7 +8,7 @@ for feature in [None, "mcp"]:
         args.extend(["--features", feature])
     lines = subprocess.check_output(args, cwd=root, text=True).splitlines()
     names = {line.split()[0] for line in lines if line.strip()}
-    forbidden = {"airust-pdf-backend", "axum", "reqwest", "rusqlite", "fastembed", "ort"}
+    forbidden = {"airust-pdf-backend", "axum", "reqwest", "rusqlite", "fastembed", "ort", "jsonschema", "dhat"}
     if feature is None:
         forbidden.update(["rmcp", "tokio", "tokio-util"])
     assert not names & forbidden, (feature, names & forbidden)

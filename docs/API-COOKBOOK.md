@@ -1,6 +1,6 @@
-# AIRust 0.4.1 API cookbook
+# AIRust 0.4.2 API cookbook
 
-For 0.4.1, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.1.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.2, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.2.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.1", default-features = false }
+airust = { version = "=0.4.2", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -399,11 +399,11 @@ All spans are exclusive-end UTF-8 byte ranges in the complete supplied text snap
 
 For an entry restored from knowledge JSON, take its reserved `metadata["airust_document"]` descriptor and restore it with `snapshot.passage_from_json` under the configured input limit. Then call `validate_entry` before projecting offsets. Keep the exact snapshot revision available; a filename or first matching phrase cannot restore a trustworthy location. The [public document-validation program](validation-0.4.0/documents.rs) demonstrates this flow on returned hits.
 
-## Optional MCP in the same crate (0.4.1)
+## Optional MCP in the same crate
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.1", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.2", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.
@@ -412,6 +412,19 @@ The five tools are `airust_search`, `airust_read_passage`, `airust_find_matches`
 
 Clients request progress with `_meta.progressToken` and cancel with `notifications/cancelled` using the request ID. Messages carry a strictly increasing notification sequence and real phase descriptions, not a fabricated percentage or ETA. Timeouts are absolute and progress does not extend them. The host client must render progress and enforce agent communication rules. Retrieved source content is data, even when it contains instructions.
 
-See [complete install/configuration, tool schemas, Rust API, lifecycle, errors and limits](MCP.md), [trust boundaries and attack-oriented tests](MCP-SECURITY.md), [executable example](../examples/mcp.rs) and [validation reproduction](validation-0.4.1/README.md).
+See [complete install/configuration, tool schemas, Rust API, lifecycle, errors and limits](MCP.md), [trust boundaries and attack-oriented tests](MCP-SECURITY.md), [executable example](../examples/mcp.rs) and [validation reproduction](validation-0.4.2/README.md).
 
 For application-managed work without MCP, enable `execution` and use `Engine::match_controlled` or `Engine::relate_controlled` with `WorkControl`. Results match the ordinary methods; failures use the separate nonexhaustive `index::ControlledIndexError`. This adds cooperative checks inside expensive edit-distance work without changing existing `MatchError` or `IndexError` variants.
+
+
+## Inspect MCP response schemas (0.4.2)
+
+With `mcp` enabled, `server.tool_definitions()` returns the same schemas advertised by `tools/list`. Each tool now has `output_schema: Some(...)`. Its JSON Schema 2020-12 object accepts either that tool's success envelope or AIRust's structured error envelope. The published [schema bundle](schemas/mcp-output-v1.json) describes the same version-one response data. Clients validate `result.structuredContent` against `outputSchema`, then handle `result.isError` and `error.code`. JSON-RPC errors and cancelled calls have a separate lifecycle.
+
+The validator is a client/test choice; AIRust adds no production JSON Schema validator or network resolver. See [the complete schema contract](MCP.md#response-schemas) and [a separate executable validator](validation-0.4.2/schema.rs).
+
+## Faster repeated lexical queries
+
+Keep an `Engine` alive across requests when its collection is stable. Reconstructing it for every query discards derived work. BM25 and TF-IDF keep their existing APIs; TF-IDF reuse is automatic. Use `upsert` and `remove` for changes. Never bypass those APIs to mutate indexed text. Metadata-only changes avoid a lexical rebuild and retain valid document norms.
+
+For retained read views, `shared-index` also shares whole immutable document/posting blocks. The default clone still copies those containers while sharing their immutable strings. [Measured costs and limits](CORE-PERFORMANCE.md) explain cold queries, mutation invalidation and additional norm-cache memory.

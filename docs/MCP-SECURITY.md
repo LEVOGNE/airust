@@ -1,6 +1,6 @@
 # MCP security model
 
-AIRust 0.4.1 serves a deliberately bounded, read-only collection over local stdio. Its five tools can search, compare, suggest links, inspect counts and read an exact loaded text range. They have no command runner, file browser, URL fetcher, database mutator or model downloader. A path-like document ID is just a lookup key. Tool annotations describe this contract; enforcement is in the tool implementations and transport guards.
+AIRust 0.4.2 serves a deliberately bounded, read-only collection over local stdio. Its five tools can search, compare, suggest links, inspect counts and read an exact loaded text range. They have no command runner, file browser, URL fetcher, database mutator or model downloader. A path-like document ID is just a lookup key. Tool annotations describe this contract; enforcement is in the tool implementations and transport guards.
 
 ## Trust boundaries
 
@@ -11,6 +11,8 @@ The binary opens no TCP listener. There is no OAuth/token passthrough, HTTP endp
 The corpus, excerpts, IDs and metadata are untrusted content. Returned text can contain hostile instructions or misleading claims. AIRust preserves source data and marks source-bearing responses as untrusted; it neither executes those instructions nor proves that a client model will ignore them. The initialization guidance asks the agent to narrate work and handle source content as data. The client must enforce its own system policy, tool permissions, output rendering and user approvals. Never insert excerpts into a privileged instruction channel or render them as active HTML.
 
 A document revision/hash proves consistency with supplied data, not authenticity or semantic correctness. Bindings are verified against loaded snapshot text and descriptors. Missing snapshots report `snapshot_unavailable`; legacy entries report `not_attached`. An attacker who controls both a snapshot and its hashes can supply a new internally consistent snapshot. Authenticate source acquisition outside this library.
+
+Response schemas describe data shape; they do not grant permission or make document text trustworthy. A valid success object can still contain hostile or false source text. The server uses bundled local schemas without runtime remote reference resolution. Independent test/client validation has no authority over another tool or a host agent. Registered snapshots are fully readable even when `McpServer::new` indexes only selected passages.
 
 ## Defensive boundaries
 
@@ -32,9 +34,9 @@ Defaults and configurable ceilings are listed in [MCP.md](MCP.md#resource-defaul
 
 ## Executed attack-oriented checks
 
-The release suite exercises raw JSON-RPC through the public transport rather than only calling Rust handler methods. It covers legacy and modern discovery, tool schemas, unknown tools and fields, Unicode byte limits, invalid enum/range/time values, path traversal strings, stale revisions, invalid UTF-8 positions, edited passage bindings, huge escaped results, malformed and fragmented frames, line overflow and recovery, duplicate/long request IDs, total request count, pending-request limits, decoded-message floods, malformed-frame floods and raw-byte floods.
+The release suite exercises raw JSON-RPC through the public transport rather than only calling Rust handler methods. It covers legacy and modern discovery, tool input/output schemas, independently validated success/error envelopes, unknown tools and fields, Unicode byte limits, invalid enum/range/time values, path traversal strings, stale revisions, invalid UTF-8 positions, edited passage bindings, huge escaped results, malformed and fragmented frames, line overflow and recovery, duplicate/long request IDs, total request count, pending-request limits, decoded-message floods, malformed-frame floods and raw-byte floods.
 
-It also exercises live cancellation during expensive fuzzy ranking, deadline expiry despite progress, worker saturation, duplicate active progress tokens, a client that stops reading, disconnect cleanup, missing snapshots, hostile source instructions and subprocess stdin/stdout separation. Independent stdio checks load retained real PDF-derived knowledge and document snapshots. See the [release report](CHANGES-0.4.1.md) for actual counts, measurements and scope.
+It also exercises live cancellation during expensive fuzzy ranking, deadline expiry despite progress, worker saturation, duplicate active progress tokens, a client that stops reading, disconnect cleanup, missing snapshots, hostile source instructions and subprocess stdin/stdout separation. Independent stdio checks load retained real PDF-derived knowledge and document snapshots. See the [release report](CHANGES-0.4.2.md) for actual counts, measurements and scope.
 
 This is an automated adversarial regression campaign. It is not a third-party security audit, a full OS penetration test or a proof that every parser/SDK/dependency is defect-free. Dependency advisories are checked at release time; absence of known advisories does not prove absence of vulnerabilities. Unchanged PDF-parser results are retained as historical evidence rather than presented as a new MCP parser audit.
 

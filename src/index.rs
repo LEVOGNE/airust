@@ -6,7 +6,7 @@ use crate::ranking::TopK;
 use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock, RwLock};
 use thiserror::Error;
 
 #[cfg(feature = "shared-index")]
@@ -83,8 +83,8 @@ pub enum ControlledIndexError {
 #[derive(Debug, Clone)]
 struct IndexedEntry {
     entry: KnowledgeEntry,
-    normalized: String,
-    terms: BTreeMap<String, usize>,
+    normalized: Arc<str>,
+    terms: BTreeMap<Arc<str>, usize>,
     length: usize,
     char_length: usize,
 }
@@ -96,12 +96,18 @@ pub struct IndexStats {
     pub tokens: usize,
 }
 
+#[derive(Debug, Default)]
+struct TfidfNorms {
+    values: RwLock<BTreeMap<Arc<str>, f64>>,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
-    documents: BTreeMap<String, Shared<IndexedEntry>>,
-    postings: BTreeMap<String, Shared<BTreeMap<Arc<str>, usize>>>,
-    normalized_ids: BTreeMap<String, Shared<BTreeSet<Arc<str>>>>,
+    documents: BTreeMap<Arc<str>, Shared<IndexedEntry>>,
+    postings: BTreeMap<Arc<str>, Shared<BTreeMap<Arc<str>, usize>>>,
+    normalized_ids: BTreeMap<Arc<str>, Shared<BTreeSet<Arc<str>>>>,
     total_tokens: usize,
+    tfidf_norms: OnceLock<Arc<TfidfNorms>>,
 }
 
 impl KnowledgeIndex {
@@ -114,7 +120,7 @@ impl KnowledgeIndex {
     ) -> Result<Self, IndexError> {
         let mut index = Self::new();
         for entry in entries {
-            if index.documents.contains_key(&entry.id) {
+            if index.documents.contains_key(entry.id.as_str()) {
                 return Err(IndexError::DuplicateId(entry.id));
             }
             let normalized = validate_entry(&entry)?;
@@ -136,7 +142,7 @@ impl KnowledgeIndex {
         &mut self,
         entry: KnowledgeEntry,
     ) -> Result<KnowledgeEntry, KnowledgeEntry> {
-        let Some(old) = self.documents.get_mut(&entry.id) else {
+        let Some(old) = self.documents.get_mut(entry.id.as_str()) else {
             return Err(entry);
         };
         if old.entry.text != entry.text {
@@ -152,10 +158,38 @@ impl KnowledgeIndex {
         entry: KnowledgeEntry,
         normalized: String,
     ) -> Option<KnowledgeEntry> {
-        let terms = text::frequencies_normalized(&normalized);
-        self.insert_analyzed(entry, normalized, terms)
+        let mut terms: BTreeMap<Arc<str>, usize> = BTreeMap::new();
+        for token in text::tokens_normalized(&normalized) {
+            if let Some(count) = terms.get_mut(token) {
+                *count += 1;
+            } else {
+                let term = self
+                    .postings
+                    .get_key_value(token)
+                    .map(|(key, _)| key.clone())
+                    .unwrap_or_else(|| Arc::from(token));
+                terms.insert(term, 1);
+            }
+        }
+        let length = terms.values().sum();
+        let char_length = normalized.chars().count();
+        self.insert_prepared(entry, normalized, terms, length, char_length)
     }
-
+    #[cfg(any(feature = "cache", feature = "advanced-search"))]
+    fn intern_terms(&self, terms: BTreeMap<String, usize>) -> BTreeMap<Arc<str>, usize> {
+        terms
+            .into_iter()
+            .map(|(term, count)| {
+                let key = self
+                    .postings
+                    .get_key_value(term.as_str())
+                    .map(|(key, _)| key.clone())
+                    .unwrap_or_else(|| Arc::from(term));
+                (key, count)
+            })
+            .collect()
+    }
+    #[cfg(feature = "advanced-search")]
     pub(crate) fn insert_analyzed(
         &mut self,
         entry: KnowledgeEntry,
@@ -164,15 +198,30 @@ impl KnowledgeIndex {
     ) -> Option<KnowledgeEntry> {
         let char_length = normalized.chars().count();
         let length = terms.values().sum();
+        let terms = self.intern_terms(terms);
+        self.insert_prepared(entry, normalized, terms, length, char_length)
+    }
+    fn insert_prepared(
+        &mut self,
+        entry: KnowledgeEntry,
+        normalized: String,
+        terms: BTreeMap<Arc<str>, usize>,
+        length: usize,
+        char_length: usize,
+    ) -> Option<KnowledgeEntry> {
+        let normalized: Arc<str> = Arc::from(normalized);
+        self.tfidf_norms.take();
         let previous = self.remove(&entry.id);
         let id: Arc<str> = Arc::from(entry.id.as_str());
         for (term, count) in &terms {
             shared_mut(self.postings.entry(term.clone()).or_default()).insert(id.clone(), *count);
         }
-        shared_mut(self.normalized_ids.entry(normalized.clone()).or_default()).insert(id);
+        let group = self.normalized_ids.entry(normalized);
+        let normalized = group.key().clone();
+        shared_mut(group.or_default()).insert(id.clone());
         self.total_tokens += length;
         self.documents.insert(
-            entry.id.clone(),
+            id,
             shared_new(IndexedEntry {
                 entry,
                 normalized,
@@ -186,6 +235,7 @@ impl KnowledgeIndex {
 
     pub fn remove(&mut self, id: &str) -> Option<KnowledgeEntry> {
         let document = shared_owned(self.documents.remove(id)?);
+        self.tfidf_norms.take();
         self.total_tokens -= document.length;
         for term in document.terms.keys() {
             if let Some(postings) = self.postings.get_mut(term) {
@@ -218,7 +268,7 @@ impl KnowledgeIndex {
     }
     #[cfg(feature = "context-assembly")]
     pub(crate) fn normalized_text(&self, id: &str) -> Option<&str> {
-        self.documents.get(id).map(|d| d.normalized.as_str())
+        self.documents.get(id).map(|d| d.normalized.as_ref())
     }
     pub fn entries(&self) -> impl Iterator<Item = &KnowledgeEntry> {
         self.documents.values().map(|d| &d.entry)
@@ -325,7 +375,7 @@ impl KnowledgeIndex {
         let mut candidates = BTreeSet::new();
         for term in query_terms.keys() {
             checkpoint()?;
-            if let Some(postings) = self.postings.get(term) {
+            if let Some(postings) = self.postings.get(term.as_str()) {
                 for id in postings.keys() {
                     checkpoint()?;
                     #[cfg(feature = "execution")]
@@ -366,7 +416,7 @@ impl KnowledgeIndex {
                 .iter()
                 .filter_map(|(term, tf)| {
                     self.postings
-                        .get(term)
+                        .get(term.as_str())
                         .map(|p| (*tf as f64 * tfidf_idf(self.len(), p.len())).powi(2))
                 })
                 .sum::<f64>()
@@ -374,6 +424,11 @@ impl KnowledgeIndex {
         } else {
             0.0
         };
+        let norms =
+            (options.algorithm == SearchAlgorithm::Tfidf && !candidates.is_empty()).then(|| {
+                self.tfidf_norms
+                    .get_or_init(|| Arc::new(TfidfNorms::default()))
+            });
         let mut results = TopK::new(options.limit);
         for (position, id) in candidates.into_iter().enumerate() {
             #[cfg(not(feature = "execution"))]
@@ -389,7 +444,10 @@ impl KnowledgeIndex {
                     );
                 }
             }
-            let document = &self.documents[id];
+            let (key, document) = self
+                .documents
+                .get_key_value(id)
+                .expect("indexed candidate ID");
             if options
                 .context
                 .as_ref()
@@ -402,7 +460,7 @@ impl KnowledgeIndex {
             }
             let matched_terms: Vec<String> = query_terms
                 .keys()
-                .filter(|term| document.terms.contains_key(*term))
+                .filter(|term| document.terms.contains_key(term.as_str()))
                 .cloned()
                 .collect();
             let score = match options.algorithm {
@@ -410,8 +468,8 @@ impl KnowledgeIndex {
                     .iter()
                     .map(|term| {
                         options.bm25.term_score(
-                            document.terms[term],
-                            self.postings[term].len(),
+                            document.terms[term.as_str()],
+                            self.postings[term.as_str()].len(),
                             self.len(),
                             document.length,
                             average,
@@ -422,18 +480,19 @@ impl KnowledgeIndex {
                     let dot = matched_terms
                         .iter()
                         .map(|term| {
-                            let idf = tfidf_idf(self.len(), self.postings[term].len());
-                            query_terms[term] as f64 * document.terms[term] as f64 * idf * idf
+                            let idf = tfidf_idf(self.len(), self.postings[term.as_str()].len());
+                            query_terms[term] as f64
+                                * document.terms[term.as_str()] as f64
+                                * idf
+                                * idf
                         })
                         .sum::<f64>();
-                    let norm = document
-                        .terms
-                        .iter()
-                        .map(|(term, tf)| {
-                            (*tf as f64 * tfidf_idf(self.len(), self.postings[term].len())).powi(2)
-                        })
-                        .sum::<f64>()
-                        .sqrt();
+                    let norm = self.tfidf_norm_checked(
+                        key,
+                        document,
+                        norms.expect("TF-IDF cache"),
+                        &mut checkpoint,
+                    )?;
                     if norm > 0.0 && query_norm > 0.0 {
                         (dot / (norm * query_norm)).clamp(0.0, 1.0)
                     } else {
@@ -461,6 +520,33 @@ impl KnowledgeIndex {
         }
         checkpoint()?;
         Ok(result)
+    }
+
+    fn tfidf_norm_checked<E>(
+        &self,
+        id: &Arc<str>,
+        document: &IndexedEntry,
+        cache: &TfidfNorms,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<f64, E> {
+        if let Ok(values) = cache.values.try_read() {
+            if let Some(value) = values.get(id.as_ref()) {
+                return Ok(*value);
+            }
+        }
+        let mut sum = 0.0;
+        for (position, (term, tf)) in document.terms.iter().enumerate() {
+            if position.is_multiple_of(128) {
+                checkpoint()?;
+            }
+            sum += (*tf as f64 * tfidf_idf(self.len(), self.postings[term].len())).powi(2);
+        }
+        let norm = sum.sqrt();
+        checkpoint()?;
+        if let Ok(mut values) = cache.values.try_write() {
+            values.entry(id.clone()).or_insert(norm);
+        }
+        Ok(norm)
     }
 
     pub fn find_matches(&self, text: &str, limit: usize) -> Vec<MatchResult<'_>> {
@@ -525,7 +611,7 @@ impl KnowledgeIndex {
         }
         let query_terms: BTreeSet<&str> = text::tokens_normalized(&normalized).collect();
         let query_len = normalized.chars().count();
-        let exact_ids = self.normalized_ids.get(&normalized);
+        let exact_ids = self.normalized_ids.get(normalized.as_str());
         let candidates: Box<dyn Iterator<Item = &IndexedEntry> + '_> = match options.strategy {
             MatchStrategy::Exact => Box::new(
                 exact_ids
@@ -585,7 +671,7 @@ impl KnowledgeIndex {
             {
                 continue;
             }
-            let character = if normalized == document.normalized {
+            let character = if normalized.as_str() == document.normalized.as_ref() {
                 1.0
             } else if options.strategy == MatchStrategy::TokenOverlap {
                 0.0
@@ -620,7 +706,7 @@ impl KnowledgeIndex {
                 1.0 - distance as f64 / max_len as f64
             };
             let similarity = Similarity {
-                exact: normalized == document.normalized,
+                exact: normalized.as_str() == document.normalized.as_ref(),
                 character,
                 token: token_score,
             };
@@ -648,7 +734,7 @@ impl KnowledgeIndex {
             for result in &mut results {
                 checkpoint()?;
                 if !result.similarity.exact {
-                    let document = &self.documents[&result.entry.id];
+                    let document = &self.documents[result.entry.id.as_str()];
                     let distance = checked_distance(
                         &normalized,
                         &document.normalized,
@@ -724,13 +810,14 @@ impl KnowledgeIndex {
         if limit == 0 {
             return Ok(Vec::new());
         }
-        let source_terms: BTreeSet<&String> = source
+        let source_terms: BTreeSet<&str> = source
             .terms
             .keys()
+            .map(|term| term.as_ref())
             .filter(|term| !text::is_stopword(term))
             .collect();
         let candidates = self.candidates_checked(
-            source_terms.iter().map(|term| term.as_str()),
+            source_terms.iter().copied(),
             &mut checkpoint,
             #[cfg(feature = "execution")]
             control.is_some(),
@@ -756,14 +843,15 @@ impl KnowledgeIndex {
             if target_id == id {
                 continue;
             }
-            let target_terms: BTreeSet<&String> = self.documents[target_id]
+            let target_terms: BTreeSet<&str> = self.documents[target_id]
                 .terms
                 .keys()
+                .map(|term| term.as_ref())
                 .filter(|term| !text::is_stopword(term))
                 .collect();
             let shared_terms: Vec<String> = source_terms
                 .intersection(&target_terms)
-                .map(|term| (*term).clone())
+                .map(|term| (*term).to_owned())
                 .collect();
             let union = source_terms.union(&target_terms).count();
             if !shared_terms.is_empty() {
@@ -888,7 +976,7 @@ impl KnowledgeIndex {
                 &mut *writer,
             )?;
             for item in &document.terms {
-                postcard::to_io(&item, &mut *writer)?;
+                postcard::to_io(&(item.0.as_ref(), item.1), &mut *writer)?;
             }
         }
         Ok(())
@@ -947,38 +1035,22 @@ pub(crate) fn prepare_cached_documents(
 #[cfg(feature = "cache")]
 impl PreparedCache {
     pub(crate) fn restore(mut self, originals: Vec<KnowledgeEntry>) -> KnowledgeIndex {
-        let mut index = KnowledgeIndex {
-            total_tokens: self.total_tokens,
-            ..KnowledgeIndex::new()
-        };
+        let mut index = KnowledgeIndex::new();
         for entry in originals {
             let cached = self
                 .documents
                 .remove(&entry.id)
                 .expect("validated cached source ID");
-            let id: Arc<str> = Arc::from(entry.id.as_str());
-            for (term, &frequency) in &cached.terms {
-                shared_mut(index.postings.entry(term.clone()).or_default())
-                    .insert(id.clone(), frequency);
-            }
-            shared_mut(
-                index
-                    .normalized_ids
-                    .entry(cached.normalized.clone())
-                    .or_default(),
-            )
-            .insert(id);
-            index.documents.insert(
-                entry.id.clone(),
-                shared_new(IndexedEntry {
-                    entry,
-                    normalized: cached.normalized,
-                    terms: cached.terms,
-                    length: cached.length,
-                    char_length: cached.char_length,
-                }),
+            let terms = index.intern_terms(cached.terms);
+            index.insert_prepared(
+                entry,
+                cached.normalized,
+                terms,
+                cached.length,
+                cached.char_length,
             );
         }
+        debug_assert_eq!(index.total_tokens, self.total_tokens);
         index
     }
 }
@@ -1279,4 +1351,152 @@ fn checked_distance<E>(
         Some(maximum) => crate::matching::bounded_distance(a, b, maximum),
         None => Some(crate::matching::levenshtein_distance(a, b)),
     })
+}
+
+#[cfg(test)]
+mod optimization_tests {
+    use super::*;
+    fn signature(index: &KnowledgeIndex) -> Vec<(String, u64)> {
+        index
+            .search_with_options(
+                "alpha beta",
+                &SearchOptions {
+                    algorithm: SearchAlgorithm::Tfidf,
+                    limit: 10,
+                    ..Default::default()
+                },
+            )
+            .into_iter()
+            .map(|h| (h.entry.id.clone(), h.score.to_bits()))
+            .collect()
+    }
+    #[test]
+    fn derived_storage_shares_normalized_words_and_identifiers() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "ALPHA beta"),
+            KnowledgeEntry::new("b", "alpha BETA"),
+        ])
+        .unwrap();
+        let a = &index.documents["a"];
+        let b = &index.documents["b"];
+        assert!(Arc::ptr_eq(&a.normalized, &b.normalized));
+        let group = index.normalized_ids.get_key_value("alpha beta").unwrap();
+        assert!(Arc::ptr_eq(group.0, &a.normalized));
+        for term in ["alpha", "beta"] {
+            let word = index.postings.get_key_value(term).unwrap().0;
+            assert!(Arc::ptr_eq(word, a.terms.get_key_value(term).unwrap().0));
+            assert!(Arc::ptr_eq(word, b.terms.get_key_value(term).unwrap().0));
+            let id = index.documents.get_key_value("a").unwrap().0;
+            assert!(Arc::ptr_eq(
+                id,
+                index.postings[term].get_key_value("a").unwrap().0
+            ));
+        }
+    }
+    #[test]
+    fn bm25_and_unknown_queries_allocate_no_norm_cache() {
+        let index = KnowledgeIndex::from_entries([KnowledgeEntry::new("a", "alpha beta")]).unwrap();
+        index.search("alpha", 10);
+        index.search_with_options(
+            "absent",
+            &SearchOptions {
+                algorithm: SearchAlgorithm::Tfidf,
+                ..Default::default()
+            },
+        );
+        assert!(index.tfidf_norms.get().is_none());
+    }
+    #[test]
+    fn metadata_only_changes_reuse_norms_and_invalid_updates_leave_them_valid() {
+        let mut index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "beta"),
+        ])
+        .unwrap();
+        let before = signature(&index);
+        let cache = index.tfidf_norms.get().unwrap().clone();
+        index
+            .upsert(
+                KnowledgeEntry::new("a", "alpha beta")
+                    .with_metadata(serde_json::json!({"new":true})),
+            )
+            .unwrap();
+        assert!(Arc::ptr_eq(&cache, index.tfidf_norms.get().unwrap()));
+        assert!(index.upsert(KnowledgeEntry::new("a", " ")).is_err());
+        assert!(Arc::ptr_eq(&cache, index.tfidf_norms.get().unwrap()));
+        assert_eq!(before, signature(&index));
+    }
+    #[test]
+    fn poisoned_norm_hint_falls_back_to_exact_computation() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "beta"),
+        ])
+        .unwrap();
+        let before = signature(&index);
+        let cache = index.tfidf_norms.get().unwrap().clone();
+        assert!(std::panic::catch_unwind(move || {
+            let _guard = cache.values.write().unwrap();
+            panic!("injected cache poison");
+        })
+        .is_err());
+        assert_eq!(before, signature(&index));
+    }
+    #[test]
+    fn busy_norm_hint_never_blocks_a_query() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "beta"),
+        ])
+        .unwrap();
+        let before = signature(&index);
+        let cache = index.tfidf_norms.get().unwrap().clone();
+        std::thread::scope(|scope| {
+            let guard = cache.values.write().unwrap();
+            let (send, receive) = std::sync::mpsc::channel();
+            let index = &index;
+            scope.spawn(move || {
+                let _ = send.send(signature(index));
+            });
+            let result = receive.recv_timeout(std::time::Duration::from_secs(2));
+            drop(guard);
+            assert_eq!(result.unwrap(), before);
+        });
+    }
+    #[test]
+    fn interrupted_norm_computation_never_publishes_a_partial_value() {
+        let text = (0..1000)
+            .map(|i| format!("word{i}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let index = KnowledgeIndex::from_entries([KnowledgeEntry::new("a", text)]).unwrap();
+        let (id, document) = index.documents.first_key_value().unwrap();
+        let cache = TfidfNorms::default();
+        let mut checks = 0;
+        let result = index.tfidf_norm_checked(id, document, &cache, &mut || {
+            checks += 1;
+            if checks == 2 {
+                Err("stopped")
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(result, Err("stopped"));
+        assert!(cache.values.read().unwrap().is_empty());
+        let expected = document
+            .terms
+            .iter()
+            .map(|(term, tf)| {
+                (*tf as f64 * tfidf_idf(index.len(), index.postings[term].len())).powi(2)
+            })
+            .sum::<f64>()
+            .sqrt();
+        assert_eq!(
+            index
+                .tfidf_norm_checked(id, document, &cache, &mut || Ok::<_, ()>(()))
+                .unwrap()
+                .to_bits(),
+            expected.to_bits()
+        );
+    }
 }

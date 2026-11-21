@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 — Leaner core and MCP response schemas
+
+Share immutable vocabulary, identifiers and normalized duplicate text internally. Avoid temporary owned token maps during normal insertion. Lazily reuse complete TF-IDF document norms while corpus statistics remain unchanged; invalidate on lexical changes and fall back to exact computation on cache contention/poisoning. Add cancellation checks inside cold norm calculations. Every MCP tool advertises a self-contained JSON Schema 2020-12 response schema for success and structured errors. Add exact old/new ranking/cache tests, adversarial cache cases, real-document schema validation and measured memory/latency comparisons. Public signatures, knowledge formats, MCP payload version one and PDF backend 0.3.5 remain. No DenkMaps integration. See [API behavior](docs/CORE-PERFORMANCE.md) and [executed results/limits](docs/CHANGES-0.4.2.md).
+
 ## 0.4.1 — Optional bounded MCP in the same crate
 
 Added `mcp`, the `airust-mcp` stdio executable and an immutable public `McpServer` API. Five read-only tools expose lexical search, exact revision-bound passage reads, matching, shared-term suggestions and status. Added client-requested progress, cancellation, absolute time budgets, bounded workers/frames/results and connection flood/ID guards. Controlled matching/relations check expensive edit-distance work. Added raw-protocol, attack-oriented and executable tests, retained-knowledge checks and detailed [MCP](docs/MCP.md) / [security](docs/MCP-SECURITY.md) guides. Existing APIs, knowledge and PDF backend 0.3.5 remain. No DenkMaps integration. See [results and limits](docs/CHANGES-0.4.1.md).
