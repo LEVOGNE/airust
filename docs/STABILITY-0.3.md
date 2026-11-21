@@ -39,3 +39,8 @@ The 64-level recursive prototype failed a default-stack test and was rejected. T
 The historical positive root-count diagnostic and newly forged subtree counts are rejected before extraction. Every reachable branch is checked against actual leaves, repeated/cyclic object references fail, and the backend count must agree afterward for nonempty live trees. Empty live trees return no pages without invoking the parser's orphan-recovery path. Configured page limits count actual leaves. See [API, new validation budgets and preview behavior](PDF-PAGE-COUNTS.md).
 
 This structural closure does not certify perfect content/glyph recovery or all source coordinate mappings. Prefix previews validate the complete page-tree metadata and only their visited content. Continue retaining concrete counterexamples and measuring costs before further releases.
+
+
+## Planned cycle closure in 0.3.15
+
+The [0.3.15 report](CHANGES-0.3.15.md) extends the corpus to 35 distinct PDFs and measures compact pending metadata references. It is the final planned 0.3.x stability release; later patches require concrete defects. Retained knowledge, source identity and scoped failures remain acceptance gates for the focused 0.4.0 document prototype. Passing these checks does not prove arbitrary-PDF fidelity, semantic truth or exhaustive security.

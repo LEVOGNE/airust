@@ -1,6 +1,6 @@
 # Preparing a focused AIRust 0.4 release
 
-The 0.3.x work has produced measured changes: cheaper token-overlap matching, shared entry identifiers and explicit rejection of the covered incomplete PDF imports. Version 0.3.14 additionally validates root/subtree page counts before extraction. The stability reports retain successful cases, failed experiments, source hashes and limits. Version numbers do not certify every possible input. Continue 0.3.x patches when another reproducible defect appears.
+The 0.3.x work has produced measured changes: cheaper token-overlap matching, shared entry identifiers and explicit rejection of the covered incomplete PDF imports. Version 0.3.14 additionally validates root/subtree page counts before extraction; 0.3.15 reduces pending metadata memory and closes the planned stability cycle. The stability reports retain successful cases, failed experiments, source hashes and limits. Version numbers do not certify every possible input. Continue 0.3.x patches when another reproducible defect appears.
 
 ## Reuse the current contracts
 
@@ -37,6 +37,6 @@ Compose with `SourceReference`, `ExcerptSpan` and `DatasetManager`. Keep models,
 | Source/text/configuration mismatch | Validation rejects the candidate before publication. |
 | Real large-document reuse | Compare build/load/query/update costs and peak RSS with the existing APIs. |
 
-Use the retained 33-PDF corpus and authored edge cases. The historical root-count diagnostics, fixed structurally in 0.3.14, show why a snapshot's byte identity and extraction coverage need separate evidence. A hash can identify supplied text without proving every original page was extracted. Keep real and synthetic costs separate. Repeat complete-result and independent-consumer checks. Review Cargo pre-1.0 compatibility deliberately: moving from 0.3.x to 0.4.x permits breaking changes but does not require them.
+Use the retained 35-PDF corpus (49,086 physical pages, 167,942 entries) and authored edge cases. The historical root-count diagnostics, fixed structurally in 0.3.14, show why a snapshot's byte identity and extraction coverage need separate evidence. A hash can identify supplied text without proving every original page was extracted. Keep real and synthetic costs separate. Repeat complete-result and independent-consumer checks. Review Cargo pre-1.0 compatibility deliberately: moving from 0.3.x to 0.4.x permits breaking changes but does not require them.
 
 The first 0.4 release should solve one demonstrated contract gap and include its API guide, upgrade path and evidence. The document/passage proposal is preparation, not an implemented or published feature. No DenkMaps or MCP integration is part of this work.

@@ -1,0 +1,49 @@
+{
+  "processes": 24,
+  "repeats_per_case_version": 6,
+  "previous": "0.3.14",
+  "current": "0.3.15",
+  "source_identity": {
+    "previous": {
+      "complete_helper_sha256": "8753867192e90fd7177a2f45c528eff968832874327879cd95be18e93742a403",
+      "runtime_helper_sha256": "b310b5aec3fcff7bb95cebd77b647b356e0fa3f499232979b4977a6c1c2a6381"
+    },
+    "current": {
+      "complete_helper_sha256": "fcde0675dbacc3c9f54b394e524dae7d5f6c03626eac5283c51b0dec4af13723",
+      "runtime_helper_sha256": "a3c5df801b645cfb18180e0e70f533621ddcf21b87f07f166f20caa0dfcf91eb"
+    }
+  },
+  "binary_sha256": "3a8cc3cde3efb4fbee1735168d3cb45804de47b87e36ce7ff32161fea872965b",
+  "groups": [
+    {
+      "mode": "prefix",
+      "child_references": 999999,
+      "medians": {
+        "previous": {
+          "wall_seconds": 0.014741646009497344,
+          "process_peak_rss_bytes": 128139264.0
+        },
+        "current": {
+          "wall_seconds": 0.013953041518107057,
+          "process_peak_rss_bytes": 104128512.0
+        }
+      }
+    },
+    {
+      "mode": "full",
+      "child_references": 100000,
+      "medians": {
+        "previous": {
+          "wall_seconds": 0.015283562359400094,
+          "process_peak_rss_bytes": 20217856.0
+        },
+        "current": {
+          "wall_seconds": 0.015825896058231592,
+          "process_peak_rss_bytes": 17039360.0
+        }
+      }
+    }
+  ],
+  "conditions": "Fresh alternating release processes, same compiled comparison binary and backend0.3.5. Deliberate competing work finished before timing. Other desktop activity uncontrolled. Darwin wait4 RSS is bytes.",
+  "scope": "Isolated real metadata-validator helper with fake loader constructing Object arrays/dictionaries. Includes owned input construction, traversal and destruction; no native PDF file parsing/content/glyph/cleanup/indexing. prefix expects same page-limit error at second actual leaf; full requires100000actualleaves. Not a million-page import or whole-job RAM guarantee."
+}

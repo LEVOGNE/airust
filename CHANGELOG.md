@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.15 — Compact PDF page-tree validation
+
+Reduced temporary pending-work memory for wide PDF trees without changing structural checks or public APIs. Added a deterministic 128-tree nested-count property regression, three official large-manual checks (one retained control), independent extraction/search probes and reproducible isolated memory measurements. All previous knowledge is retained. This is the final planned 0.3.x stability release; further patches require concrete defects. See [executed tests, benchmarks and limits](docs/CHANGES-0.3.15.md) and [API/upgrade](docs/PDF-PAGE-TREE-MEMORY.md). No DenkMaps/MCP integration.
+
+
 ## 0.3.14
 
 Independently validate the reachable PDF page tree before extraction. Compare every present root/subtree count with actual leaves, reject duplicate/cyclic or malformed structures, bound validation work and enforce configured page limits on actual leaves. Require the parser count to agree. Preserve old output on direct/supervised failure. Public APIs/formats and backend 0.3.5 remain unchanged. See [results](docs/CHANGES-0.3.14.md) and [API/upgrade/limits](docs/PDF-PAGE-COUNTS.md). No DenkMaps/MCP integration.

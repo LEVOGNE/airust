@@ -162,3 +162,8 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.14 adds a bounded, independent PDF page-tree/count check before extraction, closing the positive root-count omission and checking intermediate counts as well. Keep backend 0.3.5 unchanged and measure complete conversion plus bounded-preview costs separately. Future text snapshots should reuse this structural check while keeping extraction coverage, byte identity and Unicode coordinate spaces separate. See [results](docs/CHANGES-0.3.14.md) and [0.4 preparation](docs/PREPARING-0.4.md).
+
+
+## Close the planned 0.3.x cycle
+
+0.3.15 is the final planned stability release. It reduces measured PDF validation memory and expands real-document evidence and retained knowledge. Additional 0.3.x patches require concrete defects; there is no target patch count. The next planned scope is the small optional document/revision/position API described in [0.4 preparation](docs/PREPARING-0.4.md). Keep source identity, Unicode coordinates and extracted-text offsets explicit; validate the prototype before publishing 0.4.0. No DenkMaps or MCP integration belongs to this work.

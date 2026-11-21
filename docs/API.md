@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.14 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.15 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -291,3 +291,7 @@ Existing `PdfLoader`, `PdfImportLimits`, CLI flags and JSON formats remain. The 
 ## Validated PDF page counts (0.3.14)
 
 With `pdf`, every `PdfLoader` extraction/preview/conversion first traverses the complete reachable page tree without trusting `/Count`. Present counts must match actual leaves at every subtree. Incorrect counts, duplicate/cyclic references, malformed branches or validation-budget exhaustion return existing `PdfError` categories. The parser count must agree afterward for nonempty live trees; empty trees return no pages without invoking orphan recovery. Preview still extracts only its usable prefix, but validates structural metadata for the whole document. No public method, field, flag or mandatory core dependency is added; backend 0.3.5 remains unchanged. See [API, budgets, upgrade and limits](PDF-PAGE-COUNTS.md) and [executed checks](CHANGES-0.3.14.md).
+
+## Compact PDF validation (0.3.15)
+
+The optional `pdf` feature keeps one compact child-reference iterator per active branch, scheduling only the next child. All actual-page, subtree-count, duplicate, depth and reference-work checks remain. Public signatures, error categories, flags and data formats remain. Existing knowledge does not need migration or reindexing for this optimization. See [API, upgrade and limits](PDF-PAGE-TREE-MEMORY.md) and [executed tests and costs](CHANGES-0.3.15.md).

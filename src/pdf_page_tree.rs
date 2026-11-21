@@ -11,7 +11,15 @@ struct Limits {
 
 enum Step {
     Visit(ObjectRef, usize),
-    Finish(ObjectRef, Option<i64>, usize),
+    Continue(Branch),
+}
+
+struct Branch {
+    reference: ObjectRef,
+    declared: Option<i64>,
+    start: usize,
+    depth: usize,
+    children: std::vec::IntoIter<ObjectRef>,
 }
 
 pub(super) fn validated_page_count(
@@ -95,14 +103,20 @@ fn count_tree(
     let mut pages = 0usize;
     while let Some(step) = pending.pop() {
         match step {
-            Step::Finish(reference, declared, start) => {
-                let actual = pages - start;
-                if let Some(declared) = declared {
-                    if i64::try_from(actual).ok() != Some(declared) {
-                        return Err(format!(
-                            "page count mismatch at object {} {}: declared {declared}, actual {actual}; no partial import returned",
-                            reference.id, reference.gen
-                        ));
+            Step::Continue(mut branch) => {
+                if let Some(child) = branch.children.next() {
+                    let depth = branch.depth + 1;
+                    pending.push(Step::Continue(branch));
+                    pending.push(Step::Visit(child, depth));
+                } else {
+                    let actual = pages - branch.start;
+                    if let Some(declared) = branch.declared {
+                        if i64::try_from(actual).ok() != Some(declared) {
+                            return Err(format!(
+                                "page count mismatch at object {} {}: declared {declared}, actual {actual}; no partial import returned",
+                                branch.reference.id, branch.reference.gen
+                            ));
+                        }
                     }
                 }
             }
@@ -145,13 +159,21 @@ fn count_tree(
                             .and_then(Object::as_array)
                             .ok_or_else(|| "page tree /Kids must be an array".to_owned())?;
                         take_references(&mut work, kids.len(), limits.references)?;
-                        pending.push(Step::Finish(reference, declared, pages));
-                        for kid in kids.iter().rev() {
-                            let child = kid.as_reference().ok_or_else(|| {
-                                "page tree /Kids entries must be indirect references".to_owned()
-                            })?;
-                            pending.push(Step::Visit(child, depth + 1));
-                        }
+                        let children = kids
+                            .iter()
+                            .map(|kid| {
+                                kid.as_reference().ok_or_else(|| {
+                                    "page tree /Kids entries must be indirect references".to_owned()
+                                })
+                            })
+                            .collect::<Result<Vec<_>, _>>()?;
+                        pending.push(Step::Continue(Branch {
+                            reference,
+                            declared,
+                            start: pages,
+                            depth,
+                            children: children.into_iter(),
+                        }));
                     }
                     _ => {
                         return Err(format!(
@@ -439,5 +461,47 @@ mod tests {
         });
         assert!(result.unwrap_err().contains("depth limit"));
         assert_eq!(loads, 51);
+    }
+
+    #[test]
+    fn varied_nested_branches_keep_independent_subtree_totals() {
+        fn build(
+            nodes: &mut HashMap<ObjectRef, Object>,
+            next: &mut u32,
+            state: &mut u64,
+            depth: usize,
+            root: bool,
+        ) -> (ObjectRef, usize) {
+            let id = reference(*next);
+            *next += 1;
+            *state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+            if !root && (depth == 0 || (*state).is_multiple_of(3)) {
+                nodes.insert(id, leaf());
+                return (id, 1);
+            }
+            let width = (*state % 6) as usize;
+            let mut children = Vec::new();
+            let mut total = 0;
+            for _ in 0..width {
+                let (child, count) = build(nodes, next, state, depth.saturating_sub(1), false);
+                children.push(Object::Reference(child));
+                total += count;
+            }
+            nodes.insert(id, branch(Some(Object::Integer(total as i64)), children));
+            (id, total)
+        }
+        let mut state = 202611210315;
+        for _ in 0..128 {
+            let mut nodes = HashMap::new();
+            let (_, expected) = build(&mut nodes, &mut 1, &mut state, 5, true);
+            assert_eq!(check(&nodes, limits()).unwrap(), expected);
+            let Object::Dictionary(root) = nodes.get_mut(&reference(1)).unwrap() else {
+                unreachable!();
+            };
+            root.insert("Count".into(), Object::Integer(expected as i64 + 1));
+            assert!(check(&nodes, limits())
+                .unwrap_err()
+                .contains("page count mismatch"));
+        }
     }
 }

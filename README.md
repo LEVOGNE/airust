@@ -1,13 +1,14 @@
-# AIRust 0.3.14
+# AIRust 0.3.15
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-Version 0.3.14 independently counts the reachable PDF page tree before extracting text. Incorrect root or subtree counts, repeated page references and malformed branches fail explicitly. A successful preview also requires a valid complete page-tree structure. Existing data formats and public methods remain; the optional backend stays 0.3.5. See [API and upgrade](docs/PDF-PAGE-COUNTS.md) and [executed results](docs/CHANGES-0.3.14.md). No DenkMaps or MCP integration is added.
+Version 0.3.15 reduces temporary memory while validating wide PDF page trees. It keeps the complete structural checks, extraction results, public methods and formats. Two more official manuals extend the retained knowledge; PGF is a byte-identical control. See [API and limits](docs/PDF-PAGE-TREE-MEMORY.md) and [executed results](docs/CHANGES-0.3.15.md). The optional backend remains 0.3.5. No DenkMaps or MCP integration is added.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.3.15](docs/PDF-PAGE-TREE-MEMORY.md) | Keep compact pending PDF child references. | Reduce validation memory while retaining count and resource checks. |
 | [0.3.14](docs/PDF-PAGE-COUNTS.md) | Validate actual PDF page-tree counts before extracting text. | Prevent hidden or duplicated pages from inconsistent metadata. |
 | [0.3.13](docs/PDF-STRUCTURE-LIMITS.md) | Reject covered PDF work-limit failures explicitly. | Protect existing knowledge from incomplete imports. |
 | [0.3.12](docs/SHARED-IDENTIFIERS.md) | Reuse entry identifiers across word lists and duplicate groups. | Reduce repeated ID allocations in large indexes. |
@@ -29,9 +30,11 @@ Version 0.3.14 independently counts the reachable PDF page tree before extractin
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation passes 202 default tests and 728 all-feature tests. The retained corpus contains 160,085 entries from 33 PDFs / 46,756 physical pages. Current comparisons cover complete search/matching results, updates against full rebuilds, JSON/cache compatibility and concurrent readers. All previous knowledge remains retained. See [current PDF checks and limits](docs/CHANGES-0.3.14.md), [memory measurements](docs/CHANGES-0.3.12.md) and [0.3.x stability gates](docs/STABILITY-0.3.md).
+Validation passes 202 default tests and 729 all-feature tests. The retained corpus contains 167,942 entries from 35 PDFs / 49,086 physical pages. All 36 complete import runs (35 unique PDFs) match 0.3.14. Fresh independent extraction and literal search probes cover the three reference-tested manuals (one byte-identical PGF control and two new sources). Earlier core/update/concurrency evidence is inherited through unchanged source; the current corpus consumer also runs a checked prefix. All previous knowledge remains retained. See [current PDF checks and limits](docs/CHANGES-0.3.15.md), [memory measurements](docs/CHANGES-0.3.12.md) and [0.3.x stability gates](docs/STABILITY-0.3.md).
 
-The [release history](CHANGELOG.md) explains every completed step through 0.3.14, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
+**0.3.15 is the final planned 0.3.x stability release.** Further 0.3.x patches require a concrete bug. The next planned scope is a small optional document/revision/position API for 0.4.0; see [acceptance gates](docs/PREPARING-0.4.md).
+
+The [release history](CHANGELOG.md) explains every completed step through 0.3.15, with tests, measurements and limits. The [application guide](docs/APPLICATION-INTEGRATION.md) explains a later DenkMaps adapter and the real-data tests it still needs. No application dependency or data is changed here.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -83,7 +86,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.14", default-features = false }
+airust = { version = "=0.3.15", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -254,7 +257,7 @@ The assessment fixture reduces false acceptances from five to one compared with 
 
 Cancellation validation includes provider failures, concurrent signalling, preserved ranking and cancelled publication. See [the 0.2.16 report](docs/CHANGES-0.2.16.md).
 
-The current release passes **197 default tests and 694 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
+The 0.3.0 stability baseline passed **197 default tests and 694 all-feature tests**, plus compiled examples, five Python tests, minimum-Rust checks and all 37 declared feature entries checked independently. Fresh native E5/cross-encoder runs, two independent lexical evaluations and stress tests through two million records are recorded with costs and limits in the [0.3.0 stability report](docs/CHANGES-0.3.0.md). Historical measurements remain in the [0.2.9 report](docs/CHANGES-0.2.9.md). The unchanged 0.2.8 baseline reference has Recall@3 of 0.426 for BM25, 0.971 for exact E5 and 0.676 for the tested hybrids, over 34 positively judged queries. Reranking changes ordering, with the separate improvements and failures reported above. Both neural stages can still return unrelated candidates for no-answer queries. These results measure the fixture, not reliable logical understanding. Historical scale measurements remain in the [0.2.8 report](docs/CHANGES-0.2.8.md).
 
 
 ## Tested lexical baseline and limits

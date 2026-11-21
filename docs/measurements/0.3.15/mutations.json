@@ -1,0 +1,20 @@
+{
+  "version": "0.3.15",
+  "seed": 2026112105,
+  "cases": 4096,
+  "mutation_categories": 8,
+  "source": "Three owned fixtures: two-page sentences, ten-level Form and fallback page tree without root Count",
+  "accepted": 2108,
+  "normal_errors": 1988,
+  "outer_watchdog_timeouts": 0,
+  "worker_deadline_errors": 0,
+  "contained_parser_panics": 0,
+  "worker_signal_errors": 0,
+  "page_count_mismatch_errors": 383,
+  "tree_validation_errors": 1902,
+  "every_failed_import_preserved_previous_output": true,
+  "elapsed_seconds": 158.25784404203296,
+  "binary_sha256": "2dcae329d77dc8852fbc8385faf6bebc735a20a702a9d415378a5818627e40dc",
+  "scope": "Deterministic owned-fixture byte edits, truncation, deletion, insertion, duplication and malformed stream/page/object markers. Not exhaustive grammar fuzzing, corpus completeness, OS isolation or independent security certification.",
+  "limits": "Worker1s, result1MiB, file1MiB, text1MiB,8pages,1000chunks; outer4s, inherited CPU3s/outputfile8MiB."
+}

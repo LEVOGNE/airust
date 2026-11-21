@@ -1,0 +1,167 @@
+{
+  "manuals": 3,
+  "unique_new_sources": 2,
+  "duplicate_retained_control": "pgf-manual == pgfmanual by whole-file SHA256",
+  "physical_pages_checked": 3654,
+  "native_empty_where_mupdf_nonempty": 0,
+  "clean_literal_expected_page_top10": 58,
+  "clean_literal_search_probes": 62,
+  "cases": [
+    {
+      "id": "pgf-manual",
+      "pages": 1324,
+      "native_nonempty_pages": 1324,
+      "mupdf_nonempty_pages": 1324,
+      "mupdf_nonempty_native_empty_pages": [],
+      "queries": 22,
+      "top10": 22,
+      "top1": 16,
+      "clean_chunks": 5249,
+      "raw_chunks": 5273,
+      "reference_versions": {
+        "pypdf": "6.21.4",
+        "pymupdf": "2.1"
+      },
+      "selected_pypdf_pages": 11,
+      "fresh_all_page_mupdf_extraction": true,
+      "rendered_physical_page": 662,
+      "variants": {
+        "clean": {
+          "chunks": 5249,
+          "expected_page_in_top10": 22,
+          "search_probes": 22,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": []
+        },
+        "raw": {
+          "chunks": 5273,
+          "expected_page_in_top10": 22,
+          "search_probes": 22,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": []
+        }
+      }
+    },
+    {
+      "id": "racket-reference",
+      "pages": 1438,
+      "native_nonempty_pages": 1438,
+      "mupdf_nonempty_pages": 1438,
+      "mupdf_nonempty_native_empty_pages": [],
+      "queries": 22,
+      "top10": 19,
+      "top1": 12,
+      "clean_chunks": 3705,
+      "raw_chunks": 3721,
+      "reference_versions": {
+        "pypdf": "6.21.4",
+        "pymupdf": "2.1"
+      },
+      "selected_pypdf_pages": 11,
+      "fresh_all_page_mupdf_extraction": true,
+      "rendered_physical_page": 719,
+      "variants": {
+        "clean": {
+          "chunks": 3705,
+          "expected_page_in_top10": 19,
+          "search_probes": 22,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": [
+            {
+              "case": 5,
+              "page": 359,
+              "algorithm": "Tfidf"
+            },
+            {
+              "case": 8,
+              "page": 1436,
+              "algorithm": "Tfidf"
+            },
+            {
+              "case": 9,
+              "page": 1437,
+              "algorithm": "Tfidf"
+            }
+          ]
+        },
+        "raw": {
+          "chunks": 3721,
+          "expected_page_in_top10": 19,
+          "search_probes": 22,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": [
+            {
+              "case": 5,
+              "page": 359,
+              "algorithm": "Tfidf"
+            },
+            {
+              "case": 8,
+              "page": 1436,
+              "algorithm": "Tfidf"
+            },
+            {
+              "case": 9,
+              "page": 1437,
+              "algorithm": "Tfidf"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "guile-manual",
+      "pages": 892,
+      "native_nonempty_pages": 885,
+      "mupdf_nonempty_pages": 885,
+      "mupdf_nonempty_native_empty_pages": [],
+      "queries": 18,
+      "top10": 17,
+      "top1": 13,
+      "clean_chunks": 4152,
+      "raw_chunks": 4153,
+      "reference_versions": {
+        "pypdf": "6.21.4",
+        "pymupdf": "2.1"
+      },
+      "selected_pypdf_pages": 11,
+      "fresh_all_page_mupdf_extraction": true,
+      "rendered_physical_page": 446,
+      "variants": {
+        "clean": {
+          "chunks": 4152,
+          "expected_page_in_top10": 17,
+          "search_probes": 18,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": [
+            {
+              "case": 2,
+              "page": 10,
+              "algorithm": "Tfidf"
+            }
+          ]
+        },
+        "raw": {
+          "chunks": 4153,
+          "expected_page_in_top10": 17,
+          "search_probes": 18,
+          "all_chunks_contiguous_in_actual_extracted_page": true,
+          "all_ranked_ids_and_score_bits_identical_to_previous": true,
+          "expected_page_missing_top10": [
+            {
+              "case": 2,
+              "page": 10,
+              "algorithm": "Tfidf"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "scope": "All-page nonempty coverage vs MuPDF; selected pypdf literal terms in BM25/TFIDF. Fresh raw/clean complete examples and score-bit comparisons vs0.3.14. Not exact cross-reader text order/glyph/semantic or OCR proof."
+}

@@ -1,0 +1,6 @@
+[package]
+name="airust-release-consumer"
+version="0.0.0"
+edition="2021"
+[dependencies]
+airust={version="=0.3.15",default-features=false,features=["pdf","hybrid","graph","context-assembly","provenance","cache","hnsw","versioning","quality","reranking","advanced-search","storage","sqlite-storage","retrieval","snapshots","execution","shared-index","adaptive","feedback","learned-ranking","reasoning","quality-gates","evidence-freshness","rank-explanations","training-pipeline","disk-index"]}
