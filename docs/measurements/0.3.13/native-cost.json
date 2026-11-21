@@ -1,0 +1,113 @@
+{
+  "processes": 36,
+  "versions": [
+    "0.3.12",
+    "0.3.13"
+  ],
+  "repeats_per_case_version": 3,
+  "all_complete_outputs_byte_identical_to_0_3_12": true,
+  "binary_sha256": {
+    "0.3.12": "ea203b65b2325da63f518e5520086f3f786accd424127fc63abd388afcfa213e",
+    "0.3.13": "ee5fe57785cf9bde90ba69abdf83f30b27e42b686bb18ea7931662c25a9a9c11"
+  },
+  "groups": [
+    {
+      "id": "vkspec",
+      "physical_pages": 5491,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 8.352073334157467,
+          "parent_peak_rss_bytes": 427278336
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 8.3515508340206,
+          "parent_peak_rss_bytes": 419446784
+        }
+      }
+    },
+    {
+      "id": "intel-sdm",
+      "physical_pages": 5364,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 7.525202250108123,
+          "parent_peak_rss_bytes": 332840960
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 7.462378249969333,
+          "parent_peak_rss_bytes": 335986688
+        }
+      }
+    },
+    {
+      "id": "r-reference",
+      "physical_pages": 3995,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 5.671912458958104,
+          "parent_peak_rss_bytes": 304726016
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 5.666232957970351,
+          "parent_peak_rss_bytes": 300482560
+        }
+      }
+    },
+    {
+      "id": "scipy",
+      "physical_pages": 3582,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 7.109246124979109,
+          "parent_peak_rss_bytes": 368918528
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 7.162636624881998,
+          "parent_peak_rss_bytes": 368607232
+        }
+      }
+    },
+    {
+      "id": "pdf-15",
+      "physical_pages": 2488,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 6.8117398750036955,
+          "parent_peak_rss_bytes": 262340608
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 6.789611582877114,
+          "parent_peak_rss_bytes": 262979584
+        }
+      }
+    },
+    {
+      "id": "pdf-12",
+      "physical_pages": 494,
+      "medians": {
+        "0.3.12": {
+          "repeats": 3,
+          "wall_seconds": 0.5780720410402864,
+          "parent_peak_rss_bytes": 90062848
+        },
+        "0.3.13": {
+          "repeats": 3,
+          "wall_seconds": 0.5873787498567253,
+          "parent_peak_rss_bytes": 91324416
+        }
+      }
+    }
+  ],
+  "conditions": "Alternating fresh release processes, same flags/compiler/profile, warm file/input caches. Deliberate builds/checks/native reimports/mutations finished before timing; other desktop activity uncontrolled.",
+  "scope": "Complete supervised CLI wall time includes parsing, cleaning, chunking, worker startup, parent validation and atomic output. wait4 RSS belongs to the parent supervisor; worker/native peak is not represented. No parser-only speed or whole-job RAM improvement is inferred. No canonical or source file written."
+}

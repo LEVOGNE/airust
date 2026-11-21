@@ -156,3 +156,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.12 addresses repeated entry-ID allocations identified by the real-corpus profile. Complete results, caches, raw IDs and retained views must remain compatible; isolated prototypes precede final paired resource checks. Further targeted malformed-structure tests and the [0.3.x gates](docs/STABILITY-0.3.md) precede 0.4.x expansion. No application/MCP integration is included.
+
+
+0.3.13 closes the demonstrated native Form/fallback-page-count omissions with explicit errors at existing work limits. Retain supported complete results, old output on failure and cross-API cache correctness. Fresh real-document, malformed-input and publication checks belong to its report. Next, use the [0.4 preparation gates](docs/PREPARING-0.4.md) to evaluate a small optional document/passage contract against existing source, snapshot and excerpt APIs. No application or transport integration is included.

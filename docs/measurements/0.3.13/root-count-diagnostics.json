@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "declared_count": 1,
+      "exit": 0,
+      "pages": [
+        1
+      ],
+      "chunks": 1
+    },
+    {
+      "declared_count": 2,
+      "exit": 0,
+      "pages": [
+        1,
+        2
+      ],
+      "chunks": 2
+    },
+    {
+      "declared_count": 3,
+      "exit": 1
+    }
+  ],
+  "scope": "Owned two-page fixture with only a same-length root Count replacement. Plausible positive counts remain trusted on the standard path: declaring one omits the second page, two is complete, three errors. Known damaged-metadata recovery boundary; not claimed as fixed by the fallback-depth patch. Retained for strict extraction-coverage acceptance in0.4."
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.13
+
+Reject covered native Form depth/processing exhaustion and incomplete fallback page counts. Restore local Form state before propagating errors and avoid caching failed span results as successful extraction. Preserve existing public APIs/formats and earlier knowledge. Pin optional backend 0.3.5, with maintained provenance and four new backend regressions; add public library/direct-worker output-preservation checks. See [results](docs/CHANGES-0.3.13.md) and [API/upgrade/limits](docs/PDF-STRUCTURE-LIMITS.md). No DenkMaps/MCP integration.
+
 ## 0.3.12
 
 Reuse immutable entry IDs in word lists and normalized duplicate groups, including cache reconstruction. Reduce repeated ID allocations without changing public entry types, ordering, query/matching results, clone isolation or JSON/cache formats. Validate real-knowledge and synthetic resource costs separately. Source data and all earlier exports remain retained. See [results](docs/CHANGES-0.3.12.md) and [API/upgrade/limits](docs/SHARED-IDENTIFIERS.md). Backend stays 0.3.4; no DenkMaps/MCP integration.

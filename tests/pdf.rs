@@ -4,6 +4,62 @@ use airust::pdf_loader::PdfError;
 use airust::{PdfLoader, PdfLoaderConfig};
 
 #[test]
+fn structural_limits_return_errors_instead_of_partial_knowledge() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pdf");
+    let loader = PdfLoader::with_config(PdfLoaderConfig {
+        min_chunk_size: 1,
+        clean_text: false,
+        ..Default::default()
+    });
+    let pages = loader
+        .extract_pages_from_pdf(&root.join("forms-depth-10.pdf"))
+        .unwrap();
+    assert_eq!(pages.len(), 1);
+    for marker in ["AIRUSTFORMSTART", "AIRUSTFORMEND", "AIRUSTFORMLEAF"] {
+        assert!(pages[0].text.contains(marker), "missing {marker}");
+    }
+    for fixture in ["forms-depth-11.pdf", "fallback-count-depth-50.pdf"] {
+        let path = root.join(fixture);
+        for _ in 0..2 {
+            assert!(matches!(
+                loader.extract_pages_from_pdf(&path),
+                Err(PdfError::PdfError(_))
+            ));
+            assert!(loader.pdf_to_training_examples(&path).is_err());
+            assert!(loader.pdf_to_knowledge_base(&path).is_err());
+        }
+    }
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn structural_limit_failures_preserve_output_in_direct_and_supervised_jobs() {
+    let folder = tempfile::tempdir().unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pdf");
+    let output = folder.path().join("retained.json");
+    for fixture in ["forms-depth-11.pdf", "fallback-count-depth-50.pdf"] {
+        for supervised in [false, true] {
+            std::fs::write(&output, b"previous complete knowledge").unwrap();
+            let mut command = std::process::Command::new(env!("CARGO_BIN_EXE_pdf2kb"));
+            command
+                .arg(root.join(fixture))
+                .arg(&output)
+                .arg("--overwrite");
+            if supervised {
+                command.args(["--timeout-seconds", "30"]);
+            }
+            let result = command.output().unwrap();
+            assert_eq!(result.status.code(), Some(1), "fixture={fixture}");
+            assert!(String::from_utf8_lossy(&result.stderr).contains("PDF conversion failed"));
+            assert_eq!(
+                std::fs::read(&output).unwrap(),
+                b"previous complete knowledge"
+            );
+        }
+    }
+}
+
+#[test]
 fn long_import_chunks_retain_original_line_breaks() {
     let folder = tempfile::tempdir().unwrap();
     let path = folder.path().join("line-breaks.pdf");

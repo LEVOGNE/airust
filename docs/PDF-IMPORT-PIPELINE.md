@@ -26,7 +26,7 @@ The four limits are input-file bytes, physical pages, text bytes and chunk count
 The CLI uses the same options:
 
 ```bash
-cargo install airust --version 0.3.6 --locked --features cli,pdf --bin pdf2kb
+cargo install airust --version 0.3.13 --locked --features cli,pdf --bin pdf2kb
 pdf2kb document.pdf knowledge.json --max-file-mib 128 --max-pages 6000 --max-text-mib 64 --max-chunks 100000 --timeout-seconds 90
 ```
 
@@ -62,7 +62,7 @@ The 4,096 retained mutations produce 2,585 accepted files and 1,511 normal error
 
 This is not a streaming public API or a hard RAM/CPU quota. The importer still retains the complete validated result, a bounded input snapshot and parser data. Native initialization and extraction of the current page may still be expensive. Verbose CLI preview retains its separate extraction pass. Use a supervised job for a deadline around blocking native work. Library methods remain synchronous.
 
-The optional backend remains `airust-pdf-backend = 0.3.4`. Its original notices, source hashes and patch are unchanged. The earlier [parser optimization](PDF-PARSER.md) remains active. Fresh advisory checks report zero known vulnerabilities and three maintenance warnings, recorded in [audit evidence](measurements/0.3.5/audit.json); this is not a security certification.
+The historical 0.3.5 importer retained `airust-pdf-backend = 0.3.4` with unchanged source/notices. Current 0.3.13 uses backend 0.3.5 and the maintained [structure-limit fix](PDF-STRUCTURE-LIMITS.md). The earlier [parser optimization](PDF-PARSER.md) remains active. Fresh advisory checks report zero known vulnerabilities and three maintenance warnings, recorded in [audit evidence](measurements/0.3.5/audit.json); this is not a security certification.
 
 ## Retained knowledge
 
@@ -72,3 +72,6 @@ README, the API cookbook and the release evidence explain what changed. No DenkM
 
 
 AIRust 0.3.6 retains these budget/worker APIs and intentionally corrects text cleaning. Historical 0.3.5 output-equality measurements do not imply unchanged 0.3.6 text. See [current controls and upgrade notes](PDF-TEXT-FIDELITY.md).
+
+
+Current 0.3.13 also rejects the covered native Form/page-count work-limit omissions. See [API and upgrade](PDF-STRUCTURE-LIMITS.md) and [fresh validation](CHANGES-0.3.13.md). Historical measurements above retain their identified release scopes.

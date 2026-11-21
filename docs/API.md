@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.12 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.13 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -245,12 +245,12 @@ The optional importer selects the maintained backend without changing public loa
 
 ## Pagewise PDF budget checks (0.3.5)
 
-The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conversion checks chunk count and overlap-expanded chunk bytes after each page, before extracting later pages. It stages one copy of validated chunks, releases the parser and then creates training records. `extract_pages_from_pdf` still returns complete page contents and applies file/page/raw/cleaned-text limits; it does not split chunks. If several budgets could fail, the first encountered failure may differ from older processing order. See [examples, measured behavior and limits](PDF-IMPORT-PIPELINE.md). The separately versioned backend stays at 0.3.4.
+The existing optional `PdfLoader` and `PdfImportLimits` API is unchanged. Conversion checks chunk count and overlap-expanded chunk bytes after each page, before extracting later pages. It stages one copy of validated chunks, releases the parser and then creates training records. `extract_pages_from_pdf` still returns complete page contents and applies file/page/raw/cleaned-text limits; it does not split chunks. If several budgets could fail, the first encountered failure may differ from older processing order. See [examples, measured behavior and limits](PDF-IMPORT-PIPELINE.md). That release retained backend 0.3.4; current 0.3.13 uses 0.3.5.
 
 
 ## Corrected PDF cleaning (0.3.6)
 
-The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatures. Digit boundaries and blank paragraphs are protected during line joining; chained wraps are handled in one pass; Unicode is normalized after transformations. Page-number filtering is restricted to first/last nonempty extracted lines. Set `remove_page_numbers = false` for literal numeric edge data and `dehyphenate = false` for meaningful hyphens. `clean_text = false` bypasses AIRust cleaning in PDF import. Corrected imports can change chunks, offsets and ranking: preserve old exports, reimport explicitly and rebuild derived data under a new source/configuration revision. See [full behavior, examples, measurements and limits](PDF-TEXT-FIDELITY.md). The parser backend remains exactly 0.3.4.
+The existing `PdfLoaderConfig` fields and `PdfLoader` methods keep their signatures. Digit boundaries and blank paragraphs are protected during line joining; chained wraps are handled in one pass; Unicode is normalized after transformations. Page-number filtering is restricted to first/last nonempty extracted lines. Set `remove_page_numbers = false` for literal numeric edge data and `dehyphenate = false` for meaningful hyphens. `clean_text = false` bypasses AIRust cleaning in PDF import. Corrected imports can change chunks, offsets and ranking: preserve old exports, reimport explicitly and rebuild derived data under a new source/configuration revision. See [full behavior, examples, measurements and limits](PDF-TEXT-FIDELITY.md). The 0.3.6 release retained backend 0.3.4; current 0.3.13 uses 0.3.5.
 
 
 ## Bounded PDF preview (0.3.7)
@@ -281,3 +281,8 @@ Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatu
 ## Shared entry identifiers (0.3.12)
 
 Word lists and duplicate groups reuse immutable entry identifiers. Public IDs stay ordinary strings; lookup, stable ordering, updates, clone isolation and serialized formats keep their existing contracts. No new API or flag is needed. The optional `shared-index` feature additionally shares larger immutable payloads between index clones. See [API, compatibility and limits](SHARED-IDENTIFIERS.md) and [measured results](CHANGES-0.3.12.md).
+
+
+## PDF structure-limit failures (0.3.13)
+
+Existing `PdfLoader`, `PdfImportLimits`, CLI flags and JSON formats remain. The optional backend is pinned to 0.3.5. Covered Form depth/processing exhaustion and fallback page-count depth exhaustion now fail the import instead of returning incomplete success. Retain existing knowledge on error. A bounded preview still validates only its visited prefix. See [API, upgrade and limits](PDF-STRUCTURE-LIMITS.md) and [executed checks](CHANGES-0.3.13.md).
