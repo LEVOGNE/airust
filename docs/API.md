@@ -2,7 +2,7 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.3.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.3.11 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
@@ -271,3 +271,8 @@ Existing `PdfLoader` configuration and methods are unchanged. Overlapping window
 ## Combined PDF cleaning (0.3.10)
 
 Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatures U+FB00–U+FB06, including the two st forms, while combining the first NFC/ligature/control stage into one pass. It preserves later composition and existing cleaning controls; no public signature or JSON field changes. The explicit helper is unbounded; `clean_text: false` bypasses it during import. Corrected text can affect derived chunks and indexes. See [API, commands, upgrade advice, measurements and limits](PDF-CLEANING-PASS.md).
+
+
+## Efficient token-overlap matching (0.3.11)
+
+`Engine::match_with_options` with `MatchStrategy::TokenOverlap` ranks by shared-word overlap. Character similarity is calculated after selecting the returned entries; all returned fields retain their meaning and exact values. No method, flag or JSON field changes. Candidate collection and token scoring still depend on the corpus, and character explanation work still scales with the requested limit. See [API, measured examples and limits](TOKEN-MATCHING.md) and [0.3.x stability gates](STABILITY-0.3.md).

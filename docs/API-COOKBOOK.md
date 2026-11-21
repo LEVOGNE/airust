@@ -1,4 +1,4 @@
-# AIRust 0.3.10 API cookbook
+# AIRust 0.3.11 API cookbook
 
 For this stability release, read the [migration notes](MIGRATION-0.3.0.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.3.0.md). No new application integration is performed.
 
@@ -8,7 +8,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.3.10", default-features = false }
+airust = { version = "=0.3.11", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -355,3 +355,8 @@ Existing `PdfLoader` configuration and methods are unchanged. Overlapping window
 ## Combined PDF cleaning (0.3.10)
 
 Existing `PdfLoader::clean_text` now expands all seven Latin presentation ligatures U+FB00–U+FB06, including the two st forms, while combining the first NFC/ligature/control stage into one pass. It preserves later composition and existing cleaning controls; no public signature or JSON field changes. The explicit helper is unbounded; `clean_text: false` bypasses it during import. Corrected text can affect derived chunks and indexes. See [API, commands, upgrade advice, measurements and limits](PDF-CLEANING-PASS.md).
+
+
+## Efficient token-overlap matching (0.3.11)
+
+`Engine::match_with_options` with `MatchStrategy::TokenOverlap` ranks by shared-word overlap. Character similarity is calculated after selecting the returned entries; all returned fields retain their meaning and exact values. No method, flag or JSON field changes. Candidate collection and token scoring still depend on the corpus, and character explanation work still scales with the requested limit. See [API, measured examples and limits](TOKEN-MATCHING.md) and [0.3.x stability gates](STABILITY-0.3.md).

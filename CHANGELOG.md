@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.11
+
+Defer character-distance explanations until token-overlap winners are selected. Preserve complete result IDs, ordering, scores and explanations while avoiding expensive distances for discarded candidates. Add full-comparison regressions and real-knowledge stability/benchmark evidence. Existing PDF behavior, backend 0.3.4 and retained knowledge remain. See [results](docs/CHANGES-0.3.11.md), [API and limits](docs/TOKEN-MATCHING.md) and [0.3.x gates](docs/STABILITY-0.3.md). No DenkMaps/MCP integration.
+
 ## 0.3.10
 
 Expand the two missing st presentation ligatures and combine the initial NFC/Latin-ligature/control-cleaning stage into one pass. Avoid repeated whole-text replacement copies while preserving later composition and existing controls. Public methods/JSON fields remain compatible; corrected text can change derived chunks and indexes. Further official large PDFs, an independent oracle, malformed inputs and separate helper/PDF measurements support the change. Knowledge and evidence remain retained. See [results](docs/CHANGES-0.3.10.md) and [API/upgrade/limits](docs/PDF-CLEANING-PASS.md). Optional backend stays 0.3.4. No DenkMaps/MCP integration.

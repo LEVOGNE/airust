@@ -150,3 +150,6 @@ Validate existing behavior and formats before adding capabilities. See the [rele
 
 
 0.3.10 completes the limited Latin-ligature cleaning policy and reduces intermediate text copies. Independent normalization checks, actual document comparisons and separate helper/import measurements precede further changes. Old knowledge remains retained; 0.4.0 expansion and application/MCP integration stay deferred. See [cleaning contract](docs/PDF-CLEANING-PASS.md).
+
+
+0.3.11 reduces unnecessary character-distance work in token-overlap matching while preserving complete results. Real-knowledge update/rebuild, JSON, concurrency and resource checks strengthen the [0.3.x stability gates](docs/STABILITY-0.3.md). The next proposed scope is a small optional document/passage contract with explicit source revisions and truthful position semantics; implement and measure it separately before a 0.4.x release. No application/MCP integration is included.

@@ -1,0 +1,315 @@
+{
+  "fresh_processes": 6,
+  "method_samples_per_version": 72,
+  "repeats": 3,
+  "entries": 160085,
+  "all_complete_results_bitwise_identical": true,
+  "result_sha256": "d66456dcf713c39b43871fbb0b610aa3c7928477642a3800c0485a7f000dfdcf",
+  "binary_sha256": {
+    "0310": "a94bac46636c6189bffae13cd6df4055bcf0cc5768e670a8189c9d1c3fedff61",
+    "0311": "02c2553ff3e8141d85f7e03a9eefe4bdd18c8cd8fd54e57ebc8226705c030149"
+  },
+  "conditions": "Same thinLTO/codegen1 root-pinned Rust/macOS ARM64 profiles. Fresh alternating children; identical fixed24case order within each child; warm file caches. Intentional validation/build/soak work finished. Other desktop activity uncontrolled. Method time excludes result projection/serialization; separate process wall/build/RSS includes their costs.",
+  "medians": {
+    "0.3.10": {
+      "process_wall_seconds": 18.568027541041374,
+      "index_build_ms": 5930.6097500000005,
+      "peak_rss_bytes": 2845622272
+    },
+    "0.3.11": {
+      "process_wall_seconds": 7.632910332875326,
+      "index_build_ms": 5896.195042,
+      "peak_rss_bytes": 2845425664
+    }
+  },
+  "cases": [
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 1,
+      "case": 0,
+      "median_method_ms": {
+        "0.3.10": 596.510583,
+        "0.3.11": 23.137833
+      },
+      "hits": 1
+    },
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 10,
+      "case": 1,
+      "median_method_ms": {
+        "0.3.10": 596.161709,
+        "0.3.11": 21.686042
+      },
+      "hits": 10
+    },
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 1,
+      "case": 2,
+      "median_method_ms": {
+        "0.3.10": 24.472542,
+        "0.3.11": 21.73375
+      },
+      "hits": 1
+    },
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 10,
+      "case": 3,
+      "median_method_ms": {
+        "0.3.10": 22.852125,
+        "0.3.11": 21.214
+      },
+      "hits": 8
+    },
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 1,
+      "case": 4,
+      "median_method_ms": {
+        "0.3.10": 22.458375,
+        "0.3.11": 20.906792
+      },
+      "hits": 0
+    },
+    {
+      "query": "memory allocation function",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 10,
+      "case": 5,
+      "median_method_ms": {
+        "0.3.10": 22.363125,
+        "0.3.11": 20.927083
+      },
+      "hits": 0
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 1,
+      "case": 6,
+      "median_method_ms": {
+        "0.3.10": 294.995542,
+        "0.3.11": 15.701459000000002
+      },
+      "hits": 1
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 10,
+      "case": 7,
+      "median_method_ms": {
+        "0.3.10": 295.059083,
+        "0.3.11": 14.808167000000001
+      },
+      "hits": 10
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 1,
+      "case": 8,
+      "median_method_ms": {
+        "0.3.10": 16.617290999999998,
+        "0.3.11": 14.255
+      },
+      "hits": 1
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 10,
+      "case": 9,
+      "median_method_ms": {
+        "0.3.10": 15.200875000000002,
+        "0.3.11": 14.440332999999999
+      },
+      "hits": 10
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 1,
+      "case": 10,
+      "median_method_ms": {
+        "0.3.10": 14.659542,
+        "0.3.11": 14.690999999999999
+      },
+      "hits": 0
+    },
+    {
+      "query": "matrix vector array",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 10,
+      "case": 11,
+      "median_method_ms": {
+        "0.3.10": 14.318875,
+        "0.3.11": 13.94425
+      },
+      "hits": 0
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 1,
+      "case": 12,
+      "median_method_ms": {
+        "0.3.10": 29.850375,
+        "0.3.11": 1.179291
+      },
+      "hits": 1
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 10,
+      "case": 13,
+      "median_method_ms": {
+        "0.3.10": 29.440458,
+        "0.3.11": 0.7392920000000001
+      },
+      "hits": 10
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 1,
+      "case": 14,
+      "median_method_ms": {
+        "0.3.10": 0.638208,
+        "0.3.11": 0.5592499999999999
+      },
+      "hits": 0
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 10,
+      "case": 15,
+      "median_method_ms": {
+        "0.3.10": 0.5761670000000001,
+        "0.3.11": 0.525
+      },
+      "hits": 0
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 1,
+      "case": 16,
+      "median_method_ms": {
+        "0.3.10": 0.541542,
+        "0.3.11": 0.507541
+      },
+      "hits": 0
+    },
+    {
+      "query": "Speicher Verarbeitung Unicode",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 10,
+      "case": 17,
+      "median_method_ms": {
+        "0.3.10": 0.526792,
+        "0.3.11": 0.49558399999999997
+      },
+      "hits": 0
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 1,
+      "case": 18,
+      "median_method_ms": {
+        "0.3.10": 4648.7369579999995,
+        "0.3.11": 99.0
+      },
+      "hits": 1
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.0,
+      "limit": 10,
+      "case": 19,
+      "median_method_ms": {
+        "0.3.10": 4644.023875,
+        "0.3.11": 98.882458
+      },
+      "hits": 10
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 1,
+      "case": 20,
+      "median_method_ms": {
+        "0.3.10": 101.08250000000001,
+        "0.3.11": 99.40291699999999
+      },
+      "hits": 1
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.1,
+      "limit": 10,
+      "case": 21,
+      "median_method_ms": {
+        "0.3.10": 100.722375,
+        "0.3.11": 98.529125
+      },
+      "hits": 10
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 1,
+      "case": 22,
+      "median_method_ms": {
+        "0.3.10": 99.30600000000001,
+        "0.3.11": 98.682833
+      },
+      "hits": 0
+    },
+    {
+      "query": "memory memory memory allocation function argument return value type document array vector",
+      "strategy": "token",
+      "threshold": 0.8,
+      "limit": 10,
+      "case": 23,
+      "median_method_ms": {
+        "0.3.10": 102.793125,
+        "0.3.11": 98.47729199999999
+      },
+      "hits": 0
+    }
+  ]
+}

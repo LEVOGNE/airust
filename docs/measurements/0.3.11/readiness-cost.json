@@ -1,0 +1,2979 @@
+{
+  "samples": 45,
+  "version": "0.3.11",
+  "conditions": "Fresh sequential release children after intended build/validation/32epochsoak and pairedmatching cost work. Warm input/file caches; other desktop activity uncontrolled. Per-child wait4 peakRSS; method distributions stay separated by algorithm. Public workload scripts carry correctness overhead and explicit limits.",
+  "scope": "Realtrustedexport prefix and separate syntheticcore/clone/snapshot/disk workloads. PeakRSSofrealharnessincludesmultiplecompletecomparisonviews,JSONstringsandindexes; not a loneengine requirement. SyntheticSQLite recipe differsfromRAMlexicalrecipe; no semantic equivalence or application capacity guarantee. Allsourceexportsread-only; sixsyntheticdatabasesretainedoutsidecanonicalknowledge.",
+  "binaries_sha256": {
+    "readiness-0311": "0f9ed222fb6cbef1e7b59546b7cabb3ceee00a6d4dee310383a3b3ba0cb70fdc",
+    "stress_index-default-0311": "f3a748d1d4c2092445ac68912d58834f261dc892d781153bff2bdadb36079610",
+    "stress_index-shared-0311": "ded025461ad837b32dd4b4c9c7951d3037837f5179d6ab707088d8434cbc5f61",
+    "stress_snapshots-shared-0311": "fa84e23684604bc03ae6b2ba7d2f158daf4d6365c129d40b0652dc3157b9fae1",
+    "disk-cost-0311": "bf44642c9e4370552d63bfa220dc1a139bdd21f070313fcddeb78962c600dbce"
+  },
+  "groups": [
+    {
+      "kind": "real",
+      "entries": 10000,
+      "configuration": "execution,shared-index",
+      "repeats": 3,
+      "median_process_wall_seconds": 3.1008566671516746,
+      "median_peak_rss_bytes": 643678208,
+      "results": [
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "295345bbf6df0ee5224372e938c5e0caefd66fe9dfe912fa88dc393f2cf6182b",
+          "build_ms": 303.87925,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 2.2845,
+          "concurrent": {
+            "elapsed_ms": 26.519750000000002,
+            "latency": {
+              "bm25": {
+                "max_ms": 0.725959,
+                "p50_ms": 0.06691599999999999,
+                "p95_ms": 0.72375,
+                "p99_ms": 0.725959,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 6.149459,
+                "p50_ms": 0.5207919999999999,
+                "p95_ms": 6.110875,
+                "p99_ms": 6.149459,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 10000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 0.700583,
+              "p50_ms": 0.097,
+              "p95_ms": 0.700583,
+              "p99_ms": 0.700583,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 5.8919999999999995,
+              "p50_ms": 0.635,
+              "p95_ms": 5.8919999999999995,
+              "p99_ms": 5.8919999999999995,
+              "samples": 10
+            }
+          },
+          "parse_ms": 391.889083,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 301.031042,
+            "p50_ms": 291.733125,
+            "p95_ms": 301.031042,
+            "p99_ms": 301.031042,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 0.664917,
+              "p50_ms": 0.071125,
+              "p95_ms": 0.660625,
+              "p99_ms": 0.664917,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 6.00575,
+              "p50_ms": 0.507458,
+              "p95_ms": 6.002833,
+              "p99_ms": 6.00575,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 296.63054100000005,
+            "p50_ms": 295.692042,
+            "p95_ms": 296.63054100000005,
+            "p99_ms": 296.63054100000005,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 1.683791,
+            "p50_ms": 1.6761670000000002,
+            "p95_ms": 1.683791,
+            "p99_ms": 1.683791,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "295345bbf6df0ee5224372e938c5e0caefd66fe9dfe912fa88dc393f2cf6182b",
+          "build_ms": 302.21941699999996,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 2.725458,
+          "concurrent": {
+            "elapsed_ms": 28.110500000000002,
+            "latency": {
+              "bm25": {
+                "max_ms": 0.743875,
+                "p50_ms": 0.0665,
+                "p95_ms": 0.739125,
+                "p99_ms": 0.743875,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 6.564291,
+                "p50_ms": 0.5512079999999999,
+                "p95_ms": 6.560875,
+                "p99_ms": 6.564291,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 10000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 0.703667,
+              "p50_ms": 0.07045799999999999,
+              "p95_ms": 0.703667,
+              "p99_ms": 0.703667,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 5.8448329999999995,
+              "p50_ms": 0.5550830000000001,
+              "p95_ms": 5.8448329999999995,
+              "p99_ms": 5.8448329999999995,
+              "samples": 10
+            }
+          },
+          "parse_ms": 380.779084,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 302.26970800000004,
+            "p50_ms": 295.07075,
+            "p95_ms": 302.26970800000004,
+            "p99_ms": 302.26970800000004,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 0.657167,
+              "p50_ms": 0.0655,
+              "p95_ms": 0.646667,
+              "p99_ms": 0.657167,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 6.023291,
+              "p50_ms": 0.48925,
+              "p95_ms": 5.938041,
+              "p99_ms": 6.023291,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 309.907,
+            "p50_ms": 299.92658300000005,
+            "p95_ms": 309.907,
+            "p99_ms": 309.907,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 1.693125,
+            "p50_ms": 1.690958,
+            "p95_ms": 1.693125,
+            "p99_ms": 1.693125,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "295345bbf6df0ee5224372e938c5e0caefd66fe9dfe912fa88dc393f2cf6182b",
+          "build_ms": 300.695042,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 2.325708,
+          "concurrent": {
+            "elapsed_ms": 26.448584,
+            "latency": {
+              "bm25": {
+                "max_ms": 0.718083,
+                "p50_ms": 0.06787499999999999,
+                "p95_ms": 0.7160839999999999,
+                "p99_ms": 0.718083,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 6.106583,
+                "p50_ms": 0.518042,
+                "p95_ms": 6.071541,
+                "p99_ms": 6.106583,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 10000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 0.685416,
+              "p50_ms": 0.08600000000000001,
+              "p95_ms": 0.685416,
+              "p99_ms": 0.685416,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 5.931667,
+              "p50_ms": 0.549541,
+              "p95_ms": 5.931667,
+              "p99_ms": 5.931667,
+              "samples": 10
+            }
+          },
+          "parse_ms": 407.56725,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 303.32583400000004,
+            "p50_ms": 300.22395800000004,
+            "p95_ms": 303.32583400000004,
+            "p99_ms": 303.32583400000004,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 0.669667,
+              "p50_ms": 0.072084,
+              "p95_ms": 0.662,
+              "p99_ms": 0.669667,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 6.324583,
+              "p50_ms": 0.49866600000000005,
+              "p95_ms": 5.821708,
+              "p99_ms": 6.324583,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 298.540709,
+            "p50_ms": 296.85620800000004,
+            "p95_ms": 298.540709,
+            "p99_ms": 298.540709,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 1.7866659999999999,
+            "p50_ms": 1.706417,
+            "p95_ms": 1.7866659999999999,
+            "p99_ms": 1.7866659999999999,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "real",
+      "entries": 100000,
+      "configuration": "execution,shared-index",
+      "repeats": 3,
+      "median_process_wall_seconds": 36.094205459114164,
+      "median_peak_rss_bytes": 4062953472,
+      "results": [
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "bedf223c775154fd4e82fce1c6c1ee2d3908329a5fae93287650021d3e6f326e",
+          "build_ms": 3435.411375,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 21.06425,
+          "concurrent": {
+            "elapsed_ms": 1014.7109999999999,
+            "latency": {
+              "bm25": {
+                "max_ms": 11.235708,
+                "p50_ms": 5.6915000000000004,
+                "p95_ms": 11.234499999999999,
+                "p99_ms": 11.235708,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 101.071042,
+                "p50_ms": 62.47225,
+                "p95_ms": 101.05529200000001,
+                "p99_ms": 101.071042,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 100000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 11.067584,
+              "p50_ms": 5.444333,
+              "p95_ms": 11.067584,
+              "p99_ms": 11.067584,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 103.086166,
+              "p50_ms": 61.129084,
+              "p95_ms": 103.086166,
+              "p99_ms": 103.086166,
+              "samples": 10
+            }
+          },
+          "parse_ms": 380.96604099999996,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 3525.492416,
+            "p50_ms": 3487.609667,
+            "p95_ms": 3525.492416,
+            "p99_ms": 3525.492416,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 10.542458,
+              "p50_ms": 5.1537500000000005,
+              "p95_ms": 10.523042,
+              "p99_ms": 10.542458,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 98.189292,
+              "p50_ms": 59.925,
+              "p95_ms": 97.420375,
+              "p99_ms": 98.189292,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 3489.978458,
+            "p50_ms": 3469.9733340000002,
+            "p95_ms": 3489.978458,
+            "p99_ms": 3489.978458,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.396,
+            "p50_ms": 2.188417,
+            "p95_ms": 2.396,
+            "p99_ms": 2.396,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "bedf223c775154fd4e82fce1c6c1ee2d3908329a5fae93287650021d3e6f326e",
+          "build_ms": 3423.951666,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 21.686958,
+          "concurrent": {
+            "elapsed_ms": 1032.2663750000002,
+            "latency": {
+              "bm25": {
+                "max_ms": 10.796916,
+                "p50_ms": 4.89925,
+                "p95_ms": 10.647416,
+                "p99_ms": 10.796916,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 100.635334,
+                "p50_ms": 61.903666,
+                "p95_ms": 100.34454199999999,
+                "p99_ms": 100.635334,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 100000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 10.560208,
+              "p50_ms": 5.154,
+              "p95_ms": 10.560208,
+              "p99_ms": 10.560208,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 97.309333,
+              "p50_ms": 59.767084,
+              "p95_ms": 97.309333,
+              "p99_ms": 97.309333,
+              "samples": 10
+            }
+          },
+          "parse_ms": 387.428458,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 3507.437667,
+            "p50_ms": 3495.171167,
+            "p95_ms": 3507.437667,
+            "p99_ms": 3507.437667,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 10.175,
+              "p50_ms": 4.8015,
+              "p95_ms": 10.169457999999999,
+              "p99_ms": 10.175,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 98.233333,
+              "p50_ms": 59.49675,
+              "p95_ms": 97.538417,
+              "p99_ms": 98.233333,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 3498.522417,
+            "p50_ms": 3439.531875,
+            "p95_ms": 3498.522417,
+            "p99_ms": 3498.522417,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.619667,
+            "p50_ms": 2.208625,
+            "p95_ms": 2.619667,
+            "p99_ms": 2.619667,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "bedf223c775154fd4e82fce1c6c1ee2d3908329a5fae93287650021d3e6f326e",
+          "build_ms": 3438.1906249999997,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 21.769582999999997,
+          "concurrent": {
+            "elapsed_ms": 1019.836292,
+            "latency": {
+              "bm25": {
+                "max_ms": 10.919042000000001,
+                "p50_ms": 4.868792,
+                "p95_ms": 10.918249999999999,
+                "p99_ms": 10.919042000000001,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 124.327292,
+                "p50_ms": 58.642667,
+                "p95_ms": 101.30779199999999,
+                "p99_ms": 124.327292,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 100000,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 10.584916999999999,
+              "p50_ms": 4.945166,
+              "p95_ms": 10.584916999999999,
+              "p99_ms": 10.584916999999999,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 97.226417,
+              "p50_ms": 59.724042,
+              "p95_ms": 97.226417,
+              "p99_ms": 97.226417,
+              "samples": 10
+            }
+          },
+          "parse_ms": 387.826417,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 3542.8988339999996,
+            "p50_ms": 3495.010917,
+            "p95_ms": 3542.8988339999996,
+            "p99_ms": 3542.8988339999996,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 10.189625000000001,
+              "p50_ms": 4.875708,
+              "p95_ms": 10.0935,
+              "p99_ms": 10.189625000000001,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 98.27458299999999,
+              "p50_ms": 59.61875,
+              "p95_ms": 96.9495,
+              "p99_ms": 98.27458299999999,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 3615.531542,
+            "p50_ms": 3455.3538750000002,
+            "p95_ms": 3615.531542,
+            "p99_ms": 3615.531542,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.217792,
+            "p50_ms": 2.19875,
+            "p95_ms": 2.217792,
+            "p99_ms": 2.217792,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "real",
+      "entries": 160085,
+      "configuration": "execution,shared-index",
+      "repeats": 3,
+      "median_process_wall_seconds": 65.27451466699131,
+      "median_peak_rss_bytes": 6637076480,
+      "results": [
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "ce9941192d429c12ffc53631df5c5f02d1508c66f6fb075c769c7eebf50c048c",
+          "build_ms": 5920.308625,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 34.166084,
+          "concurrent": {
+            "elapsed_ms": 2109.629542,
+            "latency": {
+              "bm25": {
+                "max_ms": 19.167,
+                "p50_ms": 10.865207999999999,
+                "p95_ms": 19.166249999999998,
+                "p99_ms": 19.167,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 212.141667,
+                "p50_ms": 101.663667,
+                "p95_ms": 212.13008299999998,
+                "p99_ms": 212.141667,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 160085,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 18.177667000000003,
+              "p50_ms": 10.471916,
+              "p95_ms": 18.177667000000003,
+              "p99_ms": 18.177667000000003,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 203.82370899999998,
+              "p50_ms": 99.85624999999999,
+              "p95_ms": 203.82370899999998,
+              "p99_ms": 203.82370899999998,
+              "samples": 10
+            }
+          },
+          "parse_ms": 385.50016700000003,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 6046.077458,
+            "p50_ms": 5970.327709,
+            "p95_ms": 6046.077458,
+            "p99_ms": 6046.077458,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 18.321875000000002,
+              "p50_ms": 10.138375,
+              "p95_ms": 18.033625,
+              "p99_ms": 18.321875000000002,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 205.822667,
+              "p50_ms": 99.259584,
+              "p95_ms": 205.63045899999997,
+              "p99_ms": 205.822667,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 6090.411333999999,
+            "p50_ms": 5923.1984999999995,
+            "p95_ms": 6090.411333999999,
+            "p99_ms": 6090.411333999999,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.2515,
+            "p50_ms": 2.245792,
+            "p95_ms": 2.2515,
+            "p99_ms": 2.2515,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "ce9941192d429c12ffc53631df5c5f02d1508c66f6fb075c769c7eebf50c048c",
+          "build_ms": 5918.259625,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 36.179625,
+          "concurrent": {
+            "elapsed_ms": 2141.057292,
+            "latency": {
+              "bm25": {
+                "max_ms": 18.747291999999998,
+                "p50_ms": 10.472208,
+                "p95_ms": 18.744875,
+                "p99_ms": 18.747291999999998,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 215.428,
+                "p50_ms": 103.310125,
+                "p95_ms": 215.427291,
+                "p99_ms": 215.428,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 160085,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 17.148125,
+              "p50_ms": 9.805542,
+              "p95_ms": 17.148125,
+              "p99_ms": 17.148125,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 202.735334,
+              "p50_ms": 98.98920899999999,
+              "p95_ms": 202.735334,
+              "p99_ms": 202.735334,
+              "samples": 10
+            }
+          },
+          "parse_ms": 389.539333,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 6181.669875,
+            "p50_ms": 6066.532583,
+            "p95_ms": 6181.669875,
+            "p99_ms": 6181.669875,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 16.899667,
+              "p50_ms": 9.54,
+              "p95_ms": 16.841833,
+              "p99_ms": 16.899667,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 225.510459,
+              "p50_ms": 97.41975,
+              "p95_ms": 206.846917,
+              "p99_ms": 225.510459,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 6362.812959,
+            "p50_ms": 6121.263457999999,
+            "p95_ms": 6362.812959,
+            "p99_ms": 6362.812959,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.2325,
+            "p50_ms": 2.216208,
+            "p95_ms": 2.2325,
+            "p99_ms": 2.2325,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        },
+        {
+          "all_incremental_rebuilds_identical": true,
+          "all_roundtrip_and_concurrent_signatures_identical": true,
+          "baseline_export_sha256": "ce9941192d429c12ffc53631df5c5f02d1508c66f6fb075c769c7eebf50c048c",
+          "build_ms": 6293.574291999999,
+          "cancelled_and_expired_searches_rejected": true,
+          "clone_and_detach_ms": 34.442584,
+          "concurrent": {
+            "elapsed_ms": 2096.870708,
+            "latency": {
+              "bm25": {
+                "max_ms": 18.6335,
+                "p50_ms": 10.699791,
+                "p95_ms": 18.631166,
+                "p99_ms": 18.6335,
+                "samples": 80
+              },
+              "tfidf": {
+                "max_ms": 211.73075,
+                "p50_ms": 101.5955,
+                "p95_ms": 211.711792,
+                "p99_ms": 211.73075,
+                "samples": 80
+              }
+            },
+            "queries_per_reader": 40,
+            "readers": 4
+          },
+          "entries": 160085,
+          "features": [
+            "execution",
+            "shared-index"
+          ],
+          "fixture": "real-corpus-readiness-v1",
+          "initial_search": {
+            "bm25": {
+              "max_ms": 19.0085,
+              "p50_ms": 10.769792,
+              "p95_ms": 19.0085,
+              "p99_ms": 19.0085,
+              "samples": 10
+            },
+            "tfidf": {
+              "max_ms": 215.669083,
+              "p50_ms": 103.948,
+              "p95_ms": 215.669083,
+              "p99_ms": 215.669083,
+              "samples": 10
+            }
+          },
+          "parse_ms": 399.259542,
+          "queries": [
+            "memory ordering",
+            "vector matrix",
+            "type inference",
+            "permission",
+            "array broadcasting",
+            "object stream",
+            "parallel thread",
+            "function",
+            "memory",
+            "airustabsentmarker723981"
+          ],
+          "rebuild": {
+            "max_ms": 6404.756084,
+            "p50_ms": 6302.180417,
+            "p95_ms": 6404.756084,
+            "p99_ms": 6404.756084,
+            "samples": 3
+          },
+          "repeated_search": {
+            "bm25": {
+              "max_ms": 19.134625,
+              "p50_ms": 10.675959,
+              "p95_ms": 19.069334,
+              "p99_ms": 19.134625,
+              "samples": 30
+            },
+            "tfidf": {
+              "max_ms": 223.300708,
+              "p50_ms": 103.60925,
+              "p95_ms": 216.25525000000002,
+              "p99_ms": 223.300708,
+              "samples": 30
+            }
+          },
+          "retained_clone_unchanged": true,
+          "rounds": 3,
+          "roundtrip": {
+            "max_ms": 6410.228499999999,
+            "p50_ms": 6116.524334,
+            "p95_ms": 6410.228499999999,
+            "p99_ms": 6410.228499999999,
+            "samples": 3
+          },
+          "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+          "source_export_sha256": "3b0a4106219e40b1deb60ba948e138b5f095cdc8169615a9eed01b963a3a131d",
+          "update_delete_128": {
+            "max_ms": 2.657458,
+            "p50_ms": 2.434291,
+            "p95_ms": 2.657458,
+            "p99_ms": 2.657458,
+            "samples": 3
+          },
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-clone",
+      "entries": 500000,
+      "configuration": "default",
+      "repeats": 3,
+      "median_process_wall_seconds": 2.5480597920250148,
+      "median_peak_rss_bytes": 3625041920,
+      "results": [
+        {
+          "build_ms": 1441.032375,
+          "clone_ms": [
+            220.445958,
+            223.241125,
+            215.391125
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 0.019958,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        },
+        {
+          "build_ms": 1350.7295,
+          "clone_ms": [
+            204.57133299999998,
+            204.693958,
+            204.640459
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 0.018792,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        },
+        {
+          "build_ms": 1363.3452909999999,
+          "clone_ms": [
+            210.668625,
+            211.04749999999999,
+            209.894959
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 0.02025,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-clone",
+      "entries": 500000,
+      "configuration": "shared",
+      "repeats": 3,
+      "median_process_wall_seconds": 1.75749949994497,
+      "median_peak_rss_bytes": 1257275392,
+      "results": [
+        {
+          "build_ms": 1357.1938750000002,
+          "clone_ms": [
+            11.374417,
+            10.604292,
+            10.679417
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 84.62641599999999,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        },
+        {
+          "build_ms": 1351.357417,
+          "clone_ms": [
+            10.618,
+            10.280167,
+            10.093124999999999
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 84.14099999999999,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        },
+        {
+          "build_ms": 1361.300125,
+          "clone_ms": [
+            10.341332999999999,
+            9.879083,
+            9.476625
+          ],
+          "entries": 500000,
+          "fixture": "stress-index-v1",
+          "mode": "clone",
+          "old_views_unchanged": true,
+          "one_clone_mutation_ms": 84.705458,
+          "retained_clones": 3,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-disk",
+      "entries": 100000,
+      "configuration": "disk-index; isolated retained DB",
+      "repeats": 3,
+      "median_process_wall_seconds": 0.7787660420872271,
+      "median_peak_rss_bytes": 8306688,
+      "results": [
+        {
+          "build_ms": 523.356667,
+          "entries": 100000,
+          "file_bytes": 19374080,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 1.465958,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.1565,
+          "schema": 1
+        },
+        {
+          "build_ms": 514.617167,
+          "entries": 100000,
+          "file_bytes": 19374080,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 1.440792,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.143958,
+          "schema": 1
+        },
+        {
+          "build_ms": 516.461708,
+          "entries": 100000,
+          "file_bytes": 19374080,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 1.457041,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.1535,
+          "schema": 1
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-disk",
+      "entries": 1000000,
+      "configuration": "disk-index; isolated retained DB",
+      "repeats": 3,
+      "median_process_wall_seconds": 8.230769457994029,
+      "median_peak_rss_bytes": 9486336,
+      "results": [
+        {
+          "build_ms": 5543.896417,
+          "entries": 1000000,
+          "file_bytes": 197283840,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 13.299458,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.152917,
+          "schema": 1
+        },
+        {
+          "build_ms": 5574.976624999999,
+          "entries": 1000000,
+          "file_bytes": 197283840,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 13.133666,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.150042,
+          "schema": 1
+        },
+        {
+          "build_ms": 5599.185209,
+          "entries": 1000000,
+          "file_bytes": 197283840,
+          "fixture": "bounded public synthetic disk-index workload, not application capacity",
+          "hits": 10,
+          "ids": [
+            "id-00000042",
+            "id-00000142",
+            "id-00000242",
+            "id-00000342",
+            "id-00000442",
+            "id-00000542",
+            "id-00000642",
+            "id-00000742",
+            "id-00000842",
+            "id-00000942"
+          ],
+          "mode": "disk",
+          "query_ms": 13.058584,
+          "recipe": "airust-sqlite-fts5-v1/nfkc-lower-nfkc/(18, 0, 0)-(17, 0, 0)/sqlite-3.54.1",
+          "reopen_ms": 0.149667,
+          "schema": 1
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 10000,
+      "configuration": "default",
+      "repeats": 3,
+      "median_process_wall_seconds": 0.047569458140060306,
+      "median_peak_rss_bytes": 21692416,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.001375,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.001375,
+            "p99_ms": 0.001375,
+            "samples": 10
+          },
+          "build_ms": 24.018207999999998,
+          "common": {
+            "max_ms": 1.9200000000000002,
+            "min_ms": 1.829,
+            "p50_ms": 1.843,
+            "p95_ms": 1.9200000000000002,
+            "p99_ms": 1.9200000000000002,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.013209,
+            "min_ms": 0.004292,
+            "p50_ms": 0.008667,
+            "p95_ms": 0.010875,
+            "p99_ms": 0.013209,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012458,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.008416,
+            "min_ms": 0.002417,
+            "p50_ms": 0.002875,
+            "p95_ms": 0.004416,
+            "p99_ms": 0.008416,
+            "samples": 100
+          },
+          "update_100_ms": 0.189959,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.001083,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.001083,
+            "p99_ms": 0.001083,
+            "samples": 10
+          },
+          "build_ms": 23.470667,
+          "common": {
+            "max_ms": 1.9937079999999998,
+            "min_ms": 1.843291,
+            "p50_ms": 1.907125,
+            "p95_ms": 1.9937079999999998,
+            "p99_ms": 1.9937079999999998,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.012084,
+            "min_ms": 0.005332999999999999,
+            "p50_ms": 0.008624999999999999,
+            "p95_ms": 0.010917000000000001,
+            "p99_ms": 0.012084,
+            "samples": 80
+          },
+          "delete_20_ms": 0.01225,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.009000000000000001,
+            "min_ms": 0.002542,
+            "p50_ms": 0.0029170000000000003,
+            "p95_ms": 0.0038330000000000005,
+            "p99_ms": 0.009000000000000001,
+            "samples": 100
+          },
+          "update_100_ms": 0.185834,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.00075,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.00075,
+            "p99_ms": 0.00075,
+            "samples": 10
+          },
+          "build_ms": 23.193417,
+          "common": {
+            "max_ms": 1.944708,
+            "min_ms": 1.857792,
+            "p50_ms": 1.8701670000000001,
+            "p95_ms": 1.944708,
+            "p99_ms": 1.944708,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.013083,
+            "min_ms": 0.004334,
+            "p50_ms": 0.0085,
+            "p95_ms": 0.01025,
+            "p99_ms": 0.013083,
+            "samples": 80
+          },
+          "delete_20_ms": 0.011459,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.007125,
+            "min_ms": 0.0024590000000000002,
+            "p50_ms": 0.0028339999999999997,
+            "p95_ms": 0.004125,
+            "p99_ms": 0.007125,
+            "samples": 100
+          },
+          "update_100_ms": 0.18645799999999998,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 10000,
+      "configuration": "shared",
+      "repeats": 3,
+      "median_process_wall_seconds": 0.04738816688768566,
+      "median_peak_rss_bytes": 20660224,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.000916,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.000916,
+            "p99_ms": 0.000916,
+            "samples": 10
+          },
+          "build_ms": 24.537083000000003,
+          "common": {
+            "max_ms": 1.907,
+            "min_ms": 1.856125,
+            "p50_ms": 1.8638750000000002,
+            "p95_ms": 1.907,
+            "p99_ms": 1.907,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.017958,
+            "min_ms": 0.003958,
+            "p50_ms": 0.008791,
+            "p95_ms": 0.010542,
+            "p99_ms": 0.017958,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012041999999999999,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.007375,
+            "min_ms": 0.002375,
+            "p50_ms": 0.0027089999999999996,
+            "p95_ms": 0.004416,
+            "p99_ms": 0.007375,
+            "samples": 100
+          },
+          "update_100_ms": 0.190875,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.000791,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.000791,
+            "p99_ms": 0.000791,
+            "samples": 10
+          },
+          "build_ms": 23.7135,
+          "common": {
+            "max_ms": 1.9205839999999998,
+            "min_ms": 1.838833,
+            "p50_ms": 1.86575,
+            "p95_ms": 1.9205839999999998,
+            "p99_ms": 1.9205839999999998,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.012667,
+            "min_ms": 0.004416,
+            "p50_ms": 0.008833,
+            "p95_ms": 0.011042,
+            "p99_ms": 0.012667,
+            "samples": 80
+          },
+          "delete_20_ms": 0.011833,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.006333,
+            "min_ms": 0.002417,
+            "p50_ms": 0.00275,
+            "p95_ms": 0.0045000000000000005,
+            "p99_ms": 0.006333,
+            "samples": 100
+          },
+          "update_100_ms": 0.184416,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.001375,
+            "min_ms": 0.000292,
+            "p50_ms": 0.000334,
+            "p95_ms": 0.001375,
+            "p99_ms": 0.001375,
+            "samples": 10
+          },
+          "build_ms": 23.498333,
+          "common": {
+            "max_ms": 1.9362920000000001,
+            "min_ms": 1.8177919999999999,
+            "p50_ms": 1.844166,
+            "p95_ms": 1.9362920000000001,
+            "p99_ms": 1.9362920000000001,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.012625,
+            "min_ms": 0.004583,
+            "p50_ms": 0.008834,
+            "p95_ms": 0.011417,
+            "p99_ms": 0.012625,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012542,
+          "entries": 10000,
+          "final_entries": 9980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7722620768165992000,
+          "selective": {
+            "max_ms": 0.007875,
+            "min_ms": 0.0024159999999999997,
+            "p50_ms": 0.002833,
+            "p95_ms": 0.0037500000000000003,
+            "p99_ms": 0.007875,
+            "samples": 100
+          },
+          "update_100_ms": 0.22575,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 100000,
+      "configuration": "default",
+      "repeats": 3,
+      "median_process_wall_seconds": 0.48244912503287196,
+      "median_peak_rss_bytes": 193429504,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.0022500000000000003,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.00033299999999999996,
+            "p95_ms": 0.0022500000000000003,
+            "p99_ms": 0.0022500000000000003,
+            "samples": 10
+          },
+          "build_ms": 253.38191700000002,
+          "common": {
+            "max_ms": 22.879542,
+            "min_ms": 21.230417000000003,
+            "p50_ms": 21.745792,
+            "p95_ms": 22.879542,
+            "p99_ms": 22.879542,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.113792,
+            "min_ms": 0.042125,
+            "p50_ms": 0.052708,
+            "p95_ms": 0.10175000000000001,
+            "p99_ms": 0.113792,
+            "samples": 80
+          },
+          "delete_20_ms": 0.013167,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.137667,
+            "min_ms": 0.0505,
+            "p50_ms": 0.060000000000000005,
+            "p95_ms": 0.079833,
+            "p99_ms": 0.137667,
+            "samples": 100
+          },
+          "update_100_ms": 0.272875,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.002125,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.002125,
+            "p99_ms": 0.002125,
+            "samples": 10
+          },
+          "build_ms": 255.927208,
+          "common": {
+            "max_ms": 22.967708,
+            "min_ms": 21.360833999999997,
+            "p50_ms": 22.012417,
+            "p95_ms": 22.967708,
+            "p99_ms": 22.967708,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.12025,
+            "min_ms": 0.043625000000000004,
+            "p50_ms": 0.056332999999999994,
+            "p95_ms": 0.10675000000000001,
+            "p99_ms": 0.12025,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012625,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.134209,
+            "min_ms": 0.04725,
+            "p50_ms": 0.056208,
+            "p95_ms": 0.079041,
+            "p99_ms": 0.134209,
+            "samples": 100
+          },
+          "update_100_ms": 0.27116599999999996,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.0022919999999999998,
+            "min_ms": 0.00025,
+            "p50_ms": 0.00029099999999999997,
+            "p95_ms": 0.0022919999999999998,
+            "p99_ms": 0.0022919999999999998,
+            "samples": 10
+          },
+          "build_ms": 250.91054200000002,
+          "common": {
+            "max_ms": 22.944125,
+            "min_ms": 21.389458,
+            "p50_ms": 22.346417,
+            "p95_ms": 22.944125,
+            "p99_ms": 22.944125,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.114541,
+            "min_ms": 0.041875,
+            "p50_ms": 0.056125,
+            "p95_ms": 0.10575,
+            "p99_ms": 0.114541,
+            "samples": 80
+          },
+          "delete_20_ms": 0.013,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.14720799999999998,
+            "min_ms": 0.050959,
+            "p50_ms": 0.057958,
+            "p95_ms": 0.08141599999999999,
+            "p99_ms": 0.14720799999999998,
+            "samples": 100
+          },
+          "update_100_ms": 0.26966700000000005,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 100000,
+      "configuration": "shared",
+      "repeats": 3,
+      "median_process_wall_seconds": 0.48232191684655845,
+      "median_peak_rss_bytes": 182239232,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.002375,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.002375,
+            "p99_ms": 0.002375,
+            "samples": 10
+          },
+          "build_ms": 254.27300000000002,
+          "common": {
+            "max_ms": 23.129125000000002,
+            "min_ms": 21.011917,
+            "p50_ms": 21.512041999999997,
+            "p95_ms": 23.129125000000002,
+            "p99_ms": 23.129125000000002,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.118792,
+            "min_ms": 0.040917,
+            "p50_ms": 0.054458,
+            "p95_ms": 0.108708,
+            "p99_ms": 0.118792,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012583,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.136667,
+            "min_ms": 0.049583,
+            "p50_ms": 0.061,
+            "p95_ms": 0.081458,
+            "p99_ms": 0.136667,
+            "samples": 100
+          },
+          "update_100_ms": 0.277292,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.0020829999999999998,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.0020829999999999998,
+            "p99_ms": 0.0020829999999999998,
+            "samples": 10
+          },
+          "build_ms": 301.503958,
+          "common": {
+            "max_ms": 37.860125000000004,
+            "min_ms": 32.254290999999995,
+            "p50_ms": 36.880165999999996,
+            "p95_ms": 37.860125000000004,
+            "p99_ms": 37.860125000000004,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.12425000000000001,
+            "min_ms": 0.044667,
+            "p50_ms": 0.067334,
+            "p95_ms": 0.11025,
+            "p99_ms": 0.12425000000000001,
+            "samples": 80
+          },
+          "delete_20_ms": 0.014457999999999999,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.13029200000000002,
+            "min_ms": 0.057834,
+            "p50_ms": 0.066333,
+            "p95_ms": 0.088459,
+            "p99_ms": 0.13029200000000002,
+            "samples": 100
+          },
+          "update_100_ms": 0.315708,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.002667,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.002667,
+            "p99_ms": 0.002667,
+            "samples": 10
+          },
+          "build_ms": 254.909667,
+          "common": {
+            "max_ms": 23.05525,
+            "min_ms": 20.980915999999997,
+            "p50_ms": 21.768334,
+            "p95_ms": 23.05525,
+            "p99_ms": 23.05525,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 0.115792,
+            "min_ms": 0.036708000000000005,
+            "p50_ms": 0.056582999999999994,
+            "p95_ms": 0.1055,
+            "p99_ms": 0.115792,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012541,
+          "entries": 100000,
+          "final_entries": 99980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7771836811517753000,
+          "selective": {
+            "max_ms": 0.11729200000000001,
+            "min_ms": 0.051042,
+            "p50_ms": 0.061583,
+            "p95_ms": 0.077042,
+            "p99_ms": 0.11729200000000001,
+            "samples": 100
+          },
+          "update_100_ms": 0.278667,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 1000000,
+      "configuration": "default",
+      "repeats": 3,
+      "median_process_wall_seconds": 5.3781102921348065,
+      "median_peak_rss_bytes": 1902034944,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.002542,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.002542,
+            "p99_ms": 0.002542,
+            "samples": 10
+          },
+          "build_ms": 2802.6429999999996,
+          "common": {
+            "max_ms": 261.517125,
+            "min_ms": 246.072916,
+            "p50_ms": 250.661084,
+            "p95_ms": 261.517125,
+            "p99_ms": 261.517125,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.17475,
+            "min_ms": 0.780875,
+            "p50_ms": 0.8416250000000001,
+            "p95_ms": 1.1607919999999998,
+            "p99_ms": 1.17475,
+            "samples": 80
+          },
+          "delete_20_ms": 0.012917,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.34925,
+            "min_ms": 0.7440829999999999,
+            "p50_ms": 0.848625,
+            "p95_ms": 0.96375,
+            "p99_ms": 1.34925,
+            "samples": 100
+          },
+          "update_100_ms": 0.315209,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.003042,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.003042,
+            "p99_ms": 0.003042,
+            "samples": 10
+          },
+          "build_ms": 2914.62725,
+          "common": {
+            "max_ms": 255.245583,
+            "min_ms": 244.45558400000002,
+            "p50_ms": 249.11366600000002,
+            "p95_ms": 255.245583,
+            "p99_ms": 255.245583,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.2495,
+            "min_ms": 0.823917,
+            "p50_ms": 0.8843329999999999,
+            "p95_ms": 1.235458,
+            "p99_ms": 1.2495,
+            "samples": 80
+          },
+          "delete_20_ms": 0.031417,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.308416,
+            "min_ms": 0.892,
+            "p50_ms": 0.9741249999999999,
+            "p95_ms": 1.040041,
+            "p99_ms": 1.308416,
+            "samples": 100
+          },
+          "update_100_ms": 0.323834,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.003459,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.003459,
+            "p99_ms": 0.003459,
+            "samples": 10
+          },
+          "build_ms": 2881.569791,
+          "common": {
+            "max_ms": 252.084959,
+            "min_ms": 247.151084,
+            "p50_ms": 250.60995800000003,
+            "p95_ms": 252.084959,
+            "p99_ms": 252.084959,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.2755830000000001,
+            "min_ms": 0.814166,
+            "p50_ms": 0.8843329999999999,
+            "p95_ms": 1.259083,
+            "p99_ms": 1.2755830000000001,
+            "samples": 80
+          },
+          "delete_20_ms": 0.013040999999999999,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.52575,
+            "min_ms": 0.857333,
+            "p50_ms": 0.943541,
+            "p95_ms": 1.02675,
+            "p99_ms": 1.52575,
+            "samples": 100
+          },
+          "update_100_ms": 0.320334,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-scale",
+      "entries": 1000000,
+      "configuration": "shared",
+      "repeats": 3,
+      "median_process_wall_seconds": 5.284603500040248,
+      "median_peak_rss_bytes": 1788805120,
+      "results": [
+        {
+          "absent": {
+            "max_ms": 0.003333,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.003333,
+            "p99_ms": 0.003333,
+            "samples": 10
+          },
+          "build_ms": 2770.028167,
+          "common": {
+            "max_ms": 257.406708,
+            "min_ms": 246.05037499999997,
+            "p50_ms": 249.405291,
+            "p95_ms": 257.406708,
+            "p99_ms": 257.406708,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.200291,
+            "min_ms": 0.791708,
+            "p50_ms": 0.852792,
+            "p95_ms": 1.184292,
+            "p99_ms": 1.200291,
+            "samples": 80
+          },
+          "delete_20_ms": 0.015333000000000001,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.1407909999999999,
+            "min_ms": 0.709333,
+            "p50_ms": 0.811291,
+            "p95_ms": 0.952625,
+            "p99_ms": 1.1407909999999999,
+            "samples": 100
+          },
+          "update_100_ms": 0.31395799999999996,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.002666,
+            "min_ms": 0.00025,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.002666,
+            "p99_ms": 0.002666,
+            "samples": 10
+          },
+          "build_ms": 2815.25175,
+          "common": {
+            "max_ms": 247.349042,
+            "min_ms": 241.519917,
+            "p50_ms": 243.15958400000002,
+            "p95_ms": 247.349042,
+            "p99_ms": 247.349042,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.2705419999999998,
+            "min_ms": 0.7877500000000001,
+            "p50_ms": 0.879875,
+            "p95_ms": 1.2563330000000001,
+            "p99_ms": 1.2705419999999998,
+            "samples": 80
+          },
+          "delete_20_ms": 0.013333,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.365666,
+            "min_ms": 0.806875,
+            "p50_ms": 0.911833,
+            "p95_ms": 1.000834,
+            "p99_ms": 1.365666,
+            "samples": 100
+          },
+          "update_100_ms": 0.320375,
+          "version": "0.3.11"
+        },
+        {
+          "absent": {
+            "max_ms": 0.0037500000000000003,
+            "min_ms": 0.00029099999999999997,
+            "p50_ms": 0.000292,
+            "p95_ms": 0.0037500000000000003,
+            "p99_ms": 0.0037500000000000003,
+            "samples": 10
+          },
+          "build_ms": 2812.997958,
+          "common": {
+            "max_ms": 254.41725,
+            "min_ms": 244.52591700000002,
+            "p50_ms": 249.05625,
+            "p95_ms": 254.41725,
+            "p99_ms": 254.41725,
+            "samples": 8
+          },
+          "concurrent_readers": 4,
+          "concurrent_selective": {
+            "max_ms": 1.2617909999999999,
+            "min_ms": 0.8057920000000001,
+            "p50_ms": 0.898292,
+            "p95_ms": 1.2515,
+            "p99_ms": 1.2617909999999999,
+            "samples": 80
+          },
+          "delete_20_ms": 0.013209,
+          "entries": 1000000,
+          "final_entries": 999980,
+          "fixture": "stress-index-v1",
+          "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+          "mode": "scale",
+          "score_signature": 7776879341734148000,
+          "selective": {
+            "max_ms": 1.229875,
+            "min_ms": 0.842333,
+            "p50_ms": 0.92425,
+            "p95_ms": 1.050625,
+            "p99_ms": 1.229875,
+            "samples": 100
+          },
+          "update_100_ms": 0.372583,
+          "version": "0.3.11"
+        }
+      ]
+    },
+    {
+      "kind": "synthetic-snapshots",
+      "entries": 100000,
+      "configuration": "shared-index,execution,snapshots",
+      "repeats": 6,
+      "median_process_wall_seconds": 0.3088469370268285,
+      "median_peak_rss_bytes": 201302016.0,
+      "results": [
+        {
+          "build_ms": 200.631542,
+          "concurrent_elapsed_ms": 63.593333,
+          "conflicts": 3,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 1.6615410000000002,
+                "p50_ms": 0.019958,
+                "p95_ms": 0.027792,
+                "p99_ms": 0.029084000000000002,
+                "samples": 2454
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.146084,
+                "p50_ms": 0.022291000000000002,
+                "p95_ms": 0.023958999999999998,
+                "p99_ms": 0.025208,
+                "samples": 2317
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.146625,
+                "p50_ms": 0.02225,
+                "p95_ms": 0.030792,
+                "p99_ms": 0.031791,
+                "samples": 2256
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.142125,
+                "p50_ms": 0.020375,
+                "p95_ms": 0.021917,
+                "p99_ms": 0.023042,
+                "samples": 2543
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 8.124666,
+                "p50_ms": 3.440167,
+                "p95_ms": 8.124666,
+                "p99_ms": 8.124666,
+                "samples": 8
+              },
+              "publish": {
+                "max_ms": 8.726625,
+                "p50_ms": 0.000167,
+                "p95_ms": 8.726625,
+                "p99_ms": 8.726625,
+                "samples": 8
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 10.564041,
+                "p50_ms": 6.737833,
+                "p95_ms": 10.564041,
+                "p99_ms": 10.564041,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000375,
+                "p50_ms": 0.000292,
+                "p95_ms": 0.000375,
+                "p99_ms": 0.000375,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        },
+        {
+          "build_ms": 201.572417,
+          "concurrent_elapsed_ms": 61.182542,
+          "conflicts": 3,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.14837499999999998,
+                "p50_ms": 0.020208,
+                "p95_ms": 0.021875,
+                "p99_ms": 0.022709,
+                "samples": 2475
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 1.486959,
+                "p50_ms": 0.022625000000000003,
+                "p95_ms": 0.029708000000000002,
+                "p99_ms": 0.030750000000000003,
+                "samples": 2155
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.143291,
+                "p50_ms": 0.022125,
+                "p95_ms": 0.030125,
+                "p99_ms": 0.032291,
+                "samples": 2303
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.136708,
+                "p50_ms": 0.020458,
+                "p95_ms": 0.022375,
+                "p99_ms": 0.028249999999999997,
+                "samples": 2807
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 8.115916,
+                "p50_ms": 3.751833,
+                "p95_ms": 8.115916,
+                "p99_ms": 8.115916,
+                "samples": 8
+              },
+              "publish": {
+                "max_ms": 9.041167,
+                "p50_ms": 0.000334,
+                "p95_ms": 9.041167,
+                "p99_ms": 9.041167,
+                "samples": 8
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 9.003832999999998,
+                "p50_ms": 6.803624999999999,
+                "p95_ms": 9.003832999999998,
+                "p99_ms": 9.003832999999998,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000334,
+                "p50_ms": 0.000292,
+                "p95_ms": 0.000334,
+                "p99_ms": 0.000334,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        },
+        {
+          "build_ms": 203.221208,
+          "concurrent_elapsed_ms": 53.998167,
+          "conflicts": 3,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.15375,
+                "p50_ms": 0.019958,
+                "p95_ms": 0.021500000000000002,
+                "p99_ms": 0.022458000000000002,
+                "samples": 2440
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.154167,
+                "p50_ms": 0.022,
+                "p95_ms": 0.030208,
+                "p99_ms": 0.031584,
+                "samples": 1879
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.151792,
+                "p50_ms": 0.022208000000000002,
+                "p95_ms": 0.023833,
+                "p99_ms": 0.024833,
+                "samples": 2208
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.146542,
+                "p50_ms": 0.020667,
+                "p95_ms": 0.022042,
+                "p99_ms": 0.023042,
+                "samples": 2062
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 6.908209,
+                "p50_ms": 3.7537920000000002,
+                "p95_ms": 6.908209,
+                "p99_ms": 6.908209,
+                "samples": 8
+              },
+              "publish": {
+                "max_ms": 4.6045419999999995,
+                "p50_ms": 0.000209,
+                "p95_ms": 4.6045419999999995,
+                "p99_ms": 4.6045419999999995,
+                "samples": 8
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 9.011125,
+                "p50_ms": 6.8927499999999995,
+                "p95_ms": 9.011125,
+                "p99_ms": 9.011125,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000584,
+                "p50_ms": 0.000292,
+                "p95_ms": 0.000584,
+                "p99_ms": 0.000584,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        },
+        {
+          "build_ms": 200.15775,
+          "concurrent_elapsed_ms": 75.154791,
+          "conflicts": 3,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.154959,
+                "p50_ms": 0.020208,
+                "p95_ms": 0.027583,
+                "p99_ms": 0.034416999999999996,
+                "samples": 2770
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.158875,
+                "p50_ms": 0.022917,
+                "p95_ms": 0.029833000000000002,
+                "p99_ms": 0.049125,
+                "samples": 2833
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.1535,
+                "p50_ms": 0.022291000000000002,
+                "p95_ms": 0.033667,
+                "p99_ms": 0.049499999999999995,
+                "samples": 2860
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.149042,
+                "p50_ms": 0.020208999999999998,
+                "p95_ms": 0.031292,
+                "p99_ms": 0.034832999999999996,
+                "samples": 2860
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 8.480375,
+                "p50_ms": 5.55225,
+                "p95_ms": 8.480375,
+                "p99_ms": 8.480375,
+                "samples": 8
+              },
+              "publish": {
+                "max_ms": 11.997792,
+                "p50_ms": 0.000458,
+                "p95_ms": 11.997792,
+                "p99_ms": 11.997792,
+                "samples": 8
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 10.852,
+                "p50_ms": 7.4095,
+                "p95_ms": 10.852,
+                "p99_ms": 10.852,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000709,
+                "p50_ms": 0.00025,
+                "p95_ms": 0.000709,
+                "p99_ms": 0.000709,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        },
+        {
+          "build_ms": 204.977,
+          "concurrent_elapsed_ms": 66.486542,
+          "conflicts": 2,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.14825,
+                "p50_ms": 0.0205,
+                "p95_ms": 0.032208,
+                "p99_ms": 0.053541,
+                "samples": 2472
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.146041,
+                "p50_ms": 0.02225,
+                "p95_ms": 0.030625,
+                "p99_ms": 0.036167,
+                "samples": 2548
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.143583,
+                "p50_ms": 0.023208,
+                "p95_ms": 0.034416999999999996,
+                "p99_ms": 0.040584,
+                "samples": 2175
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 1.094833,
+                "p50_ms": 0.019833,
+                "p95_ms": 0.022500000000000003,
+                "p99_ms": 0.034415999999999995,
+                "samples": 2582
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 7.799917,
+                "p50_ms": 5.6766250000000005,
+                "p95_ms": 7.799917,
+                "p99_ms": 7.799917,
+                "samples": 7
+              },
+              "publish": {
+                "max_ms": 10.01225,
+                "p50_ms": 0.000292,
+                "p95_ms": 10.01225,
+                "p99_ms": 10.01225,
+                "samples": 7
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 10.212708,
+                "p50_ms": 6.686625,
+                "p95_ms": 10.212708,
+                "p99_ms": 10.212708,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000417,
+                "p50_ms": 0.000292,
+                "p95_ms": 0.000417,
+                "p99_ms": 0.000417,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        },
+        {
+          "build_ms": 202.66370799999999,
+          "concurrent_elapsed_ms": 68.676541,
+          "conflicts": 3,
+          "entries": 100000,
+          "final_generation": 11,
+          "fixture": "stress-snapshots-v1",
+          "limits": "Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction.",
+          "old_view_unchanged": true,
+          "readers": [
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.150542,
+                "p50_ms": 0.020041999999999997,
+                "p95_ms": 0.024666999999999998,
+                "p99_ms": 0.033583,
+                "samples": 3013
+              },
+              "worker": 0
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.14837499999999998,
+                "p50_ms": 0.022292,
+                "p95_ms": 0.029792,
+                "p99_ms": 0.031958,
+                "samples": 2568
+              },
+              "worker": 1
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "latency": {
+                "max_ms": 0.148708,
+                "p50_ms": 0.023,
+                "p95_ms": 0.034917,
+                "p99_ms": 0.038042,
+                "samples": 2061
+              },
+              "worker": 2
+            },
+            {
+              "generations": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "latency": {
+                "max_ms": 0.14275,
+                "p50_ms": 0.020333999999999998,
+                "p95_ms": 0.030125,
+                "p99_ms": 0.033333,
+                "samples": 2915
+              },
+              "worker": 3
+            }
+          ],
+          "version": "0.3.11",
+          "writers": [
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 7.6535839999999995,
+                "p50_ms": 4.4412080000000005,
+                "p95_ms": 7.6535839999999995,
+                "p99_ms": 7.6535839999999995,
+                "samples": 8
+              },
+              "publish": {
+                "max_ms": 9.778291999999999,
+                "p50_ms": 0.00025,
+                "p95_ms": 9.778291999999999,
+                "p99_ms": 9.778291999999999,
+                "samples": 8
+              },
+              "worker": 0
+            },
+            {
+              "commits": 5,
+              "prepare": {
+                "max_ms": 8.276416999999999,
+                "p50_ms": 6.495540999999999,
+                "p95_ms": 8.276416999999999,
+                "p99_ms": 8.276416999999999,
+                "samples": 5
+              },
+              "publish": {
+                "max_ms": 0.000375,
+                "p50_ms": 0.000292,
+                "p95_ms": 0.000375,
+                "p99_ms": 0.000375,
+                "samples": 5
+              },
+              "worker": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -522,6 +522,8 @@ impl KnowledgeIndex {
             }
             let character = if normalized == document.normalized {
                 1.0
+            } else if options.strategy == MatchStrategy::TokenOverlap {
+                0.0
             } else {
                 let distance = if options.strategy == MatchStrategy::Fuzzy {
                     let Some(distance) = crate::matching::bounded_distance(
@@ -561,7 +563,19 @@ impl KnowledgeIndex {
                 });
             }
         }
-        results.finish()
+        let mut results = results.finish();
+        if options.strategy == MatchStrategy::TokenOverlap {
+            for result in &mut results {
+                if !result.similarity.exact {
+                    let document = &self.documents[&result.entry.id];
+                    let distance =
+                        crate::matching::levenshtein_distance(&normalized, &document.normalized);
+                    result.similarity.character =
+                        1.0 - distance as f64 / query_len.max(document.char_length) as f64;
+                }
+            }
+        }
+        results
     }
 
     pub fn duplicates(&self) -> Vec<Vec<&KnowledgeEntry>> {
@@ -795,6 +809,117 @@ impl PreparedCache {
             );
         }
         index
+    }
+}
+
+#[cfg(test)]
+mod token_match_tests {
+    use super::*;
+
+    fn check_complete_comparison(
+        index: &KnowledgeIndex,
+        query: &str,
+        threshold: f64,
+        limit: usize,
+    ) {
+        let mut expected: Vec<_> = index
+            .entries()
+            .map(|entry| (entry, crate::matching::compare(query, &entry.text)))
+            .filter(|(_, similarity)| similarity.token > 0.0 && similarity.token >= threshold)
+            .collect();
+        expected.sort_by(|(left, a), (right, b)| {
+            b.token
+                .total_cmp(&a.token)
+                .then_with(|| left.id.cmp(&right.id))
+        });
+        expected.truncate(limit);
+        let actual = index
+            .match_with_options(
+                query,
+                &MatchOptions {
+                    strategy: MatchStrategy::TokenOverlap,
+                    min_similarity: threshold,
+                    limit,
+                },
+            )
+            .unwrap();
+        assert_eq!(actual.len(), expected.len());
+        for (actual, (entry, similarity)) in actual.iter().zip(expected) {
+            assert_eq!(actual.entry, entry);
+            assert_eq!(actual.score, similarity.token);
+            assert_eq!(actual.similarity, similarity);
+        }
+    }
+
+    #[test]
+    fn token_top_k_preserves_full_comparison_scores_and_unicode_explanations() {
+        let texts = [
+            "Alpha beta",
+            "beta alpha",
+            "ALPHA βeta",
+            "alpha delta γ",
+            "Über Straße ä😀",
+            "alpha alpha beta",
+            "alpha",
+            "gamma",
+            "🧠",
+            "alpha\u{200d} beta",
+            "café alpha",
+            "cafe\u{301} alpha",
+            "alpha—beta",
+        ];
+        let index = KnowledgeIndex::from_entries(
+            texts
+                .iter()
+                .enumerate()
+                .map(|(i, text)| KnowledgeEntry::new(format!("entry-{i:02}"), *text)),
+        )
+        .unwrap();
+        for query in texts.into_iter().chain(["", "   ", "!", "東京 alpha"]) {
+            for threshold in [0.0, f64::EPSILON, 0.2, 0.5, 0.8, 1.0] {
+                for limit in [0, 1, 3, 99, usize::MAX] {
+                    check_complete_comparison(&index, query, threshold, limit);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn token_match_explanations_survive_changes_and_json_roundtrips() {
+        let mut index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "memory allocation"),
+            KnowledgeEntry::new("b", "allocation memory memory"),
+            KnowledgeEntry::new("c", "memory allocation function"),
+            KnowledgeEntry::new("d", "Speicher Verwaltung"),
+        ])
+        .unwrap();
+        index.remove("a");
+        index
+            .upsert(KnowledgeEntry::new("d", "memory allocation 😀"))
+            .unwrap();
+        let restored = KnowledgeIndex::from_json(&index.to_json().unwrap()).unwrap();
+        for index in [&index, &restored] {
+            for query in ["memory allocation", "Speicher", "MEMORY", "😀 allocation"] {
+                for limit in [0, 1, 10] {
+                    check_complete_comparison(index, query, 0.0, limit);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn token_ties_keep_id_order_and_character_scores_for_long_text() {
+        let index = KnowledgeIndex::from_entries((0..64).rev().map(|i| {
+            KnowledgeEntry::new(
+                format!("entry-{i:02}"),
+                format!("{} {}", "common memory 😀 ".repeat(32), "β".repeat(i)),
+            )
+        }))
+        .unwrap();
+        let query = "memory common ".repeat(16);
+        for limit in [1, 10, 100] {
+            check_complete_comparison(&index, &query, 0.0, limit);
+        }
     }
 }
 
