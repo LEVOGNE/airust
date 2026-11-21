@@ -16,7 +16,7 @@ def main():
     package = next(p for p in metadata["packages"] if p["name"] == "pdf_oxide" and p["version"] == "0.3.78")
     original = Path(package["manifest_path"]).parent
     manifest = json.loads((backend / "UPSTREAM-SHA256.json").read_text())
-    changed = {"src/document.rs", "src/lib.rs"}
+    changed = {"src/document.rs", "src/lib.rs", "src/extractors/text.rs"}
     for name, expected in manifest["files"].items():
         assert hashlib.file_digest((original / name).open("rb"), "sha256").hexdigest() == expected, name
         if name not in changed:
@@ -24,7 +24,7 @@ def main():
     actual = {p.relative_to(backend).as_posix() for p in (backend / "src").rglob("*") if p.is_file()}
     assert actual == set(manifest["files"]) | {"src/airust_small_object.rs"}
     patch = ""
-    for name in ["src/lib.rs", "src/document.rs", "src/airust_small_object.rs"]:
+    for name in ["src/lib.rs", "src/document.rs", "src/extractors/text.rs", "src/airust_small_object.rs"]:
         before = (original / name).read_text().splitlines(keepends=True) if (original / name).exists() else []
         after = (backend / name).read_text().splitlines(keepends=True)
         patch += "".join(difflib.unified_diff(before, after, fromfile="a/" + name if before else "/dev/null", tofile="b/" + name))
@@ -32,7 +32,7 @@ def main():
     for name in ["LICENSE-MIT", "LICENSE-APACHE", "NOTICE", "TRADEMARKS.md"]:
         assert (backend / name).read_bytes() == (original / name).read_bytes(), name
     subprocess.run(["rustfmt", "--edition", "2021", "--check", str(backend / "src/airust_small_object.rs"), str(backend / "tests/regressions.rs")], check=True)
-    print(f"PDF backend provenance verified: {len(manifest['files'])} upstream source files; two maintained files and one helper; original notices preserved.")
+    print(f"PDF backend provenance verified: {len(manifest['files'])} upstream source files; three maintained files and one helper; original notices preserved.")
 
 
 if __name__ == "__main__":

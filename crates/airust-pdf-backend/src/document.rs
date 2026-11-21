@@ -4801,8 +4801,7 @@ impl PdfDocument {
         // Prevent infinite recursion
         const MAX_DEPTH: usize = 50;
         if depth > MAX_DEPTH {
-            log::warn!("Page tree depth exceeded {} levels, stopping", MAX_DEPTH);
-            return Ok(0);
+            return Err(Error::RecursionLimitExceeded(MAX_DEPTH as u32));
         }
 
         // Load the node
@@ -4852,12 +4851,7 @@ impl PdfDocument {
                                 );
                                 continue;
                             },
-                            Err(Error::RecursionLimitExceeded(_)) => {
-                                log::warn!(
-                                    "Recursion limit exceeded in page tree, skipping branch"
-                                );
-                                continue;
-                            },
+                            Err(error @ Error::RecursionLimitExceeded(_)) => return Err(error),
                             Err(e) => {
                                 log::warn!("Error counting pages in branch: {}, skipping", e);
                                 continue;

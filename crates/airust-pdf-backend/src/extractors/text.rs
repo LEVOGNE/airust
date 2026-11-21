@@ -12,7 +12,7 @@ use crate::content::graphics_state::{GraphicsStateStack, Matrix};
 use crate::content::operators::{Operator, TextElement};
 use crate::content::parse_and_execute_text_only;
 use crate::content::parse_content_stream;
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::extract_log_debug;
 use crate::fonts::unicode_decode::{fallback_char_to_unicode, DecodePolicy, TextCharIter};
 use crate::fonts::FontInfo;
@@ -6634,6 +6634,9 @@ impl<'doc> TextExtractor<'doc> {
                 // Form XObjects can contain text that is not duplicated in the main stream.
                 // We track processed XObjects to avoid infinite loops and duplicates.
                 if let Err(e) = self.process_xobject(&name) {
+                    if Self::is_extraction_budget_error(&e) {
+                        return Err(e);
+                    }
                     // Log error but continue processing - don't fail the entire extraction
                     log::warn!("Failed to process XObject '{}': {}", name, e);
                 }
@@ -6711,12 +6714,17 @@ impl<'doc> TextExtractor<'doc> {
         Ok(self.cached_xobject_refs.get(name).copied().flatten())
     }
 
+    fn is_extraction_budget_error(error: &Error) -> bool {
+        matches!(error, Error::RecursionLimitExceeded(_))
+            || matches!(error, Error::InvalidPdf(message) if message.starts_with("XObject decode budget exceeded"))
+    }
+
     fn process_xobject(&mut self, name: &str) -> Result<()> {
         if self.xobject_depth >= Self::MAX_XOBJECT_DEPTH {
-            return Ok(());
+            return Err(Error::RecursionLimitExceeded(Self::MAX_XOBJECT_DEPTH));
         }
         if self.xobject_decode_count >= Self::MAX_XOBJECT_DECODES {
-            return Ok(());
+            return Err(Error::InvalidPdf(format!("XObject decode budget exceeded (maximum {})", Self::MAX_XOBJECT_DECODES)));
         }
 
         // Resolve name → ObjectRef using cached mapping (avoids expensive
@@ -7058,7 +7066,7 @@ impl<'doc> TextExtractor<'doc> {
                 // success so the parent stream's scope is correctly
                 // restored even on errors.
                 self.mcid_scope_stack.pop();
-                if let Err(e) = parse_result {
+                if let Err(ref e) = parse_result {
                     log::debug!(
                         "Error parsing Form XObject '{}' content stream: {}, partial text may be extracted",
                         name,
@@ -7181,7 +7189,7 @@ impl<'doc> TextExtractor<'doc> {
                 // We still require `has_own_resources` so that font lookups are
                 // self-contained; XObjects that inherit page-level fonts would
                 // produce spans whose glyph mappings depend on caller context.
-                if has_own_resources && self.extract_spans && !has_filters {
+                if has_own_resources && self.extract_spans && !has_filters && parse_result.is_ok() {
                     let new_spans = if self.spans.len() > spans_before {
                         Some(self.spans[spans_before..].to_vec())
                     } else {
@@ -7220,6 +7228,13 @@ impl<'doc> TextExtractor<'doc> {
                 if !self.excluded_inks.is_empty() {
                     let cs = self.state_stack.current().fill_color_space.clone();
                     self.inside_excluded_ink = self.is_excluded_ink_color_space(&cs);
+                }
+
+                if let Err(error) = parse_result {
+                    if Self::is_extraction_budget_error(&error) {
+                        self.processed_xobjects.remove(&xobj_key);
+                        return Err(error);
+                    }
                 }
 
                 // Keep xobject_ref in processed_xobjects permanently.

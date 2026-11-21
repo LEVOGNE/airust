@@ -261,3 +261,169 @@ fn file_backed_cold_object_loads_stay_correct_with_parallel_readers() {
     });
     assert_eq!(new.extract_text(0).unwrap(), old.extract_text(0).unwrap());
 }
+
+fn form_stream(content: &[u8], resources: &str) -> Vec<u8> {
+    [
+        format!("<< /Length {} /Type /XObject /Subtype /Form /FormType 1 /BBox [0 0 400 400] /Resources << /Font << /F1 4 0 R >> {} >> >>\nstream\n", content.len(), resources).into_bytes(),
+        content.to_vec(),
+        b"\nendstream\n".to_vec(),
+    ].concat()
+}
+
+fn ordinary_stream(content: &[u8]) -> Vec<u8> {
+    [
+        format!("<< /Length {} >>\nstream\n", content.len()).into_bytes(),
+        content.to_vec(),
+        b"\nendstream\n".to_vec(),
+    ]
+    .concat()
+}
+
+fn nested_forms(depth: usize) -> Vec<u8> {
+    let mut bodies = vec![
+        b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+        b"<< /Type /Pages /Count 1 /Kids [3 0 R] >>".to_vec(),
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Resources << /Font << /F1 4 0 R >> /XObject << /First 6 0 R >> >> /Contents 5 0 R >>".to_vec(),
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_vec(),
+        ordinary_stream(b"BT /F1 12 Tf 20 300 Td (AIRUSTFORMSTART) Tj ET /First Do BT /F1 12 Tf 20 250 Td (AIRUSTFORMEND) Tj ET"),
+    ];
+    for i in 0..depth {
+        let last = i + 1 == depth;
+        let content = if last {
+            b"BT /F1 12 Tf 20 200 Td (AIRUSTFORMLEAF) Tj ET".as_slice()
+        } else {
+            b"/Next Do".as_slice()
+        };
+        let resources = if last {
+            String::new()
+        } else {
+            format!("/XObject << /Next {} 0 R >>", 7 + i)
+        };
+        bodies.push(form_stream(content, &resources));
+    }
+    document(bodies)
+}
+
+#[test]
+fn supported_nested_forms_preserve_the_innermost_text() {
+    for depth in [1, 5, 9, 10] {
+        let doc = PdfDocument::from_bytes(nested_forms(depth)).unwrap();
+        let text = doc.extract_text(0).unwrap();
+        for marker in ["AIRUSTFORMSTART", "AIRUSTFORMEND", "AIRUSTFORMLEAF"] {
+            assert!(text.contains(marker), "depth={depth} missing {marker}");
+        }
+    }
+}
+
+#[test]
+fn excessive_form_depth_errors_without_caching_a_partial_success() {
+    for depth in [11, 16, 32, 64, 128] {
+        let doc = PdfDocument::from_bytes(nested_forms(depth)).unwrap();
+        for _ in 0..2 {
+            let error = doc.extract_text(0).unwrap_err().to_string();
+            assert!(error.contains("Recursion"), "depth={depth}: {error}");
+            assert!(doc.extract_spans(0).is_err(), "depth={depth}");
+            assert!(doc.extract_words(0).is_err(), "depth={depth}");
+            assert!(doc.extract_chars(0).is_err(), "depth={depth}");
+        }
+    }
+}
+
+fn assert_form_budget_result(result: airust_pdf_backend::Result<String>) {
+    match result {
+        Ok(text) => {
+            for marker in ["AIRUSTBEFORE", "AIRUSTAFTER", "AIRUSTLAST"] {
+                assert!(text.contains(marker), "missing {marker}: {text}");
+            }
+        }
+        Err(error) => assert!(error.to_string().contains("budget"), "{error}"),
+    }
+}
+
+#[test]
+fn form_processing_budget_errors_instead_of_publishing_a_prefix() {
+    for count in [499, 500, 501] {
+        let mut calls = String::from("BT /F1 12 Tf 20 300 Td (AIRUSTBEFORE) Tj ET\n");
+        let mut names = String::new();
+        for i in 0..count {
+            calls.push_str(&format!("/F{i} Do\n"));
+            names.push_str(&format!("/F{i} {} 0 R ", 6 + i));
+        }
+        calls.push_str("BT /F1 12 Tf 20 250 Td (AIRUSTAFTER) Tj ET");
+        let mut bodies = vec![
+        b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+        b"<< /Type /Pages /Count 1 /Kids [3 0 R] >>".to_vec(),
+        format!("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Resources << /Font << /F1 4 0 R >> /XObject << {names} >> >> /Contents 5 0 R >>").into_bytes(),
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_vec(),
+        ordinary_stream(calls.as_bytes()),
+    ];
+        for i in 0..count {
+            bodies.push(form_stream(
+                if i + 1 == count {
+                    b"BT /F1 12 Tf 20 200 Td (AIRUSTLAST) Tj ET"
+                } else {
+                    b""
+                },
+                "",
+            ));
+        }
+        let doc = PdfDocument::from_bytes(document(bodies)).unwrap();
+        let first = doc.extract_text(0);
+        if count > 500 {
+            assert!(first.unwrap_err().to_string().contains("budget"));
+        } else {
+            assert_form_budget_result(Ok(first.unwrap()));
+        }
+        for _ in 0..2 {
+            assert_form_budget_result(doc.extract_text(0));
+            assert_form_budget_result(
+                doc.extract_spans(0)
+                    .map(|spans| spans.into_iter().map(|span| span.text).collect::<String>()),
+            );
+            assert_form_budget_result(
+                doc.extract_words(0)
+                    .map(|words| words.into_iter().map(|word| word.text).collect::<String>()),
+            );
+            assert_form_budget_result(
+                doc.extract_chars(0)
+                    .map(|chars| chars.into_iter().map(|item| item.char).collect::<String>()),
+            );
+        }
+    }
+}
+
+#[test]
+fn fallback_page_count_rejects_depth_exhaustion() {
+    for depth in [16, 64] {
+        let leaf = 6 + depth;
+        let content = leaf + 1;
+        let mut bodies = vec![
+            b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+            b"<< /Type /Pages /Kids [3 0 R 6 0 R] >>".to_vec(),
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".to_vec(),
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_vec(),
+            ordinary_stream(b"BT /F1 12 Tf 20 300 Td (AIRUSTSHALLOW) Tj ET"),
+        ];
+        for i in 0..depth {
+            let id = 6 + i;
+            bodies.push(
+                format!(
+                    "<< /Type /Pages /Parent {} 0 R /Count 1 /Kids [{} 0 R] >>",
+                    if i == 0 { 2 } else { id - 1 },
+                    id + 1
+                )
+                .into_bytes(),
+            );
+        }
+        bodies.push(format!("<< /Type /Page /Parent {} 0 R /MediaBox [0 0 400 400] /Resources << /Font << /F1 4 0 R >> >> /Contents {content} 0 R >>", leaf-1).into_bytes());
+        bodies.push(ordinary_stream(
+            b"BT /F1 12 Tf 20 300 Td (AIRUSTDEEP) Tj ET",
+        ));
+        let doc = PdfDocument::from_bytes(document(bodies)).unwrap();
+        if depth == 16 {
+            assert_eq!(doc.page_count().unwrap(), 2);
+        } else {
+            assert!(doc.page_count().is_err());
+        }
+    }
+}
