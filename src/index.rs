@@ -222,6 +222,35 @@ struct TfidfNorms {
     values: RwLock<HashMap<NormKey, f64>>,
 }
 
+#[derive(Clone, Copy, Default)]
+struct QueryWeight {
+    key: usize,
+    idf: f64,
+}
+
+struct QueryWeights {
+    slots: [QueryWeight; 256],
+}
+
+impl Default for QueryWeights {
+    fn default() -> Self {
+        Self {
+            slots: [QueryWeight::default(); 256],
+        }
+    }
+}
+
+impl QueryWeights {
+    fn get(&mut self, key: usize, compute: impl FnOnce() -> f64) -> f64 {
+        let slot = &mut self.slots[((key >> 4) ^ (key >> 12)) & 255];
+        if slot.key != key {
+            slot.idf = compute();
+            slot.key = key;
+        }
+        slot.idf
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
     documents: BTreeMap<Arc<str>, Shared<IndexedEntry>>,
@@ -594,6 +623,7 @@ impl KnowledgeIndex {
                 self.tfidf_norms
                     .get_or_init(|| Arc::new(TfidfNorms::default()))
             });
+        let mut query_weights = None;
         let mut results = TopK::new(options.limit);
         for (position, id) in merged
             .into_iter()
@@ -646,6 +676,7 @@ impl KnowledgeIndex {
                         key,
                         document,
                         norms.expect("TF-IDF cache"),
+                        &mut query_weights,
                         &mut checkpoint,
                     )?;
                     if norm > 0.0 && query_norm > 0.0 {
@@ -697,6 +728,7 @@ impl KnowledgeIndex {
         id: &Arc<str>,
         document: &IndexedEntry,
         cache: &TfidfNorms,
+        weights: &mut Option<Box<QueryWeights>>,
         checkpoint: &mut impl FnMut() -> Result<(), E>,
     ) -> Result<f64, E> {
         let key = NormKey::from_id(id);
@@ -710,7 +742,12 @@ impl KnowledgeIndex {
             if position.is_multiple_of(128) {
                 checkpoint()?;
             }
-            sum += (*tf as f64 * tfidf_idf(self.len(), self.postings[term].len())).powi(2);
+            let idf = weights
+                .get_or_insert_with(|| Box::new(QueryWeights::default()))
+                .get(Arc::as_ptr(term).addr(), || {
+                    tfidf_idf(self.len(), self.postings[term].len())
+                });
+            sum += (*tf as f64 * idf).powi(2);
         }
         let norm = sum.sqrt();
         checkpoint()?;
@@ -1715,6 +1752,53 @@ mod optimization_tests {
         assert_eq!(signature(&index), expected);
     }
     #[test]
+    fn query_weight_collisions_recompute_instead_of_reusing_another_word() {
+        let mut memo = QueryWeights::default();
+        let mut computes = 0;
+        let first = 16;
+        let collision = first + (1 << 20);
+        for (key, expected, calls) in [
+            (first, 3.5, 1),
+            (first, 3.5, 1),
+            (collision, 7.25, 2),
+            (collision, 7.25, 2),
+            (first, 3.5, 3),
+        ] {
+            let actual = memo.get(key, || {
+                computes += 1;
+                expected
+            });
+            assert_eq!(actual.to_bits(), expected.to_bits());
+            assert_eq!(computes, calls);
+        }
+    }
+    #[test]
+    fn warm_and_interrupted_norms_do_not_allocate_query_weights() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "beta gamma"),
+        ])
+        .unwrap();
+        let (id, document) = index.documents.first_key_value().unwrap();
+        let cache = TfidfNorms::default();
+        let mut weights = None;
+        let interrupted =
+            index.tfidf_norm_checked(id, document, &cache, &mut weights, &mut || Err("cancelled"));
+        assert_eq!(interrupted, Err("cancelled"));
+        assert!(weights.is_none());
+        assert!(cache.values.read().unwrap().is_empty());
+        let cold = index
+            .tfidf_norm_checked(id, document, &cache, &mut weights, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        assert!(weights.is_some());
+        let mut fresh = None;
+        let warm = index
+            .tfidf_norm_checked(id, document, &cache, &mut fresh, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        assert_eq!(cold.to_bits(), warm.to_bits());
+        assert!(fresh.is_none());
+    }
+    #[test]
     fn poisoned_norm_hint_falls_back_to_exact_computation() {
         let index = KnowledgeIndex::from_entries([
             KnowledgeEntry::new("a", "alpha beta"),
@@ -1761,7 +1845,7 @@ mod optimization_tests {
         let (id, document) = index.documents.first_key_value().unwrap();
         let cache = TfidfNorms::default();
         let mut checks = 0;
-        let result = index.tfidf_norm_checked(id, document, &cache, &mut || {
+        let result = index.tfidf_norm_checked(id, document, &cache, &mut None, &mut || {
             checks += 1;
             if checks == 2 {
                 Err("stopped")
@@ -1781,7 +1865,7 @@ mod optimization_tests {
             .sqrt();
         assert_eq!(
             index
-                .tfidf_norm_checked(id, document, &cache, &mut || Ok::<_, ()>(()))
+                .tfidf_norm_checked(id, document, &cache, &mut None, &mut || Ok::<_, ()>(()))
                 .unwrap()
                 .to_bits(),
             expected.to_bits()

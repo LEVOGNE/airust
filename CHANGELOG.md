@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.13 — Bounded cold-query TF-IDF reuse
+
+Reuse exact IDF word weights in a lazy 256-slot request-local memo while computing missing document norms. Compare full live-term identities; collisions recompute and replace a slot. Drop the memo after the query, preserving persistent cache size, exact arithmetic, sorted contribution order, checkpoints and nonblocking hint fallback. Add collision/recomputation and warm/interrupted allocation regressions. Preserve public Rust/MCP signatures, schemas, source positions and knowledge formats, with no startup prewarming, dependencies or DenkMaps integration. Read [performance/API](docs/CORE-PERFORMANCE.md) and [honest cold/warm/RAM results](docs/CHANGES-0.4.13.md).
+
 ## 0.4.12 — Compact cold TF-IDF hints
 
 Store norm hints by a compact identity of the ID allocation already owned by the central index. Keep standard randomized hashing, exact scores, invalidation, complete-value publication and nonblocking contention/poison fallback. Avoid extra ID reference retention and string hashing without adding per-document fields, dependencies or public options. Add identifier-ownership, concurrent cold-query and retained-clone/reused-ID regressions. Fix the snapshot stress example to retry conflicts from both preparation and publication, with a deterministic example regression and repeated concurrent checks. Measure cold latency and hint heap separately from warmed queries and process RSS. Preserve sources, knowledge and MCP schemas. No DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md) and [honest measurements](docs/CHANGES-0.4.12.md).

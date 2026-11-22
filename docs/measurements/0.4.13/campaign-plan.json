@@ -1,0 +1,22 @@
+{
+  "version": "0.4.13",
+  "created_at": "2026-11-22T18:47:49.959708+00:00",
+  "baseline": "exact registry0.4.12 VCS15bed6535d6e4d575f6af9cc20cbd0d915193753",
+  "scope": "Bounded request-local IDF memoization for cold TF-IDF norms; no prewarming, no persistent index memory increase, exact scores and public MCP/API contracts",
+  "question_origin": "Retained342authored/exposed regressions, not fresh holdout or real user traffic",
+  "artifact_policy": "Archive proof before deleting only /private/tmp/airust-ranking-0413-build and -miri",
+  "query_fixtures": 25,
+  "query_plain_processes": 14,
+  "cold_time_processes": 14,
+  "cold_time_calls": 1120,
+  "cold_norm_profile_processes": 2,
+  "canonical_cold_norm_profile_processes": 2,
+  "mcp_campaigns": 2,
+  "mcp_processes_per_campaign": 30,
+  "cold_fixtures": [
+    "index",
+    "wide",
+    "sparse",
+    "tiny"
+  ]
+}

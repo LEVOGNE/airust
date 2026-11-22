@@ -1,6 +1,6 @@
-# AIRust 0.4.12 API cookbook
+# AIRust 0.4.13 API cookbook
 
-Version 0.4.12 keeps all public signatures and exact ranking while storing compact, transient norm-cache keys. Use `SearchAlgorithm::Tfidf` or MCP `algorithm: "tfidf"` as before. Reuse one Engine when its collection is stable; `upsert`, `remove` and `clear` invalidate changed corpus norms automatically. Metadata-only updates retain valid hints. Busy or poisoned locks still compute exact values without blocking. Cache keys are private process-local identities, never IDs for your application or saved data. See [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [cold/warm/RAM measurements](CHANGES-0.4.12.md).
+Version 0.4.13 keeps public calls and exact scores. Select `SearchAlgorithm::Tfidf` or MCP `algorithm: "tfidf"` as before. On an uncached norm, the current query can reuse exact word weights in a fixed-size temporary memo; no setting or prewarming is needed. BM25, unknown-word searches and complete warm norm hits do not allocate this memo. It is freed after the request, adds temporary heap work and does not enlarge the persistent norm cache. Reuse one Engine for a stable collection; update through its checked APIs. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [cold/warm/RAM measurements](CHANGES-0.4.13.md).
 
 Version 0.4.7 adds `LexicalCoverageSource`, an explicit source that balances the existing prepared lexical score with distinct question-term coverage. Inspect query, counts, normalized score and original lexical rank through `inspect`. [Complete API and limitations](LEXICAL-COVERAGE.md); [executed report](CHANGES-0.4.7.md). Literal BM25 and optional MCP defaults remain unchanged.
 
@@ -8,7 +8,7 @@ Version 0.4.6 adds explicit lexical question preparation and conservative leadin
 
 Version 0.4.5 introduced opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
 
-For 0.4.12, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.12.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.13, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.13.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -16,7 +16,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.12", default-features = false }
+airust = { version = "=0.4.13", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -411,7 +411,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.12", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.13", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.

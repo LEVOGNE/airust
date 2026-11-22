@@ -203,3 +203,7 @@ Use the existing `airust_search` arguments and select `algorithm: "tfidf"` when 
 ## Cold TF-IDF cache in 0.4.12
 
 Select `algorithm: "tfidf"` with the existing `airust_search` arguments. The same central Engine stores smaller private norm-cache keys; no new tool, option or response field is required. Public IDs, scores, source bindings, spans and output schemas remain. Hints are transient and discarded for changed collections. Worker admission, byte limits, deadlines, progress and cancellation retain their contracts. This is not a hard process-memory quota. See [separate initial/warm MCP campaigns, cache heap and RSS](CHANGES-0.4.12.md).
+
+## Cold search execution in 0.4.13
+
+Use the existing `airust_search` arguments with `algorithm: "tfidf"`. The central lexical engine reuses exact word weights in a bounded memo while computing missing norms. It does not prewarm at startup or store extra corpus state. The temporary memo is allocated only if needed, adds about 4 KiB on the measured build and is released after the request. Existing tools, output schemas, IDs, scores, source bindings, spans, progress, cancellation, worker admission and deadlines remain. Warm-hit and tiny-input costs can differ from large cold queries; see [all initial/repeated measurements and memory costs](CHANGES-0.4.13.md).

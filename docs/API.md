@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.12 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.13 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.12 reduces private TF-IDF norm-cache key storage without changing `SearchOptions`, `SearchAlgorithm`, Engine, Retriever or MCP signatures. Public IDs remain original strings. The cache uses identities of the index-owned ID allocations; values are not persisted and changed collections invalidate them. Nonblocking contention/poison fallback and cancellation remain. See [performance](CORE-PERFORMANCE.md), [cookbook](API-COOKBOOK.md) and [executed measurements](CHANGES-0.4.12.md).
+Version 0.4.13 adds bounded request-local reuse of exact TF-IDF word weights during cold norm computation. `SearchOptions`, `SearchAlgorithm`, Engine, Retriever and MCP signatures remain. No eager startup work, saved-format change or persistent cache is added. The lazy 256-slot memo adds temporary heap work only when a norm must be computed; collisions recompute the original value. Contexts, IDs, scores, source positions, cancellation and protocol contracts remain. See [performance](CORE-PERFORMANCE.md), [cookbook](API-COOKBOOK.md) and [executed measurements](CHANGES-0.4.13.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
