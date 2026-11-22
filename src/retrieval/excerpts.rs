@@ -218,19 +218,58 @@ fn analyze(
     }
 }
 fn legacy_tokens(source: &str, options: &ExcerptOptions) -> Result<Vec<Token>, RetrievalError> {
+    if source.is_ascii() {
+        if source.len() > options.max_normalized_bytes {
+            return Err(RetrievalError::Budget("excerpt normalized bytes"));
+        }
+        let mut tokens = Vec::new();
+        let mut start = None;
+        for (offset, byte) in source.bytes().chain(std::iter::once(b' ')).enumerate() {
+            if byte.is_ascii_alphanumeric() {
+                start.get_or_insert(offset);
+            } else if let Some(begin) = start.take() {
+                if tokens.len() == options.max_tokens {
+                    return Err(RetrievalError::Budget("excerpt token count"));
+                }
+                tokens.push(Token {
+                    term: source[begin..offset].to_ascii_lowercase(),
+                    span: ExcerptSpan {
+                        start: begin,
+                        end: offset,
+                    },
+                });
+            }
+        }
+        return Ok(tokens);
+    }
     let mut normalized = String::new();
     let mut mapping = Vec::new();
     for (start, grapheme) in source.grapheme_indices(true) {
         let begin = normalized.len();
-        for c in text::normalized_characters(grapheme) {
-            if c.len_utf8()
+        if grapheme.is_ascii() {
+            if grapheme.len()
                 > options
                     .max_normalized_bytes
                     .saturating_sub(normalized.len())
             {
                 return Err(RetrievalError::Budget("excerpt normalized bytes"));
             }
-            normalized.push(c);
+            normalized.extend(
+                grapheme
+                    .bytes()
+                    .map(|byte| char::from(byte.to_ascii_lowercase())),
+            );
+        } else {
+            for c in text::normalized_characters(grapheme) {
+                if c.len_utf8()
+                    > options
+                        .max_normalized_bytes
+                        .saturating_sub(normalized.len())
+                {
+                    return Err(RetrievalError::Budget("excerpt normalized bytes"));
+                }
+                normalized.push(c);
+            }
         }
         if normalized.len() > begin {
             mapping.push((begin, normalized.len(), start, start + grapheme.len()));

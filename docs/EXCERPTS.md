@@ -67,3 +67,7 @@ The feature performs no database synchronization, network access, document impor
 ## Preserve leading context (0.4.6)
 
 `ExcerptOptions::with_leading_context()` explicitly keeps more surrounding material instead of compacting to a paragraph. Start from the existing relevant window. Prefer the full grapheme-safe prefix up to the byte budget only if it retains every distinct matched query term and all explicit phrase-hint positions retained by that window. Otherwise keep the original relevant window. When the complete entry fits, the whole entry remains. This does not guarantee that all answer qualifications fit, and a required late term or phrase can still force a later window. No disjoint fragments are joined or assigned invented coordinates. `with_leading_context` and `with_paragraph_boundaries` are alternatives; the last builder wins. The ordinary default remains unchanged.
+
+## Execution in 0.4.9
+
+The public `select_excerpt` and Retriever APIs are unchanged. Pure ASCII input uses a bounded direct tokenizer. Mixed Unicode text keeps grapheme source mapping while avoiding Unicode normalization for ASCII graphemes. Analysis limits, normalized terms, CRLF boundaries, original byte spans, phrase hints and highlights retain their meaning. The advanced text analyzer is unaffected. See [measurements and exact-output comparisons](CHANGES-0.4.9.md).

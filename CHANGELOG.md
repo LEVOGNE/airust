@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.9 — Faster complete retrieval and bounded MCP serialization
+
+Use bounded direct ASCII excerpt tokenization and avoid Unicode normalization for ASCII graphemes in mixed text. Share retained JSON serialization and size-only counting through one bounded writer; avoid discarded buffers in candidate, metadata and MCP guards. Preserve public signatures, ranking, source positions, byte limits, schemas and error codes. Add exact escaped-budget/session-recovery and ASCII/Unicode/CRLF/span regressions. Repeat full validation and exact-registry old/new benchmarks. No new dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest report](docs/CHANGES-0.4.9.md).
+
 ## 0.4.8 — Query working allocations and MCP progress deadlines
 
 Reuse normalized term keys for repeated occurrences and existing lexical uniqueness guarantees for coverage counts. Keep scorer arithmetic and retrieval responses unchanged. Apply the original request deadline and connection cancellation to start/heartbeat/final MCP progress waits, retain typed deadline errors and avoid starting expired work. No new dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [executed report](docs/CHANGES-0.4.8.md).

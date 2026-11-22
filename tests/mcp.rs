@@ -160,6 +160,36 @@ fn code(response: &Value) -> &str {
         .as_str()
         .unwrap()
 }
+
+#[tokio::test]
+async fn escaped_argument_bytes_enforce_exact_limits_and_allow_session_recovery() {
+    let mut client = Client::new(server(McpLimits {
+        max_frame_bytes: 4096,
+        ..Default::default()
+    }));
+    client.initialize().await;
+    for (id, query, accepted) in [
+        (1, "a".repeat(2036), true),
+        (2, "a".repeat(2037), false),
+        (3, "é".repeat(1018), true),
+        (4, "é".repeat(1019), false),
+        (5, "\0".repeat(400), false),
+    ] {
+        let args = json!({"query": query});
+        assert_eq!(serde_json::to_vec(&args).unwrap().len() <= 2048, accepted);
+        let result = client.call(id, "airust_search", args).await;
+        if accepted {
+            assert_ne!(result["result"]["isError"], true);
+        } else {
+            assert_eq!(code(&result), "argument_budget");
+        }
+    }
+    let result = client
+        .call(6, "airust_search", json!({"query":"ownership"}))
+        .await;
+    assert_ne!(result["result"]["isError"], true);
+    client.finish().await;
+}
 fn heavy() -> McpServer {
     let limits = McpLimits {
         max_concurrent: 1,

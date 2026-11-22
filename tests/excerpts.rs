@@ -156,6 +156,72 @@ fn flags_zwj_crlf_and_large_graphemes_are_never_split() {
     assert!(missing.text.is_empty());
     verify(&huge, &missing, 16);
 }
+
+#[test]
+fn ascii_controls_crlf_original_spans_and_exact_analysis_limits_are_preserved() {
+    let text = "HEADER\r\n\tRust_42\0API\u{7f}\nTail123\r\n";
+    let mut hints = evidence();
+    hints.matched_terms = ["rust", "42", "api", "tail123"].map(str::to_owned).to_vec();
+    let options = ExcerptOptions::default()
+        .with_analysis_limits(text.len(), text.len(), 5)
+        .unwrap();
+    let selected = select_excerpt(
+        text,
+        "rust",
+        &hints,
+        &ExcerptAnalyzer::Legacy,
+        &options,
+        text.len(),
+    )
+    .unwrap();
+    verify(text, &selected, text.len());
+    let actual: Vec<_> = selected
+        .matches
+        .iter()
+        .map(|m| m.span.slice(text).unwrap())
+        .collect();
+    assert_eq!(actual, ["Rust", "42", "API", "Tail123"]);
+    for (normalized, tokens, expected) in [
+        (text.len() - 1, 5, "excerpt normalized bytes"),
+        (text.len(), 4, "excerpt token count"),
+    ] {
+        let limits = ExcerptOptions::default()
+            .with_analysis_limits(text.len(), normalized, tokens)
+            .unwrap();
+        assert!(
+            matches!(select_excerpt(text, "rust", &hints, &ExcerptAnalyzer::Legacy, &limits, text.len()), Err(RetrievalError::Budget(message)) if message == expected)
+        );
+    }
+    let cr = text.find('\r').unwrap();
+    hints.phrase_spans.push(ExcerptSpan {
+        start: cr + 1,
+        end: cr + 2,
+    });
+    assert!(matches!(
+        select_excerpt(
+            text,
+            "rust",
+            &hints,
+            &ExcerptAnalyzer::Legacy,
+            &options,
+            text.len()
+        ),
+        Err(RetrievalError::Output(_))
+    ));
+}
+
+#[test]
+fn mixed_ascii_and_unicode_graphemes_keep_expansions_and_original_highlights() {
+    let text = "PREFIX\r\n\tＲＵＳＴ and cafe\u{301} and ﬃ; END\r\n";
+    let selected = select(text, "rust café ffi end", text.len());
+    verify(text, &selected, text.len());
+    let actual: Vec<_> = selected
+        .matches
+        .iter()
+        .map(|m| m.span.slice(text).unwrap())
+        .collect();
+    assert_eq!(actual, ["ＲＵＳＴ", "cafe\u{301}", "ﬃ", "END"]);
+}
 #[test]
 fn malformed_phrase_hints_are_errors_and_do_not_become_fake_matches() {
     for span in [

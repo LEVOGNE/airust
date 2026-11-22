@@ -649,31 +649,33 @@ impl RetrievalResponse {
         self.requested_limit
     }
 }
-struct BoundedWriter {
-    bytes: Vec<u8>,
-    limit: usize,
+struct BoundedWriter<W> {
+    inner: W,
+    remaining: usize,
     exceeded: bool,
 }
-impl Write for BoundedWriter {
+impl<W: Write> Write for BoundedWriter<W> {
     fn write(&mut self, b: &[u8]) -> io::Result<usize> {
-        if b.len() > self.limit.saturating_sub(self.bytes.len()) {
+        if b.len() > self.remaining {
             self.exceeded = true;
             return Err(io::Error::other("retrieval serialization limit"));
         }
-        self.bytes.extend_from_slice(b);
+        self.inner.write_all(b)?;
+        self.remaining -= b.len();
         Ok(b.len())
     }
     fn flush(&mut self) -> io::Result<()> {
         Ok(())
     }
 }
-pub(crate) fn bounded_json(
+fn bounded_serialization<W: Write>(
     value: &impl Serialize,
     limit: usize,
-) -> Result<Option<String>, RetrievalError> {
+    inner: W,
+) -> Result<Option<W>, RetrievalError> {
     let mut w = BoundedWriter {
-        bytes: Vec::new(),
-        limit,
+        inner,
+        remaining: limit,
         exceeded: false,
     };
     let result = serde_json::to_writer(&mut w, value);
@@ -681,10 +683,20 @@ pub(crate) fn bounded_json(
         return Ok(None);
     }
     result?;
-    Ok(Some(
-        String::from_utf8(w.bytes).map_err(|_| RetrievalError::Output("non-UTF8 JSON"))?,
-    ))
+    Ok(Some(w.inner))
 }
+pub(crate) fn bounded_json(
+    value: &impl Serialize,
+    limit: usize,
+) -> Result<Option<String>, RetrievalError> {
+    bounded_serialization(value, limit, Vec::new())?
+        .map(|bytes| String::from_utf8(bytes).map_err(|_| RetrievalError::Output("non-UTF8 JSON")))
+        .transpose()
+}
+pub(crate) fn json_fits(value: &impl Serialize, limit: usize) -> Result<bool, RetrievalError> {
+    Ok(bounded_serialization(value, limit, io::sink())?.is_some())
+}
+
 pub(crate) fn metadata_safe(value: &Value) -> bool {
     let mut stack = vec![(value, 1usize)];
     let mut count = 0usize;
@@ -741,7 +753,7 @@ fn candidate_valid(
     {
         return Err(RetrievalError::Output("invalid phrase span"));
     }
-    if bounded_json(e, options.max_evidence_bytes)?.is_none() {
+    if !json_fits(e, options.max_evidence_bytes)? {
         return Err(RetrievalError::Budget("candidate evidence bytes"));
     }
     Ok(())
@@ -792,7 +804,7 @@ fn hit(
     let (metadata_status, metadata) = if !options.metadata {
         (MetadataStatus::Omitted, None)
     } else if let Some(v) = &candidate.entry.metadata {
-        if metadata_safe(v) && bounded_json(v, options.max_metadata_bytes)?.is_some() {
+        if metadata_safe(v) && json_fits(v, options.max_metadata_bytes)? {
             (MetadataStatus::Included, Some(v.clone()))
         } else {
             (MetadataStatus::BudgetExceeded, None)
@@ -1344,5 +1356,46 @@ impl RetrievalSource for HybridSource<'_, '_> {
         );
         batch.fallback_reason = fallback;
         Ok(batch)
+    }
+}
+
+#[cfg(test)]
+mod budget_tests {
+    use super::*;
+
+    #[test]
+    fn counting_and_retained_json_enforce_exact_escaped_utf8_byte_budgets() {
+        for value in [
+            serde_json::json!({"text": "\u{0}\n\t\"\\ café 🌍", "array": [true, null, 0.25]}),
+            serde_json::json!([{}, [], "", false, 18446744073709551615u64]),
+        ] {
+            let expected = serde_json::to_string(&value).unwrap();
+            for budget in 0..=expected.len() + 1 {
+                let fits = expected.len() <= budget;
+                assert_eq!(json_fits(&value, budget).unwrap(), fits);
+                assert_eq!(
+                    bounded_json(&value, budget).unwrap().as_deref(),
+                    fits.then_some(expected.as_str())
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn serialization_errors_are_not_accepted_as_valid_small_outputs() {
+        struct Invalid;
+        impl Serialize for Invalid {
+            fn serialize<S: serde::Serializer>(&self, _: S) -> Result<S::Ok, S::Error> {
+                Err(serde::ser::Error::custom("invalid source"))
+            }
+        }
+        assert!(matches!(
+            json_fits(&Invalid, 1024),
+            Err(RetrievalError::Json(_))
+        ));
+        assert!(matches!(
+            bounded_json(&Invalid, 1024),
+            Err(RetrievalError::Json(_))
+        ));
     }
 }

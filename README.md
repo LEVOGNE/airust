@@ -1,4 +1,4 @@
-# AIRust 0.4.8
+# AIRust 0.4.9
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.8 reduces temporary allocations while preparing search terms and calculating optional lexical coverage. MCP progress delivery now also observes the request deadline. A request timeout remains distinct from a failed transport. Search scores, evidence, public signatures and saved knowledge retain their behavior. See [performance/API contract](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [executed validation](docs/CHANGES-0.4.8.md). No DenkMaps integration is included.
+Version 0.4.9 speeds up complete retrieval by reducing excerpt-analysis work and discarded JSON buffers. ASCII text takes a simpler bounded path; mixed Unicode text retains its normalization and original positions. MCP uses the same bounded serializer to count size without retaining temporary JSON. Public signatures, scores, evidence, limits and saved knowledge remain. See [performance/API contract](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest measurements](docs/CHANGES-0.4.9.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.9](docs/CHANGES-0.4.9.md) | Faster complete retrieval, bounded excerpt analysis and shared JSON counting. | Spend less work on selected evidence while retaining byte limits and MCP contracts. |
 | [0.4.8](docs/CHANGES-0.4.8.md) | Less temporary query allocation and deadline-aware MCP progress. | Preserve evidence and keep request expiry distinct from transport failure. |
 | [0.4.7](docs/LEXICAL-COVERAGE.md) | Inspectable lexical coverage scoring. | Balance rank strength and distinct query terms without a model. |
 | [0.4.6](docs/LEXICAL-QUERY.md) | Optional question-word/identifier preparation and conservative leading context. | Inspect the real lexical query and keep more surrounding evidence. |
@@ -43,7 +44,9 @@ Version 0.4.8 reduces temporary allocations while preparing search terms and cal
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.8 validation passes **222 default tests, 865 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and five targeted Tree Borrows Miri cases pass. MCP progress waits now honor the original request deadline; expired work keeps the existing typed error and does not itself mark a healthy connection as failed. Read [all executed checks and limits](docs/CHANGES-0.4.8.md).
+Local 0.4.9 validation passes **222 default tests, 870 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and seven targeted Tree Borrows Miri cases pass. New regressions check exact JSON-escape budgets, session recovery, ASCII controls, CRLF and mixed Unicode source positions. Read [all executed checks and limits](docs/CHANGES-0.4.9.md).
+
+**Measured 0.4.9 result:** on the same 342 exposed questions, prepared retrieval and coverage have about 23% lower median complete context latency, with 1,026 byte-identical response comparisons. Literal BM25 changes little and has a slightly higher p95; individual questions and unchanged search microtests can be slower. Forty real MCP processes yield mixed latency results, including a slower first canonical campaign; confirmation does not establish a general MCP gain. Process RAM is essentially unchanged. Read [both campaigns, all timings and limits](docs/CHANGES-0.4.9.md).
 
 The earlier 0.4.4 10,000-entry allocator profile records **23.87% fewer build allocation operations** and **23.89% fewer cumulative allocated bytes** than 0.4.3. The completed index uses exactly the same tracked live heap; its build peak is 1 KiB higher in this trace. With just a few very long words, the temporary buffer can reserve extra space. Eight authored edge cases document this tradeoff. These are allocator measurements, not process-RAM or latency guarantees. Read the [complete measurements and limits](docs/CHANGES-0.4.4.md).
 
@@ -51,7 +54,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.8. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.9. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -127,7 +130,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.8", default-features = false }
+airust = { version = "=0.4.9", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

@@ -1,4 +1,4 @@
-# Core construction and ranking in AIRust 0.4.4
+# Core performance and bounded retrieval
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -76,3 +76,9 @@ After deletions, an empty vocabulary releases its hash allocation. A large dicti
 `text::term_frequencies` retains one owned key per distinct normalized token. After the first repeated token is observed, later repeats update the existing count through a borrowed lookup, avoiding temporary duplicate token strings. The first duplicate still creates one temporary key; an entirely unique input keeps the existing single entry-lookup path. NFKC/lower normalization, counts, term ordering and all scorer arithmetic remain unchanged. Once reuse is enabled, a new term needs an additional lookup, so mixed distributions can have a different latency tradeoff.
 
 The optional `LexicalCoverageSource` reuses invariants of the existing built-in Engine: prepared question terms are unique, and each returned matched term occurs once in that effective question. Counts no longer require a new query set or a matched-term set per candidate. Original scores, component diagnostics, stable ordering, recipes and source positions remain. This optimization does not apply those assumptions to custom sources. See [coverage API](LEXICAL-COVERAGE.md) and [executed measurements](CHANGES-0.4.8.md).
+
+## Complete retrieval and bounded serialization in 0.4.9
+
+Legacy excerpt analysis uses direct lowercase ASCII tokenization when the complete input is ASCII. The normalized-byte budget is checked before collecting tokens, and token limits remain enforced. Original byte spans are unchanged. Mixed text still uses grapheme normalization and source mapping; its ASCII graphemes avoid unnecessary Unicode normalization. Compatibility expansions, combining marks and CRLF retain their existing rules. Advanced TextAnalyzer behavior is unchanged.
+
+Size-only candidate, metadata and MCP guards share the bounded serializer with retained JSON output. A counting sink discards encoded bytes instead of keeping a temporary JSON buffer. Counting includes quotes, escapes and UTF-8 bytes, and stops on the same budget boundary. Serialization errors still fail explicitly. Actual responses and descriptors are still encoded and stored when needed. These internal helpers are not a new public API, cache or storage format. No option, dependency or default feature is added. Less working allocation is not automatically lower resident RAM or faster construction. Read the [measurements, regressions and limits](CHANGES-0.4.9.md).

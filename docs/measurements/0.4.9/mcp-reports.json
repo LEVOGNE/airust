@@ -1,0 +1,3612 @@
+[
+  {
+    "case": "canonical",
+    "round": 0,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811660800,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 13.479291927069426,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5491.735083982348,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 8.743375074118376,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.27833287604153,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 8.777334121987224,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 26.30841708742082,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 14.447666006162763,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 42.69004100933671,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4254169072955847,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.940166112035513,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 8.037791820243001,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 20.54716693237424,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 12.853374937549233,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 33.89991703443229,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.7556668501347303,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 6.595458136871457,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 13.360958080738783,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 34.80095788836479,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.995417013764381,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 6.262124981731176,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.271208981052041,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2515420094132423,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 0,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1813823488,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 13.104040874168277,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5596.16170800291,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 7.342375116422772,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 29.69491691328585,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 8.411457994952798,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 33.69283420033753,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 15.105791157111526,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 50.630792044103146,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.6192079056054354,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 3.0422077979892492,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 8.652083110064268,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 24.554458912461996,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 12.598125031217933,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 35.2654168382287,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.421208191663027,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 6.053792079910636,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 13.896167045459151,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 36.27300006337464,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.957999965175986,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 5.5477500427514315,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2687500566244125,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2457501143217087,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 1,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811726336,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 12.312291888520122,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5513.71141616255,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 7.905458100140095,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.430291891098022,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 7.462499896064401,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 26.211332995444536,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 12.79883412644267,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 42.50270896591246,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4144170563668013,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.9510830752551556,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 7.610375061631203,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 19.988707965239882,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 11.4440000616014,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 32.7486670576036,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.3597499821335077,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 5.563291953876615,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 12.730791931971908,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 34.47504201903939,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.475000012665987,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 5.492874886840582,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2524169869720936,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2281250674277544,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 1,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811628032,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 12.929750140756369,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5291.364833014086,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 7.199000101536512,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.855957996100187,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 7.592750014737248,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 26.237708050757647,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 12.454916024580598,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 38.90987508930266,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4113341458141804,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.7309170216321945,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 7.2787918616086245,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 18.960833083838224,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 10.950915981084108,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 33.46941713243723,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 3.4687500447034836,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 7.476708153262734,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 13.278292026370764,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 35.967875039204955,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.908542079851031,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 5.80341718159616,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.256708987057209,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2551250401884317,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 2,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811677184,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 12.86658295430243,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5258.368874900043,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 6.931666983291507,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.103457970544696,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 7.398334098979831,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 25.80754109658301,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 12.601207941770554,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 39.24445901066065,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.425500027835369,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.816541887819767,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 7.301124976947904,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 18.881208961829543,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 11.072458000853658,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 32.71612501703203,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.5167500134557486,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 5.744583904743195,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 12.649208074435592,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 32.33037516474724,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 6.011625053361058,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 6.967667024582624,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2695000041276217,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.254499889910221,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 2,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811709952,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 12.872999999672174,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 6106.787041993812,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 8.667625021189451,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 30.206792056560516,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 9.867000160738826,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 30.955499969422817,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 14.607332879677415,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 49.10812480375171,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4354160521179438,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.9802909810096025,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 9.150292025879025,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 23.45383306965232,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 12.789125088602304,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 34.53320893459022,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.5037918239831924,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 5.872208159416914,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 13.986666919663548,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 33.4306659642607,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.663583986461163,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 5.5879580322653055,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2615839950740337,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2344580609351397,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 3,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811742720,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 16.60816604271531,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 6022.871624911204,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 8.61487491056323,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 31.15037502720952,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 9.490250144153833,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 34.00095785036683,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 15.31483419239521,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 50.52999989129603,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.451082993298769,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 2.045624889433384,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 8.685959037393332,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 24.412541883066297,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 14.548958046361804,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 45.523082837462425,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 3.257000120356679,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 8.307541022077203,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 15.564333880320191,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 43.376707937568426,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 6.544749950990081,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 7.476917002350092,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2967921793460846,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2929581571370363,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 3,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811742720,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 12.6698340754956,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5448.707417119294,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 10.311583988368511,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.776833994314075,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 8.055874845013022,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 27.23433286882937,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 14.105499954894185,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 40.221458999440074,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4384170062839985,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8980000168085098,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 7.59045802988112,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 19.348042085766792,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 11.758415959775448,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 33.636540872976184,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.66820820979774,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 5.972790997475386,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 12.71241600625217,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 32.66274998895824,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 5.499708000570536,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 5.916791968047619,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.2628748081624508,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2431659270077944,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 4,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811759104,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 13.04258406162262,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 5585.748750017956,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 8.427249966189265,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 25.45783296227455,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 8.364625042304397,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 27.949707815423608,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 13.775083934888244,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 41.79616691544652,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4549579937011003,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 2.080458914861083,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 8.78870883025229,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 22.181167034432292,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 12.770207831636071,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 36.23925009742379,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 2.7113750111311674,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 6.741582881659269,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 13.104124926030636,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 35.69091600365937,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 6.1385000590234995,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 6.469500018283725,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3004590291529894,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.2567918747663498,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "canonical",
+    "round": 4,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 1811808256,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 15.974665991961956,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "knowledge",
+    "input_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 90,
+    "snapshot_spans_and_readbacks": 0,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 7226.229415973648,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 21.47675002925098,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 35.668791038915515,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 13.86183314025402,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 34.179332898929715,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 23.733000038191676,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 68.02287488244474,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 2.7324999682605267,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 11.33616711013019,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 15.097583876922727,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 28.47062493674457,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 16.576583962887526,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 41.33124998770654,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 9.912582812830806,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 18.2394590228796,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 23.98612513206899,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 82.82983396202326,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 8.963583037257195,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 14.658291125670075,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 10.258916998282075,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 2.959667006507516,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 28,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 0,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60997632,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 7.033791858702898,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 216.5854589547962,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 4.197917180135846,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 3.691083053126931,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 8.591125020757318,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 3.2472501043230295,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.7037919498980045,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.9190828576684,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.3734998647123575,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3637500815093517,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 3.2414160668849945,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.44287490285933,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 2.354166004806757,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.061292063444853,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.8964160699397326,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8725830595940351,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 3.1144581735134125,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 3.196458099409938,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 4.798999987542629,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.6631660982966423,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3219169341027737,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3129168655723333,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 0,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 61030400,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 2.41416716016829,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 217.18870918266475,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 4.211582941934466,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 11.169582838192582,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.6019591130316257,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.922957995906472,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.214249921962619,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.3859160505235195,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.3804160989820957,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3868329115211964,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.3904999252408743,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 5.763416877016425,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 1.952708000317216,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8883331213146448,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.5148748643696308,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5319171361625195,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 1.687082927674055,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 2.1443748846650124,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.595791894942522,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5647499822080135,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.330917002633214,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3072500005364418,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 1,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60882944,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 8.236000081524253,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 223.2278340961784,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 12.766291853040457,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 3.0848749447613955,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.7960411496460438,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.8600420337170362,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.286332892253995,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.4646249152719975,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.380374887958169,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.373667037114501,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.5132920127362013,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.2281659338623285,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 1.9027499947696924,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.1467909682542086,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.6742500010877848,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5500830486416817,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 2.02262494713068,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 2.3360000923275948,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.5534579288214445,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5505000483244658,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.33116589859128,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3085000682622194,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 1,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 61194240,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 7.881624856963754,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 222.883207956329,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 14.242165954783559,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 10.502374963834882,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 2.065042033791542,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 3.365333192050457,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.809541067108512,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 5.028459010645747,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4140410348773003,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3822501059621572,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 3.1159589998424053,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.5007919911295176,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 2.299875020980835,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.417083829641342,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.9330000504851341,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8273750320076942,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 2.9263750184327364,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 3.410042030736804,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.9167091231793165,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.7225418705493212,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.314750174060464,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3330839574337006,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 2,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60538880,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 3.8718751166015863,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 219.74404202774167,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 8.435375057160854,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 4.961083177477121,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 7.188000017777085,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 3.184707835316658,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.850292017683387,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.69562504440546,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.3901249039918184,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.353957923129201,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.7614159043878317,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.340667139738798,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 2.3805000819265842,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.49587488360703,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.8038330599665642,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8897089175879955,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 2.8828750364482403,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 3.3631250262260437,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.838458003476262,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.6896671149879694,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3249998446553946,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.350749982520938,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 2,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60833792,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 2.494583837687969,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 225.84037482738495,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 5.844708997756243,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 9.830832947045565,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.6307909972965717,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.9236660338938236,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.336041070520878,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.416040843352675,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.3953750021755695,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3661659322679043,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.5020421016961336,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.077250000089407,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 1.9033749122172594,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.130958018824458,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.5731251332908869,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.6055000014603138,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 1.6718748956918716,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 2.2699579130858183,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.5414159279316664,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5344999264925718,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3334581162780523,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3174579944461584,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 3,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60620800,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 16.200582962483168,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 234.18345907703042,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 2.198000205680728,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 10.68037492223084,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.588250044733286,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.8592078015208244,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.2392920218408108,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.041166976094246,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.375208143144846,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3651670888066292,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.4117918219417334,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.357541074976325,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 1.9630000460892916,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.192291896790266,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.5702920500189066,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5973749104887247,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 1.7767080571502447,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 2.5231661275029182,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.549790846183896,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5540828462690115,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3303749728947878,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.32929184474051,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 3,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 61177856,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 3.659917041659355,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 223.79695810377598,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 2.828083001077175,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 7.649790961295366,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 7.510458817705512,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.966207917779684,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 3.0327090062201023,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 3.857832867652178,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.632666913792491,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5551249962300062,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 3.1924170907586813,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 6.349124945700169,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 2.410958055406809,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 2.414667047560215,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.985207898542285,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 2.066875109449029,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 2.9819170013070107,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 3.4071251284331083,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.8179579637944698,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.9125000108033419,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.6262081917375326,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.7047501169145107,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 4,
+    "arm": "baseline",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 61194240,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 2.591750118881464,
+    "concurrent_progress_events": 8,
+    "version": "0.4.8",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 197.4394170101732,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 1.933791907504201,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 2.862208057194948,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.7267500516027212,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.6139579713344574,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.3470420856028795,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 4.059250000864267,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.402209047228098,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.5020831488072872,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.6267089415341616,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 5.431792000308633,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 2.005999907851219,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 1.9929171539843082,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.617999980226159,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.619249815121293,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 2.67399987205863,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 2.9703329782932997,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.8211670685559511,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.6281669959425926,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.4663750771433115,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.4510841574519873,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  },
+  {
+    "case": "numpy",
+    "round": 4,
+    "arm": "candidate",
+    "additional_matching_relation_calls": 2,
+    "server_peak_rss_bytes": 60112896,
+    "concurrent_search_calls": 4,
+    "concurrent_complete_results_checked": true,
+    "concurrent_elapsed_ms": 1.9422911573201418,
+    "concurrent_progress_events": 8,
+    "version": "0.4.9",
+    "mode": "document",
+    "input_sha256": "0683bc86ce09611a890cd4e1d803f6569ef4b3aa6f4e175a6a9847ae544ddfde",
+    "query_file_sha256": "b217c2f472004e7471d3806112e8f6e695165988cf3c4aadf867610e33cf2e6f",
+    "queries": 10,
+    "search_calls": 20,
+    "hits": 82,
+    "snapshot_spans_and_readbacks": 82,
+    "progress_events": 40,
+    "progress_sequences_checked": true,
+    "input_unchanged": true,
+    "direct_retriever_equality_checked": false,
+    "startup_to_initialized_ms": 179.0190830361098,
+    "search_samples": [
+      {
+        "query_number": 0,
+        "algorithm": "bm25",
+        "milliseconds": 1.7172498628497124,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 0,
+        "algorithm": "tfidf",
+        "milliseconds": 2.0542920101433992,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "bm25",
+        "milliseconds": 1.5452089719474316,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 1,
+        "algorithm": "tfidf",
+        "milliseconds": 2.1422088611871004,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "bm25",
+        "milliseconds": 2.034249948337674,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 2,
+        "algorithm": "tfidf",
+        "milliseconds": 3.3680000342428684,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "bm25",
+        "milliseconds": 1.4351250138133764,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 3,
+        "algorithm": "tfidf",
+        "milliseconds": 1.4668749645352364,
+        "hits": 1,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "bm25",
+        "milliseconds": 2.1297920029610395,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 4,
+        "algorithm": "tfidf",
+        "milliseconds": 4.486666992306709,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "bm25",
+        "milliseconds": 1.9255841616541147,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 5,
+        "algorithm": "tfidf",
+        "milliseconds": 1.827874919399619,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "bm25",
+        "milliseconds": 1.435374841094017,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 6,
+        "algorithm": "tfidf",
+        "milliseconds": 1.552749890834093,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "bm25",
+        "milliseconds": 1.603167038410902,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 7,
+        "algorithm": "tfidf",
+        "milliseconds": 1.8997499719262123,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "bm25",
+        "milliseconds": 1.5962079633027315,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 8,
+        "algorithm": "tfidf",
+        "milliseconds": 1.6352920792996883,
+        "hits": 5,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "bm25",
+        "milliseconds": 1.3426248915493488,
+        "hits": 0,
+        "progress_events": 2
+      },
+      {
+        "query_number": 9,
+        "algorithm": "tfidf",
+        "milliseconds": 1.3185420539230108,
+        "hits": 0,
+        "progress_events": 2
+      }
+    ],
+    "scope": "Warm local stdio round trips; search samples include progress and response transport, exclude exact passage follow-up calls. No native PDF parsing or relevance judgment.",
+    "schema_validation": {
+      "actual_results_validated": 110,
+      "all_text_copies_equal": true,
+      "remote_reference_resolution": false,
+      "results_by_tool": {
+        "airust_find_matches": 1,
+        "airust_read_passage": 82,
+        "airust_relate": 1,
+        "airust_search": 25,
+        "airust_status": 1
+      },
+      "schema_draft": "2020-12",
+      "tool_schemas": 5
+    }
+  }
+]

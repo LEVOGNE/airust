@@ -9,7 +9,7 @@ use crate::{
     index::ControlledIndexError,
     matching::{MatchOptions, MatchStrategy},
     retrieval::{
-        bounded_json, metadata_safe, EvidencePolicy, ExcerptOptions, LexicalSource,
+        bounded_json, json_fits, metadata_safe, EvidencePolicy, ExcerptOptions, LexicalSource,
         RetrievalOptions, Retriever,
     },
     Engine, IndexError, KnowledgeEntry,
@@ -507,7 +507,7 @@ impl McpServer {
             },
         }.and_then(|value|{
             control.checkpoint().map_err(Failure::execution)?;
-            if bounded_json(&value,self.limits().max_result_bytes-1024).ok().flatten().is_none(){
+            if json_fits(&value,self.limits().max_result_bytes-1024).ok()!=Some(true){
                 return Err(Failure{code:"output_budget",message:"Result exceeds the configured byte budget; request fewer or shorter results".into()});
             }
             control.checkpoint().map_err(Failure::execution)?;
@@ -515,11 +515,7 @@ impl McpServer {
         })
     }
     fn response(&self, operation: &str, value: Value) -> CallToolResult {
-        if bounded_json(&value, self.limits().max_result_bytes - 1024)
-            .ok()
-            .flatten()
-            .is_none()
-        {
+        if json_fits(&value, self.limits().max_result_bytes - 1024).ok() != Some(true) {
             return self.error(
                 "output_budget",
                 "Result exceeds the configured byte budget; request fewer or shorter results",
@@ -528,11 +524,7 @@ impl McpServer {
         let result = CallToolResult::structured(
             json!({"schema_version":1,"operation":operation,"data":value}),
         );
-        if bounded_json(&result, self.limits().max_result_bytes - 1024)
-            .ok()
-            .flatten()
-            .is_some()
-        {
+        if json_fits(&result, self.limits().max_result_bytes - 1024).ok() == Some(true) {
             result
         } else {
             self.error(
@@ -548,10 +540,7 @@ impl McpServer {
                 json!({"schema_version":1,"error":{"code":code,"message":&message[..end]}}),
             );
             if end == 0
-                || bounded_json(&result, self.limits().max_result_bytes - 1024)
-                    .ok()
-                    .flatten()
-                    .is_some()
+                || json_fits(&result, self.limits().max_result_bytes - 1024).ok() == Some(true)
             {
                 return result;
             }
@@ -872,10 +861,7 @@ impl ServerHandler for Handler {
         }
         let args = Value::Object(request.arguments.unwrap_or_default());
         if !metadata_safe(&args)
-            || bounded_json(&args, self.limits().max_frame_bytes / 2)
-                .ok()
-                .flatten()
-                .is_none()
+            || json_fits(&args, self.limits().max_frame_bytes / 2).ok() != Some(true)
         {
             return Ok(self
                 .error(
