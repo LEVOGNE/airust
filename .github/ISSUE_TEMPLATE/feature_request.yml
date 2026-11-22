@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a new capability or an improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what stops you today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should AIRust behave? Include an API sketch if you have one.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost and alternatives
+      description: New capabilities stay optional and must justify their measured cost. What alternatives did you consider?

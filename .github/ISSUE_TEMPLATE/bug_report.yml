@@ -1,0 +1,44 @@
+name: Bug report
+description: Report incorrect behavior, a crash or a broken contract
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: AIRust version
+      placeholder: "0.4.9"
+    validations:
+      required: true
+  - type: input
+    id: features
+    attributes:
+      label: Enabled features
+      placeholder: "default, mcp, pdf"
+  - type: input
+    id: environment
+    attributes:
+      label: Rust version and platform
+      placeholder: "rustc 1.89, aarch64-apple-darwin"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the actual behavior and include error output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: The smallest code, knowledge entries or command that shows the problem.
+      render: rust
+    validations:
+      required: true
