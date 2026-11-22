@@ -1,0 +1,77 @@
+{
+  "status": "protocol_frozen_before_retrieval",
+  "date": "2026-11-22T05:23:22.192677+01:00",
+  "airust": "=0.4.4 registry",
+  "release_hold": "0.4.5 local commit fe99127; no publication",
+  "question_origin": "100 assistant-authored document-grounded reference questions; NOT actual logged user questions; NOT independent human labels",
+  "projects": [
+    "airust",
+    "flasm",
+    "vecasm"
+  ],
+  "question_counts": {
+    "airust": 35,
+    "flasm": 35,
+    "vecasm": 30
+  },
+  "unanswerable_per_project": 4,
+  "chunking": {
+    "max_characters": 1800,
+    "overlap_characters": 240,
+    "prefer_line_boundary_after": 1300,
+    "path_prefix": true,
+    "gold": "all chunks fully containing a preselected exact quote; may not be exhaustive"
+  },
+  "retrieval": {
+    "top_k": 6,
+    "context_utf8_bytes": 12000,
+    "candidates": 100,
+    "rrf_k": 60,
+    "weights": [
+      0.5,
+      0.5
+    ],
+    "scope": "project metadata before topK",
+    "query": "verbatim natural-language question; no query rewrite, stemming or stopword tuning"
+  },
+  "arms": {
+    "A": "linear file-chunk keyword search: count unique query tokens present, then total occurrences; stable ID tie-break; no IDF",
+    "B": "SQLite FTS5 BM25 OR query + BGE-M3 exact cosine via NumPy, weighted RRF",
+    "C": "AIRust 0.4.4 BM25 + same BGE-M3 exact cosine, weighted RRF",
+    "D": "AIRust 0.4.4 BM25 alone; extra embedding ablation"
+  },
+  "lexical_input": "NFKC lowercase Unicode alphanumeric tokens for all arms; no stopword removal",
+  "embedding": {
+    "model": "bge-m3:latest",
+    "truncate": false,
+    "prefixes": "none",
+    "same_vectors_B_C": true
+  },
+  "llm": {
+    "model": "qwen3.6:35b",
+    "think": false,
+    "temperature": 0,
+    "seed": 441104,
+    "num_ctx": 16384,
+    "num_predict": 256,
+    "format": "schema object answer nullable string, citations array of IDs",
+    "context": "identical formatter and byte limit; no gold answers in prompts"
+  },
+  "order": "24 permutations x4 plus ABCD,DCBA,BADC,CDAB; each arm each position25 and pair precedence50/50",
+  "metrics": [
+    "reference evidence hit@1/3/6 and reciprocal rank",
+    "predeclared answer fact checks (limited exactness proxy)",
+    "valid citation IDs and gold-evidence citations",
+    "abstention on 12 unanswerables",
+    "retrieval latency warm repeated and embedding measured separately",
+    "end-to-end wall time, Ollama real prompt/generated/cached tokens",
+    "retriever RSS; common model RSS separate; index build time"
+  ],
+  "limitations": [
+    "authored evaluation, not production traffic",
+    "references may be incomplete; source docs can be historical/inconsistent",
+    "single machine, single local LLM, one fixed configuration; no broad superiority claim",
+    "automatic answer checks do not replace independent human assessment",
+    "no feature tuning after retrieval results; any changed protocol starts a separate run"
+  ]
+}

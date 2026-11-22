@@ -1,5 +1,7 @@
 # Reproducible performance and quality checks
 
+The [completed local LLM/file search/SQLite/AIRust comparison](HONEST-COMPARISON-0.4.4.md) reports 400 answers, 100 authored project-document questions, actual token counts, four warm retrieval series, RAM observations and an exploratory 80-answer audit. It does **not** establish an AIRust hybrid quality advantage over SQLite, production accuracy or a general speed claim. Its [method and limitations](validation-honest-0.4.4/README.md) distinguish reference hits, answer proxies and manually reviewed evidence.
+
 Build before measuring. Run timed binaries without concurrent compiler work, retain the lockfile and record host, compiler, feature set, corpus, query counts and model recipe. Separate source generation, indexing, model load/inference, query execution and application/network latency. Raw samples and failures matter as much as summaries.
 
 ## Tool choice

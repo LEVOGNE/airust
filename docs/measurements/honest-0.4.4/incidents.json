@@ -1,0 +1,8 @@
+[
+  {
+    "incident": "ENOSPC while saving q044-B; inference completed but response file not created",
+    "recovery": "Removed only 4.5GiB Cargo target/debug/incremental cache. Kept all documents,knowledge,results. Resume skips every saved response; missing call is repeated.",
+    "completed_before_restart": 101,
+    "potential_effect": "One repeated inference may benefit from prompt cache; no answer selection or score-based retry. Startup/warmup on resume recorded separately."
+  }
+]

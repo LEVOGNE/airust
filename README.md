@@ -4,6 +4,8 @@
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
+**Measured comparison, not a superiority claim:** a completed local experiment used the same Qwen model for 400 answers over 100 document-derived reference questions. AIRust hybrid found the reference passage in the first six results for 64/88 answerable questions; SQLite FTS5 plus the same embeddings found 66/88, simple keyword search 58/88, and AIRust BM25 alone 69/88. These are authored questions, not logged user questions. The run demonstrates no AIRust hybrid answer-quality advantage over SQLite and no material token saving. Read the [honest comparison, answer checks, timings, RAM, failures and proposed improvements](docs/HONEST-COMPARISON-0.4.4.md). No new library feature or release accompanies that report.
+
 Version 0.4.4 builds the same knowledge index with fewer throwaway buffers. It counts repeated words in one small working buffer and releases that buffer after use. Search, matching and relation suggestions keep their existing behavior. Optional MCP reuses its tool descriptions, and one client can disconnect while other clients keep working. Public methods, original text, stable ordering, saved knowledge and optional MCP response schemas remain compatible with 0.4.3. See [core/API behavior](docs/CORE-PERFORMANCE.md), [MCP setup](docs/MCP.md), [security boundaries](docs/MCP-SECURITY.md) and [executed tests and measurements](docs/CHANGES-0.4.4.md). The default library remains feature-free. No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |

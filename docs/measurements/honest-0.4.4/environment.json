@@ -1,0 +1,57 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7",
+  "cpu_count": 18,
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "benchmark_branch": "codex/honest-comparison-0.4.4",
+  "source_head": "00e096d3b4ca90f1bdc01d029dbaec98deaab4cc",
+  "hardware": "Apple M5 Max, Mac17,6",
+  "memory_bytes": 68719476736,
+  "power": "AC, charging",
+  "ollama": "0.40.16",
+  "numpy": "2.5.5",
+  "sqlite": "3.53.4",
+  "airust_registry_checksum": "96e5fca10668f2deb31cac485d699bc149a7242061d11f74fb475fded82f137f",
+  "used_models": [
+    {
+      "name": "qwen3.6:35b",
+      "digest": "a7eb95c53bcf96b4bdd008d0fab4a5dac88047d9c1a7a9ab88ed453423fbd87c",
+      "size": 22621314381,
+      "details": {
+        "parent_model": "qwen3.6-source:35b-a3b-mtp-q4_K_M-20260824",
+        "format": "gguf",
+        "family": "qwen35moe",
+        "families": [
+          "qwen35moe"
+        ],
+        "parameter_size": "35.5B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 262144,
+        "embedding_length": 2048,
+        "runner": "llamacpp"
+      }
+    },
+    {
+      "name": "bge-m3:latest",
+      "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+      "size": 1157672605,
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "bert",
+        "families": [
+          "bert"
+        ],
+        "parameter_size": "566.70M",
+        "quantization_level": "F16",
+        "context_length": 8192,
+        "embedding_length": 1024,
+        "runner": "ggml"
+      }
+    }
+  ],
+  "dense_threads": {
+    "OPENBLAS_NUM_THREADS": "1 (harness default)",
+    "VECLIB_MAXIMUM_THREADS": "1 (harness default)"
+  }
+}

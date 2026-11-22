@@ -1,0 +1,30 @@
+{
+  "valid_one_second_samples": 1007,
+  "invalid_sample_lines": 0,
+  "gap_warning": "Sampling stopped during disk-full incident and resumed; no continuous-peak guarantee.",
+  "rss_by_process": [
+    {
+      "pid": 4336,
+      "program": "ollama",
+      "samples": 1007,
+      "median_bytes": 36274176,
+      "observed_peak_bytes": 44285952
+    },
+    {
+      "pid": 7022,
+      "program": "llama-server",
+      "samples": 1007,
+      "median_bytes": 27389607936,
+      "observed_peak_bytes": 34053734400
+    },
+    {
+      "pid": 10967,
+      "program": "llama-server",
+      "samples": 1007,
+      "median_bytes": 1245069312,
+      "observed_peak_bytes": 1375256576
+    }
+  ],
+  "allocation_api_is_not_os_rss": true,
+  "do_not_sum_shared_mappings": true
+}
