@@ -1,13 +1,13 @@
-# Optional MCP in AIRust 0.4.3
+# Optional MCP in AIRust 0.4.4
 
-AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas; 0.4.3 accelerates the shared core while preserving those schemas and version-one response data.
+AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas; 0.4.4 reduces temporary allocations in the shared core while preserving those schemas and version-one response data.
 
 Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `execution`, Tokio and the official Rust MCP SDK, pinned to `rmcp = 3.11.0`. It does not enable PDF parsing, HTTP, SQLite, embeddings, native models, training or the existing web application. The default library remains feature-free. Rust 1.89 supports this feature.
 
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.3 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.4 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -74,9 +74,13 @@ Ok(())
 
 Call this async function from your application's Tokio runtime. A consuming Rust package must declare Tokio directly if it uses Tokio APIs/macros; for example add `tokio = { version = "1", features = ["macros", "rt-multi-thread"] }` beside the `airust` dependency. The packaged executable already owns its runtime.
 
-The immutable server is cloneable. Clones share the index, snapshots and worker limit. Each `serve` gets its own request IDs, progress tokens and connection budgets. A Rust caller must establish its own trust boundary before supplying any other I/O; `serve` does not add network authentication, TLS or tenant isolation. The SDK handler is private so these public entry points apply AIRust's transport guards.
+The immutable server is cloneable. Clones share the index, snapshots and worker limit. Each `serve` gets its own request IDs, progress tokens, connection budgets and worker-lifetime tracker. Closing one connection waits only for that connection's workers; it neither reserves global slots nor waits for work on another clone. The global admission limit still applies across every clone. A Rust caller must establish its own trust boundary before supplying any other I/O; `serve` does not add network authentication, TLS or tenant isolation. The SDK handler is private so these public entry points apply AIRust's transport guards.
+
+Worker admission and connection shutdown use one synchronized state transition. After admission closes, no new reservation can be created. An owned lease holds both the global permit and the connection's tracking token, including while the initial progress message is being sent. It moves into the blocking job and remains there after handler cancellation. An early return, abandoned reservation or panic releases both resources. Shutdown therefore cannot miss work between permit acquisition and spawning. The global permit is released before the tracker reports that lease as finished.
 
 `stats().in_flight` counts occupied permits, including a worker still winding down after cancellation. There is no unbounded waiting queue. Loading/indexing is synchronous startup work, outside request timeouts and progress. Set data limits before constructing the server. `cargo run --features mcp --example mcp` prints its local schemas and counts without starting a connection.
+
+The five tool definitions are built once from that server's fixed limits and stored with its immutable shared data. Calls select the relevant definition without rebuilding all five schemas. `tool_definitions()` still returns an owned vector; its schema handles may share immutable data. Editing a returned tool or using copy-on-write to edit its schema does not change the server or another instance's limits. This retains a small fixed catalogue per data instance, shared by clones. Construct a new server when changing its configuration.
 
 ## Tools and arguments
 
@@ -113,7 +117,7 @@ Check `isError` before reading success data. The textual JSON copy contains the 
 
 The schema validates structure and fixed declarations. It cannot establish source authenticity, permissions, factual truth, cross-field span ordering, a hash match or byte-range membership. AIRust's runtime checks still validate bindings and ranges, and the client still owns its authorization and rendering. Metadata can contain arbitrary untrusted JSON. Reject unexpected schemas/references in a hostile-server setting rather than enabling unrestricted remote resolution.
 
-AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Public reproduction programs](validation-0.4.3/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
+AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Public reproduction programs](validation-0.4.4/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
 
 ## Progress, cancellation and agent communication
 
@@ -127,6 +131,8 @@ For an established legacy stdio session, request progress with a unique active t
 
 AIRust sends `notifications/progress` only when the client supplies a token. The token is echoed. `progress` starts at 0 and increases per notification; it is a **notification sequence**, not a percentage. `message` describes the actual current phase and the latest available count. Counts are local to a phase, can restart and may be coalesced. Overall duration is unknown, so `total` is omitted. Show an indeterminate loading indicator and the message; do not invent an ETA or correctness percentage. A fast call may have only start and completion notifications. Final notifications precede the result; none are generated after completion. Transport-buffered notifications can already be in flight when the client cancels.
 
+Missed heartbeat ticks are skipped instead of replayed in a burst after a delay. This keeps progress focused on current work; it does not turn notifications into an ETA or a reliable percentage.
+
 To cancel that request over stdio:
 
 ```json
@@ -137,11 +143,13 @@ The SDK cancels the request handler and suppresses its response. AIRust's drop g
 
 `timeout_ms` is an absolute operation budget measured by a monotonic clock, beginning before start-progress delivery. Progress never extends it. Deadline errors are visible tool errors. Startup, OS scheduling, allocation, a JSON serialization section or a client that stops reading can still delay cleanup; cooperative cancellation is not a process-kill sandbox. The executable gives the runtime one second to shut down; library `serve` allows workers one second to return. A progress send stalled for 100 ms closes the session and stops its work.
 
+Closing stdin starts connection shutdown and cancels outstanding requests. Keep the connection open until the responses you need have arrived; EOF is not a request to drain and deliver every pending result.
+
 A useful host rule is: "Before longer AIRust work, state the action and scope. Show supplied progress messages. On cancellation, say that work was stopped. Afterward, report the result, evidence and any missing source binding." The host must implement that rule. Keep source text out of system instructions and never execute commands suggested inside retrieved content.
 
 ## Protocol and errors
 
-The official SDK handles JSON-RPC and lifecycle negotiation. Wire tests exercise legacy `initialize` / `notifications/initialized` with protocol `2025-11-25`, and `2026-07-28` discovery with required per-request protocol/client-capability metadata. For modern discovery, use `server/discover` and the SDK's request metadata helpers, or the [public wire validator](validation-0.4.3/mcp_probe.py). This release does not advertise HTTP, subscriptions, persistent tasks, resource subscriptions, prompts or sampling. Tool calls complete in one response; input continuations are rejected explicitly.
+The official SDK handles JSON-RPC and lifecycle negotiation. Wire tests exercise legacy `initialize` / `notifications/initialized` with protocol `2025-11-25`, and `2026-07-28` discovery with required per-request protocol/client-capability metadata. For modern discovery, use `server/discover` and the SDK's request metadata helpers, or the [public wire validator](validation-0.4.4/mcp_probe.py). This release does not advertise HTTP, subscriptions, persistent tasks, resource subscriptions, prompts or sampling. Tool calls complete in one response; input continuations are rejected explicitly.
 
 Unknown tools and unsupported list cursors use JSON-RPC invalid-params errors. Ordinary invalid arguments, worker saturation, missing revisions, deadlines and output limits return a tool response with `isError: true` and a structured `error.code` / bounded `error.message`. Codes include `invalid_arguments`, `argument_budget`, `busy`, `deadline_exceeded`, `invalid_data`, `operation_failed`, `output_budget`, `progress_token_budget`, `progress_token_in_use` and `unsupported_continuation`. A cancelled request normally receives no response. Protocol or connection-budget violations can close the connection instead of amplifying an error flood.
 
@@ -178,4 +186,4 @@ These are work/payload bounds, not a precise process-RAM quota. Index vocabulary
 
 Structured responses follow the [official tools/output-schema contract](https://modelcontextprotocol.io/specification/2026-07-28/server/tools). The implementation uses the [official Rust SDK](https://github.com/modelcontextprotocol/rust-sdk). Progress and cancellation follow the [MCP progress pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/progress) and [stdio cancellation pattern](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/cancellation). AIRust's local threat model is narrower than a remote authorized MCP service; see the [official security guidance](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices).
 
-See [executed results](CHANGES-0.4.3.md), [security tests](../tests/mcp.rs), [executable tests](../tests/mcp_cli.rs), [controlled matching tests](../tests/controlled_matching.rs) and the public validator. Test evidence establishes behavior for those cases and platforms; it is not an independent penetration audit or a guarantee against all attacks.
+See [executed results](CHANGES-0.4.4.md), [security tests](../tests/mcp.rs), [executable tests](../tests/mcp_cli.rs), [controlled matching tests](../tests/controlled_matching.rs) and the public validator. Test evidence establishes behavior for those cases and platforms; it is not an independent penetration audit or a guarantee against all attacks.

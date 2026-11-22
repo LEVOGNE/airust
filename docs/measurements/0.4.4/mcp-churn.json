@@ -1,0 +1,434 @@
+{
+  "profiler": "dhat0.3.3 external-only",
+  "rust": "1.89.0",
+  "fixture": "1000shortsyntheticentries,two tools per connection,1000connections",
+  "serial_previous": {
+    "after_connections": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 132583,
+      "total_blocks": 3806691,
+      "total_bytes": 565731364
+    },
+    "after_server_and_runtime_drop": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 132583,
+      "total_blocks": 3806692,
+      "total_bytes": 565731396
+    },
+    "all_connection_workers_released": true,
+    "all_tools_complete": true,
+    "baseline": {
+      "live_blocks": 0,
+      "live_bytes": 0,
+      "peak_bytes": 132519,
+      "total_blocks": 37690,
+      "total_bytes": 5601300
+    },
+    "concurrent_connections": 1,
+    "indexed_entries": 1000,
+    "measured_connections": 1000,
+    "progress_tokens_and_sequences_checked": true,
+    "samples": [
+      {
+        "closed_connections": 100,
+        "heap": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 132519,
+          "total_blocks": 414590,
+          "total_bytes": 61614300
+        }
+      },
+      {
+        "closed_connections": 200,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 791491,
+          "total_bytes": 117627364
+        }
+      },
+      {
+        "closed_connections": 300,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 1168391,
+          "total_bytes": 173640364
+        }
+      },
+      {
+        "closed_connections": 400,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 1545291,
+          "total_bytes": 229653364
+        }
+      },
+      {
+        "closed_connections": 500,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 1922191,
+          "total_bytes": 285666364
+        }
+      },
+      {
+        "closed_connections": 600,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 2299091,
+          "total_bytes": 341679364
+        }
+      },
+      {
+        "closed_connections": 700,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 2675991,
+          "total_bytes": 397692364
+        }
+      },
+      {
+        "closed_connections": 800,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 3052891,
+          "total_bytes": 453705364
+        }
+      },
+      {
+        "closed_connections": 900,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 3429791,
+          "total_bytes": 509718364
+        }
+      },
+      {
+        "closed_connections": 1000,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132583,
+          "total_blocks": 3806691,
+          "total_bytes": 565731364
+        }
+      }
+    ],
+    "scope": "Allocator-instrumented same-process cloned-server churn. Index/runtime/cached definitions are preloaded outside profiling. Numeric telemetry storage is preallocated before profiling; JSON is built afterward. Live counts may include tracked runtime caches.256KiB growth guard is not a proof of no leaks. No latency measurements or OS-RSS guarantee.",
+    "tools_per_connection": 2,
+    "version": "0.4.3",
+    "warmup_connections": 20
+  },
+  "serial_current": {
+    "after_connections": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 132655,
+      "total_blocks": 2864361,
+      "total_bytes": 451649844
+    },
+    "after_server_and_runtime_drop": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 132655,
+      "total_blocks": 2864362,
+      "total_bytes": 451649876
+    },
+    "all_connection_workers_released": true,
+    "all_tools_complete": true,
+    "baseline": {
+      "live_blocks": 0,
+      "live_bytes": 0,
+      "peak_bytes": 132591,
+      "total_blocks": 28360,
+      "total_bytes": 4471780
+    },
+    "concurrent_connections": 1,
+    "indexed_entries": 1000,
+    "measured_connections": 1000,
+    "progress_tokens_and_sequences_checked": true,
+    "samples": [
+      {
+        "closed_connections": 100,
+        "heap": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 132591,
+          "total_blocks": 311960,
+          "total_bytes": 49189580
+        }
+      },
+      {
+        "closed_connections": 200,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 595561,
+          "total_bytes": 93907444
+        }
+      },
+      {
+        "closed_connections": 300,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 879161,
+          "total_bytes": 138625244
+        }
+      },
+      {
+        "closed_connections": 400,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 1162761,
+          "total_bytes": 183343044
+        }
+      },
+      {
+        "closed_connections": 500,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 1446361,
+          "total_bytes": 228060844
+        }
+      },
+      {
+        "closed_connections": 600,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 1729961,
+          "total_bytes": 272778644
+        }
+      },
+      {
+        "closed_connections": 700,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 2013561,
+          "total_bytes": 317496444
+        }
+      },
+      {
+        "closed_connections": 800,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 2297161,
+          "total_bytes": 362214244
+        }
+      },
+      {
+        "closed_connections": 900,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 2580761,
+          "total_bytes": 406932044
+        }
+      },
+      {
+        "closed_connections": 1000,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 132655,
+          "total_blocks": 2864361,
+          "total_bytes": 451649844
+        }
+      }
+    ],
+    "scope": "Allocator-instrumented same-process cloned-server churn. Index/runtime/cached definitions are preloaded outside profiling. Numeric telemetry storage is preallocated before profiling; JSON is built afterward. Live counts may include tracked runtime caches.256KiB growth guard is not a proof of no leaks. No latency measurements or OS-RSS guarantee.",
+    "tools_per_connection": 2,
+    "version": "0.4.4",
+    "warmup_connections": 20
+  },
+  "published_baseline": {
+    "version": "0.4.3",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "1a873fa6edb4780166275b8ca0380067440b61264a8e1cd26509447db65ddbfb"
+  },
+  "serial_measured_window_previous": {
+    "total_blocks": 3769001,
+    "total_bytes": 560130064
+  },
+  "serial_measured_window_current": {
+    "total_blocks": 2836001,
+    "total_bytes": 447178064
+  },
+  "measured_window_allocations_reduction_percent": 24.75457024288399,
+  "measured_window_allocated_bytes_reduction_percent": 20.165316461213912,
+  "parallel_current": {
+    "after_connections": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 495612,
+      "total_blocks": 2948685,
+      "total_bytes": 465044737
+    },
+    "after_server_and_runtime_drop": {
+      "live_blocks": 1,
+      "live_bytes": 64,
+      "peak_bytes": 495612,
+      "total_blocks": 2948686,
+      "total_bytes": 465044769
+    },
+    "all_connection_workers_released": true,
+    "all_tools_complete": true,
+    "baseline": {
+      "live_blocks": 0,
+      "live_bytes": 0,
+      "peak_bytes": 479060,
+      "total_blocks": 113410,
+      "total_bytes": 17886160
+    },
+    "concurrent_connections": 4,
+    "indexed_entries": 1000,
+    "measured_connections": 1000,
+    "progress_tokens_and_sequences_checked": true,
+    "samples": [
+      {
+        "closed_connections": 100,
+        "heap": {
+          "live_blocks": 0,
+          "live_bytes": 0,
+          "peak_bytes": 487393,
+          "total_blocks": 396935,
+          "total_bytes": 62601560
+        }
+      },
+      {
+        "closed_connections": 200,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 680461,
+          "total_bytes": 107317024
+        }
+      },
+      {
+        "closed_connections": 300,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 963986,
+          "total_bytes": 152032424
+        }
+      },
+      {
+        "closed_connections": 400,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 1247511,
+          "total_bytes": 196747824
+        }
+      },
+      {
+        "closed_connections": 500,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 1531036,
+          "total_bytes": 241463224
+        }
+      },
+      {
+        "closed_connections": 600,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 1814561,
+          "total_bytes": 286178624
+        }
+      },
+      {
+        "closed_connections": 700,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 2098086,
+          "total_bytes": 330894024
+        }
+      },
+      {
+        "closed_connections": 800,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 2381611,
+          "total_bytes": 375609424
+        }
+      },
+      {
+        "closed_connections": 900,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 2665160,
+          "total_bytes": 420329337
+        }
+      },
+      {
+        "closed_connections": 1000,
+        "heap": {
+          "live_blocks": 1,
+          "live_bytes": 64,
+          "peak_bytes": 495612,
+          "total_blocks": 2948685,
+          "total_bytes": 465044737
+        }
+      }
+    ],
+    "scope": "Allocator-instrumented same-process cloned-server churn. Index/runtime/cached definitions are preloaded outside profiling. Numeric telemetry storage is preallocated before profiling; JSON is built afterward. Live counts may include tracked runtime caches.256KiB growth guard is not a proof of no leaks. No latency measurements or OS-RSS guarantee.",
+    "tools_per_connection": 2,
+    "version": "0.4.4",
+    "warmup_connections": 80
+  },
+  "old_parallel_reproducer": {
+    "attempt": 1,
+    "exit_code": 101,
+    "expected_old_defect_reproduced": true,
+    "busy_interference": true,
+    "shutdown_grace_error": false,
+    "scope": "Old registry0.4.3 stress can falsely reportbusy orshutdownerror during otherclones close. This failed partial run is not used for allocator A/B totals."
+  },
+  "scope": "One serial trace per version; selected window excludes instrumented warmup counters. Numeric telemetry storage is preallocated,JSONbuilt after profiling. Preloaded index/runtime/fixed tool catalogue excluded;five cached definitions perData add bounded retained startup storage. Reused immutable tool definitions and worker-lifetime fixes are measured together. Parallel failed old runs are not allocation baselines. Instrumented times are not latency measurements;finite growth checks do not prove no leaks."
+}

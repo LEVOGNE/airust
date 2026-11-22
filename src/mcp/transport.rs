@@ -13,11 +13,41 @@ use std::{
     task::{Context, Poll},
     time::Instant,
 };
-use tokio::io::{AsyncRead, ReadBuf};
-use tokio_util::sync::CancellationToken;
+use tokio::{
+    io::{AsyncRead, ReadBuf},
+    sync::{OwnedSemaphorePermit, Semaphore},
+};
+use tokio_util::{
+    sync::CancellationToken,
+    task::{task_tracker::TaskTrackerToken, TaskTracker},
+};
+
+#[derive(Debug)]
+pub(super) enum WorkerAdmissionError {
+    Closed,
+    Busy,
+}
+pub(super) struct WorkerLease {
+    _permit: OwnedSemaphorePermit,
+    _tracker: TaskTrackerToken,
+}
+impl WorkerLease {
+    pub fn spawn<F, T>(self, work: F) -> tokio::task::JoinHandle<T>
+    where
+        F: FnOnce() -> T + Send + 'static,
+        T: Send + 'static,
+    {
+        tokio::task::spawn_blocking(move || {
+            let result = work();
+            drop(self);
+            result
+        })
+    }
+}
 
 pub(super) struct Session {
     pub stop: CancellationToken,
+    workers: TaskTracker,
     pub progress_tokens: Mutex<BTreeSet<String>>,
     pub limits: McpLimits,
     state: Mutex<State>,
@@ -31,11 +61,42 @@ struct State {
     seen: BTreeSet<String>,
     pending: BTreeSet<String>,
     reason: Option<&'static str>,
+    closing: bool,
 }
 impl Session {
+    pub fn reserve_worker(
+        &self,
+        slots: Arc<Semaphore>,
+    ) -> Result<WorkerLease, WorkerAdmissionError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| WorkerAdmissionError::Closed)?;
+        if state.closing || state.reason.is_some() || self.stop.is_cancelled() {
+            return Err(WorkerAdmissionError::Closed);
+        }
+        let permit = slots
+            .try_acquire_owned()
+            .map_err(|_| WorkerAdmissionError::Busy)?;
+        let lease = WorkerLease {
+            _permit: permit,
+            _tracker: self.workers.token(),
+        };
+        drop(state);
+        Ok(lease)
+    }
+    pub async fn shutdown_workers(&self) {
+        if let Ok(mut state) = self.state.lock() {
+            state.closing = true;
+        }
+        self.stop.cancel();
+        self.workers.close();
+        self.workers.wait().await;
+    }
     pub fn new(limits: McpLimits) -> Arc<Self> {
         Arc::new(Self {
             stop: CancellationToken::new(),
+            workers: TaskTracker::new(),
             progress_tokens: Mutex::new(BTreeSet::new()),
             limits,
             state: Mutex::new(State {
@@ -47,6 +108,7 @@ impl Session {
                 seen: BTreeSet::new(),
                 pending: BTreeSet::new(),
                 reason: None,
+                closing: false,
             }),
         })
     }
@@ -130,7 +192,7 @@ impl Session {
                         }
                     }
                 }
-                _ => {}
+                JsonRpcMessage::Response(_) | JsonRpcMessage::Error(_) => {}
             }
             Ok(())
         })
@@ -227,5 +289,98 @@ impl<T: Transport<RoleServer, Error = io::Error> + 'static> Transport<RoleServer
     async fn close(&mut self) -> io::Result<()> {
         self.session.stop.cancel();
         self.inner.close().await
+    }
+}
+
+#[cfg(test)]
+mod worker_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::time::Duration;
+
+    async fn closing(session: &Session) {
+        tokio::time::timeout(Duration::from_secs(2), async {
+            while !session.state.lock().unwrap().closing {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+    }
+
+    #[tokio::test]
+    async fn closed_session_rejects_late_work_without_reserving_global_permits() {
+        let session = Session::new(McpLimits::default());
+        session.shutdown_workers().await;
+        let slots = Arc::new(Semaphore::new(1));
+        assert!(matches!(
+            session.reserve_worker(slots.clone()),
+            Err(WorkerAdmissionError::Closed)
+        ));
+        assert_eq!(slots.available_permits(), 1);
+    }
+
+    #[tokio::test]
+    async fn shutdown_waits_for_starting_work_and_dropped_reservations_release_both_resources() {
+        let session = Session::new(McpLimits::default());
+        let slots = Arc::new(Semaphore::new(1));
+        let lease = session.reserve_worker(slots.clone()).unwrap();
+        let stopped = session.clone();
+        let shutdown = tokio::spawn(async move { stopped.shutdown_workers().await });
+        closing(&session).await;
+        assert!(!shutdown.is_finished());
+        assert!(matches!(
+            session.reserve_worker(slots.clone()),
+            Err(WorkerAdmissionError::Closed)
+        ));
+        drop(lease);
+        tokio::time::timeout(Duration::from_secs(2), shutdown)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(slots.available_permits(), 1);
+    }
+
+    #[tokio::test]
+    async fn shutdown_waits_for_the_blocking_closure_after_its_handler_has_gone() {
+        let session = Session::new(McpLimits::default());
+        let slots = Arc::new(Semaphore::new(1));
+        let lease = session.reserve_worker(slots.clone()).unwrap();
+        let (started, ready) = tokio::sync::oneshot::channel();
+        let (release, wait) = std::sync::mpsc::channel();
+        let calls = Arc::new(AtomicUsize::new(0));
+        let observed = calls.clone();
+        let worker = lease.spawn(move || {
+            started.send(()).unwrap();
+            wait.recv_timeout(Duration::from_secs(2)).unwrap();
+            calls.fetch_add(1, Ordering::SeqCst);
+        });
+        ready.await.unwrap();
+        drop(worker);
+        let stopped = session.clone();
+        let shutdown = tokio::spawn(async move { stopped.shutdown_workers().await });
+        closing(&session).await;
+        assert!(!shutdown.is_finished());
+        assert_eq!(slots.available_permits(), 0);
+        release.send(()).unwrap();
+        tokio::time::timeout(Duration::from_secs(2), shutdown)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(observed.load(Ordering::SeqCst), 1);
+        assert_eq!(slots.available_permits(), 1);
+    }
+
+    #[tokio::test]
+    async fn panicking_worker_releases_its_permit_and_tracking_token() {
+        let session = Session::new(McpLimits::default());
+        let slots = Arc::new(Semaphore::new(1));
+        let lease = session.reserve_worker(slots.clone()).unwrap();
+        let worker = lease.spawn(|| panic!("injected worker panic"));
+        assert!(worker.await.unwrap_err().is_panic());
+        tokio::time::timeout(Duration::from_secs(2), session.shutdown_workers())
+            .await
+            .unwrap();
+        assert_eq!(slots.available_permits(), 1);
     }
 }

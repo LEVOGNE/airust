@@ -107,6 +107,50 @@ struct QueryTerm<'a> {
     idf: f64,
 }
 
+struct TokenBatch<'a> {
+    counts: Vec<(&'a str, usize)>,
+    length: usize,
+}
+impl<'a> TokenBatch<'a> {
+    const LIMIT: usize = 1024;
+
+    fn take(tokens: &mut impl Iterator<Item = &'a str>, bytes: usize) -> Self {
+        let first = tokens.next();
+        let second = first.and_then(|_| tokens.next());
+        let capacity = if second.is_some() {
+            bytes.div_ceil(5).clamp(4, Self::LIMIT).next_power_of_two()
+        } else {
+            usize::from(first.is_some())
+        };
+        let mut counts = Vec::with_capacity(capacity);
+        counts.extend(first.map(|word| (word, 1)));
+        counts.extend(second.map(|word| (word, 1)));
+        counts.extend(
+            tokens
+                .take(Self::LIMIT - counts.len())
+                .map(|word| (word, 1)),
+        );
+        let length = counts.len();
+        counts.sort_unstable_by(|left, right| left.0.cmp(right.0));
+        counts.dedup_by(|current, previous| {
+            if current.0 == previous.0 {
+                previous.1 += current.1;
+                true
+            } else {
+                false
+            }
+        });
+        Self { counts, length }
+    }
+
+    fn into_terms(self, index: &KnowledgeIndex) -> BTreeMap<Arc<str>, usize> {
+        self.counts
+            .into_iter()
+            .map(|(word, count)| (index.intern_term(word), count))
+            .collect()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub struct IndexStats {
     pub entries: usize,
@@ -178,17 +222,9 @@ impl KnowledgeIndex {
         normalized: String,
     ) -> Option<KnowledgeEntry> {
         let mut tokens = text::tokens_normalized(&normalized);
-        let mut batch: Vec<&str> = tokens.by_ref().take(1024).collect();
-        let mut length = batch.len();
-        batch.sort_unstable();
-        let mut terms: BTreeMap<Arc<str>, usize> = batch
-            .chunk_by(|left, right| left == right)
-            .map(|group| {
-                let term = self.intern_term(group[0]);
-                (term, group.len())
-            })
-            .collect();
-        drop(batch);
+        let batch = TokenBatch::take(&mut tokens, normalized.len());
+        let mut length = batch.length;
+        let mut terms = batch.into_terms(self);
         for token in tokens {
             length += 1;
             if let Some(count) = terms.get_mut(token) {
@@ -1583,5 +1619,101 @@ mod optimization_tests {
                 .to_bits(),
             expected.to_bits()
         );
+    }
+}
+
+#[cfg(test)]
+mod token_batch_tests {
+    use super::*;
+
+    fn reference(words: &[&str]) -> BTreeMap<String, usize> {
+        let mut counts = BTreeMap::new();
+        for word in words {
+            *counts.entry((*word).to_owned()).or_default() += 1;
+        }
+        counts
+    }
+
+    #[test]
+    fn aggregated_prefix_preserves_total_count_and_sorted_unicode_frequencies() {
+        for words in [
+            vec![],
+            vec!["東京"],
+            vec!["café", "café"],
+            vec!["東京", "β", "café", "β", "東京", "a", "β", "café"],
+        ] {
+            let mut tokens = words.iter().copied();
+            let batch = TokenBatch::take(&mut tokens, words.iter().map(|w| w.len()).sum());
+            assert_eq!(batch.length, words.len());
+            assert_eq!(
+                batch.counts.iter().map(|(_, n)| n).sum::<usize>(),
+                words.len()
+            );
+            let expected = reference(&words);
+            assert_eq!(
+                batch.counts,
+                expected
+                    .iter()
+                    .map(|(w, n)| (w.as_str(), *n))
+                    .collect::<Vec<_>>()
+            );
+            assert_eq!(tokens.next(), None);
+        }
+    }
+
+    #[test]
+    fn prefix_stops_at_limit_and_leaves_the_entire_streaming_tail() {
+        let words = ["β", "a", "東京", "a", "café"];
+        for count in [1023, 1024, 1025, 2051] {
+            let input: Vec<_> = words.into_iter().cycle().take(count).collect();
+            let mut tokens = input.iter().copied();
+            let batch = TokenBatch::take(&mut tokens, usize::MAX);
+            let prefix = count.min(TokenBatch::LIMIT);
+            assert_eq!(batch.length, prefix);
+            assert!(batch.counts.capacity() <= TokenBatch::LIMIT);
+            let expected = reference(&input[..prefix]);
+            assert_eq!(
+                batch.counts,
+                expected
+                    .iter()
+                    .map(|(w, n)| (w.as_str(), *n))
+                    .collect::<Vec<_>>()
+            );
+            assert_eq!(tokens.collect::<Vec<_>>(), input[prefix..]);
+        }
+    }
+
+    #[test]
+    fn empty_and_single_tokens_do_not_reserve_for_the_entire_text() {
+        let mut empty = std::iter::empty();
+        let batch = TokenBatch::take(&mut empty, usize::MAX);
+        assert_eq!(batch.length, 0);
+        assert_eq!(batch.counts.capacity(), 0);
+        let text = "資料".repeat(32768);
+        let mut tokens = std::iter::once(text.as_str());
+        let batch = TokenBatch::take(&mut tokens, text.len());
+        assert_eq!(batch.counts, [(text.as_str(), 1)]);
+        assert_eq!(batch.counts.capacity(), 1);
+    }
+
+    #[test]
+    fn aggregated_terms_reuse_vocabulary_without_mutating_retained_readers() {
+        let index =
+            KnowledgeIndex::from_entries([KnowledgeEntry::new("old", "café 東京")]).unwrap();
+        let retained = index.clone();
+        let input = ["東京", "café", "東京", "new"];
+        let batch = TokenBatch::take(&mut input.into_iter(), 64);
+        let terms = batch.into_terms(&index);
+        for word in ["café", "東京"] {
+            assert!(Arc::ptr_eq(
+                terms.get_key_value(word).unwrap().0,
+                index.postings.get_key_value(word).unwrap().0
+            ));
+        }
+        assert_eq!(terms["東京"], 2);
+        assert_eq!(terms["new"], 1);
+        drop(index);
+        assert_eq!(retained.search("東京", 1)[0].entry.id, "old");
+        assert_eq!(terms["café"], 1);
     }
 }

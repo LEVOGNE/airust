@@ -1,0 +1,16 @@
+{
+  "reviewer": "Claude via official CLI, tools disabled",
+  "public_baseline": "0.4.3",
+  "public_crate_sha256": "1a873fa6edb4780166275b8ca0380067440b61264a8e1cd26509447db65ddbfb",
+  "unpublished_source_included": false,
+  "review_exchanges": 4,
+  "dispositions": {
+    "F1": "No batch variant in exhaustive rmcp3.11 message model. Actual batch probe returns -32600; next individual request succeeds. No bypass reproduced.",
+    "F2": "Confirmed failing deterministic regression before fix. Fixed with per-connection TaskTracker; unit plus actual two-connection tests pass. Global worker limit retained. Follow-up closes the admission/registration race with synchronized WorkerLease reservations;4late/drop/detach/panic regressions pass.",
+    "F3": "Missed progress ticks now skip stale heartbeats. Existing stalled-reader cancellation test passes. Session-close policy unchanged.",
+    "F4": "EOF cancellation behavior explicitly documented.",
+    "other": "No additional unverified speculation is reported as a discovered vulnerability.",
+    "F6": "Verified repeated tool-definition construction; immutable per-Data definitions now shared by clones. Caller-edit and per-instance-limit isolation regression passes. Serial registry043/current allocation comparison and1000parallel connection checks recorded."
+  },
+  "scope": "Read-only public-source review and checklist,followed by local reproductions/fixes. A separate unpublished snapshot export was denied by automatic approval review; the public-source alternative was used. No independent security audit or runtime execution by the reviewer."
+}

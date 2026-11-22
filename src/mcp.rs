@@ -165,6 +165,7 @@ struct Data {
     index: Engine,
     documents: BTreeMap<(String, String), DocumentSnapshot>,
     limits: McpLimits,
+    tools: Vec<Tool>,
 }
 #[derive(Clone)]
 pub struct McpServer {
@@ -256,6 +257,7 @@ impl McpServer {
                 index: Engine::from_entries(records)?,
                 documents: registered,
                 limits: limits.clone(),
+                tools: definitions(&limits),
             }),
             slots: Arc::new(Semaphore::new(limits.max_concurrent)),
             session: None,
@@ -382,8 +384,6 @@ impl McpServer {
         let session = transport::Session::new(self.data.limits.clone());
         let _shutdown = session.stop.clone().drop_guard();
         self.session = Some(session.clone());
-        let slots = self.slots.clone();
-        let limit = self.data.limits.max_concurrent as u32;
         let reader = transport::BudgetReader::new(reader, session.clone());
         let transport = transport::GuardedTransport::new(
             AsyncRwTransport::<RoleServer, _, _>::new(reader, writer)
@@ -394,11 +394,11 @@ impl McpServer {
             .serve_with_ct(transport, session.stop.clone())
             .await
             .map_err(|e| McpError::Transport(e.to_string()))?;
-        running
+        let outcome = running
             .waiting()
             .await
-            .map_err(|e| McpError::Transport(e.to_string()))?;
-        if tokio::time::timeout(Duration::from_secs(1), slots.acquire_many_owned(limit))
+            .map_err(|e| McpError::Transport(e.to_string()));
+        if tokio::time::timeout(Duration::from_secs(1), session.shutdown_workers())
             .await
             .is_err()
         {
@@ -406,6 +406,7 @@ impl McpServer {
                 "workers did not stop within the shutdown grace period".into(),
             ));
         }
+        outcome?;
         if let Some(reason) = session.reason() {
             return Err(McpError::Transport(reason.into()));
         }
@@ -557,7 +558,7 @@ impl McpServer {
         }
     }
     pub fn tool_definitions(&self) -> Vec<Tool> {
-        definitions(self.limits())
+        self.data.tools.clone()
     }
 }
 fn prefix_end(text: &str, maximum: usize) -> usize {
@@ -816,7 +817,11 @@ impl ServerHandler for Handler {
             .with_instructions(AGENT_INSTRUCTIONS)
     }
     fn get_tool(&self, name: &str) -> Option<Tool> {
-        self.tool_definitions().into_iter().find(|t| t.name == name)
+        self.data
+            .tools
+            .iter()
+            .find(|tool| tool.name == name)
+            .cloned()
     }
     async fn list_tools(
         &self,
@@ -929,10 +934,17 @@ impl ServerHandler for Handler {
         if context.ct.is_cancelled() {
             return Ok(self.error("cancelled", "Request cancelled").into());
         }
-        let permit =
-            match self.slots.clone().try_acquire_owned() {
-                Ok(permit) => permit,
-                Err(_) => return Ok(self
+        let session = self
+            .session
+            .as_ref()
+            .ok_or_else(|| ErrorData::internal_error("Session unavailable", None))?;
+        let lease =
+            match session.reserve_worker(self.slots.clone()) {
+                Ok(lease) => lease,
+                Err(transport::WorkerAdmissionError::Closed) => {
+                    return Ok(self.error("cancelled", "Connection stopped").into());
+                }
+                Err(transport::WorkerAdmissionError::Busy) => return Ok(self
                     .error(
                         "busy",
                         "All AIRust worker slots are occupied; retry after current work finishes",
@@ -955,16 +967,14 @@ impl ServerHandler for Handler {
         }
         let server = self.0.clone();
         let worker_control = control.clone();
-        let mut worker = tokio::task::spawn_blocking(move || {
-            let _permit = permit;
-            server.execute(command, &worker_control)
-        });
+        let mut worker = lease.spawn(move || server.execute(command, &worker_control));
         let deadline = tokio::time::sleep_until(tokio::time::Instant::from_std(
             control.deadline().unwrap_or_else(Instant::now),
         ));
         tokio::pin!(deadline);
         let mut interval =
             tokio::time::interval(Duration::from_millis(self.limits().progress_interval_ms));
+        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         interval.tick().await;
         loop {
             tokio::select! {biased;
@@ -995,4 +1005,52 @@ fn definitions(limits: &McpLimits) -> Vec<Tool> {
         ("airust_status","Inspect loaded entry/document counts and bounded worker usage. No source paths or credentials are returned.",json!({}),vec![]),
     ];
     specs.into_iter().map(|(name,description,properties,required)|{let schema=json!({"type":"object","properties":properties,"required":required,"additionalProperties":false}).as_object().cloned().unwrap_or_default();Tool::new(name,description,schema).with_raw_output_schema(self::schema::output(name)).with_annotations(ToolAnnotations::new().read_only(true).destructive(false).idempotent(true).open_world(false))}).collect()
+}
+
+#[cfg(test)]
+mod shutdown_tests {
+    use super::*;
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+
+    #[tokio::test]
+    async fn shutdown_does_not_wait_for_other_server_clones_worker_permits() {
+        let server = McpServer::from_entries(
+            [KnowledgeEntry::new("entry", "shared worker admission")],
+            McpLimits {
+                max_concurrent: 1,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let observer = server.clone();
+        let unrelated_work = observer.slots.clone().try_acquire_owned().unwrap();
+        let (client, transport) = tokio::io::duplex(65536);
+        let (reader, mut writer) = tokio::io::split(client);
+        let (server_reader, server_writer) = tokio::io::split(transport);
+        let task = tokio::spawn(server.serve(server_reader, server_writer));
+        let mut reader = BufReader::new(reader);
+        writer.write_all(b"{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{},\"clientInfo\":{\"name\":\"shutdown-regression\",\"version\":\"1\"}}}\n").await.unwrap();
+        let mut line = String::new();
+        tokio::time::timeout(Duration::from_secs(3), reader.read_line(&mut line))
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(serde_json::from_str::<Value>(&line).unwrap()["id"], 0);
+        writer
+            .write_all(b"{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}\n")
+            .await
+            .unwrap();
+        writer.shutdown().await.unwrap();
+        let result = tokio::time::timeout(Duration::from_secs(3), task)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(
+            result.is_ok(),
+            "unrelated worker must not block shutdown: {result:?}"
+        );
+        assert_eq!(observer.stats().in_flight, 1);
+        drop(unrelated_work);
+        assert_eq!(observer.stats().in_flight, 0);
+    }
 }

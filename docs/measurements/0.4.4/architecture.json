@@ -1,0 +1,12 @@
+{
+  "authoritative_lexical_state": "KnowledgeIndex",
+  "token_preparation": "Private consumed TokenBatch; at most1024 borrowed token/count pairs, total occurrences preserved before dedup, streaming tail unchanged. No persistent scratch retained by index.",
+  "mutation_paths": "Normal insertion, prepared analyzers and cache restoration converge on existing prepared-insertion/statistics maintenance.",
+  "mcp_connection_lifetime": "Private Session synchronizes closing/admission and owns existing tokio-util TaskTracker. Owned WorkerLease registers with the tracker when acquiring one global permit,before initialprogress awaits,then moves into blockingwork. Early drop/panic releases permit before tracking token. Shared semaphore remains admission-only;late reservations rejected.",
+  "public_api_changes": false,
+  "default_features": [],
+  "new_dependency_versions": false,
+  "optional_runtime_feature": "mcp uses existing resolved tokio-util0.7.20 with explicit tested minimum/rt; Cargo.lock adds its futures-util edge,with no version upgrades.",
+  "knowledge_and_mcp_formats_changed": false,
+  "denk_maps_integration": false
+}

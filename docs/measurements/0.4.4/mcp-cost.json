@@ -1,0 +1,312 @@
+{
+  "conditions": "30 fresh release servers (Rust 1.98), five cases, 3 repeats per version, alternating old/current and case order. No deliberate concurrent builds/checks. Warm files and uncontrolled desktop activity. Local request/progress/result transport included, passage follow-up excluded. Each process has a fixed query sequence; TF-IDF becomes partly warmed across queries. No transcript/general-schema-validator overhead inside timers. RSS is single child lifetime peak including startup/index/snapshot/runtime/transport, excludes Python validator. Startup ends at initialized, before tools/list. No native extraction, independent cold-query, p95/p99 or hard-capacity claim.",
+  "previous_binary_sha256": "3f741022e04b1aa879e95532f664e3da9103383be6eb234c8ac1a073026934e2",
+  "current_binary_sha256": "d32c5f5915236ab312750eb255201c82e18eb8858619c3bc894471ee42fe8cb3",
+  "cases": [
+    {
+      "id": "canonical",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 5268.457125173882,
+          "server_lifetime_peak_rss_median_bytes": 1814773760,
+          "four_concurrent_requests_median_ms": 15.717834001407027,
+          "bm25": {
+            "samples": 210,
+            "median_ms": 14.452687581069767,
+            "max_ms": 83.94287503324449,
+            "per_process_median_ms": [
+              15.5102499993518,
+              13.834500568918884,
+              14.452687581069767
+            ],
+            "median_of_process_medians_ms": 14.452687581069767
+          },
+          "tfidf": {
+            "samples": 210,
+            "median_ms": 19.288562471047044,
+            "max_ms": 90.71995783597231,
+            "per_process_median_ms": [
+              20.430854056030512,
+              18.471146002411842,
+              19.197021145373583
+            ],
+            "median_of_process_medians_ms": 19.197021145373583
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 5240.524583961815,
+          "server_lifetime_peak_rss_median_bytes": 1814757376,
+          "four_concurrent_requests_median_ms": 15.075083822011948,
+          "bm25": {
+            "samples": 210,
+            "median_ms": 17.49750052113086,
+            "max_ms": 103.30579103901982,
+            "per_process_median_ms": [
+              26.744625065475702,
+              13.753375504165888,
+              13.941208366304636
+            ],
+            "median_of_process_medians_ms": 13.941208366304636
+          },
+          "tfidf": {
+            "samples": 210,
+            "median_ms": 24.434166960418224,
+            "max_ms": 142.54466607235372,
+            "per_process_median_ms": [
+              38.5364789981395,
+              18.429687479510903,
+              18.368458608165383
+            ],
+            "median_of_process_medians_ms": 18.429687479510903
+          }
+        }
+      }
+    },
+    {
+      "id": "vkspec",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 376.7490840982646,
+          "server_lifetime_peak_rss_median_bytes": 138477568,
+          "four_concurrent_requests_median_ms": 4.50645899400115,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 3.985041636042297,
+            "max_ms": 5.265416810289025,
+            "per_process_median_ms": [
+              5.213270895183086,
+              3.971562604419887,
+              3.923812531866133
+            ],
+            "median_of_process_medians_ms": 3.971562604419887
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 9.447187534533441,
+            "max_ms": 14.475707896053791,
+            "per_process_median_ms": [
+              12.210541404783726,
+              8.108291425742209,
+              7.98754149582237
+            ],
+            "median_of_process_medians_ms": 8.108291425742209
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 379.7019999474287,
+          "server_lifetime_peak_rss_median_bytes": 138592256,
+          "four_concurrent_requests_median_ms": 4.34758304618299,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 3.995041362941265,
+            "max_ms": 5.095292115584016,
+            "per_process_median_ms": [
+              4.968271008692682,
+              3.953520907089114,
+              3.9343745447695255
+            ],
+            "median_of_process_medians_ms": 3.953520907089114
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 9.425625554285944,
+            "max_ms": 14.00399999693036,
+            "per_process_median_ms": [
+              11.858187499456108,
+              8.040874963626266,
+              7.980292080901563
+            ],
+            "median_of_process_medians_ms": 8.040874963626266
+          }
+        }
+      }
+    },
+    {
+      "id": "scipy",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 243.0302081629634,
+          "server_lifetime_peak_rss_median_bytes": 101793792,
+          "four_concurrent_requests_median_ms": 4.675542004406452,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 4.362582927569747,
+            "max_ms": 5.681541981175542,
+            "per_process_median_ms": [
+              5.424270988442004,
+              4.292624420486391,
+              4.241978982463479
+            ],
+            "median_of_process_medians_ms": 4.292624420486391
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 9.041749988682568,
+            "max_ms": 16.98020799085498,
+            "per_process_median_ms": [
+              11.392437503673136,
+              8.41183343436569,
+              8.432729518972337
+            ],
+            "median_of_process_medians_ms": 8.432729518972337
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 242.90137505158782,
+          "server_lifetime_peak_rss_median_bytes": 101629952,
+          "four_concurrent_requests_median_ms": 4.496542038396001,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 4.339562496170402,
+            "max_ms": 5.835707997903228,
+            "per_process_median_ms": [
+              5.480645573697984,
+              4.273437429219484,
+              4.192583495751023
+            ],
+            "median_of_process_medians_ms": 4.273437429219484
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 9.033312555402517,
+            "max_ms": 16.715458128601313,
+            "per_process_median_ms": [
+              11.363645666278899,
+              8.279228932224214,
+              8.258291520178318
+            ],
+            "median_of_process_medians_ms": 8.279228932224214
+          }
+        }
+      }
+    },
+    {
+      "id": "racket-reference",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 89.28545797243714,
+          "server_lifetime_peak_rss_median_bytes": 41254912,
+          "four_concurrent_requests_median_ms": 2.5565840769559145,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 2.0501663675531745,
+            "max_ms": 2.576208906248212,
+            "per_process_median_ms": [
+              2.5110214482992887,
+              2.0076874643564224,
+              1.9524788949638605
+            ],
+            "median_of_process_medians_ms": 2.0076874643564224
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 3.0110625084489584,
+            "max_ms": 4.413750022649765,
+            "per_process_median_ms": [
+              4.398437566123903,
+              3.002979443408549,
+              2.958771074190736
+            ],
+            "median_of_process_medians_ms": 3.002979443408549
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 90.37862508557737,
+          "server_lifetime_peak_rss_median_bytes": 41385984,
+          "four_concurrent_requests_median_ms": 2.669166075065732,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 2.1179585019126534,
+            "max_ms": 2.8243339620530605,
+            "per_process_median_ms": [
+              2.5616459315642715,
+              2.110875560902059,
+              2.0958544919267297
+            ],
+            "median_of_process_medians_ms": 2.110875560902059
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 3.181625041179359,
+            "max_ms": 4.299875115975738,
+            "per_process_median_ms": [
+              4.217854468151927,
+              3.175187506712973,
+              3.0442080460488796
+            ],
+            "median_of_process_medians_ms": 3.175187506712973
+          }
+        }
+      }
+    },
+    {
+      "id": "pdf-12",
+      "versions": {
+        "previous": {
+          "processes": 3,
+          "startup_median_ms": 40.22212512791157,
+          "server_lifetime_peak_rss_median_bytes": 22233088,
+          "four_concurrent_requests_median_ms": 2.358166966587305,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 1.660957932472229,
+            "max_ms": 2.084458013996482,
+            "per_process_median_ms": [
+              1.8971869722008705,
+              1.6023749485611916,
+              1.5615620650351048
+            ],
+            "median_of_process_medians_ms": 1.6023749485611916
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 2.2120210342109203,
+            "max_ms": 3.8508749566972256,
+            "per_process_median_ms": [
+              2.7094794204458594,
+              2.2615204798057675,
+              2.144521102309227
+            ],
+            "median_of_process_medians_ms": 2.2615204798057675
+          }
+        },
+        "current": {
+          "processes": 3,
+          "startup_median_ms": 40.552458027377725,
+          "server_lifetime_peak_rss_median_bytes": 22167552,
+          "four_concurrent_requests_median_ms": 2.0544168073683977,
+          "bm25": {
+            "samples": 6,
+            "median_ms": 1.6385625349357724,
+            "max_ms": 2.078582998365164,
+            "per_process_median_ms": [
+              1.8804374849423766,
+              1.5676665352657437,
+              1.5683334786444902
+            ],
+            "median_of_process_medians_ms": 1.5683334786444902
+          },
+          "tfidf": {
+            "samples": 6,
+            "median_ms": 2.156145987100899,
+            "max_ms": 3.7780420389026403,
+            "per_process_median_ms": [
+              2.2532290313392878,
+              2.1967709762975574,
+              2.150667132809758
+            ],
+            "median_of_process_medians_ms": 2.1967709762975574
+          }
+        }
+      }
+    }
+  ]
+}

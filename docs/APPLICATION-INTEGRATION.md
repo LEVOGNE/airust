@@ -1,14 +1,16 @@
-# AIRust 0.4.1 application integration guide
+# AIRust 0.4.4 application integration guide
 
-Read the [support contract](STABILITY.md), [current validation](CHANGES-0.4.1.md), [document positions](DOCUMENTS.md) and [optional MCP](MCP.md). This is an adapter design guide; no DenkMaps integration is performed.
+Read the [support contract](STABILITY.md), [current validation](CHANGES-0.4.4.md), [document positions](DOCUMENTS.md) and [optional MCP](MCP.md). This is an adapter design guide; no DenkMaps integration is performed.
 
 AIRust finds candidate knowledge, compares text, assembles bounded evidence and offers optional ranking and rule evaluation. Your application owns users, permissions, durable data and accepted decisions. This document describes a future application adapter, including DenkMaps. The optional MCP transport is now available in this same crate, while application data synchronization and DenkMaps remain separate work. These examples do not establish production readiness for an application dataset.
+
+Version 0.4.4 keeps the existing public methods and knowledge formats. Keep one Engine alive for repeated queries and apply changes through its existing update methods. The core reduces temporary construction allocations. Optional MCP shares its fixed tool catalogue and worker admission limit across clones, while each connection waits for its own workers at shutdown. See [core costs and behavior](CORE-PERFORMANCE.md).
 
 ## 1. Start with the smallest dependency
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.1", default-features = false,
+airust = { version = "=0.4.4", default-features = false,
            features = ["retrieval", "advanced-search", "execution"] }
 ```
 
@@ -54,7 +56,7 @@ with_observer receives ProgressEvent values with phase, sequence, completed unit
 
 Keep observer work quick and nonblocking. Send status through a bounded application channel, coalesce repeated counts and handle disconnected subscribers. The engine isolates observer panics and exposes observer_failures; telemetry failure must not undo a completed publication. Do not report success until the operation's Result confirms it. If an external AI agent is still writing after retrieval, show that as a separate application phase; AIRust cannot predict its answer arrival time or force it to narrate. Put start/update/end communication rules in the agent's own instructions later.
 
-See [execution](EXECUTION.md), [deadlines](EXECUTION.md) and [progress](EXECUTION.md). This release adds no MCP progress transport or UI loading bar.
+See [execution](EXECUTION.md), [deadlines](EXECUTION.md) and [progress](EXECUTION.md). Optional [MCP](MCP.md#progress-cancellation-and-agent-communication) forwards client-requested progress; the host application renders its loading indicator and messages.
 
 ## 6. Add optional routing, feedback and training separately
 
@@ -76,7 +78,7 @@ Freeze representative authorized queries and relevance judgments before tuning. 
 
 Exercise committed changes/deletes, rollback, restart/rebuild, stale prepared updates, concurrent publication, permission changes, cancelled/late providers, corrupted cache/model files and output caps. Verify that no private entry, intermediate fact, source path or feedback identifier crosses the boundary. Test actual map sizes and your application's configured limits. Public synthetic million-entry or authored quality fixtures do not establish production capacity or semantic quality for your data.
 
-Roll out one capability at a time behind a configuration switch, with the previous search and dependency rollback tested. MCP/TOON, UI progress and a future DenkMaps adapter remain separate application work after these checks.
+Roll out one capability at a time behind a configuration switch, with the previous search and dependency rollback tested. Application-specific agent access, TOON formatting, UI progress rendering and a future DenkMaps adapter remain application work after these checks.
 
 ## New API reference by release
 
@@ -100,6 +102,9 @@ Roll out one capability at a time behind a configuration switch, with the previo
 | 0.2.28 | ExplainableReranker, ExplainedScores | Exact additive score explanations |
 | 0.2.29 | CurationPolicy, TrainingDataset, train_grouped, ModelRegistry | Reviewed training data and quality-gated model transitions |
 | 0.2.30 | DiskIndex, DiskSource, DiskPage | Dedicated disk-backed search with revision-fenced updates/export |
+| 0.4.0 | DocumentSnapshot, SourceFingerprint, Passage | Revision-bound text and checked original positions |
+| 0.4.1 | McpServer, McpLimits, airust-mcp | Optional read-only tools, progress and cancellation in this crate |
+| 0.4.2–0.4.4 | Existing Engine and McpServer methods | Shared storage, ranking, bounded temporary work and response schemas with compatible signatures |
 
 The [API cookbook](API-COOKBOOK.md), focused module contracts and runnable examples contain exact signatures. [Release reports](../CHANGELOG.md) link actual tests, measurements and limitations for each version. This is an integration plan, not a completed DenkMaps integration or a claim of perfection.
 

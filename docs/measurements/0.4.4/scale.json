@@ -1,0 +1,228 @@
+{
+  "rust": "1.89.0",
+  "cases": [
+    {
+      "case": "default-clone-500000",
+      "build_ms": 1575.846333,
+      "clone_ms": [
+        108.82537500000001,
+        108.373625,
+        107.747167
+      ],
+      "entries": 500000,
+      "fixture": "stress-index-v1",
+      "mode": "clone",
+      "old_views_unchanged": true,
+      "one_clone_mutation_ms": 0.018917,
+      "retained_clones": 3,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 2449145856
+    },
+    {
+      "case": "default-scale-1000000",
+      "absent": {
+        "max_ms": 0.003583,
+        "min_ms": 0.00029099999999999997,
+        "p50_ms": 0.000334,
+        "p95_ms": 0.003583,
+        "p99_ms": 0.003583,
+        "samples": 10
+      },
+      "build_ms": 4340.843542,
+      "common": {
+        "max_ms": 446.402583,
+        "min_ms": 325.957375,
+        "p50_ms": 361.193875,
+        "p95_ms": 446.402583,
+        "p99_ms": 446.402583,
+        "samples": 8
+      },
+      "concurrent_readers": 4,
+      "concurrent_selective": {
+        "max_ms": 1.6170419999999999,
+        "min_ms": 0.86425,
+        "p50_ms": 1.120542,
+        "p95_ms": 1.3753330000000001,
+        "p99_ms": 1.6170419999999999,
+        "samples": 80
+      },
+      "delete_20_ms": 0.017124999999999998,
+      "entries": 1000000,
+      "final_entries": 999980,
+      "fixture": "stress-index-v1",
+      "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+      "mode": "scale",
+      "score_signature": 7776879341734148000,
+      "selective": {
+        "max_ms": 1.9480000000000002,
+        "min_ms": 0.9466249999999999,
+        "p50_ms": 1.249291,
+        "p95_ms": 1.466917,
+        "p99_ms": 1.9480000000000002,
+        "samples": 100
+      },
+      "update_100_ms": 0.462041,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 1337671680
+    },
+    {
+      "case": "default-scale-2000000",
+      "absent": {
+        "max_ms": 0.003167,
+        "min_ms": 0.000292,
+        "p50_ms": 0.000375,
+        "p95_ms": 0.003167,
+        "p99_ms": 0.003167,
+        "samples": 10
+      },
+      "build_ms": 6425.267417,
+      "common": {
+        "max_ms": 464.095459,
+        "min_ms": 444.42875,
+        "p50_ms": 458.309875,
+        "p95_ms": 464.095459,
+        "p99_ms": 464.095459,
+        "samples": 8
+      },
+      "concurrent_readers": 4,
+      "concurrent_selective": {
+        "max_ms": 2.197,
+        "min_ms": 1.312709,
+        "p50_ms": 1.590084,
+        "p95_ms": 2.190708,
+        "p99_ms": 2.197,
+        "samples": 80
+      },
+      "delete_20_ms": 0.013042,
+      "entries": 2000000,
+      "final_entries": 1999980,
+      "fixture": "stress-index-v1",
+      "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+      "mode": "scale",
+      "score_signature": 7777160148249243000,
+      "selective": {
+        "max_ms": 1.911083,
+        "min_ms": 1.405125,
+        "p50_ms": 1.495625,
+        "p95_ms": 1.641,
+        "p99_ms": 1.911083,
+        "samples": 100
+      },
+      "update_100_ms": 0.302542,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 2672099328
+    },
+    {
+      "case": "shared-clone-500000",
+      "build_ms": 1429.919083,
+      "clone_ms": [
+        6.670583,
+        6.513040999999999,
+        6.463209
+      ],
+      "entries": 500000,
+      "fixture": "stress-index-v1",
+      "mode": "clone",
+      "old_views_unchanged": true,
+      "one_clone_mutation_ms": 42.986792,
+      "retained_clones": 3,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 857735168
+    },
+    {
+      "case": "shared-scale-1000000",
+      "absent": {
+        "max_ms": 0.003583,
+        "min_ms": 0.00029099999999999997,
+        "p50_ms": 0.000292,
+        "p95_ms": 0.003583,
+        "p99_ms": 0.003583,
+        "samples": 10
+      },
+      "build_ms": 3068.272833,
+      "common": {
+        "max_ms": 242.157917,
+        "min_ms": 223.742958,
+        "p50_ms": 232.03199999999998,
+        "p95_ms": 242.157917,
+        "p99_ms": 242.157917,
+        "samples": 8
+      },
+      "concurrent_readers": 4,
+      "concurrent_selective": {
+        "max_ms": 1.116333,
+        "min_ms": 0.685583,
+        "p50_ms": 0.8316250000000001,
+        "p95_ms": 1.1071250000000001,
+        "p99_ms": 1.116333,
+        "samples": 80
+      },
+      "delete_20_ms": 0.011165999999999999,
+      "entries": 1000000,
+      "final_entries": 999980,
+      "fixture": "stress-index-v1",
+      "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+      "mode": "scale",
+      "score_signature": 7776879341734148000,
+      "selective": {
+        "max_ms": 1.048584,
+        "min_ms": 0.735333,
+        "p50_ms": 0.8445,
+        "p95_ms": 0.947666,
+        "p99_ms": 1.048584,
+        "samples": 100
+      },
+      "update_100_ms": 0.292167,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 1249787904
+    },
+    {
+      "case": "shared-scale-2000000",
+      "absent": {
+        "max_ms": 0.003625,
+        "min_ms": 0.00029099999999999997,
+        "p50_ms": 0.00033299999999999996,
+        "p95_ms": 0.003625,
+        "p99_ms": 0.003625,
+        "samples": 10
+      },
+      "build_ms": 7219.837833,
+      "common": {
+        "max_ms": 598.601,
+        "min_ms": 462.060625,
+        "p50_ms": 477.659916,
+        "p95_ms": 598.601,
+        "p99_ms": 598.601,
+        "samples": 8
+      },
+      "concurrent_readers": 4,
+      "concurrent_selective": {
+        "max_ms": 2.417375,
+        "min_ms": 1.466292,
+        "p50_ms": 1.888333,
+        "p95_ms": 2.3995,
+        "p99_ms": 2.417375,
+        "samples": 80
+      },
+      "delete_20_ms": 0.011417,
+      "entries": 2000000,
+      "final_entries": 1999980,
+      "fixture": "stress-index-v1",
+      "limits": "Synthetic lexical RAM workload; separate latency categories; no model, storage or real-corpus capacity guarantee.",
+      "mode": "scale",
+      "score_signature": 7777160148249243000,
+      "selective": {
+        "max_ms": 10.499833,
+        "min_ms": 1.774083,
+        "p50_ms": 2.487541,
+        "p95_ms": 5.421583,
+        "p99_ms": 10.499833,
+        "samples": 100
+      },
+      "update_100_ms": 0.296375,
+      "version": "0.4.4",
+      "child_lifetime_peak_rss_bytes": 2496233472
+    }
+  ],
+  "scope": "Fresh release processes:1million/2million short synthetic records and500000-entry index with3retained clones,default/shared modes. Existing stress-index-v1 fixture. Deliberate concurrent Miri/soak/build activity: timings/percentiles are observations under load,not the quiet baseline or capacity guarantees. RSS covers each whole child."
+}

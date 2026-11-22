@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.4.3 accelerates index construction and BM25 while keeping shared index memory, TF-IDF reuse and MCP response schemas. Read-only MCP still provides progress, cancellation and bounded work. See [MCP setup](docs/MCP.md), [security](docs/MCP-SECURITY.md), [current validation](docs/CHANGES-0.4.3.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features, including MCP, use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.4.4 reduces temporary construction allocations while keeping the existing index, shared memory, TF-IDF reuse and MCP response schemas. Read-only MCP still provides progress, cancellation and bounded work. See [MCP setup](docs/MCP.md), [security](docs/MCP-SECURITY.md), [current validation](docs/CHANGES-0.4.4.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features, including MCP, use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
 
 ## Try the core
 
@@ -113,13 +113,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.4.3 .
+docker build -t airust:0.4.4 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.4.3
+  airust:0.4.4
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.

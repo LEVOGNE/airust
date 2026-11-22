@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 — Less temporary allocation traffic
+
+Added a private bounded token batch that aggregates repeated word counts in place before interning and ordered collection. Empty/single-token input avoids oversized reservations. The centralized KnowledgeIndex, streaming tail, stable ranking, retained memory sharing, norm invalidation and vocabulary compaction remain. Added prefix/Unicode/lifetime regressions, interpreter checks and a reproducible differential stress consumer. Fixed cross-connection MCP shutdown interference with per-connection worker tracking, skipped stale progress heartbeats and verified batch-array rejection. Reused immutable per-server tool definitions with caller-edit/configuration isolation and a reproducible connection-allocation probe. Public APIs, knowledge/cache formats, optional MCP schemas and PDF backend 0.3.5 remain. No DenkMaps integration. See [behavior and limits](docs/CORE-PERFORMANCE.md) and [executed validation](docs/CHANGES-0.4.4.md).
+
+Eight authored allocation distributions also measure long-word over-reservation: fewer allocation calls can still mean more working bytes. Build, warm-query, clone and release phases retain equal live heap in those comparisons. The real-document improvements and these limits are reported separately. Current API, support and future application-adapter guides are updated in English.
+
 ## 0.4.3 — Faster construction and BM25
 
 Count a bounded prefix of borrowed tokens through sorted grouping, stream long-entry tails and use the standard randomly seeded hash dictionary for shared vocabulary lookups. Prepare query IDF once, compute BM25 normalization once per candidate and retain borrowed scores until top-K winners are selected. Allocate matched-term explanations only for winners. Preserve exact arithmetic order, deterministic ties/scopes, shared index memory, TF-IDF hints, knowledge/cache formats and MCP response version one. Add independent extreme-parameter/full-scan, batch-boundary/Unicode and deferred-explanation regressions. Recheck retained knowledge, real MCP/schema replies, minimum Rust, compatibility and memory/build/query costs. Backend remains 0.3.5; no DenkMaps integration. See [API behavior](docs/CORE-PERFORMANCE.md) and [results/limits](docs/CHANGES-0.4.3.md).

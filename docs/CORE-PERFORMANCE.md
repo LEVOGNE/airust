@@ -1,6 +1,6 @@
-# Core construction and ranking in AIRust 0.4.3
+# Core construction and ranking in AIRust 0.4.4
 
-AIRust 0.4.3 builds indexes and ranks lexical candidates with less repeated work. It keeps the shared strings and TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
+AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
 ## What is shared
 
@@ -10,11 +10,29 @@ This does not turn the whole index into one copy of the corpus. Source text, nor
 
 ## Bounded construction and vocabulary lookup
 
-The first 1,024 tokens of an entry are borrowed from normalized text, sorted and grouped. Repeated words are counted together before creating the ordered per-entry term map. Remaining tokens stream through the existing counter path. The sort buffer holds at most 1,024 string references; it does not grow with the complete entry. Collection/tree construction has its own bounded temporary allocations. Original text and separators remain intact.
+A private TokenBatch value owns at most 1,024 borrowed token/count pairs. It sorts by word and merges repeated counts in place, preserving the number of original token occurrences separately. The completed pairs are consumed into the existing ordered per-entry term map. Remaining tokens stream through the original counter path, including terms already seen in the prefix. Original text, Unicode normalization and separators retain their existing behavior.
+
+Reservation uses a bounded estimate of normalized text bytes. Empty token streams allocate no batch storage. A single token reserves one slot even when its text is very long. Multi-token storage can grow only to the fixed prefix bound. No scratch buffer is retained in KnowledgeIndex or between documents, so one unusual entry does not increase every later index clone. Tree construction, normalization and source storage still allocate. The measured Rust compiler can reuse the consumed pair allocation during collection; that is a standard-library implementation detail, not an AIRust API or correctness requirement. No unsafe memory conversion is used.
+
+The byte estimate can reserve more slots than needed when an entry contains only a few very long words. Such entries can request more cumulative working bytes than 0.4.3 despite making fewer allocation calls. The temporary buffer remains bounded to 1,024 pairs and completed live storage stays unchanged in the measured cases. See the authored [allocation distributions](measurements/0.4.4/heap-edges.json) alongside the real-document profile; allocation count, allocated bytes and peak memory describe different costs.
+
+KnowledgeIndex remains the single owner of lexical state. TokenBatch only prepares counts; every insertion still reaches the same prepared-insertion path and existing vocabulary/duplicate/statistics maintenance. Cache restoration and advanced analyzers supply their already-prepared counts to that path. No second index, global mutable pool, public option or required dependency is introduced.
+
+`Engine` is a public alias for `KnowledgeIndex`, not another index wrapper. The private value types encapsulate preparation and ranking work; the authoritative state stays in one place.
+
+```mermaid
+flowchart LR
+    entries[Normal entries] --> batch[Temporary TokenBatch]
+    batch --> index[Engine = KnowledgeIndex]
+    prepared[Cached or analyzed counts] --> index
+    application[Application or optional MCP] --> index
+    index --> state[Documents, vocabulary, postings and duplicates]
+    index --> hints[Derived TF-IDF norm hints]
+```
 
 The global vocabulary dictionary uses Rust's default randomly seeded `HashMap`. AIRust does not install a faster unprotected custom hasher. Entries, postings IDs, per-entry term order, duplicate groups and stable score/ID tie order retain their ordered structures. The global dictionary is used for lookup, not to enumerate results or serialized data. Hash seeds may affect costs/layout, not the ranking contract. See [Rust's standard map contract](https://doc.rust-lang.org/std/collections/struct.HashMap.html).
 
-## Query preparation and winner explanations
+## Query preparation and winner explanations (since 0.4.3)
 
 Known query words are prepared in their original sorted order. BM25's corpus-frequency logarithm is calculated once for each word, and document-length normalization once for each candidate. Score multiplication/division and sorted contribution order remain the same, including the existing overflow-resistant branch for large `k1`. Repeated query words retain the previous BM25 behavior. Unknown words produce no candidate/statistic entry.
 
@@ -38,13 +56,13 @@ With `execution`, a cold norm calculation checks cancellation/deadlines within t
 
 Keep one `Engine` alive across requests when possible. `search()` uses BM25; `search_with_options()` selects `SearchAlgorithm::Tfidf`. No warm-up call is required. Use `upsert()` and `remove()` for changes. Result entries still borrow the index. JSON serialization retains original records in deterministic ID order.
 
-The 0.4.2 and 0.4.3 cache files cross-load through the public cache API. Their analysis/metadata payloads agree after the expected producer label. The label includes the crate version, so whole-file checksums differ. The private TF-IDF hints are not serialized. Knowledge JSON, document revisions, source fingerprints and reserved descriptors keep their existing formats.
+The 0.4.3 and 0.4.4 cache files cross-load through the public cache API. Their analysis/metadata payloads agree after the expected producer label. The label includes the crate version, so whole-file checksums differ. The private TF-IDF hints are not serialized. Knowledge JSON, document revisions, source fingerprints and reserved descriptors keep their existing formats.
 
 MCP uses this core automatically. It remains optional and in the same crate. Its [response schemas](MCP.md#response-schemas) are independent of the internal memory layout. Default core/MCP normal dependency checks exclude the test validator, heap profiler, HTTP, SQLite and native model packages.
 
 ## Measured scope and remaining costs
 
-See [the release report](CHANGES-0.4.3.md) and [machine-readable measurements](measurements/0.4.3/). Separate programs measure ordinary release calls, server process RSS and allocator-instrumented index heap. These metrics describe different boundaries and must not be treated as interchangeable.
+See [the release report](CHANGES-0.4.4.md) and [machine-readable measurements](measurements/0.4.4/). Separate programs measure ordinary release calls, server process RSS and allocator-instrumented index heap. These metrics describe different boundaries and must not be treated as interchangeable.
 
 Repeated TF-IDF queries over stable data are the intended beneficiary. A first query still performs uncached calculations. Frequent text edits discard that work; lock contention can repeat it. Small records can pay additional reference-count/tree overhead. BM25 uses query-local preparation rather than a persistent norm store; matching does not gain TF-IDF reuse. The disk-backed index and optional model algorithms have their own implementations. A lower measured index heap is not a hard process-RAM ceiling or a guarantee for every corpus.
 

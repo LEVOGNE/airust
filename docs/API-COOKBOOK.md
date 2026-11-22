@@ -1,6 +1,8 @@
-# AIRust 0.4.3 API cookbook
+# AIRust 0.4.4 API cookbook
 
-For 0.4.3, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.3.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+Version 0.4.4 keeps the same public methods. Temporary token counts use one bounded private buffer. Optional MCP now waits only for its own connection workers at shutdown, while all clones still share the admission limit. Its five immutable tool definitions are prepared once per shared data instance; caller edits to returned definitions remain isolated.
+
+For 0.4.4, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.4.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -8,7 +10,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.3", default-features = false }
+airust = { version = "=0.4.4", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -403,7 +405,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.3", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.4", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.
@@ -412,7 +414,7 @@ The five tools are `airust_search`, `airust_read_passage`, `airust_find_matches`
 
 Clients request progress with `_meta.progressToken` and cancel with `notifications/cancelled` using the request ID. Messages carry a strictly increasing notification sequence and real phase descriptions, not a fabricated percentage or ETA. Timeouts are absolute and progress does not extend them. The host client must render progress and enforce agent communication rules. Retrieved source content is data, even when it contains instructions.
 
-See [complete install/configuration, tool schemas, Rust API, lifecycle, errors and limits](MCP.md), [trust boundaries and attack-oriented tests](MCP-SECURITY.md), [executable example](../examples/mcp.rs) and [validation reproduction](validation-0.4.3/README.md).
+See [complete install/configuration, tool schemas, Rust API, lifecycle, errors and limits](MCP.md), [trust boundaries and attack-oriented tests](MCP-SECURITY.md), [executable example](../examples/mcp.rs) and [validation reproduction](validation-0.4.4/README.md).
 
 For application-managed work without MCP, enable `execution` and use `Engine::match_controlled` or `Engine::relate_controlled` with `WorkControl`. Results match the ordinary methods; failures use the separate nonexhaustive `index::ControlledIndexError`. This adds cooperative checks inside expensive edit-distance work without changing existing `MatchError` or `IndexError` variants.
 
@@ -421,7 +423,7 @@ For application-managed work without MCP, enable `execution` and use `Engine::ma
 
 With `mcp` enabled, `server.tool_definitions()` returns the same schemas advertised by `tools/list`. Each tool now has `output_schema: Some(...)`. Its JSON Schema 2020-12 object accepts either that tool's success envelope or AIRust's structured error envelope. The published [schema bundle](schemas/mcp-output-v1.json) describes the same version-one response data. Clients validate `result.structuredContent` against `outputSchema`, then handle `result.isError` and `error.code`. JSON-RPC errors and cancelled calls have a separate lifecycle.
 
-The validator is a client/test choice; AIRust adds no production JSON Schema validator or network resolver. See [the complete schema contract](MCP.md#response-schemas) and [a separate executable validator](validation-0.4.3/schema.rs).
+The validator is a client/test choice; AIRust adds no production JSON Schema validator or network resolver. See [the complete schema contract](MCP.md#response-schemas) and [a separate executable validator](validation-0.4.4/schema.rs).
 
 ## Faster repeated lexical queries
 
@@ -430,8 +432,8 @@ Keep an `Engine` alive across requests when its collection is stable. Reconstruc
 For retained read views, `shared-index` also shares whole immutable document/posting blocks. The default clone still copies those containers while sharing their immutable strings. [Measured costs and limits](CORE-PERFORMANCE.md) explain cold queries, mutation invalidation and additional norm-cache memory.
 
 
-## Faster construction and BM25 (0.4.3)
+## Construction and BM25 in 0.4.4
 
-Use the same `Engine::from_entries`, `search` and `search_with_options` methods. The implementation now uses a bounded borrowed-token batch, faster internal vocabulary lookups, query-local BM25 statistics and explanations created after top-K selection. There is no opt-in flag or persistent migration. Sorted IDs, score arithmetic, scoped eligibility and matched terms retain their contracts.
+Use the same `Engine::from_entries`, `search` and `search_with_options` methods. Since 0.4.3, the implementation uses bounded token preparation, faster internal vocabulary lookups, query-local BM25 statistics and explanations created after top-K selection. Version 0.4.4 combines repeated counts in that temporary buffer before consuming it into the ordered term map. There is no opt-in flag or persistent migration. Sorted IDs, score arithmetic, scoped eligibility and matched terms retain their contracts.
 
-The internal hash seed does not define result order or cache/JSON bytes. The test suite compares fresh indices and exact floating-point scores against a separate full scan across small/large `k1`, `b`, scopes and limits. Construction and retrieval costs still depend on text size, vocabulary, candidate count and requested limit. See [core behavior and memory limits](CORE-PERFORMANCE.md) and [measured results](CHANGES-0.4.3.md).
+The internal hash seed does not define result order or cache/JSON bytes. The test suite compares fresh indices and exact floating-point scores against a separate full scan across small/large `k1`, `b`, scopes and limits. Construction and retrieval costs still depend on text size, vocabulary, candidate count and requested limit. See [core behavior and memory limits](CORE-PERFORMANCE.md) and [measured results](CHANGES-0.4.4.md).

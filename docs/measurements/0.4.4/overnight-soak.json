@@ -1,0 +1,136 @@
+{
+  "cases": [
+    {
+      "case": "soak-0-shared-4000",
+      "cache_cross_load_pairs": 86,
+      "cancelled_and_expired_calls_checked": 43586,
+      "concurrent_reader_checks": 370481,
+      "elapsed_seconds": 5400.136816833,
+      "epochs": 21793,
+      "exact_ranking_comparisons": 1743440,
+      "final_entries": 3527,
+      "initial_entries": 4000,
+      "mutations": 2789504,
+      "previous": "0.4.3",
+      "reader_threads": 4,
+      "scope": "Fixed-seed differential/rebuild/retained-reader/cache/concurrency stress; no independent relevance or race-freedom proof.",
+      "seed": 202611210441,
+      "sharing": true,
+      "status": "passed",
+      "version": "0.4.4"
+    },
+    {
+      "case": "soak-1-default-4000",
+      "cache_cross_load_pairs": 94,
+      "cancelled_and_expired_calls_checked": 47820,
+      "concurrent_reader_checks": 406470,
+      "elapsed_seconds": 5400.17715225,
+      "epochs": 23910,
+      "exact_ranking_comparisons": 1912800,
+      "final_entries": 3506,
+      "initial_entries": 4000,
+      "mutations": 3060480,
+      "previous": "0.4.3",
+      "reader_threads": 4,
+      "scope": "Fixed-seed differential/rebuild/retained-reader/cache/concurrency stress; no independent relevance or race-freedom proof.",
+      "seed": 202611210442,
+      "sharing": false,
+      "status": "passed",
+      "version": "0.4.4"
+    },
+    {
+      "case": "soak-2-shared-16000",
+      "cache_cross_load_pairs": 27,
+      "cancelled_and_expired_calls_checked": 13374,
+      "concurrent_reader_checks": 113679,
+      "elapsed_seconds": 5399.998908417,
+      "epochs": 6687,
+      "exact_ranking_comparisons": 534960,
+      "final_entries": 13617,
+      "initial_entries": 16000,
+      "mutations": 855936,
+      "previous": "0.4.3",
+      "reader_threads": 4,
+      "scope": "Fixed-seed differential/rebuild/retained-reader/cache/concurrency stress; no independent relevance or race-freedom proof.",
+      "seed": 202611210443,
+      "sharing": true,
+      "status": "passed",
+      "version": "0.4.4"
+    },
+    {
+      "case": "soak-3-default-16000",
+      "cache_cross_load_pairs": 23,
+      "cancelled_and_expired_calls_checked": 11626,
+      "concurrent_reader_checks": 98821,
+      "elapsed_seconds": 5400.078372958,
+      "epochs": 5813,
+      "exact_ranking_comparisons": 465040,
+      "final_entries": 13679,
+      "initial_entries": 16000,
+      "mutations": 744064,
+      "previous": "0.4.3",
+      "reader_threads": 4,
+      "scope": "Fixed-seed differential/rebuild/retained-reader/cache/concurrency stress; no independent relevance or race-freedom proof.",
+      "seed": 202611210444,
+      "sharing": false,
+      "status": "passed",
+      "version": "0.4.4"
+    }
+  ],
+  "last_epoch_progress_seconds_sum": 21600.391250458,
+  "requested_work_seconds_per_case": 5400,
+  "external_wall_spans": [
+    {
+      "case": "soak-0-shared-4000",
+      "start_utc": "2026-11-21T17:41:05.152999+00:00",
+      "end_utc": "2026-11-21T19:11:06.134508+00:00",
+      "seconds_including_setup_and_final_save": 5400.981509
+    },
+    {
+      "case": "soak-1-default-4000",
+      "start_utc": "2026-11-21T19:11:06.134508+00:00",
+      "end_utc": "2026-11-21T20:41:07.165231+00:00",
+      "seconds_including_setup_and_final_save": 5401.030723
+    },
+    {
+      "case": "soak-2-shared-16000",
+      "start_utc": "2026-11-21T20:41:07.165231+00:00",
+      "end_utc": "2026-11-21T22:11:08.630116+00:00",
+      "seconds_including_setup_and_final_save": 5401.464885
+    },
+    {
+      "case": "soak-3-default-16000",
+      "start_utc": "2026-11-21T22:11:08.630116+00:00",
+      "end_utc": "2026-11-21T23:41:10.380164+00:00",
+      "seconds_including_setup_and_final_save": 5401.750048
+    }
+  ],
+  "timestamp_reporter_review": {
+    "issue": "Final summary reused the last progress timestamp, which can precede the stop-condition check. One90-minute case reports5399.998908417seconds although the loop exits only after its budget.",
+    "raw_rows_preserved": true,
+    "original_source_sha256": "da6bf95ddd7191403409bb4c306dfabafa061e1f220851da32d5e2a96828b175",
+    "fix_scope": "Reproduction reporter only; library source, running binaries, counters and original measurement rows unchanged.",
+    "original_compiled_source_sha256": "0622d222ce1bf5cdc76621b171cead7ca2c9810a9ec527caf417fe93e592999c"
+  },
+  "corrected_reporter_smoke": {
+    "status": "passed",
+    "rust": "1.89.0",
+    "requested_seconds": 2,
+    "corrected_elapsed_seconds": 2.010506792,
+    "authored_entries": 64,
+    "epochs": 98,
+    "mutations": 12544,
+    "ranking_comparisons": 7840,
+    "source_sha256": "e0700bb652eb8cad48481de1ae844a74658a359399fe9737ea2a75cea0805c1f",
+    "binary_sha256": "eea4ed42c593cd057dcf630e9ba2d706d3ce1dfb7d99f50b9a3f6a7cd37dcaf4",
+    "scope": "Reporter-only corrected public reproduction on authored data; original long-run rows/binaries preserved, library source unchanged."
+  },
+  "timing_note": "Original long-run summaries reused the last epoch progress timestamp; it can precede the final budget check by a progress-file write. Raw rows are unchanged. Source loop checks a monotonic5400-second budget. External spans include setup/final save. The public reproduction reporter now captures completion time before final serialization.",
+  "mutations": 7449984,
+  "exact_ranking_comparisons": 4656240,
+  "concurrent_reader_checks": 989451,
+  "cache_cross_load_pairs": 230,
+  "cancelled_and_expired_calls_checked": 116406,
+  "mutation_counter_includes_rejected_and_no_op_attempts": true,
+  "scope": "Four fixed seeds,4000/16000 real-text prefixes,both default/shared indices. Registry0.4.3 and rebuild equality,retained readers,4reader threads,periodic cache cross-loading,truncated cache errors preserving original inputs. Deliberate concurrent load; not latency or independent relevance evidence. Final mutated test copies and caches remain private; canonical sources unchanged."
+}

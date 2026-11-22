@@ -1,0 +1,129 @@
+{
+  "toolchain": "miri 0.1.0 (5f4effd579 2026-11-13)",
+  "main_test_executions": 61,
+  "resource_campaigns": [
+    {
+      "check": "miri-resource-default",
+      "shared_index": false,
+      "flags": "-Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "seconds": 2431.4114522910677,
+      "tests_passed": 8
+    },
+    {
+      "check": "miri-resource-shared-tree",
+      "shared_index": true,
+      "flags": "-Zmiri-no-extra-rounding-error -Zmiri-tree-borrows -Zmiri-report-progress=10000000",
+      "start_utc": "2026-11-21T22:22:49.724317+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 7757.079329499975,
+      "timeout_seconds": 10800,
+      "process_group_watchdog": true,
+      "replaces_incomplete_outer_cargo_watchdog_attempt": true,
+      "original_attempt_test_lines_passed": 8,
+      "original_attempt_verified_exit": false,
+      "scope": "Same complete eight tests and all memory/race/leak checks. The earlier outer-wrapper timeout is retained and excluded from passed campaign counts.",
+      "tests_passed": 8
+    },
+    {
+      "check": "miri-resource-shared-standard",
+      "shared_index": true,
+      "flags": "-Zmiri-no-extra-rounding-error -Zmiri-report-progress=10000000",
+      "start_utc": "2026-11-21T21:49:50.792362+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 2565.6559896660037,
+      "scope": "Unmodified eight resource tests with default borrow checking, plus progress diagnostics; no alias/race/validation/leak checks disabled.",
+      "tests_passed": 8
+    }
+  ],
+  "multi_seed_test_executions": 80,
+  "campaigns": [
+    {
+      "check": "miri-float-token-default",
+      "start_utc": "2026-11-21T17:35:34.502763+00:00",
+      "seconds": 14.472588625038043,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 4
+    },
+    {
+      "check": "miri-float-token-shared",
+      "start_utc": "2026-11-21T17:35:48.975800+00:00",
+      "seconds": 16.31580362515524,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 4
+    },
+    {
+      "check": "miri-float-sharing",
+      "start_utc": "2026-11-21T17:36:05.292107+00:00",
+      "seconds": 1.7982123328838497,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 2
+    },
+    {
+      "check": "miri-float-core",
+      "start_utc": "2026-11-21T17:36:07.090708+00:00",
+      "seconds": 531.1093489169143,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 20
+    },
+    {
+      "check": "miri-float-core-optimization",
+      "start_utc": "2026-11-21T17:44:58.202681+00:00",
+      "seconds": 1472.9575666671153,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 4
+    },
+    {
+      "check": "miri-float-build-ranking",
+      "start_utc": "2026-11-21T18:09:31.169561+00:00",
+      "seconds": 5632.691057374934,
+      "exit_code": 0,
+      "miri_flags": "-Zmiri-no-extra-rounding-error",
+      "tests_passed": 3
+    }
+  ],
+  "multi_seed_campaigns": [
+    {
+      "check": "miri-norm-seeds-default",
+      "flags": "-Zmiri-no-extra-rounding-error -Zmiri-many-seeds=0..16",
+      "selected_tests_per_seed": 2,
+      "seeds": 16,
+      "test_executions": 32,
+      "seconds": 5.468983041821048,
+      "exit_code": 0
+    },
+    {
+      "check": "miri-norm-seeds-tree",
+      "flags": "-Zmiri-no-extra-rounding-error -Zmiri-tree-borrows -Zmiri-many-seeds=0..8",
+      "selected_tests_per_seed": 2,
+      "seeds": 8,
+      "test_executions": 16,
+      "seconds": 5.2137120419647545,
+      "exit_code": 0
+    },
+    {
+      "check": "miri-token-seeds-tree",
+      "flags": "-Zmiri-no-extra-rounding-error -Zmiri-tree-borrows -Zmiri-many-seeds=0..8",
+      "selected_tests_per_seed": 4,
+      "seeds": 8,
+      "test_executions": 32,
+      "seconds": 44.4935757080093,
+      "exit_code": 0
+    }
+  ],
+  "exact_comparison_flag": "-Zmiri-no-extra-rounding-error",
+  "initial_fixed_seed_rounding_reproducer": {
+    "seed": 17,
+    "unmodified_float_mode": "Exact-equality assertion differs:0.6462549902128862 vs0.6462549902128865. No memory/UB diagnostic.",
+    "only_extra_rounding_injection_disabled": "Identical test passes. AIRust scoring and memory/race checks unchanged."
+  },
+  "scope": "Executed provider-neutral token ownership, shared readers, core/ranking and cache-hint locking paths. Native PDF/ONNX and asynchronous MCP are not interpreted here. Schedules and aliases explored are finite; not a soundness proof.",
+  "official_documentation": "https://github.com/rust-lang/miri#readme"
+}

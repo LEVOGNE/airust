@@ -1,6 +1,6 @@
 # MCP security model
 
-AIRust 0.4.3 serves a deliberately bounded, read-only collection over local stdio. Its five tools can search, compare, suggest links, inspect counts and read an exact loaded text range. They have no command runner, file browser, URL fetcher, database mutator or model downloader. A path-like document ID is just a lookup key. Tool annotations describe this contract; enforcement is in the tool implementations and transport guards.
+AIRust 0.4.4 serves a deliberately bounded, read-only collection over local stdio. Its five tools can search, compare, suggest links, inspect counts and read an exact loaded text range. They have no command runner, file browser, URL fetcher, database mutator or model downloader. A path-like document ID is just a lookup key. Tool annotations describe this contract; enforcement is in the tool implementations and transport guards.
 
 ## Trust boundaries
 
@@ -32,11 +32,15 @@ Response schemas describe data shape; they do not grant permission or make docum
 
 Defaults and configurable ceilings are listed in [MCP.md](MCP.md#resource-defaults). Limits are checked before serving. Every public serving entry point wraps the official SDK with AIRust's guards. A separate private handler prevents accidentally using an unguarded public SDK handler.
 
+Each connection tracks the lifetime of its own blocking workers. Shutdown waits for those workers, including cancelled work still winding down, without reserving the shared admission permits or waiting for other connections. Missed progress ticks are skipped rather than replayed in a burst. The SDK rejects JSON-RPC batch arrays as invalid requests; no batch request bypasses the individual-request guards.
+
+Admission closes under the same lock that creates tracked worker reservations. Each reservation owns its permit and tracking token before any progress-send await, then transfers them into the blocking job. Late admissions are rejected; dropped startup work and panicking jobs release their leases. A task-tracker close alone would not provide that admission barrier. Dropping a serving future still signals cooperative cancellation; it cannot synchronously wait inside Rust's destructor.
+
 ## Executed attack-oriented checks
 
 The release suite exercises raw JSON-RPC through the public transport rather than only calling Rust handler methods. It covers legacy and modern discovery, tool input/output schemas, independently validated success/error envelopes, unknown tools and fields, Unicode byte limits, invalid enum/range/time values, path traversal strings, stale revisions, invalid UTF-8 positions, edited passage bindings, huge escaped results, malformed and fragmented frames, line overflow and recovery, duplicate/long request IDs, total request count, pending-request limits, decoded-message floods, malformed-frame floods and raw-byte floods.
 
-It also exercises live cancellation during expensive fuzzy ranking, deadline expiry despite progress, worker saturation, duplicate active progress tokens, a client that stops reading, disconnect cleanup, missing snapshots, hostile source instructions and subprocess stdin/stdout separation. Independent stdio checks load retained real PDF-derived knowledge and document snapshots. See the [release report](CHANGES-0.4.3.md) for actual counts, measurements and scope.
+It also exercises live cancellation during expensive fuzzy ranking, deadline expiry despite progress, worker saturation, duplicate active progress tokens, a client that stops reading, disconnect cleanup, missing snapshots, hostile source instructions and subprocess stdin/stdout separation. A two-connection regression closes one connection while another owns the only worker slot, then cancels the surviving work. A separate deterministic regression holds an unrelated clone's permit throughout shutdown. A batch-array probe checks rejection and subsequent valid-request recovery. Independent stdio checks load retained real PDF-derived knowledge and document snapshots. See the [release report](CHANGES-0.4.4.md) for actual counts, measurements and scope.
 
 This is an automated adversarial regression campaign. It is not a third-party security audit, a full OS penetration test or a proof that every parser/SDK/dependency is defect-free. Dependency advisories are checked at release time; absence of known advisories does not prove absence of vulnerabilities. Unchanged PDF-parser results are retained as historical evidence rather than presented as a new MCP parser audit.
 

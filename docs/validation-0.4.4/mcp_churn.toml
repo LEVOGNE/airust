@@ -1,0 +1,15 @@
+[package]
+name="airust-mcp-churn"
+version="0.0.0"
+edition="2021"
+publish=false
+[dependencies]
+airust={version="=0.4.4",default-features=false,features=["mcp"]}
+tokio={version="1",features=["full"]}
+serde_json="1"
+serde={version="1",features=["derive"]}
+dhat="=0.3.3"
+[profile.release]
+lto="thin"
+codegen-units=1
+debug=1

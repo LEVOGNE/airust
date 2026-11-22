@@ -492,6 +492,15 @@ async fn malformed_fragmented_and_oversize_frames_do_not_poison_next_request() {
     client.initialize().await;
     client.writer.write_all(b"not json\n").await.unwrap();
     client
+        .send(json!([
+            {"jsonrpc":"2.0","id":7,"method":"ping"},
+            {"jsonrpc":"2.0","id":7,"method":"tools/list"}
+        ]))
+        .await;
+    let batch_error = client.receive().await;
+    assert_eq!(batch_error["id"], Value::Null);
+    assert_eq!(batch_error["error"]["code"], -32600);
+    client
         .writer
         .write_all(format!("{}\n", "x".repeat(5000)).as_bytes())
         .await
@@ -508,6 +517,33 @@ async fn malformed_fragmented_and_oversize_frames_do_not_poison_next_request() {
         .unwrap();
     assert_eq!(client.receive().await["id"], 1);
     client.finish().await;
+}
+
+#[tokio::test]
+async fn closing_one_connection_leaves_another_connections_worker_running() {
+    let server = McpServer::from_entries(
+        [KnowledgeEntry::new("heavy", "a".repeat(1_000_000))],
+        McpLimits {
+            max_concurrent: 1,
+            progress_interval_ms: 10,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let observer = server.clone();
+    let mut first = Client::new(server.clone());
+    let mut second = Client::new(server);
+    first.initialize().await;
+    second.initialize().await;
+    begin_heavy(&mut second, 1, "other-connection", 10000).await;
+    assert_eq!(observer.stats().in_flight, 1);
+    first.finish().await;
+    assert_eq!(observer.stats().in_flight, 1);
+    second
+        .send(json!({"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":1}}))
+        .await;
+    second.finish().await;
+    assert_eq!(observer.stats().in_flight, 0);
 }
 
 #[tokio::test]
@@ -715,4 +751,48 @@ fn public_schema_bundle_and_pruned_tool_schemas_are_valid_and_bounded() {
         );
     }
     assert!(serde_json::to_vec(&tools).unwrap().len() < 64 * 1024);
+}
+
+#[test]
+fn caller_schema_edits_do_not_change_the_server_or_another_instances_limits() {
+    let narrow = server(McpLimits {
+        max_hits: 3,
+        max_query_bytes: 128,
+        ..Default::default()
+    });
+    let wide = server(McpLimits::default());
+    let original = serde_json::to_value(narrow.tool_definitions()).unwrap();
+    let mut returned = narrow.tool_definitions();
+    let search = returned
+        .iter_mut()
+        .find(|tool| tool.name == "airust_search")
+        .unwrap();
+    std::sync::Arc::make_mut(&mut search.input_schema).insert("type".into(), json!("null"));
+    std::sync::Arc::make_mut(search.output_schema.as_mut().unwrap()).clear();
+    search.name = "caller-edited".into();
+    assert_eq!(
+        serde_json::to_value(narrow.tool_definitions()).unwrap(),
+        original
+    );
+    for (instance, hits, query_bytes) in [(&narrow, 3, 128), (&wide, 50, 4096)] {
+        let definitions = serde_json::to_value(instance.tool_definitions()).unwrap();
+        let search = definitions
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|tool| tool["name"] == "airust_search")
+            .unwrap();
+        assert_eq!(
+            search["inputSchema"]["properties"]["limit"]["maximum"],
+            hits
+        );
+        assert_eq!(
+            search["inputSchema"]["properties"]["query"]["maxLength"],
+            query_bytes
+        );
+        assert!(search["outputSchema"]
+            .as_object()
+            .unwrap()
+            .contains_key("type"));
+    }
 }
