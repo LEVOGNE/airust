@@ -1,0 +1,64 @@
+[
+  {
+    "arm": "baseline",
+    "rows": [
+      {
+        "allocated_bytes": 67960,
+        "allocation_blocks": 206,
+        "cache_live_blocks_delta": 168,
+        "cache_live_bytes_delta": 49120,
+        "fixture": "index",
+        "signature": 9079677386067692348
+      },
+      {
+        "allocated_bytes": 16177,
+        "allocation_blocks": 80,
+        "cache_live_blocks_delta": 33,
+        "cache_live_bytes_delta": 9496,
+        "fixture": "wide",
+        "signature": 9088264048033660918
+      },
+      {
+        "allocated_bytes": 135492,
+        "allocation_blocks": 1381,
+        "cache_live_blocks_delta": 44,
+        "cache_live_bytes_delta": 12672,
+        "fixture": "sparse",
+        "signature": 9073527919048464616
+      }
+    ],
+    "scope": "Cold norm-hint retained heap after dropping result; source/index setup excluded",
+    "version": "0.4.10"
+  },
+  {
+    "arm": "candidate",
+    "rows": [
+      {
+        "allocated_bytes": 121300,
+        "allocation_blocks": 49,
+        "cache_live_blocks_delta": 2,
+        "cache_live_bytes_delta": 51288,
+        "fixture": "index",
+        "signature": 9079677386067692348
+      },
+      {
+        "allocated_bytes": 19517,
+        "allocation_blocks": 55,
+        "cache_live_blocks_delta": 2,
+        "cache_live_bytes_delta": 6488,
+        "fixture": "wide",
+        "signature": 9088264048033660918
+      },
+      {
+        "allocated_bytes": 144768,
+        "allocation_blocks": 1346,
+        "cache_live_blocks_delta": 2,
+        "cache_live_bytes_delta": 12888,
+        "fixture": "sparse",
+        "signature": 9073527919048464616
+      }
+    ],
+    "scope": "Cold norm-hint retained heap after dropping result; source/index setup excluded",
+    "version": "0.4.11"
+  }
+]

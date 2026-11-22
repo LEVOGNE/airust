@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.10 targets index normalization and lexical candidate collection. Public APIs, default ranking and MCP contracts remain. Compare full construction and real MCP processes repeatedly, retain slower observations and investigate remaining costs before expanding features.
+0.4.11 targets TF-IDF hints and broad lexical scoring. Keep public APIs, exact ranking and MCP contracts, measure cold versus warmed requests separately and report retained cache costs alongside latency. Profile remaining real workloads before adding features.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.11 | TF-IDF hints and sparse broad-query scoring | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.11.md). |
 | 0.4.10 | Index normalization and bounded ordered posting-list merge | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.10.md). |
 | 0.4.9 | Faster complete retrieval and bounded MCP serialization | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.9.md). |
 | 0.4.8 | Query working allocations and deadline-aware MCP progress | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.8.md). |

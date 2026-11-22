@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.11 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.10 improves ASCII normalization during construction and lexical candidate collection used by Engine, Retriever and MCP. The bounded merge retains sorted unique IDs, score arithmetic, scope filtering, checkpoints, source positions, knowledge formats and MCP contracts. There is no new public setting or feature. Read [performance behavior](CORE-PERFORMANCE.md), [MCP](MCP.md), [API cookbook](API-COOKBOOK.md) and [current validation](CHANGES-0.4.10.md).
+Version 0.4.11 optimizes private TF-IDF norm hints, wide candidate storage and sparse query-term intersection. `SearchOptions`, `SearchAlgorithm`, Engine, Retriever and MCP calls retain their signatures and results. Norm-hint invalidation and nonblocking lock/poison fallback remain. The hash table can reserve different bytes than the prior ordered cache. See [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [current validation](CHANGES-0.4.11.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

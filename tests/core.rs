@@ -216,6 +216,131 @@ fn tfidf_is_cosine_similarity_with_smoothed_idf() {
 }
 
 #[test]
+fn wide_sparse_scores_match_full_scan_bits_for_both_rankers_and_cache_states() {
+    use std::collections::BTreeMap;
+    let count = if cfg!(miri) { 4 } else { 48 };
+    let mut records: Vec<_> = (0..count)
+        .map(|n| {
+            let width = [4, 16, 17, 40][n % 4];
+            KnowledgeEntry::new(
+                format!("prefix/é/{n:03}"),
+                (0..width)
+                    .map(|j| format!("term{} ", (n * 7 + j) % 256))
+                    .collect::<String>(),
+            )
+            .with_metadata(json!({"scope": if n%2==0 {"even"}else{"odd"}}))
+        })
+        .collect();
+    records.push(KnowledgeEntry::new(
+        "vocabulary",
+        (0..256).map(|n| format!("term{n} ")).collect::<String>(),
+    ));
+    let index = Engine::from_entries(records).unwrap();
+    let frequencies: BTreeMap<_, _> = index
+        .entries()
+        .map(|e| (e.id.clone(), text::term_frequencies(&e.text)))
+        .collect();
+    let mut df = BTreeMap::<String, usize>::new();
+    for words in frequencies.values() {
+        for word in words.keys() {
+            *df.entry(word.clone()).or_default() += 1;
+        }
+    }
+    let sizes: &[usize] = if cfg!(miri) {
+        &[32, 33, 129]
+    } else {
+        &[32, 33, 64, 129, 256]
+    };
+    for size in sizes {
+        let query = (0..*size).map(|n| format!("term{n} ")).collect::<String>()
+            + " term0 term0 unsupported";
+        let terms = text::term_frequencies(&query);
+        let known: Vec<_> = terms
+            .iter()
+            .filter(|(word, _)| df.contains_key(*word))
+            .collect();
+        for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+            for context in [None, Some(Context::new().with_metadata("scope", "even"))] {
+                let options = SearchOptions {
+                    limit: 100,
+                    algorithm,
+                    context,
+                    ..Default::default()
+                };
+                let idf = |word: &str| match algorithm {
+                    SearchAlgorithm::Bm25 => (1.0
+                        + (index.len() as f64 - df[word] as f64 + 0.5) / (df[word] as f64 + 0.5))
+                        .ln(),
+                    SearchAlgorithm::Tfidf => {
+                        ((index.len() as f64 + 1.0) / (df[word] as f64 + 1.0)).ln() + 1.0
+                    }
+                };
+                let query_norm = known
+                    .iter()
+                    .map(|(word, n)| (**n as f64 * idf(word)).powi(2))
+                    .sum::<f64>()
+                    .sqrt();
+                let mut expected = Vec::new();
+                for entry in index
+                    .entries()
+                    .filter(|e| options.context.as_ref().is_none_or(|c| c.includes(e)))
+                {
+                    let words = &frequencies[&entry.id];
+                    let mut score = 0.0;
+                    let mut matched = Vec::new();
+                    let length: usize = words.values().sum();
+                    let norm = 1.0 - options.bm25.b()
+                        + options.bm25.b() * length as f64
+                            / (index.stats().tokens as f64 / index.len() as f64);
+                    for (word, n) in &known {
+                        if let Some(tf) = words.get(*word) {
+                            matched.push((*word).clone());
+                            let weight = idf(word);
+                            let tf = *tf as f64;
+                            score += match algorithm {
+                                SearchAlgorithm::Bm25 => {
+                                    weight * tf * (1.0 + 1.0 / options.bm25.k1())
+                                        / (norm + tf / options.bm25.k1())
+                                }
+                                SearchAlgorithm::Tfidf => **n as f64 * tf * weight * weight,
+                            };
+                        }
+                    }
+                    if algorithm == SearchAlgorithm::Tfidf {
+                        let doc_norm = words
+                            .iter()
+                            .map(|(word, n)| (*n as f64 * idf(word)).powi(2))
+                            .sum::<f64>()
+                            .sqrt();
+                        score = if doc_norm > 0.0 && query_norm > 0.0 {
+                            (score / (doc_norm * query_norm)).clamp(0.0, 1.0)
+                        } else {
+                            0.0
+                        };
+                    }
+                    if score > 0.0 {
+                        expected.push((entry.id.clone(), score, matched));
+                    }
+                }
+                expected.sort_by(|a, b| b.1.total_cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+                let expected: Vec<_> = expected
+                    .into_iter()
+                    .map(|(id, score, words)| (id, score.to_bits(), words))
+                    .collect();
+                for _ in 0..2 {
+                    let actual: Vec<_> = index
+                        .search_with_options(&query, &options)
+                        .into_iter()
+                        .map(|h| (h.entry.id.clone(), h.score.to_bits(), h.matched_terms))
+                        .collect();
+                    assert_eq!(actual, expected);
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn empty_and_unknown_queries_return_no_results() {
     for query in ["", "---", "never-present", "\u{301}"] {
         assert!(engine().search(query, 10).is_empty());

@@ -108,6 +108,34 @@ struct QueryTerm<'a> {
     postings: &'a BTreeMap<Arc<str>, usize>,
 }
 
+fn matching_terms_checked<E>(
+    prepared: &[QueryTerm<'_>],
+    document: &IndexedEntry,
+    checkpoint: &mut impl FnMut() -> Result<(), E>,
+    mut matched: impl FnMut(&QueryTerm<'_>, usize),
+) -> Result<(), E> {
+    if prepared.len() > 32 && prepared.len() > document.terms.len().saturating_mul(2) {
+        for (position, (word, frequency)) in document.terms.iter().enumerate() {
+            if position.is_multiple_of(128) {
+                checkpoint()?;
+            }
+            if let Ok(index) = prepared.binary_search_by(|term| term.text.cmp(word.as_ref())) {
+                matched(&prepared[index], *frequency);
+            }
+        }
+    } else {
+        for (position, term) in prepared.iter().enumerate() {
+            if position.is_multiple_of(128) {
+                checkpoint()?;
+            }
+            if let Some(frequency) = document.terms.get(term.text) {
+                matched(term, *frequency);
+            }
+        }
+    }
+    Ok(())
+}
+
 struct PostingCursor<'a> {
     id: &'a Arc<str>,
     rest: std::collections::btree_map::Keys<'a, Arc<str>, usize>,
@@ -182,7 +210,7 @@ pub struct IndexStats {
 
 #[derive(Debug, Default)]
 struct TfidfNorms {
-    values: RwLock<BTreeMap<Arc<str>, f64>>,
+    values: RwLock<HashMap<Arc<str>, f64>>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -524,7 +552,7 @@ impl KnowledgeIndex {
             for term in &prepared {
                 for id in term.postings.keys() {
                     visit()?;
-                    wide.insert(id.as_ref());
+                    wide.insert(id);
                 }
             }
         }
@@ -561,7 +589,7 @@ impl KnowledgeIndex {
         for (position, id) in merged
             .into_iter()
             .map(|id| id.as_ref())
-            .chain(wide)
+            .chain(wide.into_iter().map(|id| id.as_ref()))
             .enumerate()
         {
             #[cfg(not(feature = "execution"))]
@@ -595,26 +623,16 @@ impl KnowledgeIndex {
                 SearchAlgorithm::Bm25 => {
                     let norm = options.bm25.length_norm(document.length, average);
                     let mut score = 0.0;
-                    for (position, term) in prepared.iter().enumerate() {
-                        if position.is_multiple_of(128) {
-                            checkpoint()?;
-                        }
-                        if let Some(tf) = document.terms.get(term.text) {
-                            score += options.bm25.term_score(*tf, term.idf, norm);
-                        }
-                    }
+                    matching_terms_checked(&prepared, document, &mut checkpoint, |term, tf| {
+                        score += options.bm25.term_score(tf, term.idf, norm);
+                    })?;
                     score
                 }
                 SearchAlgorithm::Tfidf => {
                     let mut dot = 0.0;
-                    for (position, term) in prepared.iter().enumerate() {
-                        if position.is_multiple_of(128) {
-                            checkpoint()?;
-                        }
-                        if let Some(tf) = document.terms.get(term.text) {
-                            dot += term.frequency * *tf as f64 * term.idf * term.idf;
-                        }
-                    }
+                    matching_terms_checked(&prepared, document, &mut checkpoint, |term, tf| {
+                        dot += term.frequency * tf as f64 * term.idf * term.idf;
+                    })?;
                     let norm = self.tfidf_norm_checked(
                         key,
                         document,
@@ -1769,5 +1787,54 @@ mod token_batch_tests {
         drop(index);
         assert_eq!(retained.search("東京", 1)[0].entry.id, "old");
         assert_eq!(terms["café"], 1);
+    }
+}
+
+#[cfg(test)]
+mod wide_scoring_tests {
+    use super::*;
+
+    #[test]
+    fn sparse_wide_scoring_stops_on_checkpoint_without_publishing_results() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new(
+                "dense",
+                (0..400).map(|n| format!("term{n} ")).collect::<String>(),
+            ),
+            KnowledgeEntry::new(
+                "sparse",
+                (0..150).map(|n| format!("term{n} ")).collect::<String>(),
+            ),
+        ])
+        .unwrap();
+        let terms =
+            text::term_frequencies(&(0..400).map(|n| format!("term{n} ")).collect::<String>());
+        let prepared: Vec<_> = terms
+            .iter()
+            .map(|(word, n)| QueryTerm {
+                text: word,
+                frequency: *n as f64,
+                idf: 1.0,
+                postings: &index.postings[word.as_str()],
+            })
+            .collect();
+        let mut checks = 0;
+        let mut matched = 0;
+        let result = matching_terms_checked(
+            &prepared,
+            &index.documents["sparse"],
+            &mut || {
+                checks += 1;
+                if checks == 2 {
+                    Err("stopped")
+                } else {
+                    Ok(())
+                }
+            },
+            |_, _| matched += 1,
+        );
+        assert_eq!(result, Err("stopped"));
+        assert!(matched > 0 && matched < 150);
+        assert_eq!(index.stats().entries, 2);
     }
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.11 — TF-IDF hints and sparse broad scoring
+
+Use a protected hash dictionary for private TF-IDF norm hints with unchanged invalidation and nonblocking lock/poison fallback. Borrow Arc keys in wide candidate sets and intersect sparse document vocabularies with broad prepared queries while retaining contribution order, arithmetic and checkpoints. Add exact full-scan score/cold-warm/scope oracles and a sparse-scoring interruption test. Preserve signatures, schemas, sources and knowledge. Benchmark initial and repeated MCP requests separately, report cold hint memory, and retain broader-query fixtures. No dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest report](docs/CHANGES-0.4.11.md).
+
 ## 0.4.10 — Index normalization and ordered candidate merge
 
 Use direct ASCII normalization with the same case/Unicode-whitespace rules. Merge at most 32 already sorted known-term posting lists into unique sorted borrowed IDs using a bounded heap; retain the prior ordered-set route for wider queries. Keep checkpoints for every posting, score arithmetic/order, filtering, winner ties, persistent state and MCP contracts. Add independent normalization and candidate-set/filter/update oracles. Repeat full validation, construction process pairs, allocation profiles and two complete MCP campaigns. No new dependency or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [executed report](docs/CHANGES-0.4.10.md).

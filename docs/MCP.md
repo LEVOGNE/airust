@@ -195,3 +195,7 @@ McpServer checks sizes with the same bounded serializer used by retrieval, witho
 ## Core execution in 0.4.10
 
 McpServer uses the same central Engine. Startup benefits from direct ASCII normalization where applicable; BM25/TF-IDF candidate collection uses bounded ordered merge for up to 32 known terms and the prior tree route for broader queries. Clients use the same tool names, arguments, schemas and error codes. Source binding, exact reads, byte budgets, progress, cancellation, worker admission and absolute deadlines remain. No new MCP capability or permission is added. Lower candidate-allocation traffic is not a hard RAM quota or universal latency guarantee. Read [both preplanned MCP campaigns and limits](CHANGES-0.4.10.md).
+
+## TF-IDF and broad search in 0.4.11
+
+Use the existing `airust_search` arguments and select `algorithm: "tfidf"` when needed. The same central Engine now uses protected hash norm hints and sparse broad scoring. Tool names, schemas, source binding, byte limits, worker admission, absolute deadlines, progress and cancellation remain. Broad scoring still inspects bounded batches between checkpoints; it does not guarantee a hard process-time or RAM quota. Cache lookup improvements can cost different retained cache memory. Read [both initial/warm MCP campaigns and limits](CHANGES-0.4.11.md).
