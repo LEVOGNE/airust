@@ -1,4 +1,4 @@
-# AIRust 0.4.9
+# AIRust 0.4.10
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.9 speeds up complete retrieval by reducing excerpt-analysis work and discarded JSON buffers. ASCII text takes a simpler bounded path; mixed Unicode text retains its normalization and original positions. MCP uses the same bounded serializer to count size without retaining temporary JSON. Public signatures, scores, evidence, limits and saved knowledge remain. See [performance/API contract](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest measurements](docs/CHANGES-0.4.9.md). No DenkMaps integration is included.
+Version 0.4.10 targets index construction and MCP query latency. ASCII normalization uses a direct path with the same whitespace/case rules. Small lexical queries merge already ordered posting lists instead of constructing a candidate tree; wider queries retain the old tree path. Public signatures, ranking, source positions, knowledge formats and MCP schemas remain. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [both complete benchmark campaigns](docs/CHANGES-0.4.10.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.10](docs/CHANGES-0.4.10.md) | Direct ASCII normalization and bounded ordered posting-list merge. | Reduce construction and candidate-collection work while retaining results and cancellation. |
 | [0.4.9](docs/CHANGES-0.4.9.md) | Faster complete retrieval, bounded excerpt analysis and shared JSON counting. | Spend less work on selected evidence while retaining byte limits and MCP contracts. |
 | [0.4.8](docs/CHANGES-0.4.8.md) | Less temporary query allocation and deadline-aware MCP progress. | Preserve evidence and keep request expiry distinct from transport failure. |
 | [0.4.7](docs/LEXICAL-COVERAGE.md) | Inspectable lexical coverage scoring. | Balance rank strength and distinct query terms without a model. |
@@ -44,7 +45,9 @@ Version 0.4.9 speeds up complete retrieval by reducing excerpt-analysis work and
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.9 validation passes **222 default tests, 870 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and seven targeted Tree Borrows Miri cases pass. New regressions check exact JSON-escape budgets, session recovery, ASCII controls, CRLF and mixed Unicode source positions. Read [all executed checks and limits](docs/CHANGES-0.4.9.md).
+Local 0.4.10 validation passes **224 default tests, 872 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and nine targeted Tree Borrows Miri cases pass. New oracles compare ASCII normalization with the general Unicode rule and check candidate sets, filters, explanations and updates on both sides of the merge threshold. Read [executed checks and limits](docs/CHANGES-0.4.10.md).
+
+**Measured 0.4.10 result:** repeated construction of the complete 167,942-entry corpus has 13.92% lower median build time in this run, excluding input parsing. Canonical MCP BM25 medians are 12–17% lower across two preplanned campaigns; TF-IDF and small-snapshot results are mixed. All 1,026 complete document-retrieval responses remain byte-identical. Temporary query allocation falls in the tested merge cases, while the broad fallback can request more bytes. Retained index/process memory is essentially unchanged. Read [both campaigns, the preserved initial candidate and limits](docs/CHANGES-0.4.10.md).
 
 **Measured 0.4.9 result:** on the same 342 exposed questions, prepared retrieval and coverage have about 23% lower median complete context latency, with 1,026 byte-identical response comparisons. Literal BM25 changes little and has a slightly higher p95; individual questions and unchanged search microtests can be slower. Forty real MCP processes yield mixed latency results, including a slower first canonical campaign; confirmation does not establish a general MCP gain. Process RAM is essentially unchanged. Read [both campaigns, all timings and limits](docs/CHANGES-0.4.9.md).
 
@@ -54,7 +57,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.9. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.10. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -130,7 +133,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.9", default-features = false }
+airust = { version = "=0.4.10", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

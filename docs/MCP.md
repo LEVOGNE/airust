@@ -191,3 +191,7 @@ See [executed results](CHANGES-0.4.4.md), [security tests](../tests/mcp.rs), [ex
 ## Bounded JSON checks in 0.4.9
 
 McpServer checks sizes with the same bounded serializer used by retrieval, without retaining JSON needed only for counting. Limits count encoded bytes, including escapes and multi-byte UTF-8; they are not character counts or the unescaped query length. Configuration limits, `argument_budget`, `output_budget`, response schemas and session-recovery behavior remain. Actual response envelopes are still encoded and owned. A counting sink reduces temporary allocation; it does not impose a total process-RAM quota. Search also benefits from the existing excerpt API's simpler ASCII/mixed-text path. Clients need no protocol change. See [MCP measurements and limits](CHANGES-0.4.9.md).
+
+## Core execution in 0.4.10
+
+McpServer uses the same central Engine. Startup benefits from direct ASCII normalization where applicable; BM25/TF-IDF candidate collection uses bounded ordered merge for up to 32 known terms and the prior tree route for broader queries. Clients use the same tool names, arguments, schemas and error codes. Source binding, exact reads, byte budgets, progress, cancellation, worker admission and absolute deadlines remain. No new MCP capability or permission is added. Lower candidate-allocation traffic is not a hard RAM quota or universal latency guarantee. Read [both preplanned MCP campaigns and limits](CHANGES-0.4.10.md).

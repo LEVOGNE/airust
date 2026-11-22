@@ -2,6 +2,22 @@ use std::collections::{BTreeMap, BTreeSet};
 use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 
 pub fn normalize(text: &str) -> String {
+    if text.is_ascii() {
+        let mut normalized = String::with_capacity(text.len());
+        let mut pending_space = false;
+        for byte in text.bytes() {
+            if matches!(byte, b' ' | b'\t'..=b'\r') {
+                pending_space = !normalized.is_empty();
+            } else {
+                if pending_space {
+                    normalized.push(' ');
+                    pending_space = false;
+                }
+                normalized.push(char::from(byte.to_ascii_lowercase()));
+            }
+        }
+        return normalized;
+    }
     let mut normalized = String::with_capacity(text.len());
     let mut pending_space = false;
     for character in normalized_characters(text) {

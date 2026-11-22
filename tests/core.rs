@@ -36,6 +36,122 @@ fn unicode_normalization_keeps_accents_and_punctuation() {
 }
 
 #[test]
+fn ascii_normalization_matches_general_unicode_reference_and_whitespace() {
+    use unicode_normalization::UnicodeNormalization;
+    fn reference(source: &str) -> String {
+        source
+            .nfkc()
+            .flat_map(char::to_lowercase)
+            .nfkc()
+            .collect::<String>()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+    let all_ascii: String = (0..=127).map(char::from).collect();
+    let mut cases = vec![
+        String::new(),
+        all_ascii.clone(),
+        all_ascii.chars().rev().collect(),
+        " \t\r\n\u{b}\u{c} ".into(),
+        "A\u{b}B\u{c}C\r\nD\0E".into(),
+        "  ＲＵＳＴ\u{a0}cafe\u{301}\u{2003}İ\tEND ".into(),
+    ];
+    let mut seed = 19u64;
+    for _ in 0..64 {
+        cases.push(
+            (0..48)
+                .map(|_| {
+                    seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    char::from((seed >> 32) as u8 & 127)
+                })
+                .collect(),
+        );
+    }
+    for source in cases {
+        let normalized = text::normalize(&source);
+        assert_eq!(normalized, reference(&source));
+        assert_eq!(text::normalize(&normalized), normalized);
+    }
+    assert_eq!(text::normalize("A\u{b}B"), "a b");
+    assert_eq!(text::normalize("A\u{1c}B"), "a\u{1c}b");
+}
+
+#[test]
+fn merged_and_wide_postings_preserve_complete_scoped_candidate_sets() {
+    use std::collections::BTreeSet;
+    let documents = if cfg!(miri) { 6 } else { 96 };
+    let mut index = Engine::from_entries((0..documents).map(|n| {
+        let body = (0..68)
+            .filter(|t| (n + t) % 5 < 2)
+            .map(|t| format!("term{t} "))
+            .collect::<String>();
+        KnowledgeEntry::new(format!("prefix/ä/{n:03}"), body)
+            .with_metadata(json!({"scope": if n%2==0 {"even"} else {"odd"}}))
+    }))
+    .unwrap();
+    for count in [0, 1, 2, 7, 32, 33, 64] {
+        let query = (0..count).map(|n| format!("term{n} ")).collect::<String>() + " missing";
+        let wanted: BTreeSet<_> = text::tokenize(&query).into_iter().collect();
+        for scope in [None, Some(Context::new().with_metadata("scope", "even"))] {
+            let expected: BTreeSet<_> = index
+                .entries()
+                .filter(|e| scope.as_ref().is_none_or(|s| s.includes(e)))
+                .filter(|e| {
+                    text::tokenize(&e.text)
+                        .iter()
+                        .any(|word| wanted.contains(word))
+                })
+                .map(|e| e.id.as_str())
+                .collect();
+            for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+                let hits = index.search_with_options(
+                    &query,
+                    &SearchOptions {
+                        limit: 96,
+                        algorithm,
+                        context: scope.clone(),
+                        ..Default::default()
+                    },
+                );
+                assert_eq!(
+                    hits.iter()
+                        .map(|h| h.entry.id.as_str())
+                        .collect::<BTreeSet<_>>(),
+                    expected
+                );
+                assert_eq!(hits.len(), expected.len());
+                for hit in hits {
+                    let words: BTreeSet<_> = text::tokenize(&hit.entry.text).into_iter().collect();
+                    assert_eq!(
+                        hit.matched_terms.iter().collect::<BTreeSet<_>>(),
+                        words.intersection(&wanted).collect()
+                    );
+                }
+            }
+        }
+    }
+    index.remove("prefix/ä/000");
+    index
+        .upsert(KnowledgeEntry::new("prefix/ä/001", "term0 term67"))
+        .unwrap();
+    assert_eq!(
+        index
+            .search("term0 term67", 96)
+            .iter()
+            .map(|h| h.entry.id.as_str())
+            .collect::<BTreeSet<_>>(),
+        index
+            .entries()
+            .filter(|e| text::tokenize(&e.text)
+                .iter()
+                .any(|t| t == "term0" || t == "term67"))
+            .map(|e| e.id.as_str())
+            .collect()
+    );
+}
+
+#[test]
 fn frequencies_reuse_normalized_keys_without_losing_repetitions_or_unicode() {
     use std::collections::BTreeMap;
     let mut expected = BTreeMap::new();

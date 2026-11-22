@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.10 — Index normalization and ordered candidate merge
+
+Use direct ASCII normalization with the same case/Unicode-whitespace rules. Merge at most 32 already sorted known-term posting lists into unique sorted borrowed IDs using a bounded heap; retain the prior ordered-set route for wider queries. Keep checkpoints for every posting, score arithmetic/order, filtering, winner ties, persistent state and MCP contracts. Add independent normalization and candidate-set/filter/update oracles. Repeat full validation, construction process pairs, allocation profiles and two complete MCP campaigns. No new dependency or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [executed report](docs/CHANGES-0.4.10.md).
+
 ## 0.4.9 — Faster complete retrieval and bounded MCP serialization
 
 Use bounded direct ASCII excerpt tokenization and avoid Unicode normalization for ASCII graphemes in mixed text. Share retained JSON serialization and size-only counting through one bounded writer; avoid discarded buffers in candidate, metadata and MCP guards. Preserve public signatures, ranking, source positions, byte limits, schemas and error codes. Add exact escaped-budget/session-recovery and ASCII/Unicode/CRLF/span regressions. Repeat full validation and exact-registry old/new benchmarks. No new dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest report](docs/CHANGES-0.4.9.md).

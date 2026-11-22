@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.4.9 reduces complete retrieval and MCP work through bounded excerpt analysis and JSON counting while preserving default ranking, index formats, citation validation and optional MCP contracts. Run `cargo run --locked --features retrieval --example checked_evidence` for the complete Rust API example. See [citation checks](docs/CITATIONS.md), [evidence selection](docs/EVIDENCE-SELECTION.md), [current validation](docs/CHANGES-0.4.9.md), [MCP setup](docs/MCP.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.4.10 targets construction and MCP latency through direct ASCII normalization and ordered lexical posting-list merge. Applications keep the same APIs, ranking, knowledge formats and source positions. See [current validation](docs/CHANGES-0.4.10.md), [API cookbook](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [MCP setup](docs/MCP.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
 
 ## Keep build storage under control
 
@@ -13,7 +13,7 @@ export CARGO_PROFILE_TEST_DEBUG=0
 export CARGO_INCREMENTAL=0
 ```
 
-The directory must be dedicated to regenerable Cargo output. Keep PDFs, knowledge, source snapshots and measurement data elsewhere. `cargo clean` with the same configured target removes compiled output; the next build compiles it again. Archive release packages, exact locks and test receipts first. The 0.4.9 campaign follows this policy and removes its two named temporary build targets after verifying publication. Normal application consumers can enable only the features they need.
+The directory must be dedicated to regenerable Cargo output. Keep PDFs, knowledge, source snapshots and measurement data elsewhere. `cargo clean` with the same configured target removes compiled output; the next build compiles it again. Archive release packages, exact locks and test receipts first. The 0.4.10 campaign follows this policy and removes its two named temporary build targets after verifying publication. Normal application consumers can enable only the features they need.
 
 ## Try the core
 

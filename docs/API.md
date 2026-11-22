@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.9 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.10 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.9 reduces complete retrieval and MCP work through bounded ASCII/mixed-Unicode excerpt analysis and non-retaining JSON size checks. Original text positions and exact escaped-byte budgets remain. Existing Engine ranking, knowledge formats, 0.4.5 citation checks and MCP defaults remain. See [coverage scoring](LEXICAL-COVERAGE.md), [query preparation](LEXICAL-QUERY.md), [excerpt API](EXCERPTS.md), [citation limits](CITATIONS.md), [MCP contracts](MCP.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.9.md).
+Version 0.4.10 improves ASCII normalization during construction and lexical candidate collection used by Engine, Retriever and MCP. The bounded merge retains sorted unique IDs, score arithmetic, scope filtering, checkpoints, source positions, knowledge formats and MCP contracts. There is no new public setting or feature. Read [performance behavior](CORE-PERFORMANCE.md), [MCP](MCP.md), [API cookbook](API-COOKBOOK.md) and [current validation](CHANGES-0.4.10.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

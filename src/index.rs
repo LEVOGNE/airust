@@ -5,7 +5,7 @@ use crate::matching::{MatchError, MatchOptions, MatchResult, MatchStrategy, Simi
 use crate::ranking::TopK;
 use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 use std::sync::{Arc, OnceLock, RwLock};
 use thiserror::Error;
 
@@ -105,6 +105,28 @@ struct QueryTerm<'a> {
     text: &'a str,
     frequency: f64,
     idf: f64,
+    postings: &'a BTreeMap<Arc<str>, usize>,
+}
+
+struct PostingCursor<'a> {
+    id: &'a Arc<str>,
+    rest: std::collections::btree_map::Keys<'a, Arc<str>, usize>,
+}
+impl PartialEq for PostingCursor<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+impl Eq for PostingCursor<'_> {}
+impl PartialOrd for PostingCursor<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for PostingCursor<'_> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.id.cmp(self.id)
+    }
 }
 
 struct TokenBatch<'a> {
@@ -445,7 +467,6 @@ impl KnowledgeIndex {
         }
         #[cfg(feature = "execution")]
         let mut visited = 0usize;
-        let mut candidates = BTreeSet::new();
         let mut prepared = Vec::new();
         for (term, frequency) in query_terms {
             checkpoint()?;
@@ -458,28 +479,56 @@ impl KnowledgeIndex {
                     text: term.as_str(),
                     frequency: *frequency as f64,
                     idf,
+                    postings,
                 });
-                for id in postings.keys() {
-                    checkpoint()?;
-                    #[cfg(feature = "execution")]
-                    {
-                        visited += 1;
-                        if visited.is_multiple_of(512) {
-                            if let Some(control) = control {
-                                control.progress(
-                                    crate::execution::WorkPhase::CollectingCandidates,
-                                    visited,
-                                    None,
-                                );
-                            }
-                        }
+            }
+        }
+        let mut visit = || {
+            checkpoint()?;
+            #[cfg(feature = "execution")]
+            {
+                visited += 1;
+                if visited.is_multiple_of(512) {
+                    if let Some(control) = control {
+                        control.progress(
+                            crate::execution::WorkPhase::CollectingCandidates,
+                            visited,
+                            None,
+                        );
                     }
-                    candidates.insert(id.as_ref());
+                }
+            }
+            Ok::<_, E>(())
+        };
+        let mut merged = Vec::new();
+        let mut wide = BTreeSet::new();
+        if prepared.len() <= 32 {
+            let mut pending = BinaryHeap::with_capacity(prepared.len());
+            for term in &prepared {
+                let mut rest = term.postings.keys();
+                if let Some(id) = rest.next() {
+                    pending.push(PostingCursor { id, rest });
+                }
+            }
+            while let Some(mut cursor) = pending.pop() {
+                visit()?;
+                if merged.last().copied() != Some(cursor.id) {
+                    merged.push(cursor.id);
+                }
+                if let Some(id) = cursor.rest.next() {
+                    cursor.id = id;
+                    pending.push(cursor);
+                }
+            }
+        } else {
+            for term in &prepared {
+                for id in term.postings.keys() {
+                    visit()?;
+                    wide.insert(id.as_ref());
                 }
             }
         }
-        #[cfg(feature = "execution")]
-        let candidate_count = candidates.len();
+        let candidate_count = merged.len() + wide.len();
         #[cfg(feature = "execution")]
         if let Some(control) = control {
             control.progress(
@@ -504,12 +553,17 @@ impl KnowledgeIndex {
             0.0
         };
         let norms =
-            (options.algorithm == SearchAlgorithm::Tfidf && !candidates.is_empty()).then(|| {
+            (options.algorithm == SearchAlgorithm::Tfidf && candidate_count > 0).then(|| {
                 self.tfidf_norms
                     .get_or_init(|| Arc::new(TfidfNorms::default()))
             });
         let mut results = TopK::new(options.limit);
-        for (position, id) in candidates.into_iter().enumerate() {
+        for (position, id) in merged
+            .into_iter()
+            .map(|id| id.as_ref())
+            .chain(wide)
+            .enumerate()
+        {
             #[cfg(not(feature = "execution"))]
             let _ = position;
             checkpoint()?;
