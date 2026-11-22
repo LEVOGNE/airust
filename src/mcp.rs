@@ -1,5 +1,6 @@
 #![doc = include_str!("../docs/MCP.md")]
 
+mod progress;
 mod schema;
 mod transport;
 use crate::{
@@ -785,22 +786,35 @@ async fn notify(
     sequence: u32,
     message: String,
     session: Option<&Arc<transport::Session>>,
-) -> bool {
+    deadline: Instant,
+) -> Result<(), Failure> {
     let notification =
         ProgressNotificationParam::new(token.clone(), f64::from(sequence)).with_message(message);
-    let result = tokio::select! {biased;_=context.ct.cancelled()=>return false,result=tokio::time::timeout(Duration::from_millis(100),context.peer.notify_progress(notification))=>result};
-    if matches!(result, Ok(Ok(()))) {
-        true
-    } else {
-        if let Some(session) = session {
-            if !session.stop.is_cancelled()
-                && !context.ct.is_cancelled()
-                && !context.peer.is_transport_closed()
-            {
-                session.fail("progress delivery failed or stalled");
+    let result = progress::deliver(
+        context.peer.notify_progress(notification),
+        &context.ct,
+        session.map(AsRef::as_ref),
+        deadline,
+    )
+    .await;
+    match result {
+        progress::Delivery::Sent => Ok(()),
+        progress::Delivery::Deadline => Err(Failure::execution(ExecutionError::DeadlineExceeded)),
+        progress::Delivery::Cancelled => Err(Failure::execution(ExecutionError::Cancelled)),
+        progress::Delivery::Transport => {
+            if let Some(session) = session {
+                if !session.stop.is_cancelled()
+                    && !context.ct.is_cancelled()
+                    && !context.peer.is_transport_closed()
+                {
+                    session.fail("progress delivery failed or stalled");
+                }
             }
+            Err(Failure {
+                code: "cancelled",
+                message: "Progress delivery stopped".into(),
+            })
         }
-        false
     }
 }
 struct Handler(McpServer);
@@ -922,6 +936,7 @@ impl ServerHandler for Handler {
         let mut control = WorkControl::new(token)
             .with_timeout(timeout)
             .map_err(|_| ErrorData::internal_error("Invalid time budget", None))?;
+        let request_deadline = control.deadline().unwrap_or_else(Instant::now);
         let state = Arc::new(Mutex::new(None));
         if progress.is_some() {
             let state = state.clone();
@@ -953,24 +968,27 @@ impl ServerHandler for Handler {
             };
         let mut sequence = 0u32;
         if let Some(progress) = &progress {
-            if !notify(
+            if let Err(error) = notify(
                 &context,
                 progress,
                 sequence,
                 format!("Starting {name}"),
                 self.session.as_ref(),
+                request_deadline,
             )
             .await
             {
-                return Ok(self.error("cancelled", "Progress delivery stopped").into());
+                return Ok(self.error(error.code, &error.message).into());
             }
+        }
+        if let Err(error) = control.checkpoint() {
+            let error = Failure::execution(error);
+            return Ok(self.error(error.code, &error.message).into());
         }
         let server = self.0.clone();
         let worker_control = control.clone();
         let mut worker = lease.spawn(move || server.execute(command, &worker_control));
-        let deadline = tokio::time::sleep_until(tokio::time::Instant::from_std(
-            control.deadline().unwrap_or_else(Instant::now),
-        ));
+        let deadline = tokio::time::sleep_until(tokio::time::Instant::from_std(request_deadline));
         tokio::pin!(deadline);
         let mut interval =
             tokio::time::interval(Duration::from_millis(self.limits().progress_interval_ms));
@@ -982,12 +1000,13 @@ impl ServerHandler for Handler {
                 _=&mut deadline=>return Ok(self.error("deadline_exceeded","AIRust time budget exceeded").into()),
                 result=&mut worker=>{
                     let result=match result{Ok(result)=>result,Err(_)=>Err(Failure::data("AIRust worker failed"))};
-                    if let Some(progress)=&progress{sequence+=1;if !notify(&context,progress,sequence,if result.is_ok(){"AIRust work completed".into()}else{"AIRust work stopped with an error".into()},self.session.as_ref()).await{return Ok(self.error("cancelled","Progress delivery stopped").into());}}
+                    if let Some(progress)=&progress{sequence+=1;if let Err(error)=notify(&context,progress,sequence,if result.is_ok(){"AIRust work completed".into()}else{"AIRust work stopped with an error".into()},self.session.as_ref(),request_deadline).await{return Ok(self.error(error.code,&error.message).into());}}
+                    if let Err(error)=control.checkpoint(){let error=Failure::execution(error);return Ok(self.error(error.code,&error.message).into());}
                     return Ok(match result{Ok(value)=>self.response(name,value),Err(e)=>self.error(e.code,&e.message)}.into());
                 },
                 _=interval.tick(),if progress.is_some()=>{
                     sequence+=1;let latest=state.lock().ok().and_then(|s|*s);
-                    if !notify(&context,progress.as_ref().unwrap(),sequence,phase_message(latest),self.session.as_ref()).await{return Ok(self.error("cancelled","Progress delivery stopped").into());}
+                    if let Err(error)=notify(&context,progress.as_ref().unwrap(),sequence,phase_message(latest),self.session.as_ref(),request_deadline).await{return Ok(self.error(error.code,&error.message).into());}
                 }
             }
         }

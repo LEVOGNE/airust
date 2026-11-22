@@ -36,6 +36,25 @@ fn unicode_normalization_keeps_accents_and_punctuation() {
 }
 
 #[test]
+fn frequencies_reuse_normalized_keys_without_losing_repetitions_or_unicode() {
+    use std::collections::BTreeMap;
+    let mut expected = BTreeMap::new();
+    for (term, count) in [("rust", 3), ("café", 2), ("हिंदी", 2), ("中文", 2)] {
+        expected.insert(term.to_owned(), count);
+    }
+    assert_eq!(
+        text::term_frequencies("ＲＵＳＴ rust RUST café cafe\u{301} हिंदी हिंदी 中文 中文 🦀"),
+        expected
+    );
+    let repeated = "cafe\u{301} ＲＵＳＴ ".repeat(2048);
+    assert_eq!(
+        text::term_frequencies(&repeated),
+        BTreeMap::from([("café".to_owned(), 2048), ("rust".to_owned(), 2048)])
+    );
+    assert!(text::term_frequencies("\u{301} ... 🦀").is_empty());
+}
+
+#[test]
 fn comparison_is_symmetric_and_lexical() {
     assert_eq!(compare("cat", "cats").character, 0.75);
     assert_eq!(compare("cat", "cats"), compare("cats", "cat"));

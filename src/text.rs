@@ -39,8 +39,23 @@ pub fn term_frequencies(text: &str) -> BTreeMap<String, usize> {
 
 pub(crate) fn frequencies_normalized(normalized: &str) -> BTreeMap<String, usize> {
     let mut frequencies = BTreeMap::new();
+    let mut reuse_keys = false;
     for token in tokens_normalized(normalized) {
-        *frequencies.entry(token.to_owned()).or_insert(0) += 1;
+        if reuse_keys {
+            if let Some(count) = frequencies.get_mut(token) {
+                *count += 1;
+                continue;
+            }
+        }
+        match frequencies.entry(token.to_owned()) {
+            std::collections::btree_map::Entry::Occupied(mut entry) => {
+                *entry.get_mut() += 1;
+                reuse_keys = true;
+            }
+            std::collections::btree_map::Entry::Vacant(entry) => {
+                entry.insert(1);
+            }
+        }
     }
     frequencies
 }

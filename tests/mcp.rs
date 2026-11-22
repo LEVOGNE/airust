@@ -419,6 +419,8 @@ async fn deadline_is_absolute_progress_increases_and_disconnect_cancels() {
     })
     .await
     .unwrap();
+    let healthy = client.call(3, "airust_status", json!({})).await;
+    assert_eq!(data(&healthy)["read_only"], true);
     begin_heavy(&mut client, 2, "disconnect", 10000).await;
     client.finish().await;
     assert_eq!(observer.stats().in_flight, 0);

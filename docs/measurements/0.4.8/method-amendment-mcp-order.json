@@ -1,0 +1,18 @@
+{
+  "created": "2026-11-22T11:43:35.157220+00:00",
+  "reason": "Comparison fixture incorrectly zipped arrival order of concurrent MCP replies. Serial results, four concurrent result multisets and later results match exactly in the failing pair. Add explicit request ID capture/pairing and repeat all MCP process pairs. No runtime, binaries, inputs, timeouts, sample counts or query/heap/retrieval results changed. Earlier16process records retained.",
+  "changed": {
+    "docs/validation-0.4.8/mcp_probe.py": {
+      "before": "356f00f9c9d38ff4bf956ab777c99d897d9c3b45007458f562f56a25cb4cc127",
+      "after": "81eb28ac2cd427cbb22a5a00e5d09f2be1f7f67fb223ac63e1cf56ba007da0f0"
+    },
+    "docs/validation-0.4.8/benchmark.py": {
+      "before": "e3f2d21846ada32fcb9c2934ef1b83da4a4dbd8bab151aa2b37539d59b97e191",
+      "after": "da467821fc1aa580df309ba55a2531a08a7b08063d191dbf92916cde0d7434e0"
+    },
+    "docs/validation-0.4.8/README.md": {
+      "before": "5e7593626a525cfa607b0336a8c9c525e821dde3a5fd50b9def13d3078f2e0c5",
+      "after": "dec1480a6d51a4c833fb07c2d3dabaf8e7301e580b871ea555490684de38bc1d"
+    }
+  }
+}

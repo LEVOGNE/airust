@@ -71,6 +71,42 @@ fn coverage_components_match_independent_search_and_original_text_tokens() {
 }
 
 #[test]
+fn coverage_counts_unique_prepared_terms_including_unknown_and_unicode_terms() {
+    let index = Engine::from_entries([
+        KnowledgeEntry::new("a", "ProvenanceStore provenance store Café हिंदी rust"),
+        KnowledgeEntry::new("b", "Café हिंदी rust rust"),
+    ])
+    .unwrap();
+    for query in [
+        "Which ProvenanceStore ProvenanceStore Café cafe\u{301} हिंदी unknown?",
+        "ＲＵＳＴ rust rust",
+        "...🦀",
+        "not unrecorded",
+    ] {
+        let settings = LexicalCoverageOptions::default();
+        let effective = settings.query_options().analyze(query).unwrap();
+        let query_set: std::collections::BTreeSet<_> =
+            airust::text::tokenize(effective.effective_query())
+                .into_iter()
+                .collect();
+        let source = LexicalCoverageSource::new(&index).with_coverage_options(settings);
+        let batch = source.inspect(query, &RetrievalOptions::new(10)).unwrap();
+        for hit in batch.hits() {
+            let entry_terms: std::collections::BTreeSet<_> =
+                airust::text::tokenize(&hit.entry().text)
+                    .into_iter()
+                    .collect();
+            assert_eq!(hit.query_terms(), query_set.len());
+            assert_eq!(
+                hit.matched_query_terms(),
+                query_set.intersection(&entry_terms).count()
+            );
+            assert_eq!(hit.matched_terms().len(), hit.matched_query_terms());
+        }
+    }
+}
+
+#[test]
 fn configuration_rejects_invalid_weights_and_documents_extreme_legal_weights() {
     for w in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, -1.0, 1.00001] {
         assert!(LexicalCoverageOptions::default()

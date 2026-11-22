@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.8 — Query working allocations and MCP progress deadlines
+
+Reuse normalized term keys for repeated occurrences and existing lexical uniqueness guarantees for coverage counts. Keep scorer arithmetic and retrieval responses unchanged. Apply the original request deadline and connection cancellation to start/heartbeat/final MCP progress waits, retain typed deadline errors and avoid starting expired work. No new dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [executed report](docs/CHANGES-0.4.8.md).
+
+
 ## 0.4.7 — Inspectable lexical evidence coverage
 
 Add optional `LexicalCoverageSource` and bounded preparation/scoring options. Retain prepared lexical scores/ranks and expose distinct-term coverage diagnostics. Require patched optional `url >=2.5.9` and exercise nested-origin regressions. Fresh comparison retains 180 local replies, 5,130 timed retrieval samples and exposed/fresh quality limits. Default lexical search, index formats, citation validation and MCP behavior remain. See [API](docs/LEXICAL-COVERAGE.md) and [executed report](docs/CHANGES-0.4.7.md).

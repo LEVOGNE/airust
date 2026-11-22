@@ -5,7 +5,6 @@ use super::{
     RetrievalCandidate, RetrievalError, RetrievalOptions, RetrievalSource,
 };
 use crate::{Engine, KnowledgeEntry, SearchOptions};
-use std::collections::BTreeSet;
 
 #[derive(Debug, Clone)]
 pub struct LexicalCoverageOptions {
@@ -175,7 +174,7 @@ impl<'a> LexicalCoverageSource<'a> {
             .index
             .search_with_options(analysis.effective_query(), &options);
         request.checkpoint()?;
-        let terms: BTreeSet<_> = analysis.effective_query().split_whitespace().collect();
+        let query_terms = analysis.effective_query().split_whitespace().count();
         let maximum = lexical.first().map_or(0.0, |h| h.score);
         let mut hits = Vec::with_capacity(lexical.len());
         for (offset, hit) in lexical.into_iter().enumerate() {
@@ -189,18 +188,13 @@ impl<'a> LexicalCoverageSource<'a> {
                     "invalid lexical coverage component score",
                 ));
             }
-            let matched: BTreeSet<_> = hit
-                .matched_terms
-                .iter()
-                .filter(|t| terms.contains(t.as_str()))
-                .collect();
-            let matched_query_terms = matched.len();
+            let matched_query_terms = hit.matched_terms.len();
             let normalized_score = if maximum > 0.0 {
                 hit.score / maximum
             } else {
                 0.0
             };
-            let fraction = matched_query_terms as f64 / terms.len().max(1) as f64;
+            let fraction = matched_query_terms as f64 / query_terms.max(1) as f64;
             let score =
                 (1.0 - self.coverage.weight) * normalized_score + self.coverage.weight * fraction;
             hits.push(LexicalCoverageHit {
@@ -210,7 +204,7 @@ impl<'a> LexicalCoverageSource<'a> {
                 lexical_score: hit.score,
                 normalized_score,
                 matched_query_terms,
-                query_terms: terms.len(),
+                query_terms,
                 matched_terms: hit.matched_terms,
             });
         }
