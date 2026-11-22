@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.4 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.5 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.4 reduces temporary construction allocations, retains shared memory and ranking optimizations, and preserves existing signatures, knowledge formats and MCP response schemas. See [MCP API and limits](MCP.md), [security](MCP-SECURITY.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.4.md).
+Version 0.4.5 adds explicit evidence selection and citation validation through the optional retrieval feature. Existing Engine rankings, knowledge formats and MCP defaults remain. The allocation and sharing improvements introduced through 0.4.4 are retained. See [evidence delivery](EVIDENCE-SELECTION.md), [citation API and limits](CITATIONS.md), [MCP contracts](MCP.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.5.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
@@ -331,3 +331,9 @@ Known query terms keep their existing lexical order. BM25 IDF is calculated once
 
 
 After deletions, an empty vocabulary releases its hash allocation. A large dictionary is compacted when its word count falls below a quarter of the retained capacity; a separate high-water value avoids relying on deleted-slot bookkeeping. Small tables keep limited headroom. This adds an occasional rehash cost to deletion, can temporarily hold old and replacement tables, and does not alter retained reader contents. The dictionary, including this capacity hint, remains derived internal state and is not serialized.
+
+## Evidence delivery and citation checks (0.4.5)
+
+The optional `retrieval` feature adds `RetrievalOptions::with_distinct_evidence`, `without_distinct_evidence`, `distinct_evidence`, `RetrievalResponse::selection`, `EvidenceSelection` counters and `ExcerptOptions::with_paragraph_boundaries`. Defaults preserve previous BM25 rankings and response data. See [selection behavior](EVIDENCE-SELECTION.md).
+
+`retrieval::citations` exports `CitationLimits`, `Citation`, `CitedAnswer`, `CitationRegistry`, `CitationStatus`, `CitationCheck`, `CitationReport` and `CitationError`. Parse bounded strict model JSON or build a typed answer; check against an immutable delivered response. Unknown IDs, duplicate references, ambiguous/mismatching quotes and invalid original-entry UTF-8 ranges remain explicit. ID-only success and quote verification are separate, and neither proves answer truth. See the [full contract and executable example](CITATIONS.md).

@@ -1,6 +1,6 @@
 # Relevant excerpts and original positions
 
-AIRust 0.2.13 adds an explicit relevant-excerpt mode to the existing `retrieval` feature. It finds an original-text window around matching words or supplied phrase evidence. The default prefix behavior remains compatible with 0.2.12. No model, server or application integration is added. Retrieval now uses the already pinned Unicode segmentation library; default crate features remain empty.
+AIRust 0.2.13 introduced an explicit relevant-excerpt mode in the existing `retrieval` feature. It finds an original-text window around matching words or supplied phrase evidence. The default prefix behavior remains compatible. Version 0.4.5 adds opt-in complete-paragraph selection through `ExcerptOptions::with_paragraph_boundaries()`; see [evidence selection](EVIDENCE-SELECTION.md). No model or application adapter is required. Default crate features remain empty.
 
 ```rust
 use airust::{Engine, KnowledgeEntry, retrieval::{ExcerptOptions, LexicalSource,

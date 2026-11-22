@@ -1,6 +1,19 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.4.4 reduces temporary construction allocations while keeping the existing index, shared memory, TF-IDF reuse and MCP response schemas. Read-only MCP still provides progress, cancellation and bounded work. See [MCP setup](docs/MCP.md), [security](docs/MCP-SECURITY.md), [current validation](docs/CHANGES-0.4.4.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features, including MCP, use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
+AIRust is a Rust library with optional tools. Version 0.4.5 adds explicit BM25 evidence compaction and bounded quote/reference checks while preserving default retrieval, index formats and optional MCP contracts. Run `cargo run --locked --features retrieval --example checked_evidence` for the complete Rust API example. See [citation checks](docs/CITATIONS.md), [evidence selection](docs/EVIDENCE-SELECTION.md), [current validation](docs/CHANGES-0.4.5.md), [MCP setup](docs/MCP.md) and [API cookbook](docs/API-COOKBOOK.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the source checkout.
+
+## Keep build storage under control
+
+For repeated release checks, choose one temporary build directory instead of accumulating targets for every experiment:
+
+```bash
+export CARGO_TARGET_DIR=/absolute/path/to/temporary/airust-build
+export CARGO_PROFILE_DEV_DEBUG=0
+export CARGO_PROFILE_TEST_DEBUG=0
+export CARGO_INCREMENTAL=0
+```
+
+The directory must be dedicated to regenerable Cargo output. Keep PDFs, knowledge, source snapshots and measurement data elsewhere. `cargo clean` with the same configured target removes compiled output; the next build compiles it again. Archive release packages, exact locks and test receipts first. The 0.4.5 campaign follows this policy and removes its two named temporary build targets after verifying publication. Normal application consumers can enable only the features they need.
 
 ## Try the core
 
@@ -113,13 +126,13 @@ Ordinary queries do not change settings through keyword detection. Use the expli
 ## Use Docker
 
 ```bash
-docker build -t airust:0.4.4 .
+docker build -t airust:0.4.5 .
 export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 docker run --rm \
   -e AIRUST_API_TOKEN \
   -p 127.0.0.1:7070:7070 \
   -p 127.0.0.1:7071:7071 \
-  airust:0.4.4
+  airust:0.4.5
 ```
 
 The image explicitly builds the web feature. Its non-loopback container listener requires the supplied token. These port mappings keep access local to the host. The build excludes the existing database, backup archive, and local logs. It includes this guide because the web server embeds it.

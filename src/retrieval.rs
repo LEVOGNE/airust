@@ -1,7 +1,7 @@
 #![doc = include_str!("../docs/RETRIEVAL.md")]
 
 use crate::{Context, Engine, KnowledgeEntry, SearchAlgorithm, SearchOptions};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     collections::BTreeSet,
@@ -10,6 +10,7 @@ use std::{
 use thiserror::Error;
 
 pub mod assessment;
+pub mod citations;
 pub mod excerpts;
 pub use assessment::{
     assess_response, AssessmentLimits, AssessmentReason, EvidenceAssessment, EvidencePolicy,
@@ -57,6 +58,7 @@ pub struct RetrievalOptions {
     max_metadata_bytes: usize,
     excerpt_options: Option<ExcerptOptions>,
     evidence_policy: Option<EvidencePolicy>,
+    distinct_evidence: bool,
 }
 impl Default for RetrievalOptions {
     fn default() -> Self {
@@ -76,6 +78,7 @@ impl Default for RetrievalOptions {
             max_metadata_bytes: 4096,
             excerpt_options: None,
             evidence_policy: None,
+            distinct_evidence: false,
         }
     }
 }
@@ -174,6 +177,17 @@ impl RetrievalOptions {
         self.excerpt_options = None;
         self
     }
+    pub fn with_distinct_evidence(mut self) -> Self {
+        self.distinct_evidence = true;
+        self
+    }
+    pub fn without_distinct_evidence(mut self) -> Self {
+        self.distinct_evidence = false;
+        self
+    }
+    pub fn distinct_evidence(&self) -> bool {
+        self.distinct_evidence
+    }
     pub fn excerpt_options(&self) -> Option<&ExcerptOptions> {
         self.excerpt_options.as_ref()
     }
@@ -234,7 +248,8 @@ pub enum RankingKind {
     ReciprocalRankFusion,
     Custom,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ExcerptSpan {
     pub start: usize,
     pub end: usize,
@@ -528,6 +543,23 @@ pub struct RerankSummary {
     pub selected: usize,
     pub scored: usize,
 }
+#[derive(Debug, Default, Serialize)]
+pub struct EvidenceSelection {
+    considered: usize,
+    duplicates_skipped: usize,
+    kept_before_output_budget: usize,
+}
+impl EvidenceSelection {
+    pub fn considered(&self) -> usize {
+        self.considered
+    }
+    pub fn duplicates_skipped(&self) -> usize {
+        self.duplicates_skipped
+    }
+    pub fn kept_before_output_budget(&self) -> usize {
+        self.kept_before_output_budget
+    }
+}
 #[derive(Debug, Serialize)]
 pub struct RetrievalResponse {
     schema_version: u32,
@@ -541,6 +573,8 @@ pub struct RetrievalResponse {
     excerpt_details: Option<Vec<ExcerptDetails>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     assessment: Option<EvidenceAssessment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    selection: Option<EvidenceSelection>,
     #[serde(skip)]
     requested_limit: usize,
     #[serde(skip)]
@@ -578,6 +612,9 @@ impl RetrievalResponse {
     }
     pub fn assessment(&self) -> Option<&EvidenceAssessment> {
         self.assessment.as_ref()
+    }
+    pub fn selection(&self) -> Option<&EvidenceSelection> {
+        self.selection.as_ref()
     }
     pub fn requested_limit(&self) -> usize {
         self.requested_limit
@@ -811,6 +848,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                     hits: Vec::new(),
                     excerpt_details: options.excerpt_options().map(|_| Vec::new()),
                     assessment: None,
+                    selection: options.distinct_evidence.then(EvidenceSelection::default),
                     requested_limit: 0,
                     before_output_budget: 0,
                     json: String::new(),
@@ -878,6 +916,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
             }
         }
         let mut remaining = options.max_text_bytes;
+        let mut selection = options.distinct_evidence.then(EvidenceSelection::default);
         #[allow(unused_mut)]
         let mut reranking = None;
         #[cfg(feature = "reranking")]
@@ -901,27 +940,36 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                 selected: outcome.selected_candidates(),
                 scored: outcome.scored_candidates(),
             });
-            outcome
-                .results()
-                .iter()
-                .take(options.limit)
-                .map(|r| {
-                    hit(
-                        r.candidate,
-                        r.original_rank,
-                        r.score,
-                        options,
-                        &mut remaining,
-                        query,
-                        &analyzer,
-                    )
-                })
-                .collect::<Result<Vec<_>, _>>()?
+            collect_hits(
+                outcome
+                    .results()
+                    .iter()
+                    .map(|r| (r.candidate, r.original_rank, r.score)),
+                options,
+                &mut remaining,
+                query,
+                &analyzer,
+                &mut selection,
+            )?
         } else {
-            plain_hits(&batch, options, &mut remaining, query, &analyzer)?
+            plain_hits(
+                &batch,
+                options,
+                &mut remaining,
+                query,
+                &analyzer,
+                &mut selection,
+            )?
         };
         #[cfg(not(feature = "reranking"))]
-        let hits = plain_hits(&batch, options, &mut remaining, query, &analyzer)?;
+        let hits = plain_hits(
+            &batch,
+            options,
+            &mut remaining,
+            query,
+            &analyzer,
+            &mut selection,
+        )?;
         let (hits, details): (Vec<_>, Vec<_>) = hits.into_iter().unzip();
         let excerpt_details = options
             .excerpt_options()
@@ -946,6 +994,7 @@ impl<'a, S: RetrievalSource> Retriever<'a, S> {
                 hits,
                 excerpt_details,
                 assessment: None,
+                selection,
                 requested_limit: options.limit,
                 before_output_budget: 0,
                 json: String::new(),
@@ -961,14 +1010,74 @@ fn plain_hits(
     remaining: &mut usize,
     query: &str,
     analyzer: &ExcerptAnalyzer,
+    selection: &mut Option<EvidenceSelection>,
 ) -> Result<Vec<(RetrievalHit, Option<ExcerptDetails>)>, RetrievalError> {
-    batch
-        .candidates
-        .iter()
-        .take(options.limit)
-        .enumerate()
-        .map(|(i, c)| hit(c, i + 1, None, options, remaining, query, analyzer))
-        .collect()
+    collect_hits(
+        batch
+            .candidates
+            .iter()
+            .enumerate()
+            .map(|(i, c)| (c, i + 1, None)),
+        options,
+        remaining,
+        query,
+        analyzer,
+        selection,
+    )
+}
+fn collect_hits<'a, 'b: 'a>(
+    candidates: impl Iterator<Item = (&'a RetrievalCandidate<'b>, usize, Option<f64>)>,
+    options: &RetrievalOptions,
+    remaining: &mut usize,
+    query: &str,
+    analyzer: &ExcerptAnalyzer,
+    selection: &mut Option<EvidenceSelection>,
+) -> Result<Vec<(RetrievalHit, Option<ExcerptDetails>)>, RetrievalError> {
+    if selection.is_none() {
+        return candidates
+            .take(options.limit)
+            .map(|(candidate, rank, score)| {
+                hit(candidate, rank, score, options, remaining, query, analyzer)
+            })
+            .collect();
+    }
+    let mut results: Vec<(RetrievalHit, Option<ExcerptDetails>)> = Vec::new();
+    for (candidate, rank, score) in candidates {
+        if results.len() == options.limit || (selection.is_some() && *remaining == 0) {
+            break;
+        }
+        if let Some(stats) = selection {
+            stats.considered += 1;
+        }
+        let mut tentative = *remaining;
+        let next = hit(
+            candidate,
+            rank,
+            score,
+            options,
+            &mut tentative,
+            query,
+            analyzer,
+        )?;
+        if let Some(stats) = selection {
+            if next.0.excerpt.is_empty() {
+                continue;
+            }
+            if results
+                .iter()
+                .any(|(previous, _)| previous.excerpt == next.0.excerpt)
+            {
+                stats.duplicates_skipped += 1;
+                continue;
+            }
+        }
+        *remaining = tentative;
+        results.push(next);
+    }
+    if let Some(stats) = selection {
+        stats.kept_before_output_budget = results.len();
+    }
+    Ok(results)
 }
 fn finish(
     mut response: RetrievalResponse,

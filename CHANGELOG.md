@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5 — Explicit evidence selection and citation checks
+
+Keep Engine BM25 and default retrieval/MCP behavior. Add optional complete-paragraph selection and exact delivered-excerpt deduplication with bounded refill, original positions/ranks and selection diagnostics. Add provider-neutral strict bounded cited-answer parsing and reference/quote/range validation against immutable delivered context. Distinguish ID existence, exact quotations and semantic truth. Add independent overlapping-quote/paragraph oracles, scope/revision/budget regressions and a separate Rust consumer. Compare the unchanged published 0.4.4 baseline, the explicit new selection and SQLite hybrid on exposed and newly authored questions. No DenkMaps integration or mandatory model. See [API/limits](docs/CITATIONS.md) and [tests and honest measurements](docs/CHANGES-0.4.5.md).
+
 ## 0.4.4 — Less temporary allocation traffic
 
 Added a private bounded token batch that aggregates repeated word counts in place before interning and ordered collection. Empty/single-token input avoids oversized reservations. The centralized KnowledgeIndex, streaming tail, stable ranking, retained memory sharing, norm invalidation and vocabulary compaction remain. Added prefix/Unicode/lifetime regressions, interpreter checks and a reproducible differential stress consumer. Fixed cross-connection MCP shutdown interference with per-connection worker tracking, skipped stale progress heartbeats and verified batch-array rejection. Reused immutable per-server tool definitions with caller-edit/configuration isolation and a reproducible connection-allocation probe. Public APIs, knowledge/cache formats, optional MCP schemas and PDF backend 0.3.5 remain. No DenkMaps integration. See [behavior and limits](docs/CORE-PERFORMANCE.md) and [executed validation](docs/CHANGES-0.4.4.md).

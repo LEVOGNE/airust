@@ -1,15 +1,16 @@
-# AIRust 0.4.4
+# AIRust 0.4.5
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-**Measured comparison, not a superiority claim:** a completed local experiment used the same Qwen model for 400 answers over 100 document-derived reference questions. AIRust hybrid found the reference passage in the first six results for 64/88 answerable questions; SQLite FTS5 plus the same embeddings found 66/88, simple keyword search 58/88, and AIRust BM25 alone 69/88. These are authored questions, not logged user questions. The run demonstrates no AIRust hybrid answer-quality advantage over SQLite and no material token saving. Read the [honest comparison, answer checks, timings, RAM, failures and proposed improvements](docs/HONEST-COMPARISON-0.4.4.md). No new library feature or release accompanies that report.
+**Earlier 0.4.4 comparison, not a superiority claim:** a completed local experiment used the same Qwen model for 400 answers over 100 document-derived reference questions. AIRust hybrid found the reference passage in the first six results for 64/88 answerable questions; SQLite FTS5 plus the same embeddings found 66/88, simple keyword search 58/88, and AIRust BM25 alone 69/88. These are authored questions, not logged user questions. The run demonstrates no AIRust hybrid answer-quality advantage over SQLite and no material token saving. Read the [honest comparison, answer checks, timings, RAM, failures and proposed improvements](docs/HONEST-COMPARISON-0.4.4.md). That report evaluated 0.4.4 and did not publish a new version.
 
-Version 0.4.4 builds the same knowledge index with fewer throwaway buffers. It counts repeated words in one small working buffer and releases that buffer after use. Search, matching and relation suggestions keep their existing behavior. Optional MCP reuses its tool descriptions, and one client can disconnect while other clients keep working. Public methods, original text, stable ordering, saved knowledge and optional MCP response schemas remain compatible with 0.4.3. See [core/API behavior](docs/CORE-PERFORMANCE.md), [MCP setup](docs/MCP.md), [security boundaries](docs/MCP-SECURITY.md) and [executed tests and measurements](docs/CHANGES-0.4.4.md). The default library remains feature-free. No DenkMaps integration is included.
+Version 0.4.5 keeps BM25 as the baseline and adds explicit evidence delivery and citation checks. Applications can request complete matching paragraphs, remove identical delivered excerpts and refill from the existing ranked candidates. Check model references against exactly the text you supplied: known ID, exact quotation and valid UTF-8 position. These checks do not prove that an answer is true. Existing Engine rankings, default retrieval responses and optional MCP defaults remain compatible. No model is loaded implicitly and no DenkMaps integration is included. See [evidence selection](docs/EVIDENCE-SELECTION.md), [citation API](docs/CITATIONS.md), [API cookbook](docs/API-COOKBOOK.md) and [release validation and honest benchmarks](docs/CHANGES-0.4.5.md).
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.5](docs/EVIDENCE-SELECTION.md) | Optional paragraph evidence, exact excerpt deduplication and bounded citation validation. | Spend context on distinct passages and detect references or quotations that were not supplied. |
 | [0.4.4](docs/CORE-PERFORMANCE.md) | Less temporary allocation traffic during construction. | Create and discard fewer working buffers while keeping the same index. |
 | [0.4.3](docs/CHANGES-0.4.3.md) | Faster construction and BM25 with retained memory sharing. | Spend less time building the index and scoring discarded candidates. |
 | [0.4.2](docs/CORE-PERFORMANCE.md) | Shared index text and reusable TF-IDF calculations; MCP response schemas. | Use less repeated storage and let clients validate structured answers. |
@@ -37,9 +38,9 @@ Version 0.4.4 builds the same knowledge index with fewer throwaway buffers. It c
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Validation passes **221 default tests, 811 all-feature checks including 36 documentation examples, and 39 isolated feature entries**. It covers exact ranking against 0.4.3, independent BM25 calculations, scoped queries, long token streams, updates, caches, all optional features and real MCP replies. The retained knowledge remains **167,942 entries from 35 PDFs / 49,086 physical pages**. Original PDFs, all older knowledge and snapshots remain available. See [executed test counts, measurements and limits](docs/CHANGES-0.4.4.md).
+Local 0.4.5 validation passes **221 default tests, 835 all-feature checks including 37 documentation examples, and 39 isolated feature entries**. It covers the existing core/MCP contracts plus bounded citation admission, overlapping Unicode quotations, exact source positions, complete paragraphs, duplicate evidence and independent selection oracles. The retained knowledge remains **167,942 entries from 35 PDFs / 49,086 physical pages**. Original PDFs, all older knowledge and snapshots remain available. See [executed test counts, measurements and limits](docs/CHANGES-0.4.5.md).
 
-The 10,000-entry allocator profile records **23.87% fewer build allocation operations** and **23.89% fewer cumulative allocated bytes** than 0.4.3. The completed index uses exactly the same tracked live heap; its build peak is 1 KiB higher in this trace. With just a few very long words, the temporary buffer can reserve extra space. Eight authored edge cases document this tradeoff. These are allocator measurements, not process-RAM or latency guarantees. Read the [complete measurements and limits](docs/CHANGES-0.4.4.md).
+The earlier 0.4.4 10,000-entry allocator profile records **23.87% fewer build allocation operations** and **23.89% fewer cumulative allocated bytes** than 0.4.3. The completed index uses exactly the same tracked live heap; its build peak is 1 KiB higher in this trace. With just a few very long words, the temporary buffer can reserve extra space. Eight authored edge cases document this tradeoff. These are allocator measurements, not process-RAM or latency guarantees. Read the [complete measurements and limits](docs/CHANGES-0.4.4.md).
 
 Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Run `cargo run --features documents --example documents`. Positions are bytes in an identified text snapshot; original PDF bytes and graphical coordinates are separate. Restoring a snapshot rechecks its hashes, page partition and revision. A hash identifies supplied data rather than authenticating its meaning or extraction coverage.
 
@@ -54,6 +55,8 @@ To keep related data consistent, enable `snapshots` and acquire one `manager.sna
 To assess evidence, enable `retrieval` and add `.with_evidence_policy(EvidencePolicy::default())`. Run `cargo run --features retrieval --example evidence_assessment`. The fixed twelve-case evaluation includes a false acceptance and a false rejection to show the limits of word coverage.
 
 In the 0.3.12 fixture with 500,000 short synthetic records and three retained copies, `shared-index` lowers median process peak RSS from 2.895 to 0.981 GiB across three runs. A changed clone still pays to detach shared data. In a separate 160,085-entry real-corpus validation workload, shared identifiers lower median process peak RSS by 22.08% against 0.3.11. These processes retain several complete working views; the figures do not describe every application or one index's memory requirement. See [measurements and limits](docs/CHANGES-0.3.12.md) and the [original sharing design](docs/CHANGES-0.2.20.md).
+
+**Fresh 0.4.5 comparison:** 630 local model replies cover 210 authored questions, including 48 fresh same-corpus holdout cases. On their 36 answerable questions, reference evidence is present for 28 with old BM25, 26 with optional compact delivery and 30 with SQLite hybrid. Compact delivery uses 17.4% fewer mean prompt tokens on the holdout, with changed evidence; no equal-quality saving or answer-quality advantage is established. The 72-reply anonymized assistant audit also shows no A/C semantic-quality gain. Keep ordinary BM25 as the starting configuration. See [all results, failures, costs and limits](docs/CHANGES-0.4.5.md).
 
 ## What it does
 
@@ -113,7 +116,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.4", default-features = false }
+airust = { version = "=0.4.5", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

@@ -1,13 +1,13 @@
-# Optional MCP in AIRust 0.4.4
+# Optional MCP in AIRust 0.4.5
 
-AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas; 0.4.4 reduces temporary allocations in the shared core while preserving those schemas and version-one response data.
+AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
 Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `execution`, Tokio and the official Rust MCP SDK, pinned to `rmcp = 3.11.0`. It does not enable PDF parsing, HTTP, SQLite, embeddings, native models, training or the existing web application. The default library remains feature-free. Rust 1.89 supports this feature.
 
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.4 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.5 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 

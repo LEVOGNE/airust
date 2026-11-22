@@ -145,3 +145,6 @@ python3 -B scripts/check_mcp_dependencies.py
 python3 -B scripts/check_features.py
 
 python3 -B scripts/check_package.py
+
+cargo test --no-default-features --features retrieval --test citations --test evidence_selection --locked
+cargo run --locked --features retrieval --example checked_evidence > /dev/null

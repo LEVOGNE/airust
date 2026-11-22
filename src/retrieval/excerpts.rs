@@ -19,6 +19,7 @@ pub struct ExcerptOptions {
     max_terms: usize,
     max_matches: usize,
     max_highlights: usize,
+    paragraph_boundaries: bool,
 }
 impl Default for ExcerptOptions {
     fn default() -> Self {
@@ -30,10 +31,18 @@ impl Default for ExcerptOptions {
             max_terms: 256,
             max_matches: 4096,
             max_highlights: 64,
+            paragraph_boundaries: false,
         }
     }
 }
 impl ExcerptOptions {
+    pub fn with_paragraph_boundaries(mut self) -> Self {
+        self.paragraph_boundaries = true;
+        self
+    }
+    pub fn paragraph_boundaries(&self) -> bool {
+        self.paragraph_boundaries
+    }
     pub fn with_analysis_limits(
         mut self,
         input: usize,
@@ -404,8 +413,31 @@ pub fn select_excerpt<'a>(
             .saturating_sub(spare / 2)
             .min(text.len().saturating_sub(budget)),
     );
-    let start = ceil(&boundaries, desired.max(focus_end.saturating_sub(budget)));
-    let end = floor(&boundaries, start.saturating_add(budget).min(text.len()));
+    let mut start = ceil(&boundaries, desired.max(focus_end.saturating_sub(budget)));
+    let mut end = floor(&boundaries, start.saturating_add(budget).min(text.len()));
+    if options.paragraph_boundaries {
+        let mut required_terms = vec![false; terms.len()];
+        let mut phrase_bounds: Option<ExcerptSpan> = None;
+        for matched in matches
+            .iter()
+            .filter(|m| m.span.start >= start && m.span.end <= end)
+        {
+            if let Some(term) = matched.term {
+                required_terms[term] = true;
+            } else {
+                phrase_bounds = Some(phrase_bounds.map_or(matched.span, |bounds| ExcerptSpan {
+                    start: bounds.start.min(matched.span.start),
+                    end: bounds.end.max(matched.span.end),
+                }));
+            }
+        }
+        if let Some((paragraph_start, paragraph_end)) =
+            paragraph_window(text, &matches, &required_terms, budget, phrase_bounds)
+        {
+            start = paragraph_start;
+            end = paragraph_end;
+        }
+    }
     let mut highlights = Vec::new();
     let mut count = 0usize;
     let mut phrase = false;
@@ -438,6 +470,64 @@ pub fn select_excerpt<'a>(
         matches: highlights,
         matches_truncated: count > options.max_highlights,
     })
+}
+fn paragraph_window(
+    text: &str,
+    matches: &[Match],
+    required_terms: &[bool],
+    budget: usize,
+    phrase_bounds: Option<ExcerptSpan>,
+) -> Option<(usize, usize)> {
+    let mut paragraph_start = 0;
+    let mut line_start = 0;
+    let mut cursor = 0;
+    let mut markers = vec![0usize; required_terms.len()];
+    let required_count = required_terms.iter().filter(|required| **required).count();
+    let mut sequence = 0usize;
+    let mut best = None;
+    let mut best_score = (false, 0usize, 0usize);
+    for line in text.split_inclusive('\n').chain(std::iter::once("")) {
+        let end = line_start;
+        line_start += line.len();
+        if !line.trim().is_empty() {
+            continue;
+        }
+        let start = paragraph_start;
+        paragraph_start = line_start;
+        sequence += 1;
+        while cursor < matches.len() && matches[cursor].span.start < start {
+            cursor += 1;
+        }
+        let mut phrase = false;
+        let mut distinct = 0;
+        let mut retained_required = 0;
+        let mut occurrences = 0;
+        while cursor < matches.len() && matches[cursor].span.start < end {
+            let m = matches[cursor];
+            cursor += 1;
+            if end - start > budget || m.span.end > end {
+                continue;
+            }
+            if let Some(term) = m.term {
+                if markers[term] != sequence {
+                    distinct += 1;
+                    retained_required += usize::from(required_terms[term]);
+                    markers[term] = sequence;
+                }
+                occurrences += 1;
+            } else {
+                phrase = true;
+            }
+        }
+        let score = (phrase, distinct, occurrences);
+        let preserves_phrases =
+            phrase_bounds.is_none_or(|span| start <= span.start && span.end <= end);
+        if retained_required == required_count && preserves_phrases && score > best_score {
+            best_score = score;
+            best = Some((start, end));
+        }
+    }
+    best
 }
 fn best_window(
     matches: &[Match],

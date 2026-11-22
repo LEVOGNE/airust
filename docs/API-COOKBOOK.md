@@ -1,8 +1,8 @@
-# AIRust 0.4.4 API cookbook
+# AIRust 0.4.5 API cookbook
 
-Version 0.4.4 keeps the same public methods. Temporary token counts use one bounded private buffer. Optional MCP now waits only for its own connection workers at shutdown, while all clones still share the admission limit. Its five immutable tool definitions are prepared once per shared data instance; caller edits to returned definitions remain isolated.
+Version 0.4.5 adds opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
 
-For 0.4.4, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.4.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.5, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.5.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -10,7 +10,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.4", default-features = false }
+airust = { version = "=0.4.5", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -405,7 +405,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.4", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.5", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.
@@ -437,3 +437,13 @@ For retained read views, `shared-index` also shares whole immutable document/pos
 Use the same `Engine::from_entries`, `search` and `search_with_options` methods. Since 0.4.3, the implementation uses bounded token preparation, faster internal vocabulary lookups, query-local BM25 statistics and explanations created after top-K selection. Version 0.4.4 combines repeated counts in that temporary buffer before consuming it into the ordered term map. There is no opt-in flag or persistent migration. Sorted IDs, score arithmetic, scoped eligibility and matched terms retain their contracts.
 
 The internal hash seed does not define result order or cache/JSON bytes. The test suite compares fresh indices and exact floating-point scores against a separate full scan across small/large `k1`, `b`, scopes and limits. Construction and retrieval costs still depend on text size, vocabulary, candidate count and requested limit. See [core behavior and memory limits](CORE-PERFORMANCE.md) and [measured results](CHANGES-0.4.4.md).
+
+## Distinct evidence and checked quotations (0.4.5)
+
+Enable `retrieval` and run `cargo run --locked --features retrieval --example checked_evidence`. The complete [evidence selection](EVIDENCE-SELECTION.md) and [citation guide](CITATIONS.md) explain all statuses, limits and original-entry byte positions.
+
+Use `RetrievalOptions::with_distinct_evidence()` with `ExcerptOptions::with_paragraph_boundaries()` explicitly. Candidate ordering remains BM25 unless you select another source. Identical excerpts can be skipped and refilled from the original bounded candidate set. Read the optional selection counters and the final delivered hit list. Defaults remain unchanged.
+
+Parse generated JSON with `citations::CitedAnswer::from_json(json, &limits)`. Build `CitationRegistry::new(&response)` from the retained response that supplied the prompt, then call `check`. Handle `report.abstained()` first. For text answers, `references_valid()` alone only establishes permitted IDs and structure; `quotes_verified()` requires all nonempty quotations and positions to match. Neither establishes logical entailment, source truth, freshness or user authorization. Invalid quotes stay failures; no automatic model retry or score-based acceptance is hidden in the API.
+
+The optional MCP transport continues to use its existing request/response defaults. These new Rust retrieval APIs do not silently alter existing MCP client prompts or add a write endpoint.

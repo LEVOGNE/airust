@@ -27,7 +27,13 @@ The effective scope is the intersection of source configuration and request Cont
 
 With `reranking`, call `Retriever::with_reranker(&mut scorer, RerankOptions)` before query. Source candidates are validated first. Reranking retains its own input/batch/byte/threshold/failure contract; the smaller configured return limits apply. Results retain source evidence and one-based source rank separately from optional rerank scores. Summary fields disclose actual selected/scored counts, recipe, use and fallback reason. Explicit KeepOriginalOrder fallback has no invented scores; default provider failures remain errors. No model is loaded or called implicitly without a supplied provider.
 
-Graph traversal and citations remain explicit sidecars. Feed response hit IDs into ContextAssembler::assemble with the same authorized scope and optional ProvenanceStore to obtain sourced/neighbor context; retain this response's original scores separately. The compact response does not invent sources or infer causal relationships. Generic callers can return it from their own MCP/HTTP/CLI transport. This crate adds no MCP server, TOON encoder, progress protocol, application integration or network endpoint.
+Graph traversal and source provenance remain explicit sidecars. Feed response hit IDs into ContextAssembler::assemble with the same authorized scope and optional ProvenanceStore to obtain sourced/neighbor context; retain this response's original scores separately. The compact response does not invent sources or infer causal relationships. Generic callers can return it from their own transport. The retrieval feature itself enables no server or endpoint; the separately optional [MCP feature](MCP.md) exposes existing operations in this same crate.
+
+## Explicit evidence delivery and citation checking (0.4.5)
+
+`with_distinct_evidence()` skips byte-identical delivered excerpts and fills slots from the existing candidate list without changing BM25 scores. The optional `selection` diagnostics count considered candidates, skipped duplicates and kept hits before final JSON-budget truncation. `without_distinct_evidence()` restores the unchanged default delivery. Empty text budgets and exhausted candidate sets remain explicit limits. See [evidence selection](EVIDENCE-SELECTION.md).
+
+Combine it with `ExcerptOptions::with_paragraph_boundaries()` to prefer complete matching blocks, with the original window as a bounded fallback. After generation, `citations::CitedAnswer` parses bounded strict JSON and `CitationRegistry` checks IDs, exact quotations and original-entry byte ranges against the immutable delivered response. ID-only references never become quote proof, and matching quotes never become semantic truth verification. See the [citation contract and example](CITATIONS.md). No model is invoked by these checks.
 
 ## Byte budgets and truncation
 

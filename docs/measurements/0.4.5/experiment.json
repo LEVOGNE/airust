@@ -1,0 +1,81 @@
+{
+  "release": "0.4.5",
+  "arms": {
+    "A": "published0.4.4 BM25 with prefix excerpts",
+    "C": "0.4.5 BM25 with guarded paragraph preference and exact-excerpt deduplication",
+    "S": "SQLite FTS5 and BGE-M3 exact cosine, equal-weight RRF"
+  },
+  "question_counts": {
+    "exposed_regression": 162,
+    "new_holdout": 48
+  },
+  "positive_counts": {
+    "exposed_regression": 138,
+    "new_holdout": 36
+  },
+  "corpus": {
+    "files": 72,
+    "chunks": 1910,
+    "source_bytes": 2755468
+  },
+  "settings": {
+    "baseline": "published registry0.4.4, BM25 and prefix excerpts",
+    "candidate": "0.4.5 BM25, exact delivered excerpt deduplication, coverage-preserving paragraph preference",
+    "sqlite": "FTS5+BGE-M3 cosine RRF100 candidates,k60,weights0.5",
+    "questions": 210,
+    "top_k": 6,
+    "per_excerpt_bytes": 2000,
+    "total_excerpt_bytes": 12000,
+    "query": "verbatim question for model/embedding, common NFKC lowercase alphanumeric terms for lexical search",
+    "llm": "installed qwen3.6:35b",
+    "seed": 441105,
+    "temperature": 0,
+    "think": false,
+    "num_ctx": 16384,
+    "num_predict": 512,
+    "orders": "all6permutations35times,70times eachposition,105pairprecedence; stratified across162exposed+48heldout",
+    "label_warning": "assistant-authored document questions, not independent human labels or production traffic; first62questionsbecameexposedafterexploratoryretrieval, new48frozenbeforecoverageguardimplementation; quotes do not establish entailment"
+  },
+  "machine": "Apple M5 Max,64GiB,AC power",
+  "rustc": "1.98.0 (88d9e12ae),aarch64-apple-darwin",
+  "ollama": "0.40.16",
+  "python": "3.14.7",
+  "numpy": "2.5.5",
+  "sqlite": "3.53.4",
+  "model_digests": {
+    "qwen3.6:35b": "a7eb95c53bcf96b4bdd008d0fab4a5dac88047d9c1a7a9ab88ed453423fbd87c",
+    "bge-m3:latest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+  },
+  "baseline_crate_sha256": "96e5fca10668f2deb31cac485d699bc149a7242061d11f74fb475fded82f137f",
+  "preflight": {
+    "questions": 162,
+    "exposed_positive_reference_hits": {
+      "baseline": 69,
+      "unprotected_compaction": 62,
+      "sqlite": 66
+    },
+    "new62_positive_reference_hits": {
+      "baseline": 40,
+      "unprotected_compaction": 33,
+      "sqlite": 44
+    },
+    "no_llm_answers_run": true,
+    "all162_now_development_data": true,
+    "retained_round1_source_and_results": true
+  },
+  "private_method_hashes": {
+    "docs/validation-0.4.5/benchmark.py": "fab1e252961c6bf0f90bf48b5a01f6f20fd76d8c05c72a8a6c196f0f08aed157",
+    "docs/validation-0.4.5/README.md": "f9c66f9539e8ccb85b72ccd09bb259aeebcfa8e313d4ba6a8e23f1af2d8f36f0",
+    "docs/validation-0.4.5/benchmark-worker.rs": "88c966d36dcd2bae278f210084efc7e056a4e1e831d668cc3112daea6168accf",
+    "docs/validation-0.4.5/consumer.rs": "bd61e5250f5feef382adf01a0cc090cf395e41a425e877572c08ab2d03b55b7b",
+    "docs/validation-0.4.5/analyze.py": "b5999cf21b4143c69ce652feca9f0caec67ba9b49ba9e3d4287176726c724459",
+    "docs/validation-0.4.5/consumer.toml": "c6156b43ef677d2d4a19fe4d8e648573b9474e2b2550af855f31ec2b34fba974",
+    "docs/validation-honest-0.4.4/run.py": "c6eabae65d464f115ff5ae4b309c931d5b4c4ede14cdae7b93155cde5c0415e0",
+    "docs/validation-honest-0.4.4/monitor.py": "dc70720ab75133c48e1b4625fe8836150e26b09c303826eb8a3b42d80df67f09",
+    "/private/tmp/airust-evidence-045-build/release/evidence-baseline": "3d3ff0b40cbad5a87c4b944635375f20619e577bf77fe45c561851dcdc2a07dc",
+    "/private/tmp/airust-evidence-045-build/release/evidence-candidate": "d5dcbab7ed9fce1c0ea3bcfa406512da0bb5fce5ccb843440af69973631d6cb5",
+    "local-lab/evidence-0.4.5/worker-baseline/Cargo.lock": "86d33c1d84a26b1a5593adad1a28b50df9d34a2cec911502eb5867d32d314c49",
+    "local-lab/evidence-0.4.5/worker-candidate/Cargo.lock": "5fc2d79f3287c08ff79c5c14975a3026d64712faa54f2ebb6267b4cf70ad902f"
+  },
+  "disclosure": "Assistant-authored reference questions and anonymized assistant audit. No independent human or production-accuracy claim. Full private inputs/replies and failed exploratory results retained."
+}
