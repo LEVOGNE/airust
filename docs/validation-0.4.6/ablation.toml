@@ -1,0 +1,11 @@
+[package]
+name = "evidence-ablation"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[dependencies]
+airust = { version = "=0.4.6", default-features = false, features = ["retrieval"] }
+serde_json = "1"
+[[bin]]
+name = "evidence-ablation"
+path = "ablation.rs"

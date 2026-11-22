@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6 — Inspectable lexical questions and preserved context
+
+Add explicit bounded English/German function-word filtering with protected identifiers/quoted terms and ASCII CamelCase/acronym/digit expansion to LexicalSource. Keep literal Engine and ordinary retrieval defaults. Add optional leading-context preference that preserves all term coverage and explicit phrase positions of the relevant window. Retain the 0.4.5 citation checks. Compare against published 0.4.5 BM25 and SQLite hybrid using exposed development data and newly frozen questions; report actual quality/cost tradeoffs. No mandatory models, new dependencies or DenkMaps integration. See [query API](docs/LEXICAL-QUERY.md) and [release report](docs/CHANGES-0.4.6.md).
+
+
 ## 0.4.5 — Explicit evidence selection and citation checks
 
 Keep Engine BM25 and default retrieval/MCP behavior. Add optional complete-paragraph selection and exact delivered-excerpt deduplication with bounded refill, original positions/ranks and selection diagnostics. Add provider-neutral strict bounded cited-answer parsing and reference/quote/range validation against immutable delivered context. Distinguish ID existence, exact quotations and semantic truth. Add independent overlapping-quote/paragraph oracles, scope/revision/budget regressions and a separate Rust consumer. Compare the unchanged published 0.4.4 baseline, the explicit new selection and SQLite hybrid on exposed and newly authored questions. No DenkMaps integration or mandatory model. See [API/limits](docs/CITATIONS.md) and [tests and honest measurements](docs/CHANGES-0.4.5.md).

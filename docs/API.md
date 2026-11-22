@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.5 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.6 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.5 adds explicit evidence selection and citation validation through the optional retrieval feature. Existing Engine rankings, knowledge formats and MCP defaults remain. The allocation and sharing improvements introduced through 0.4.4 are retained. See [evidence delivery](EVIDENCE-SELECTION.md), [citation API and limits](CITATIONS.md), [MCP contracts](MCP.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.5.md).
+Version 0.4.6 adds optional bounded lexical question preparation and conservative leading context. Existing Engine ranking, knowledge formats, 0.4.5 citation checks and MCP defaults remain. See [query preparation](LEXICAL-QUERY.md), [excerpt API](EXCERPTS.md), [citation limits](CITATIONS.md), [MCP contracts](MCP.md), [document positions](DOCUMENTS.md) and [current validation](CHANGES-0.4.6.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
@@ -337,3 +337,6 @@ After deletions, an empty vocabulary releases its hash allocation. A large dicti
 The optional `retrieval` feature adds `RetrievalOptions::with_distinct_evidence`, `without_distinct_evidence`, `distinct_evidence`, `RetrievalResponse::selection`, `EvidenceSelection` counters and `ExcerptOptions::with_paragraph_boundaries`. Defaults preserve previous BM25 rankings and response data. See [selection behavior](EVIDENCE-SELECTION.md).
 
 `retrieval::citations` exports `CitationLimits`, `Citation`, `CitedAnswer`, `CitationRegistry`, `CitationStatus`, `CitationCheck`, `CitationReport` and `CitationError`. Parse bounded strict model JSON or build a typed answer; check against an immutable delivered response. Unknown IDs, duplicate references, ambiguous/mismatching quotes and invalid original-entry UTF-8 ranges remain explicit. ID-only success and quote verification are separate, and neither proves answer truth. See the [full contract and executable example](CITATIONS.md).
+
+
+Explicit lexical question preparation is available through the existing `retrieval` feature. `LexicalQueryOptions` configures bounded word filtering and ASCII identifier expansion; `analyze` returns an inspectable `LexicalQueryAnalysis`. `LexicalSource::with_query_analysis` enables it for that source. `ExcerptOptions::with_leading_context` prefers full prefix context only while retaining the relevant window’s query-term coverage and explicit phrase positions. These are opt-in and preserve ordinary Engine ranking. See [query API](LEXICAL-QUERY.md), [excerpts](EXCERPTS.md) and [0.4.6 validation](CHANGES-0.4.6.md).

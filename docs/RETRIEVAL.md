@@ -52,3 +52,6 @@ Retriever borrows an immutable index through each source and does not mutate rec
 See the [API cookbook](API-COOKBOOK.md), executable `retrieval`, [release report](CHANGES-0.2.13.md) and proposed application upgrade guide. No DenkMaps or MCP integration is performed by this release.
 
 Optional adaptive routing selects only explicitly registered sources, freezes analyzer selection during metadata-only preflight and preserves actual recipes/scopes. Source failures never trigger hidden retries. Route traces are separate diagnostics. See [routing contract](ADAPTIVE.md).
+
+
+For explicit 0.4.6 lexical question preparation, configure `LexicalSource::with_query_analysis(LexicalQueryOptions::default())` and inspect `LexicalQueryOptions::analyze` independently. Matched terms and source scores describe that effective query. Literal sources remain unchanged. `ExcerptOptions::with_leading_context` preserves more surrounding text when it retains the relevant window’s matched terms and phrase positions. See [query preparation](LEXICAL-QUERY.md) and [excerpt selection](EXCERPTS.md).

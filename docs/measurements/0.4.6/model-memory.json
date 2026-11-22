@@ -1,0 +1,50 @@
+{
+  "samples": 1628,
+  "process_family_rss_peak_bytes": 35123331072,
+  "process_family_rss_median_bytes": 31574835200.0,
+  "scope": "isolated Ollama daemon and descendants, sampled once per second across setup/answers; OS RSS and Apple GPU shared/unified memory must not be added as independent allocations",
+  "final_model_residency": {
+    "models": [
+      {
+        "name": "qwen3.6:35b",
+        "model": "qwen3.6:35b",
+        "size": 21754753841,
+        "digest": "a7eb95c53bcf96b4bdd008d0fab4a5dac88047d9c1a7a9ab88ed453423fbd87c",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen35moe",
+          "families": [
+            "qwen35moe"
+          ],
+          "parameter_size": "35.5B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-11-22T13:18:57.591678+01:00",
+        "size_vram": 21754753841,
+        "context_length": 16384,
+        "runner": "llamacpp"
+      },
+      {
+        "name": "bge-m3:latest",
+        "model": "bge-m3:latest",
+        "size": 689187061,
+        "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "bert",
+          "families": [
+            "bert"
+          ],
+          "parameter_size": "566.70M",
+          "quantization_level": "F16"
+        },
+        "expires_at": "2026-11-22T13:18:51.450072+01:00",
+        "size_vram": 689187061,
+        "context_length": 8192,
+        "runner": "llamacpp"
+      }
+    ]
+  }
+}

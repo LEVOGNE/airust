@@ -304,3 +304,125 @@ fn scope_and_small_output_budget_remain_enforced_after_refill() {
         .is_err());
     assert_eq!(engine.len(), 3);
 }
+
+#[test]
+fn leading_context_retains_qualifications_when_the_complete_entry_fits() {
+    let text = "Rust protects memory.\n\nThis does not imply logical correctness.\n\nAppendix.";
+    let e = RankingEvidence::new(RankingKind::Bm25, 1.0);
+    let s = select_excerpt(
+        text,
+        "Rust memory",
+        &e,
+        &ExcerptAnalyzer::Legacy,
+        &ExcerptOptions::default().with_leading_context(),
+        200,
+    )
+    .unwrap();
+    assert_eq!(s.text, text);
+    assert_eq!(
+        s.span,
+        ExcerptSpan {
+            start: 0,
+            end: text.len()
+        }
+    );
+}
+#[test]
+fn leading_context_retains_the_prefix_only_when_query_coverage_is_preserved() {
+    let e = RankingEvidence::new(RankingKind::Bm25, 1.0);
+    let o = ExcerptOptions::default().with_leading_context();
+    let repeated = "Rust context. Intro. Rust context. More material at end.";
+    let s = select_excerpt(
+        repeated,
+        "Rust context",
+        &e,
+        &ExcerptAnalyzer::Legacy,
+        &o,
+        32,
+    )
+    .unwrap();
+    assert_eq!(s.span.start, 0);
+    assert_eq!(s.text, repeated.get(..32).unwrap());
+    let tail = "intro background unrelated material with no matches. Rust memory.";
+    let s = select_excerpt(tail, "Rust memory", &e, &ExcerptAnalyzer::Legacy, &o, 18).unwrap();
+    assert!(s.span.start > 0);
+    assert!(s.text.contains("Rust memory"));
+}
+#[test]
+fn leading_context_preserves_explicit_phrase_locations_and_last_builder_wins() {
+    let text = "red car. some background. red car.";
+    let mut e = RankingEvidence::new(RankingKind::TextBm25, 1.0);
+    e.phrase_spans.push(ExcerptSpan { start: 25, end: 32 });
+    let o = ExcerptOptions::default()
+        .with_paragraph_boundaries()
+        .with_leading_context();
+    assert!(o.leading_context());
+    assert!(!o.paragraph_boundaries());
+    let s = select_excerpt(text, "red car", &e, &ExcerptAnalyzer::Legacy, &o, 12).unwrap();
+    assert!(s.span.start > 0);
+    assert!(s.matches.iter().any(|m| m.span.start == 25));
+    let other = o.with_paragraph_boundaries();
+    assert!(!other.leading_context());
+    assert!(other.paragraph_boundaries());
+}
+#[test]
+fn leading_context_matches_an_independent_utf8_window_coverage_oracle() {
+    let e = RankingEvidence::new(RankingKind::Bm25, 1.0);
+    for text in [
+        "α Rust\r\n\r\nmemory e\u{301}👩🏽‍💻. Rust memory.",
+        "not a guarantee.\n\nRust memory.\n\nRust Rust memory.",
+        "Rust\n\n背景\n\nRust",
+    ] {
+        for budget in 0..=text.len() + 2 {
+            let plain = select_excerpt(
+                text,
+                "Rust memory",
+                &e,
+                &ExcerptAnalyzer::Legacy,
+                &ExcerptOptions::default(),
+                budget,
+            )
+            .unwrap();
+            let got = select_excerpt(
+                text,
+                "Rust memory",
+                &e,
+                &ExcerptAnalyzer::Legacy,
+                &ExcerptOptions::default().with_leading_context(),
+                budget,
+            )
+            .unwrap();
+            let prefix_end = text
+                .grapheme_indices(true)
+                .map(|(i, _)| i)
+                .chain([text.len()])
+                .filter(|i| *i <= budget)
+                .max()
+                .unwrap_or(0);
+            let prefix = &text[..prefix_end];
+            let wanted = airust::text::unique_terms(plain.text);
+            let found = airust::text::unique_terms(prefix);
+            let retains = ["rust", "memory"]
+                .iter()
+                .all(|t| !wanted.contains(*t) || found.contains(*t));
+            if retains && matches!(plain.reason, ExcerptReason::Terms) {
+                assert_eq!(
+                    got.span,
+                    ExcerptSpan {
+                        start: 0,
+                        end: prefix_end
+                    },
+                    "{text:?} {budget}"
+                );
+            } else if !retains {
+                assert_eq!(got.span, plain.span);
+            }
+            assert!(got.text.len() <= budget);
+            assert_eq!(got.span.slice(text), Some(got.text));
+            for m in got.matches {
+                assert!(m.span.start >= got.span.start && m.span.end <= got.span.end);
+                assert!(m.span.slice(text).is_some());
+            }
+        }
+    }
+}

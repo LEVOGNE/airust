@@ -1,0 +1,13 @@
+[package]
+name="evidence-candidate"
+version="0.0.0"
+edition="2021"
+publish=false
+[features]
+candidate=[]
+[dependencies]
+airust = { version = "=0.4.6", default-features = false, features = ["retrieval"] }
+serde_json="1"
+[[bin]]
+name="evidence-candidate"
+path="worker.rs"

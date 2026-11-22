@@ -1,8 +1,10 @@
-# AIRust 0.4.5 API cookbook
+# AIRust 0.4.6 API cookbook
 
-Version 0.4.5 adds opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
+Version 0.4.6 adds explicit lexical question preparation and conservative leading context. Use `LexicalSource::new(&engine).with_query_analysis(LexicalQueryOptions::default())`; inspect `LexicalQueryOptions::analyze` for removed/added terms. Set `ExcerptOptions::with_leading_context()` to retain surrounding material when query coverage and phrase locations permit. Read [all query limits and behavior](LEXICAL-QUERY.md), [context selection](EXCERPTS.md) and the [0.4.6 report](CHANGES-0.4.6.md). Ordinary Engine, source, citation and MCP defaults remain unchanged.
 
-For 0.4.5, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.5.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+Version 0.4.5 introduced opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
+
+For 0.4.6, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.6.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -10,7 +12,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.5", default-features = false }
+airust = { version = "=0.4.6", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -405,7 +407,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.5", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.6", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.

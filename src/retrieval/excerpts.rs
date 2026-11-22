@@ -20,6 +20,7 @@ pub struct ExcerptOptions {
     max_matches: usize,
     max_highlights: usize,
     paragraph_boundaries: bool,
+    leading_context: bool,
 }
 impl Default for ExcerptOptions {
     fn default() -> Self {
@@ -32,13 +33,23 @@ impl Default for ExcerptOptions {
             max_matches: 4096,
             max_highlights: 64,
             paragraph_boundaries: false,
+            leading_context: false,
         }
     }
 }
 impl ExcerptOptions {
     pub fn with_paragraph_boundaries(mut self) -> Self {
         self.paragraph_boundaries = true;
+        self.leading_context = false;
         self
+    }
+    pub fn with_leading_context(mut self) -> Self {
+        self.leading_context = true;
+        self.paragraph_boundaries = false;
+        self
+    }
+    pub fn leading_context(&self) -> bool {
+        self.leading_context
     }
     pub fn paragraph_boundaries(&self) -> bool {
         self.paragraph_boundaries
@@ -415,6 +426,26 @@ pub fn select_excerpt<'a>(
     );
     let mut start = ceil(&boundaries, desired.max(focus_end.saturating_sub(budget)));
     let mut end = floor(&boundaries, start.saturating_add(budget).min(text.len()));
+    if options.leading_context {
+        let prefix_end = floor(&boundaries, budget.min(text.len()));
+        let mut prefix_terms = vec![false; terms.len()];
+        for matched in matches.iter().filter(|m| m.span.end <= prefix_end) {
+            if let Some(term) = matched.term {
+                prefix_terms[term] = true;
+            }
+        }
+        if matches
+            .iter()
+            .filter(|m| m.span.start >= start && m.span.end <= end)
+            .all(|m| {
+                m.term
+                    .map_or(m.span.end <= prefix_end, |term| prefix_terms[term])
+            })
+        {
+            start = 0;
+            end = prefix_end;
+        }
+    }
     if options.paragraph_boundaries {
         let mut required_terms = vec![false; terms.len()];
         let mut phrase_bounds: Option<ExcerptSpan> = None;

@@ -1,0 +1,84 @@
+{
+  "release": "0.4.6",
+  "arms": {
+    "A": "published0.4.5 literal BM25 with prefix excerpts",
+    "C": "0.4.6 BM25 with explicit query preparation, leading context and exact-excerpt deduplication",
+    "S": "SQLite FTS5 and BGE-M3 exact cosine, equal-weight RRF"
+  },
+  "question_counts": {
+    "exposed_regression": 210,
+    "new_holdout": 72
+  },
+  "positive_counts": {
+    "exposed_regression": 174,
+    "new_holdout": 54
+  },
+  "corpus": {
+    "files": 72,
+    "chunks": 1910,
+    "source_bytes": 2755468
+  },
+  "settings": {
+    "baseline": "published registry0.4.5, literal BM25 and prefix excerpts",
+    "candidate": "0.4.6 BM25 with explicit protected question-word filtering, ASCII identifier expansion, leading context and exact distinct excerpts",
+    "sqlite": "FTS5+BGE-M3 cosine RRF100 candidates,k60,weights0.5",
+    "questions": 282,
+    "top_k": 6,
+    "per_excerpt_bytes": 2000,
+    "total_excerpt_bytes": 12000,
+    "query": "verbatim question for Rust/model/embedding; SQLite uses common NFKC lowercase alphanumeric terms; candidate explicitly prepares raw case-preserved questions",
+    "llm": "installed qwen3.6:35b",
+    "seed": 461106,
+    "temperature": 0,
+    "think": false,
+    "num_ctx": 16384,
+    "num_predict": 512,
+    "orders": "all6permutations47times,94times eachposition,141pairprecedence; stratified across210exposed+72heldout",
+    "label_warning": "assistant-authored document questions, not independent human labels or production traffic; all210priorquestionsareexposeddevelopment;new72frozenbefore046implementationandrankings;54positive18unsupported;12English60German;noindependenthumanlabels; quotes do not establish entailment"
+  },
+  "machine": "Apple M5 Max,64GiB,AC power",
+  "rustc": "1.98.0 (88d9e12ae),aarch64-apple-darwin",
+  "ollama": "0.40.16",
+  "python": "3.14.7",
+  "numpy": "2.5.5",
+  "sqlite": "3.53.4",
+  "model_digests": {
+    "qwen3.6:35b": "a7eb95c53bcf96b4bdd008d0fab4a5dac88047d9c1a7a9ab88ed453423fbd87c",
+    "bge-m3:latest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+  },
+  "baseline_crate_sha256": "b306dca4b987f747cb35ff7c9b5bc9d21d22264c0a613bf70a1425b62f8c4a6f",
+  "development_probe": {
+    "raw_BM25_reference_hits": 137,
+    "prototype_prepared_reference_hits": 142,
+    "positive_development_cases": 174,
+    "no_holdout_parameter_tuning": true
+  },
+  "private_method_hashes": {
+    "docs/validation-0.4.6/worker-candidate.toml": "165f842dc6c9f99577594c7f7c745b4762b6d7a8dc00c3e3b52d6390d7ae842b",
+    "docs/validation-0.4.6/benchmark.py": "6eae26f79d28d78f330ae282404ffea47d107c3ef844916657d3bffe28fe72a6",
+    "docs/validation-0.4.6/README.md": "87209a56f80782cbc345876965e4592b11f17398270dd7943c9ef864b4a58a83",
+    "docs/validation-0.4.6/benchmark-worker.rs": "682939bee0de22c4a765e60d47f3b701afaeb9afc4ea20983862ab2d96c60e46",
+    "docs/validation-0.4.6/worker-baseline.toml": "f9eb8da69b8349234b0095a2b9209dd6bc689d1db19d32b8fb7ba08fb5432bc5",
+    "docs/validation-0.4.6/consumer.rs": "a2567c9c0021633bc837ea07a3ca97894c5bc9432cb90c859c1a8826ea30ec1b",
+    "docs/validation-0.4.6/analyze.py": "8553831ffcea9b4d3c73c3de161e70bd5230aaea1348e4634bd80cb298f80683",
+    "docs/validation-0.4.6/consumer.toml": "ae6473da0320af1888b733eb2d7b7af2c7af70a65d08c3bc6d1d993ee1cfc463",
+    "docs/validation-honest-0.4.4/run.py": "c6eabae65d464f115ff5ae4b309c931d5b4c4ede14cdae7b93155cde5c0415e0",
+    "docs/validation-honest-0.4.4/monitor.py": "dc70720ab75133c48e1b4625fe8836150e26b09c303826eb8a3b42d80df67f09",
+    "/private/tmp/airust-relevance-046-build/release/evidence-baseline": "607dfb93b1ff72d521fdc52be51f5048edc8fae80bb95a155f0c08f717d9b9fb",
+    "/private/tmp/airust-relevance-046-build/release/evidence-candidate": "35d6bc2b6b3683bc376246a3ddaf46d37f355f97840df65598983b80430bc8a9",
+    "local-lab/relevance-0.4.6/worker-baseline/Cargo.lock": "ec58a4391f71cec8759e78c8b52cb3151580c16432b70155b8ad6a6cf621a8b4",
+    "local-lab/relevance-0.4.6/worker-candidate/Cargo.lock": "fb6ffde707da1d503e9afefc757d80c34f63beb61520831364d3eb7962f60f7b"
+  },
+  "disclosure": "Assistant-authored reference questions and anonymized assistant audit. No independent human or production-accuracy claim. Full private inputs/replies and failed exploratory results retained.",
+  "new_positive_source_files": 4,
+  "new_positive_questions_per_file": [
+    9,
+    9,
+    18,
+    18
+  ],
+  "new_question_languages": {
+    "en": 12,
+    "de": 60
+  }
+}

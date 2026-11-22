@@ -12,6 +12,7 @@ use thiserror::Error;
 pub mod assessment;
 pub mod citations;
 pub mod excerpts;
+pub mod query;
 pub use assessment::{
     assess_response, AssessmentLimits, AssessmentReason, EvidenceAssessment, EvidencePolicy,
     EvidenceVerdict, HitAssessment, ScoreGate, ScoreScale,
@@ -20,6 +21,7 @@ pub use excerpts::{
     select_excerpt, ExcerptAnalyzer, ExcerptDetails, ExcerptMatch, ExcerptMatchKind,
     ExcerptOptions, ExcerptReason, SelectedExcerpt,
 };
+pub use query::{LexicalQueryAnalysis, LexicalQueryOptions};
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
@@ -395,17 +397,29 @@ fn kind(algorithm: SearchAlgorithm, phrase: bool) -> RankingKind {
 pub struct LexicalSource<'a> {
     index: &'a Engine,
     options: SearchOptions,
+    query_analysis: Option<LexicalQueryOptions>,
 }
 impl<'a> LexicalSource<'a> {
     pub fn new(index: &'a Engine) -> Self {
         Self {
             index,
             options: SearchOptions::default(),
+            query_analysis: None,
         }
     }
     pub fn with_options(mut self, options: SearchOptions) -> Self {
         self.options = options;
         self
+    }
+    pub fn with_query_analysis(mut self, options: LexicalQueryOptions) -> Self {
+        self.query_analysis = Some(options);
+        self
+    }
+    fn recipe(&self) -> String {
+        self.query_analysis.as_ref().map_or_else(
+            || "airust-lexical-v1".to_owned(),
+            LexicalQueryOptions::recipe,
+        )
     }
 }
 impl RetrievalSource for LexicalSource<'_> {
@@ -416,20 +430,31 @@ impl RetrievalSource for LexicalSource<'_> {
     ) -> Result<RetrievalBatch<'a>, RetrievalError> {
         let mut options = self.options.clone();
         let Some(context) = scope(options.context.as_ref(), request.context()) else {
-            return Ok(RetrievalBatch::new("airust-lexical-v1", Vec::new()));
+            return Ok(RetrievalBatch::new(self.recipe(), Vec::new()));
         };
         options.context = Some(context);
         options.limit = request.candidates;
+        request.checkpoint()?;
+        let analysis = self
+            .query_analysis
+            .as_ref()
+            .map(|settings| settings.analyze(query))
+            .transpose()?;
+        let effective_query = analysis
+            .as_ref()
+            .map_or(query, LexicalQueryAnalysis::effective_query);
+        request.checkpoint()?;
         #[cfg(feature = "execution")]
         let hits = if let Some(control) = request.control() {
-            self.index.search_controlled(query, &options, control)?
+            self.index
+                .search_controlled(effective_query, &options, control)?
         } else {
-            self.index.search_with_options(query, &options)
+            self.index.search_with_options(effective_query, &options)
         };
         #[cfg(not(feature = "execution"))]
-        let hits = self.index.search_with_options(query, &options);
+        let hits = self.index.search_with_options(effective_query, &options);
         Ok(RetrievalBatch::new(
-            "airust-lexical-v1",
+            self.recipe(),
             hits.into_iter()
                 .map(|hit| {
                     let mut evidence =
