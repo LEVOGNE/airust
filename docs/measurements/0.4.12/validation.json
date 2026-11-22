@@ -1,6 +1,6 @@
 {
   "version": "0.4.12",
-  "checked_at": "2026-11-22T18:04:33.849572+00:00",
+  "checked_at": "2026-11-22T18:28:24.475463+00:00",
   "default_tests": 229,
   "all_feature_checks_including_doctests": 877,
   "per_test_command_totals": [
@@ -13,6 +13,7 @@
     3,
     5,
     6,
+    1,
     3,
     6,
     9,
@@ -53,5 +54,9 @@
   ],
   "miri_flags": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
   "runtime_unchanged_during_validation": true,
-  "not_a_security_audit": true
+  "not_a_security_audit": true,
+  "full_matrix_repeated_after_ci_example_fix": true,
+  "example_conflict_regression_feature_configs": 2,
+  "example_stress_repeats": 24,
+  "library_and_measured_workers_unchanged": true
 }

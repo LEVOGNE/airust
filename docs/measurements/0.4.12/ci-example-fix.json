@@ -1,0 +1,23 @@
+{
+  "failed_ci": "https://github.com/LEVOGNE/airust/actions/runs/45054044739",
+  "failed_commit": "62120ffa1c9a37101de3f39dd41f1d2b9243c6c2",
+  "cause": "Example unwrapped an expected preparation conflict between competing snapshot writers, then readers reached their operation guard. Library conflict semantics are correct.",
+  "changed_files": [
+    "examples/stress_snapshots.rs",
+    "test.sh"
+  ],
+  "library_source_hashes_identical_to_measured_code": true,
+  "benchmark_method_and_workers_unchanged": true,
+  "correction": "Retry expected conflicts from both prepare and publish using a fresh snapshot; deterministic stale-prepare example regression added to test.sh; preserve guards and deadlines.",
+  "full_local_matrix_repeated": true,
+  "deterministic_example_test_feature_configs": 2,
+  "repeated_stress_processes": 24,
+  "entries_tested": [
+    1000,
+    10000
+  ],
+  "reader_threads_per_process": 4,
+  "writer_threads_per_process": 2,
+  "commits_per_process": 10,
+  "all_repetitions_kept": true
+}

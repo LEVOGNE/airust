@@ -20,6 +20,14 @@ New regressions verify that hints add no ID allocation ownership, concurrent fir
 
 Twelve targeted Tree Borrows Miri cases pass, including identifier ownership and retained-clone/reused-ID regressions. The latter uses three mutation rounds under Miri and 64 normally. Only extra floating-point rounding injection is disabled; memory/alias checks remain. Async/native PDF/ONNX work is outside these finite cases. This is not an independent security or soundness audit. Extracted-package tests, exact-commit CI and a fresh exact-registry consumer with matching VCS/tag/checksum are publication gates.
 
+## CI-found snapshot stress example regression
+
+The [first exact-commit CI run](https://github.com/LEVOGNE/airust/actions/runs/45054044739) failed in the existing snapshot stress example. Two writers can race between acquiring a snapshot and preparing a candidate. The library correctly returns `DatasetError::Conflict` at preparation, but the example unwrapped it and retried only publication conflicts. The failed writer then left readers running until their guard fired. Publication stopped before tagging or crates.io upload.
+
+The example now returns preparation and publication errors through one attempt function and retries expected conflicts against a fresh snapshot. Other errors still fail; operation/conflict guards and the deadline remain. A deterministic stale-preparation regression is part of `test.sh`. The complete local matrix is repeated after the fix, followed by 24 retained stress processes across default/shared-index configurations and 1,000/10,000 entries, four readers, two writers and ten commits each. Current and retained snapshots remain consistent. See [failure/fix provenance](measurements/0.4.12/ci-example-fix.json) and [all repetitions](measurements/0.4.12/stress-example-repeats.json).
+
+Executable code changes after measurement are limited to the example and test runner. Library source hashes, benchmark programs and exact measured executable hashes remain identical; the retained performance comparisons therefore still use the published library implementation. Failed CI logs and the earlier package/commit are preserved. The corrected package and exact commit must pass CI and all publication gates again.
+
 ## Cold norm-cache calls and retained hint memory
 
 Three fixed prebuilt engines retain the prior 1,000-entry index, 256-entry wide index and 257-entry sparse/vocabulary index. In seven alternating old/new process pairs, each plain process makes twenty queries per fixture using fresh clones of a never-queried Engine. Clone/setup work is outside the timer. There are **840 cold-cache calls across fourteen processes**, with equal signatures. These are cold norm hints in an ordinary warmed process; instruction/filesystem caches are not flushed. No instrumented duration is used as latency data.

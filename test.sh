@@ -83,6 +83,7 @@ cargo run --locked --features execution,retrieval --example progress > /dev/null
 
 cargo run --locked --example stress_index -- scale 1000 > /dev/null
 cargo run --locked --example stress_index -- clone 1000 > /dev/null
+cargo test --locked --features snapshots,execution --example stress_snapshots
 cargo run --locked --features snapshots,execution --example stress_snapshots -- 1000 > /dev/null
 
 cargo check --no-default-features --features shared-index --locked

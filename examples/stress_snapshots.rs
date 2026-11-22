@@ -23,6 +23,29 @@ fn summary(mut values: Vec<f64>) -> Value {
     let at = |f: f64| values[((values.len() - 1) as f64 * f).ceil() as usize];
     json!({"samples":values.len(),"p50_ms":at(0.5),"p95_ms":at(0.95),"p99_ms":at(0.99),"max_ms":values.last()})
 }
+fn try_generation(
+    manager: &DatasetManager,
+    base: &DatasetSnapshot,
+    control: &WorkControl,
+    prepare_ms: &mut Vec<f64>,
+    publish_ms: &mut Vec<f64>,
+) -> Result<(), DatasetError> {
+    let start = Instant::now();
+    let prepared = manager.prepare_controlled(
+        base.revision(),
+        DatasetUpdate::new(vec![DatasetChange::Put(state(
+            base.revision().generation() + 1,
+        ))]),
+        None,
+        control,
+    );
+    prepare_ms.push(start.elapsed().as_secs_f64() * 1000.0);
+    let prepared = prepared?;
+    let start = Instant::now();
+    let published = manager.publish_controlled(prepared, control);
+    publish_ms.push(start.elapsed().as_secs_f64() * 1000.0);
+    published.map(|_| ())
+}
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let count = std::env::args()
         .nth(1)
@@ -107,11 +130,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let done = done.clone();
             let conflicts = conflicts.clone();
             let control = control.clone();
-            writers.push(scope.spawn(move||{
-            let mut prepare_ms=Vec::new();let mut publish_ms=Vec::new();let mut completed=0;barrier.wait();
-            while completed<5 {control.checkpoint().unwrap();let base=manager.snapshot().unwrap();let start=Instant::now();let candidate=manager.prepare_controlled(base.revision(),DatasetUpdate::new(vec![DatasetChange::Put(state(base.revision().generation()+1))]),None,&control).unwrap();prepare_ms.push(start.elapsed().as_secs_f64()*1000.0);let start=Instant::now();match manager.publish_controlled(candidate,&control){Ok(_)=>completed+=1,Err(DatasetError::Conflict)=>{assert!(conflicts.fetch_add(1,Ordering::Relaxed)<1000,"conflict guard exceeded");},Err(error)=>panic!("{error}")};publish_ms.push(start.elapsed().as_secs_f64()*1000.0);}
-            done.fetch_add(1,Ordering::Release);json!({"worker":worker,"commits":completed,"prepare":summary(prepare_ms),"publish":summary(publish_ms)})
-        }));
+            writers.push(scope.spawn(move || {
+                let mut prepare_ms = Vec::new();
+                let mut publish_ms = Vec::new();
+                let mut completed = 0;
+                barrier.wait();
+                while completed < 5 {
+                    control.checkpoint().unwrap();
+                    let base = manager.snapshot().unwrap();
+                    match try_generation(
+                        &manager,
+                        &base,
+                        &control,
+                        &mut prepare_ms,
+                        &mut publish_ms,
+                    ) {
+                        Ok(()) => completed += 1,
+                        Err(DatasetError::Conflict) => {
+                            assert!(
+                                conflicts.fetch_add(1, Ordering::Relaxed) < 1000,
+                                "conflict guard exceeded"
+                            );
+                        }
+                        Err(error) => panic!("{error}"),
+                    }
+                }
+                done.fetch_add(1, Ordering::Release);
+                json!({"worker":worker,"commits":completed,"prepare":summary(prepare_ms),"publish":summary(publish_ms)})
+            }));
         }
         (
             readers
@@ -142,4 +188,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         json!({"version":airust::VERSION,"fixture":"stress-snapshots-v1","entries":count,"build_ms":build_ms,"concurrent_elapsed_ms":start.elapsed().as_secs_f64()*1000.0,"readers":reader_rows,"writers":writer_rows,"conflicts":conflicts.load(Ordering::Relaxed),"final_generation":current.revision().generation(),"old_view_unchanged":true,"limits":"Synthetic lexical/source snapshots; 4 readers and 2 competing writers, 10 total commits; no vector model or external storage transaction."})
     );
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn stale_preparation_is_retryable_before_publication() {
+        let manager = DatasetManager::new("example-retry", DatasetConfig::default()).unwrap();
+        let control = WorkControl::default();
+        let empty = manager.snapshot().unwrap();
+        let mut prepare = Vec::new();
+        let mut publish = Vec::new();
+        try_generation(&manager, &empty, &control, &mut prepare, &mut publish).unwrap();
+        assert!(matches!(
+            try_generation(&manager, &empty, &control, &mut prepare, &mut publish),
+            Err(DatasetError::Conflict)
+        ));
+        assert_eq!(prepare.len(), 2);
+        assert_eq!(publish.len(), 1);
+        let fresh = manager.snapshot().unwrap();
+        assert_eq!(fresh.revision().generation(), 1);
+        assert_eq!(fresh.lexical().get("state").unwrap().text, "generation 1");
+        try_generation(&manager, &fresh, &control, &mut prepare, &mut publish).unwrap();
+        assert_eq!(manager.snapshot().unwrap().revision().generation(), 2);
+        assert!(empty.lexical().is_empty());
+        assert_eq!(fresh.lexical().get("state").unwrap().text, "generation 1");
+    }
 }

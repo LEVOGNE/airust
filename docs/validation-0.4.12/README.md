@@ -39,3 +39,7 @@ The execution/shared-index corpus worker separately checks updates/deletions/res
 Run the full default/all-feature/isolated-feature/Clippy/docs/Python matrix, minimum Rust versions, API comparison with 0.4.11, refreshed dependency audit, unchanged backend regressions, an independent consumer and twelve targeted Tree Borrows Miri cases. Async/native/FFI work is outside those finite interpreter cases. Retain exact source and binary identities through measurement. Test the extracted package and require exact-commit CI; after publication verify registry source, checksum/VCS, tag and release asset.
 
 Archive packages, logs, locks and small measured executables before deleting only the named temporary Cargo and Miri targets. Preserve PDFs, knowledge, source snapshots and all raw private results. No DenkMaps integration is performed.
+
+## CI-found example conflict
+
+The first CI run found a caller bug in `stress_snapshots`: snapshot preparation can return an expected conflict before publication. The example now retries both phases from a fresh view, preserving bounds and deadlines. Its deterministic stale-prepare regression runs in `test.sh`. Repeat the complete matrix and run 24 stress processes across snapshots/execution with and without shared-index, at 1,000 and 10,000 entries. Keep all failure logs and results. Library/benchmark/worker hashes remain unchanged by this example-only correction; repackage and require a new exact-commit CI before publishing.

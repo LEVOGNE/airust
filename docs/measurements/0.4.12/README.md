@@ -8,6 +8,7 @@ Read the [report](../../CHANGES-0.4.12.md), [method/programs](../../validation-0
 - Original/confirmation MCP records retain 60 actual servers, 5,720 schema-valid replies and 2,860 complete structured pairs. Initial and repeated requests are separate.
 - Document records retain 342 exposed questions, three BM25 configurations, 1,026 complete JSON comparisons and 10,260 timings; no new holdout/model/semantic judgment.
 - Construction records retain 40 plain processes and six profiles. Corpus controls validate updates/rebuilds/clones/concurrent reads/source export identities.
+- `ci-example-fix.json` preserves the initial CI failure and example-only correction; `stress-example-repeats.json` retains all 24 follow-up concurrency runs.
 - Current plan, frozen/extended input hashes, executable/method identities and validation/resource/host-activity records preserve conditions. Stage-start snapshots do not establish continuous isolation.
 
 Baseline is exact registry 0.4.11; candidate is 0.4.12. Raw transcripts, PDFs, snapshots, knowledge, profiles, exact programs/locks and logs remain private and preserved. A smaller hint cache is not a comparable total-process RAM reduction. No DenkMaps integration is performed.
