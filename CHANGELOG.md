@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.12 — Compact cold TF-IDF hints
+
+Store norm hints by a compact identity of the ID allocation already owned by the central index. Keep standard randomized hashing, exact scores, invalidation, complete-value publication and nonblocking contention/poison fallback. Avoid extra ID reference retention and string hashing without adding per-document fields, dependencies or public options. Add identifier-ownership, concurrent cold-query and retained-clone/reused-ID regressions. Measure cold latency and hint heap separately from warmed queries and process RSS. Preserve sources, knowledge and MCP schemas. No DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md) and [honest measurements](docs/CHANGES-0.4.12.md).
+
 ## 0.4.11 — TF-IDF hints and sparse broad scoring
 
 Use a protected hash dictionary for private TF-IDF norm hints with unchanged invalidation and nonblocking lock/poison fallback. Borrow Arc keys in wide candidate sets and intersect sparse document vocabularies with broad prepared queries while retaining contribution order, arithmetic and checkpoints. Add exact full-scan score/cold-warm/scope oracles and a sparse-scoring interruption test. Preserve signatures, schemas, sources and knowledge. Benchmark initial and repeated MCP requests separately, report cold hint memory, and retain broader-query fixtures. No dependencies or DenkMaps integration. See [API/performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [honest report](docs/CHANGES-0.4.11.md).

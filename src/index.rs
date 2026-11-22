@@ -208,9 +208,18 @@ pub struct IndexStats {
     pub tokens: usize,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct NormKey(usize);
+
+impl NormKey {
+    fn from_id(id: &Arc<str>) -> Self {
+        Self(Arc::as_ptr(id).addr())
+    }
+}
+
 #[derive(Debug, Default)]
 struct TfidfNorms {
-    values: RwLock<HashMap<Arc<str>, f64>>,
+    values: RwLock<HashMap<NormKey, f64>>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -690,8 +699,9 @@ impl KnowledgeIndex {
         cache: &TfidfNorms,
         checkpoint: &mut impl FnMut() -> Result<(), E>,
     ) -> Result<f64, E> {
+        let key = NormKey::from_id(id);
         if let Ok(values) = cache.values.try_read() {
-            if let Some(value) = values.get(id.as_ref()) {
+            if let Some(value) = values.get(&key) {
                 return Ok(*value);
             }
         }
@@ -705,7 +715,7 @@ impl KnowledgeIndex {
         let norm = sum.sqrt();
         checkpoint()?;
         if let Ok(mut values) = cache.values.try_write() {
-            values.entry(id.clone()).or_insert(norm);
+            values.entry(key).or_insert(norm);
         }
         Ok(norm)
     }
@@ -1618,6 +1628,91 @@ mod optimization_tests {
         assert!(index.upsert(KnowledgeEntry::new("a", " ")).is_err());
         assert!(Arc::ptr_eq(&cache, index.tfidf_norms.get().unwrap()));
         assert_eq!(before, signature(&index));
+    }
+    #[test]
+    fn norm_hints_do_not_retain_identifier_allocations() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("資料/é\0a", "alpha beta"),
+            KnowledgeEntry::new("資料/e\u{301}\0b", "beta"),
+        ])
+        .unwrap();
+        let counts: Vec<_> = index.documents.keys().map(Arc::strong_count).collect();
+        assert_eq!(signature(&index).len(), 2);
+        assert_eq!(
+            index
+                .documents
+                .keys()
+                .map(Arc::strong_count)
+                .collect::<Vec<_>>(),
+            counts
+        );
+    }
+    #[test]
+    fn warm_norms_survive_retained_clones_and_reused_ids_without_stale_values() {
+        let mut index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta beta"),
+            KnowledgeEntry::new("b", "beta"),
+            KnowledgeEntry::new("c", "alpha gamma"),
+        ])
+        .unwrap();
+        let before = signature(&index);
+        let retained = index.clone();
+        let cache = retained.tfidf_norms.get().unwrap().clone();
+        index
+            .upsert(
+                KnowledgeEntry::new("a", "alpha beta beta")
+                    .with_metadata(serde_json::json!({"tag":1})),
+            )
+            .unwrap();
+        assert!(Arc::ptr_eq(&cache, index.tfidf_norms.get().unwrap()));
+        assert_eq!(signature(&index), before);
+        let rounds = if cfg!(miri) { 3 } else { 64 };
+        for round in 0..rounds {
+            index.remove("a");
+            index
+                .upsert(KnowledgeEntry::new(
+                    "a",
+                    format!("alpha {}", "beta ".repeat(round + 1)),
+                ))
+                .unwrap();
+            index
+                .upsert(KnowledgeEntry::new("b", format!("beta unique{round}")))
+                .unwrap();
+            let rebuilt = KnowledgeIndex::from_entries(index.entries().cloned()).unwrap();
+            assert_eq!(signature(&index), signature(&rebuilt));
+            assert_eq!(signature(&retained), before);
+        }
+        index.clear();
+        index
+            .upsert(KnowledgeEntry::new("a", "beta gamma"))
+            .unwrap();
+        let rebuilt = KnowledgeIndex::from_entries(index.entries().cloned()).unwrap();
+        assert_eq!(signature(&index), signature(&rebuilt));
+        assert_eq!(signature(&retained), before);
+        let restored = KnowledgeIndex::from_json(&retained.to_json().unwrap()).unwrap();
+        drop(index);
+        drop(retained);
+        assert_eq!(signature(&restored), before);
+    }
+    #[test]
+    fn concurrent_cold_norm_initialization_keeps_exact_scores() {
+        let index = KnowledgeIndex::from_entries((0..128).map(|n| {
+            KnowledgeEntry::new(
+                format!("id-{n}"),
+                format!("alpha beta {}", "gamma ".repeat(n % 11)),
+            )
+        }))
+        .unwrap();
+        let rebuilt = KnowledgeIndex::from_entries(index.entries().cloned()).unwrap();
+        let expected = signature(&rebuilt);
+        assert!(index.tfidf_norms.get().is_none());
+        std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..4).map(|_| scope.spawn(|| signature(&index))).collect();
+            for handle in handles {
+                assert_eq!(handle.join().unwrap(), expected);
+            }
+        });
+        assert_eq!(signature(&index), expected);
     }
     #[test]
     fn poisoned_norm_hint_falls_back_to_exact_computation() {

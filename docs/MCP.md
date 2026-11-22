@@ -199,3 +199,7 @@ McpServer uses the same central Engine. Startup benefits from direct ASCII norma
 ## TF-IDF and broad search in 0.4.11
 
 Use the existing `airust_search` arguments and select `algorithm: "tfidf"` when needed. The same central Engine now uses protected hash norm hints and sparse broad scoring. Tool names, schemas, source binding, byte limits, worker admission, absolute deadlines, progress and cancellation remain. Broad scoring still inspects bounded batches between checkpoints; it does not guarantee a hard process-time or RAM quota. Cache lookup improvements can cost different retained cache memory. Read [both initial/warm MCP campaigns and limits](CHANGES-0.4.11.md).
+
+## Cold TF-IDF cache in 0.4.12
+
+Select `algorithm: "tfidf"` with the existing `airust_search` arguments. The same central Engine stores smaller private norm-cache keys; no new tool, option or response field is required. Public IDs, scores, source bindings, spans and output schemas remain. Hints are transient and discarded for changed collections. Worker admission, byte limits, deadlines, progress and cancellation retain their contracts. This is not a hard process-memory quota. See [separate initial/warm MCP campaigns, cache heap and RSS](CHANGES-0.4.12.md).
