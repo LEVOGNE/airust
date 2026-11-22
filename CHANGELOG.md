@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.7 — Inspectable lexical evidence coverage
+
+Add optional `LexicalCoverageSource` and bounded preparation/scoring options. Retain prepared lexical scores/ranks and expose distinct-term coverage diagnostics. Require patched optional `url >=2.5.9` and exercise nested-origin regressions. Fresh comparison retains 180 local replies, 5,130 timed retrieval samples and exposed/fresh quality limits. Default lexical search, index formats, citation validation and MCP behavior remain. See [API](docs/LEXICAL-COVERAGE.md) and [executed report](docs/CHANGES-0.4.7.md).
+
+
 ## 0.4.6 — Inspectable lexical questions and preserved context
 
 Add explicit bounded English/German function-word filtering with protected identifiers/quoted terms and ASCII CamelCase/acronym/digit expansion to LexicalSource. Keep literal Engine and ordinary retrieval defaults. Add optional leading-context preference that preserves all term coverage and explicit phrase positions of the relevant window. Retain the 0.4.5 citation checks. Compare against published 0.4.5 BM25 and SQLite hybrid using exposed development data and newly frozen questions; report actual quality/cost tradeoffs. No mandatory models, new dependencies or DenkMaps integration. See [query API](docs/LEXICAL-QUERY.md) and [release report](docs/CHANGES-0.4.6.md).

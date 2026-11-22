@@ -1,0 +1,267 @@
+{
+  "all": {
+    "arms": {
+      "A": {
+        "questions": 342,
+        "positive": 276,
+        "reference_id_present": 218,
+        "reference_quote_present": 218,
+        "reference_quote_MRR6": 0.6580917874396135,
+        "reference_first": 157,
+        "rank_histogram": {
+          "None": 58,
+          "2": 34,
+          "1": 157,
+          "4": 6,
+          "3": 15,
+          "5": 4,
+          "6": 2
+        },
+        "text_bytes": {
+          "n": 342,
+          "mean": 9986.102339181287,
+          "median": 10373.0,
+          "p95": 10897.75
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 290
+      },
+      "P": {
+        "questions": 342,
+        "positive": 276,
+        "reference_id_present": 224,
+        "reference_quote_present": 224,
+        "reference_quote_MRR6": 0.6801328502415459,
+        "reference_first": 164,
+        "rank_histogram": {
+          "None": 52,
+          "1": 164,
+          "4": 7,
+          "2": 31,
+          "3": 16,
+          "5": 4,
+          "6": 2
+        },
+        "text_bytes": {
+          "n": 342,
+          "mean": 9918.540935672514,
+          "median": 10351.0,
+          "p95": 10907.8
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 0
+      },
+      "C": {
+        "questions": 342,
+        "positive": 276,
+        "reference_id_present": 225,
+        "reference_quote_present": 225,
+        "reference_quote_MRR6": 0.6839371980676329,
+        "reference_first": 165,
+        "rank_histogram": {
+          "None": 51,
+          "1": 165,
+          "5": 3,
+          "2": 32,
+          "4": 8,
+          "3": 14,
+          "6": 3
+        },
+        "text_bytes": {
+          "n": 342,
+          "mean": 9946.549707602338,
+          "median": 10376.0,
+          "p95": 10963.0
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 164
+      }
+    },
+    "candidate_vs": {
+      "A": {
+        "gained": 9,
+        "lost": 2
+      },
+      "P": {
+        "gained": 1,
+        "lost": 0
+      }
+    }
+  },
+  "exposed_regression": {
+    "arms": {
+      "A": {
+        "questions": 282,
+        "positive": 228,
+        "reference_id_present": 182,
+        "reference_quote_present": 182,
+        "reference_quote_MRR6": 0.6652777777777777,
+        "reference_first": 131,
+        "rank_histogram": {
+          "None": 46,
+          "2": 28,
+          "1": 131,
+          "4": 5,
+          "3": 14,
+          "5": 3,
+          "6": 1
+        },
+        "text_bytes": {
+          "n": 282,
+          "mean": 10019.86524822695,
+          "median": 10390.5,
+          "p95": 10905.6
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 238
+      },
+      "P": {
+        "questions": 282,
+        "positive": 228,
+        "reference_id_present": 185,
+        "reference_quote_present": 185,
+        "reference_quote_MRR6": 0.6845029239766082,
+        "reference_first": 136,
+        "rank_histogram": {
+          "None": 43,
+          "1": 136,
+          "4": 4,
+          "2": 28,
+          "3": 13,
+          "5": 2,
+          "6": 2
+        },
+        "text_bytes": {
+          "n": 282,
+          "mean": 9927.198581560284,
+          "median": 10356.5,
+          "p95": 10941.05
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 0
+      },
+      "C": {
+        "questions": 282,
+        "positive": 228,
+        "reference_id_present": 186,
+        "reference_quote_present": 186,
+        "reference_quote_MRR6": 0.6886695906432749,
+        "reference_first": 137,
+        "rank_histogram": {
+          "None": 42,
+          "1": 137,
+          "5": 3,
+          "2": 29,
+          "4": 5,
+          "3": 10,
+          "6": 2
+        },
+        "text_bytes": {
+          "n": 282,
+          "mean": 9950.131205673759,
+          "median": 10388.0,
+          "p95": 10970.95
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 134
+      }
+    },
+    "candidate_vs": {
+      "A": {
+        "gained": 6,
+        "lost": 2
+      },
+      "P": {
+        "gained": 1,
+        "lost": 0
+      }
+    }
+  },
+  "new_holdout": {
+    "arms": {
+      "A": {
+        "questions": 60,
+        "positive": 48,
+        "reference_id_present": 36,
+        "reference_quote_present": 36,
+        "reference_quote_MRR6": 0.6239583333333333,
+        "reference_first": 26,
+        "rank_histogram": {
+          "1": 26,
+          "None": 12,
+          "2": 6,
+          "4": 1,
+          "3": 1,
+          "5": 1,
+          "6": 1
+        },
+        "text_bytes": {
+          "n": 60,
+          "mean": 9827.416666666666,
+          "median": 10223.5,
+          "p95": 10834.3
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 52
+      },
+      "P": {
+        "questions": 60,
+        "positive": 48,
+        "reference_id_present": 39,
+        "reference_quote_present": 39,
+        "reference_quote_MRR6": 0.6593749999999999,
+        "reference_first": 28,
+        "rank_histogram": {
+          "1": 28,
+          "None": 9,
+          "3": 3,
+          "5": 2,
+          "2": 3,
+          "4": 3
+        },
+        "text_bytes": {
+          "n": 60,
+          "mean": 9877.85,
+          "median": 10213.0,
+          "p95": 10862.4
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 0
+      },
+      "C": {
+        "questions": 60,
+        "positive": 48,
+        "reference_id_present": 39,
+        "reference_quote_present": 39,
+        "reference_quote_MRR6": 0.6614583333333334,
+        "reference_first": 28,
+        "rank_histogram": {
+          "1": 28,
+          "None": 9,
+          "3": 4,
+          "6": 1,
+          "2": 3,
+          "4": 3
+        },
+        "text_bytes": {
+          "n": 60,
+          "mean": 9929.716666666667,
+          "median": 10318.0,
+          "p95": 10860.35
+        },
+        "duplicates_skipped": 0,
+        "changed_vs_prepared": 30
+      }
+    },
+    "candidate_vs": {
+      "A": {
+        "gained": 3,
+        "lost": 0
+      },
+      "P": {
+        "gained": 0,
+        "lost": 0
+      }
+    }
+  }
+}

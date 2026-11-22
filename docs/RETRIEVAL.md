@@ -18,6 +18,7 @@ The response owns only selected IDs, excerpts and evidence. It can outlive the s
 ## Sources and composition
 
 - `LexicalSource::new(&Engine)` uses existing BM25/TF-IDF. `with_options(SearchOptions)` retains algorithm, BM25 settings and base scope. Request budgets control final/candidate counts.
+- `LexicalCoverageSource::new(&Engine)` explicitly rescales prepared lexical candidates by score and distinct-term coverage. [API, diagnostics and limits](LEXICAL-COVERAGE.md).
 - With `advanced-search`, `TextSource` uses TextIndex and TextSearchOptions, including German analysis and required phrases. It preserves original UTF-8 phrase spans, flattened across required phrases, and a phrase-evidence truncation flag. Use the specialized API when grouped phrase terms/occurrences are needed. This does not combine a positional index with a separately owned semantic index automatically.
 - With `embeddings`, `SemanticSource::new(&SemanticIndex, &mut provider)` uses existing exact cosine retrieval and its explicit threshold.
 - With `hybrid`, `HybridSource` uses existing rank fusion. Its source options retain weights, RRF smoothing, algorithm, threshold, scope and explicit provider-failure policy. Component ranks/scores and any lexical fallback reason remain visible. Request candidate count bounds each component and final fused candidates; it does not bound all vectors/documents visited by exact search.

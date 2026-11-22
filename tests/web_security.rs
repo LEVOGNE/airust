@@ -4,6 +4,38 @@ use airust::web::{
     bots::crawler::{public_address, public_url},
     security::SecurityConfig,
 };
+
+#[test]
+fn patched_url_origin_does_not_recurse_through_nested_blob_schemes() {
+    std::thread::Builder::new()
+        .stack_size(2 * 1024 * 1024)
+        .spawn(|| {
+            let value = format!("{}https://example.com/", "blob:".repeat(10_000));
+            let parsed = url::Url::parse(&value).unwrap();
+            assert!(matches!(parsed.origin(), url::Origin::Opaque(_)));
+            let ordinary = url::Url::parse("blob:https://example.com/item").unwrap();
+            assert!(matches!(ordinary.origin(), url::Origin::Tuple(..)));
+        })
+        .unwrap()
+        .join()
+        .unwrap();
+}
+
+#[test]
+fn nested_blob_inputs_are_rejected_by_web_origin_and_crawler_policies() {
+    let value = format!("{}https://example.com/", "blob:".repeat(10_000));
+    assert!(public_url(&value).is_err());
+    let config =
+        SecurityConfig::new("127.0.0.1".parse().unwrap(), 7070, None, vec![], false).unwrap();
+    assert_eq!(
+        config.authorize(
+            &headers("localhost:7070", Some(&value), None),
+            "/api/query",
+            false
+        ),
+        Err(StatusCode::FORBIDDEN)
+    );
+}
 use axum::http::{HeaderMap, HeaderValue, StatusCode};
 
 fn headers(host: &str, origin: Option<&str>, token: Option<&str>) -> HeaderMap {

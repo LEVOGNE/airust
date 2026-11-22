@@ -11,11 +11,15 @@ use thiserror::Error;
 
 pub mod assessment;
 pub mod citations;
+pub mod coverage;
 pub mod excerpts;
 pub mod query;
 pub use assessment::{
     assess_response, AssessmentLimits, AssessmentReason, EvidenceAssessment, EvidencePolicy,
     EvidenceVerdict, HitAssessment, ScoreGate, ScoreScale,
+};
+pub use coverage::{
+    LexicalCoverageBatch, LexicalCoverageHit, LexicalCoverageOptions, LexicalCoverageSource,
 };
 pub use excerpts::{
     select_excerpt, ExcerptAnalyzer, ExcerptDetails, ExcerptMatch, ExcerptMatchKind,

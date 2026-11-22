@@ -150,3 +150,5 @@ cargo test --no-default-features --features retrieval --test citations --test ev
 cargo run --locked --features retrieval --example checked_evidence > /dev/null
 
 cargo test --no-default-features --features retrieval --test lexical_query --locked
+
+cargo test --no-default-features --features retrieval --test lexical_coverage --locked

@@ -1,6 +1,10 @@
 # AIRust roadmap
 
-0.4.6 adds explicit lexical question preparation and context-preserving evidence. Default ranking and optional MCP contracts remain. Validate against representative independent user questions before enabling these options broadly.
+## Release priorities
+
+Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
+
+0.4.7 adds optional lexical evidence coverage scoring. Default ranking and MCP contracts remain. Measure broad independent user questions before enabling a different recipe globally.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -9,6 +13,8 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.7 | Explicit lexical evidence coverage scoring | Implemented; see [API](docs/LEXICAL-COVERAGE.md) and [validation](docs/CHANGES-0.4.7.md). |
+| 0.4.6 | Explicit lexical question preparation and retained context | Implemented; see [API](docs/LEXICAL-QUERY.md) and [validation](docs/CHANGES-0.4.6.md). |
 | 0.4.5 | Explicit BM25 evidence delivery and bounded citation validation | Implemented; see [selection](docs/EVIDENCE-SELECTION.md), [citation boundaries](docs/CITATIONS.md) and [measured validation](docs/CHANGES-0.4.5.md). |
 | 0.4.4 | Less temporary construction allocation traffic | Implemented; see [core behavior](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.4.md). |
 | 0.4.3 | Faster construction and BM25 with retained memory sharing | Implemented; see [core behavior](docs/CORE-PERFORMANCE.md) and [validation](docs/CHANGES-0.4.3.md). |

@@ -1,4 +1,4 @@
-# AIRust 0.4.6
+# AIRust 0.4.7
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -6,10 +6,13 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 **Earlier 0.4.4 comparison, not a superiority claim:** a completed local experiment used the same Qwen model for 400 answers over 100 document-derived reference questions. AIRust hybrid found the reference passage in the first six results for 64/88 answerable questions; SQLite FTS5 plus the same embeddings found 66/88, simple keyword search 58/88, and AIRust BM25 alone 69/88. These are authored questions, not logged user questions. The run demonstrates no AIRust hybrid answer-quality advantage over SQLite and no material token saving. Read the [honest comparison, answer checks, timings, RAM, failures and proposed improvements](docs/HONEST-COMPARISON-0.4.4.md). That report evaluated 0.4.4 and did not publish a new version.
 
-Version 0.4.6 adds explicit, bounded lexical question preparation and a context-preserving excerpt option. Keep original identifiers, add ASCII identifier parts, inspect removed question words and preserve negation or quoted/scoped names. Prefer a full leading passage only when it preserves the original relevant window's matched terms and phrase positions. Ordinary BM25, default retrieval JSON, citation checks and MCP defaults remain unchanged. No model or DenkMaps integration is required. Read [query preparation](docs/LEXICAL-QUERY.md), [excerpt API](docs/EXCERPTS.md), [API cookbook](docs/API-COOKBOOK.md) and [current validation](docs/CHANGES-0.4.6.md).
+Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
+
+Version 0.4.7 adds an optional lexical coverage source. It balances the existing score with the share of question terms present in each candidate. You can inspect every calculation. This can help retain useful evidence while keeping strong ranks; it is not semantic understanding or an accuracy guarantee. Literal BM25 stays the default. See [coverage API](docs/LEXICAL-COVERAGE.md), [question preparation](docs/LEXICAL-QUERY.md), [citation boundaries](docs/CITATIONS.md) and [executed measurements](docs/CHANGES-0.4.7.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.7](docs/LEXICAL-COVERAGE.md) | Inspectable lexical coverage scoring. | Balance rank strength and distinct query terms without a model. |
 | [0.4.6](docs/LEXICAL-QUERY.md) | Optional question-word/identifier preparation and conservative leading context. | Inspect the real lexical query and keep more surrounding evidence. |
 | [0.4.5](docs/EVIDENCE-SELECTION.md) | Optional paragraph evidence, exact excerpt deduplication and bounded citation validation. | Spend context on distinct passages and detect references or quotations that were not supplied. |
 | [0.4.4](docs/CORE-PERFORMANCE.md) | Less temporary allocation traffic during construction. | Create and discard fewer working buffers while keeping the same index. |
@@ -39,7 +42,7 @@ Version 0.4.6 adds explicit, bounded lexical question preparation and a context-
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.6 validation passes **221 default tests, 849 all-feature checks including 38 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and five targeted Tree Borrows Miri cases pass. New tests cover query budgets, protected identifiers/negation, Unicode context, phrase locations, scopes and independent coverage checks. The retained knowledge remains **167,942 entries from 35 PDFs / 49,086 physical pages**. Read [executed checks, measurements and limits](docs/CHANGES-0.4.6.md).
+Local 0.4.7 validation passes **221 default tests, 859 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, a separate application, API compatibility and five targeted Tree Borrows Miri cases pass. New tests check coverage calculations, scopes, budgets, original positions and a patched nested-URL dependency issue. Existing MCP tests remain included. The retained knowledge remains **167,942 entries from 35 PDFs / 49,086 physical pages**. Read [executed checks, measurements and limits](docs/CHANGES-0.4.7.md).
 
 The earlier 0.4.4 10,000-entry allocator profile records **23.87% fewer build allocation operations** and **23.89% fewer cumulative allocated bytes** than 0.4.3. The completed index uses exactly the same tracked live heap; its build peak is 1 KiB higher in this trace. With just a few very long words, the temporary buffer can reserve extra space. Eight authored edge cases document this tradeoff. These are allocator measurements, not process-RAM or latency guarantees. Read the [complete measurements and limits](docs/CHANGES-0.4.4.md).
 
@@ -47,7 +50,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.4. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.7. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -59,7 +62,9 @@ In the 0.3.12 fixture with 500,000 short synthetic records and three retained co
 
 **Historical 0.4.5 comparison:** 630 local model replies cover 210 authored questions, including 48 fresh same-corpus holdout cases. On their 36 answerable questions, reference evidence is present for 28 with old BM25, 26 with optional compact delivery and 30 with SQLite hybrid. Compact delivery uses 17.4% fewer mean prompt tokens on the holdout, with changed evidence; no equal-quality saving or answer-quality advantage is established. The 72-reply anonymized assistant audit also shows no A/C semantic-quality gain. Keep ordinary BM25 as the starting configuration. See [all results, failures, costs and limits](docs/CHANGES-0.4.5.md).
 
-**Fresh 0.4.6 comparison:** 846 local model replies cover 282 authored questions, including 72 fresh same-corpus holdout cases. On their 54 answerable questions, reference evidence is present for 45 with literal BM25, 44 with prepared/leading delivery and 45 with SQLite hybrid. Reference MRR@6 is 0.723, 0.747 and 0.724. Ranks improve modestly while reference coverage does not; ordinary BM25 remains the starting configuration. Read [all answer checks, costs, failures and limits](docs/CHANGES-0.4.6.md).
+**Historical 0.4.6 comparison:** 846 local model replies cover 282 authored questions, including 72 fresh same-corpus holdout cases. On their 54 answerable questions, reference evidence is present for 45 with literal BM25, 44 with prepared/leading delivery and 45 with SQLite hybrid. Reference MRR@6 is 0.723, 0.747 and 0.724. Ranks improve modestly while reference coverage does not; ordinary BM25 remains the starting configuration. Read [all answer checks, costs, failures and limits](docs/CHANGES-0.4.6.md).
+
+**Fresh 0.4.7 comparison:** 180 new local model replies accompany 342 retrieval questions. On 48 fresh answerable questions, literal 0.4.6 BM25 finds 36 reference quotations; prepared 0.4.6 and coverage 0.4.7 each find 39. Their reference MRR@6 is 0.624, 0.659 and 0.661. Coverage adds one reference on exposed development questions, with no new reference loss against the prepared configuration. The small masked semantic review finds equal prepared/coverage results. Warm context medians are 0.879, 1.259 and 1.266 ms. These authored cases do not prove a general accuracy or speed advantage; literal BM25 remains the default. Read [answers, failed quotes, costs and limitations](docs/CHANGES-0.4.7.md).
 
 ## What it does
 
@@ -119,7 +124,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.6", default-features = false }
+airust = { version = "=0.4.7", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

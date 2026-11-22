@@ -1,0 +1,32 @@
+{
+  "version": "0.4.7",
+  "arms": {
+    "A": "registry0.4.6 literal BM25/prefix",
+    "P": "registry0.4.6 prepared BM25/leading/distinct",
+    "C": "candidate0.4.7 prepared BM25 plus half normalized lexical score/half distinct-term coverage; leading/distinct"
+  },
+  "corpus": {
+    "files": 72,
+    "chunks": 1910,
+    "source_bytes": 2755468
+  },
+  "questions": 342,
+  "exposed": 282,
+  "new_holdout": 60,
+  "positive_new": 48,
+  "unsupported_new": 12,
+  "retrieval_samples": 5130,
+  "fresh_model_replies": 180,
+  "top_k": 6,
+  "candidates": 100,
+  "per_excerpt_bytes": 2000,
+  "total_excerpt_bytes": 12000,
+  "model": "qwen3.6:35b",
+  "seed": 471107,
+  "temperature": 0,
+  "think": false,
+  "num_ctx": 16384,
+  "num_predict": 512,
+  "orders": "six permutations ten times; each arm at each position20times and each ordered pair30times",
+  "limits": "Private same-corpus assistant-authored questions, not independent humans or unseen projects; labels/clustering/multiple development probes disclosed. No SQLite hybrid rerun in this focused comparison. No fresh large-PDF speed claim."
+}
