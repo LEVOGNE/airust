@@ -218,22 +218,23 @@ fn tfidf_is_cosine_similarity_with_smoothed_idf() {
 #[test]
 fn wide_sparse_scores_match_full_scan_bits_for_both_rankers_and_cache_states() {
     use std::collections::BTreeMap;
-    let count = if cfg!(miri) { 4 } else { 48 };
+    let count = if cfg!(miri) { 4 } else { 1024 };
     let mut records: Vec<_> = (0..count)
         .map(|n| {
             let width = [4, 16, 17, 40][n % 4];
             KnowledgeEntry::new(
                 format!("prefix/é/{n:03}"),
-                (0..width)
-                    .map(|j| format!("term{} ", (n * 7 + j) % 256))
-                    .collect::<String>(),
+                "common ".to_owned()
+                    + &(0..width)
+                        .map(|j| format!("term{} ", (n * 7 + j) % 256))
+                        .collect::<String>(),
             )
             .with_metadata(json!({"scope": if n%2==0 {"even"}else{"odd"}}))
         })
         .collect();
     records.push(KnowledgeEntry::new(
         "vocabulary",
-        (0..256).map(|n| format!("term{n} ")).collect::<String>(),
+        "common ".to_owned() + &(0..256).map(|n| format!("term{n} ")).collect::<String>(),
     ));
     let index = Engine::from_entries(records).unwrap();
     let frequencies: BTreeMap<_, _> = index
@@ -247,13 +248,17 @@ fn wide_sparse_scores_match_full_scan_bits_for_both_rankers_and_cache_states() {
         }
     }
     let sizes: &[usize] = if cfg!(miri) {
-        &[32, 33, 129]
+        &[0, 1, 3, 32, 33, 129]
     } else {
-        &[32, 33, 64, 129, 256]
+        &[0, 1, 2, 3, 32, 33, 64, 129, 256]
     };
     for size in sizes {
-        let query = (0..*size).map(|n| format!("term{n} ")).collect::<String>()
-            + " term0 term0 unsupported";
+        let query = if *size == 0 {
+            "common common unsupported".to_owned()
+        } else {
+            (0..*size).map(|n| format!("term{n} ")).collect::<String>()
+                + " common term0 term0 unsupported"
+        };
         let terms = text::term_frequencies(&query);
         let known: Vec<_> = terms
             .iter()
@@ -327,13 +332,19 @@ fn wide_sparse_scores_match_full_scan_bits_for_both_rankers_and_cache_states() {
                     .into_iter()
                     .map(|(id, score, words)| (id, score.to_bits(), words))
                     .collect();
-                for _ in 0..2 {
-                    let actual: Vec<_> = index
-                        .search_with_options(&query, &options)
-                        .into_iter()
-                        .map(|h| (h.entry.id.clone(), h.score.to_bits(), h.matched_terms))
-                        .collect();
-                    assert_eq!(actual, expected);
+                for limit in [100, index.len()] {
+                    let options = SearchOptions {
+                        limit,
+                        ..options.clone()
+                    };
+                    for _ in 0..2 {
+                        let actual: Vec<_> = index
+                            .search_with_options(&query, &options)
+                            .into_iter()
+                            .map(|h| (h.entry.id.clone(), h.score.to_bits(), h.matched_terms))
+                            .collect();
+                        assert_eq!(actual.as_slice(), &expected[..expected.len().min(limit)]);
+                    }
                 }
             }
         }

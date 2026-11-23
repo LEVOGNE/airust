@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.15 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.16 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.15 removes an initial MCP progress-timer wait. Use the same Engine, Retriever, `McpServer`, `McpLimits` and tool calls. Search algorithms and Core memory layout are unchanged. Worker completion, cancellation and the original absolute deadline are selected immediately after worker launch; requested progress retains start, periodic and final updates. No new setting, schema, dependency or data migration is added. Read [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [executed measurements](CHANGES-0.4.15.md).
+Version 0.4.16 retains Engine, Retriever, SearchOptions, WorkControl, McpServer and McpLimits calls. Large small-term lexical queries may reuse exact term frequencies through bounded posting cursors. Selection is internal: no new setting, response field or data migration is introduced. Original scoring order, source positions and cancellation/deadline checks remain. Cursor storage is temporary and can add allocation traffic; persistent index fields are unchanged. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [executed comparisons](CHANGES-0.4.16.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

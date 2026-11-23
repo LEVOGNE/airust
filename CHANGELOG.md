@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.16 — Large queries through bounded posting-frequency cursors
+
+Reuse exact term frequencies from existing sorted postings on large small-term queries after enough candidates pass their filters. Keep contributions in normalized query-term order, compare live ID identity with exact-value fallback and checkpoint before seeking across gaps. Add bounded query-local scratch, with no new persistent field, dependency, API, schema or knowledge migration. Retain the 0.4.15 small-call timer behavior. Expand score oracles to 1,025 native records and test limits, gaps, IDs and cancellation. Preserve the rejected document-sweep prototype and compare fresh 0.4.14/0.4.15/0.4.16 servers, ordinary small/large MCP campaigns and direct control modes under sampled host load. No DenkMaps integration. Read [API/performance](docs/CORE-PERFORMANCE.md) and [all measurements and limits](docs/CHANGES-0.4.16.md).
+
 ## 0.4.15 — Small MCP calls without the initial timer wait
 
 Schedule the first periodic progress tick one interval later and enter the existing worker/cancellation/deadline selector immediately. Preserve start/completion notifications, missed-tick skipping, original absolute deadlines, cancellation precedence, worker admission and transport budgets. Keep Core ranking, sources, APIs, schemas, formats and dependencies. Add direct timer-poll and complete small-tool progress/payload regressions. Compare freshly built 0.4.14/0.4.15 in two nine-case MCP campaigns including 1/4/16 entries with/without progress; retain the unfavorable pilot and all Core/RAM controls. No DenkMaps integration. Read [API/MCP](docs/MCP.md) and [all measurements and limits](docs/CHANGES-0.4.15.md).

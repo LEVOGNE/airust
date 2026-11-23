@@ -1,0 +1,218 @@
+[
+  {
+    "fixture": "tiny16_bm25",
+    "entries": 16,
+    "algorithm": "bm25",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 1107.5118571428573,
+        "median": 1101.625,
+        "p95": 1145.4499,
+        "min": 1073.375,
+        "max": 1152.625
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 1146.4824285714285,
+        "median": 1147.625,
+        "p95": 1169.492,
+        "min": 1124.792,
+        "max": 1172.792
+      }
+    },
+    "candidate_time_change_percent": 4.17564960853285,
+    "allocation_blocks_per_call": {
+      "baseline": 32.0,
+      "candidate": 32.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 2712.0,
+      "candidate": 2712.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  {
+    "fixture": "tiny16_tfidf",
+    "entries": 16,
+    "algorithm": "tfidf",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 1182.9047142857144,
+        "median": 1178.0,
+        "p95": 1229.0168999999999,
+        "min": 1148.708,
+        "max": 1238.292
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 1207.267857142857,
+        "median": 1198.458,
+        "p95": 1254.5206,
+        "min": 1174.75,
+        "max": 1258.333
+      }
+    },
+    "candidate_time_change_percent": 1.7366723259762296,
+    "allocation_blocks_per_call": {
+      "baseline": 32.0,
+      "candidate": 32.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 2712.0,
+      "candidate": 2712.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  {
+    "fixture": "tiny4_bm25",
+    "entries": 4,
+    "algorithm": "bm25",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 365.86885714285717,
+        "median": 368.25,
+        "p95": 377.808,
+        "min": 355.625,
+        "max": 381.708
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 372.35742857142856,
+        "median": 371.459,
+        "p95": 377.6127,
+        "min": 369.458,
+        "max": 379.125
+      }
+    },
+    "candidate_time_change_percent": 0.871418873048202,
+    "allocation_blocks_per_call": {
+      "baseline": 16.0,
+      "candidate": 16.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 1284.0,
+      "candidate": 1284.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  {
+    "fixture": "tiny4_tfidf",
+    "entries": 4,
+    "algorithm": "tfidf",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 385.77385714285714,
+        "median": 386.125,
+        "p95": 396.4668,
+        "min": 375.833,
+        "max": 399.792
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 393.51785714285717,
+        "median": 392.458,
+        "p95": 397.90439999999995,
+        "min": 389.958,
+        "max": 399.042
+      }
+    },
+    "candidate_time_change_percent": 1.6401424409193899,
+    "allocation_blocks_per_call": {
+      "baseline": 16.0,
+      "candidate": 16.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 1284.0,
+      "candidate": 1284.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  {
+    "fixture": "tiny_bm25",
+    "entries": 1,
+    "algorithm": "bm25",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 192.476,
+        "median": 191.625,
+        "p95": 195.2623,
+        "min": 190.709,
+        "max": 195.625
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 203.30971428571428,
+        "median": 206.125,
+        "p95": 213.0502,
+        "min": 191.792,
+        "max": 214.375
+      }
+    },
+    "candidate_time_change_percent": 7.566862361382909,
+    "allocation_blocks_per_call": {
+      "baseline": 10.0,
+      "candidate": 10.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 858.0,
+      "candidate": 858.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  {
+    "fixture": "tiny_tfidf",
+    "entries": 1,
+    "algorithm": "tfidf",
+    "time_ns_per_call": {
+      "baseline": {
+        "n": 7,
+        "mean": 192.86914285714286,
+        "median": 192.334,
+        "p95": 196.8544,
+        "min": 190.083,
+        "max": 198.292
+      },
+      "candidate": {
+        "n": 7,
+        "mean": 202.48228571428572,
+        "median": 202.0,
+        "p95": 209.17079999999999,
+        "min": 194.625,
+        "max": 209.958
+      }
+    },
+    "candidate_time_change_percent": 5.025632493474896,
+    "allocation_blocks_per_call": {
+      "baseline": 10.0,
+      "candidate": 10.0
+    },
+    "allocated_bytes_per_call": {
+      "baseline": 858.0,
+      "candidate": 858.0
+    },
+    "retained_bytes_delta": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  }
+]

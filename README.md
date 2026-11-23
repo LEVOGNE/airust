@@ -1,4 +1,4 @@
-# AIRust 0.4.15
+# AIRust 0.4.16
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.15 speeds up small optional MCP calls by removing an unnecessary initial timer wait. The handler waits directly for work, cancellation or its original deadline. Requested start, periodic and completion updates remain. Core search, exact ranking, source positions, knowledge formats and Rust/MCP contracts remain. Read [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [all measurements and limits](docs/CHANGES-0.4.15.md). No DenkMaps integration is included.
+Version 0.4.16 reduces repeated work during large searches. It reuses word counts from the existing index lists, tracked by small temporary cursors in the shared Core. Small-call timer improvements remain. Public APIs, ranking, evidence, source positions and saved knowledge remain. Read [Core performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [all measurements and limits](docs/CHANGES-0.4.16.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.16](docs/CHANGES-0.4.16.md) | Reuse exact word frequencies from sorted postings for large small-term queries. | Avoid repeated word-dictionary lookups with bounded query-local state. |
 | [0.4.15](docs/CHANGES-0.4.15.md) | Remove the initial progress-timer wait from MCP calls. | Return finished small requests without waiting for an unnecessary timer wakeup. |
 | [0.4.14](docs/CHANGES-0.4.14.md) | Bounded warm hint reads and a small inline weight memo. | Reduce repeated locking and avoid an immediate 4 KiB allocation on small cold work. |
 | [0.4.13](docs/CHANGES-0.4.13.md) | Bounded request-local reuse of exact TF-IDF word weights. | Reduce repeated cold-query work while keeping persistent cache storage and ranking. |
@@ -50,7 +51,9 @@ Version 0.4.15 speeds up small optional MCP calls by removing an unnecessary ini
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.15 validation passes **234 default tests, 884 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, an independent consumer, API compatibility and sixteen targeted Tree Borrows Miri cases pass. New native regressions cover the delayed first heartbeat and identical small-tool payloads with and without progress. Existing cancellation, deadlines, stalled readers, budgets and source checks remain. Read [validation and limits](docs/CHANGES-0.4.15.md).
+Local 0.4.16 validation passes **236 default tests, 886 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and eighteen targeted Tree Borrows Miri cases pass. New regressions cover exact posting frequencies, equal IDs with different allocations, gaps and cancellation before seeking. The independent full-scan oracle now covers 1,025 native records, small/wide queries, scopes and result limits. Read [validation and limits](docs/CHANGES-0.4.16.md).
+
+**Measured 0.4.16 result:** repeated canonical MCP TF-IDF medians change by -45.84% and -45.57% against freshly built 0.4.15 in two fixed campaigns. One-entry medians change by +1.17% and -15.38%. Negative means shorter time. A separate fresh three-version control observes -47.36% versus 0.4.14 for canonical repeated TF-IDF. Both ordinary campaigns retain 180 servers and 13,880 schema-valid replies; a separate 15-server reference validates 1,020 replies. Direct control modes, temporary allocation costs, all slower cases, tails and host-load samples remain in [the complete report](docs/CHANGES-0.4.16.md). Small Core controls have 0.9–7.6% higher medians in this run. Eligible large calls add temporary cursor allocation; retained index and norm-hint memory stay unchanged in the measured controls. No universal speedup or new semantic-quality claim is made.
 
 **Measured 0.4.15 result:** one-entry repeated MCP TF-IDF medians change by -90.36% and -90.13% in two preplanned campaigns. Negative means shorter observed time. Canonical repeated TF-IDF medians change by +21.22% and +1.74%. Both versions are freshly built. The nine input/progress cases cover 1/4/16 entries with and without notifications, plus retained larger inputs. All 1,026 document responses match byte-for-byte; 180 actual MCP servers provide 13,880 schema-valid replies. Core allocation controls, RAM, slower cases and the unfavorable large-query pilot remain in [the full report](docs/CHANGES-0.4.15.md). Large-query latency is not shown to be preserved; a separate instrumented control does not explain the remaining variation.
 
@@ -72,7 +75,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.15. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.16. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -148,7 +151,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.15", default-features = false }
+airust = { version = "=0.4.16", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

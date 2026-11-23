@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.15 targets small MCP latency by removing an unnecessary timer wait while preserving progress, cancellation, absolute deadlines and bounded admission. Measure both rankers and larger inputs alongside 1/4/16-entry controls, with and without progress. Keep negative results and Core/RAM controls. Further work must follow demonstrated defects or measured bottlenecks.
+0.4.16 targets large-query regressions through bounded posting-frequency reuse in the shared Core. Preserve the small-call timer behavior, original checkpoints, ranking and public contracts. Compare full replies, direct control modes, RAM and old/new/relevant earlier versions under recorded host load. Keep slower results and rejected prototypes. Each following release should improve a concrete usage path with repeatable evidence before adding capabilities.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.16 | Large-query posting-frequency cursors | Implemented; read [performance](docs/CORE-PERFORMANCE.md), [API](docs/API-COOKBOOK.md) and [all comparisons](docs/CHANGES-0.4.16.md). |
 | 0.4.15 | Small MCP execution without the initial timer wait | Implemented; read [MCP](docs/MCP.md) and [measurements](docs/CHANGES-0.4.15.md). |
 | 0.4.14 | Warm cache-read batches and adaptive inline scratch | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.14.md). |
 | 0.4.13 | Bounded cold-query TF-IDF weight reuse | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.13.md). |

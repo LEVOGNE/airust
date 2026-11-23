@@ -108,13 +108,76 @@ struct QueryTerm<'a> {
     postings: &'a BTreeMap<Arc<str>, usize>,
 }
 
+struct TermCursor<'a> {
+    postings: &'a BTreeMap<Arc<str>, usize>,
+    rest: std::collections::btree_map::Range<'a, Arc<str>, usize>,
+    next: Option<(&'a Arc<str>, &'a usize)>,
+}
+
+impl<'a> TermCursor<'a> {
+    fn new(postings: &'a BTreeMap<Arc<str>, usize>, first: &str) -> Self {
+        let mut rest = postings
+            .range::<str, _>((std::ops::Bound::Included(first), std::ops::Bound::Unbounded));
+        let next = rest.next();
+        Self {
+            postings,
+            rest,
+            next,
+        }
+    }
+
+    fn frequency<E>(
+        &mut self,
+        id: &Arc<str>,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<Option<usize>, E> {
+        let mut skipped = 0;
+        while let Some((key, frequency)) = self.next {
+            let order = if Arc::ptr_eq(key, id) {
+                std::cmp::Ordering::Equal
+            } else {
+                key.as_ref().cmp(id.as_ref())
+            };
+            match order {
+                std::cmp::Ordering::Equal => {
+                    let frequency = *frequency;
+                    self.next = self.rest.next();
+                    return Ok(Some(frequency));
+                }
+                std::cmp::Ordering::Greater => return Ok(None),
+                std::cmp::Ordering::Less => {
+                    skipped += 1;
+                    if skipped == 32 {
+                        checkpoint()?;
+                        self.rest = self.postings.range::<str, _>((
+                            std::ops::Bound::Included(id.as_ref()),
+                            std::ops::Bound::Unbounded,
+                        ));
+                    }
+                    self.next = self.rest.next();
+                }
+            }
+        }
+        Ok(None)
+    }
+}
+
 fn matching_terms_checked<E>(
     prepared: &[QueryTerm<'_>],
     document: &IndexedEntry,
+    id: &Arc<str>,
+    cursors: Option<&mut [TermCursor<'_>]>,
     checkpoint: &mut impl FnMut() -> Result<(), E>,
     mut matched: impl FnMut(&QueryTerm<'_>, usize),
 ) -> Result<(), E> {
-    if prepared.len() > 32 && prepared.len() > document.terms.len().saturating_mul(2) {
+    if let Some(cursors) = cursors {
+        checkpoint()?;
+        for (term, cursor) in prepared.iter().zip(cursors) {
+            if let Some(frequency) = cursor.frequency(id, checkpoint)? {
+                matched(term, frequency);
+            }
+        }
+    } else if prepared.len() > 32 && prepared.len() > document.terms.len().saturating_mul(2) {
         for (position, (word, frequency)) in document.terms.iter().enumerate() {
             if position.is_multiple_of(128) {
                 checkpoint()?;
@@ -688,6 +751,8 @@ impl KnowledgeIndex {
                 )
             });
         let mut results = TopK::new(options.limit);
+        let mut admitted = 0usize;
+        let mut cursors = None;
         for (position, id) in merged
             .into_iter()
             .map(|id| id.as_ref())
@@ -724,20 +789,43 @@ impl KnowledgeIndex {
             if !includes(id) {
                 continue;
             }
+            if admitted == 128 && candidate_count >= 1024 && (1..=4).contains(&prepared.len()) {
+                cursors = Some(
+                    prepared
+                        .iter()
+                        .map(|term| TermCursor::new(term.postings, id))
+                        .collect::<Vec<_>>(),
+                );
+            }
+            admitted += 1;
             let score = match options.algorithm {
                 SearchAlgorithm::Bm25 => {
                     let norm = options.bm25.length_norm(document.length, average);
                     let mut score = 0.0;
-                    matching_terms_checked(&prepared, document, &mut checkpoint, |term, tf| {
-                        score += options.bm25.term_score(tf, term.idf, norm);
-                    })?;
+                    matching_terms_checked(
+                        &prepared,
+                        document,
+                        key,
+                        cursors.as_deref_mut(),
+                        &mut checkpoint,
+                        |term, tf| {
+                            score += options.bm25.term_score(tf, term.idf, norm);
+                        },
+                    )?;
                     score
                 }
                 SearchAlgorithm::Tfidf => {
                     let mut dot = 0.0;
-                    matching_terms_checked(&prepared, document, &mut checkpoint, |term, tf| {
-                        dot += term.frequency * tf as f64 * term.idf * term.idf;
-                    })?;
+                    matching_terms_checked(
+                        &prepared,
+                        document,
+                        key,
+                        cursors.as_deref_mut(),
+                        &mut checkpoint,
+                        |term, tf| {
+                            dot += term.frequency * tf as f64 * term.idf * term.idf;
+                        },
+                    )?;
                     let norm = self.tfidf_norm_checked(
                         key,
                         document,
@@ -1637,6 +1725,65 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    fn posting_frequency_cursor_keeps_exact_counts_and_equal_id_fallback() {
+        let count = if cfg!(miri) { 40 } else { 128 };
+        let postings: BTreeMap<Arc<str>, usize> = (0..count)
+            .map(|n| (Arc::from(format!("id{n:04}")), n % 7 + 1))
+            .collect();
+        let mut cursor = TermCursor::new(&postings, "id0000");
+        let owned: Arc<str> = Arc::from("id0000");
+        assert!(!Arc::ptr_eq(postings.first_key_value().unwrap().0, &owned));
+        let mut calls = 0;
+        for id in [
+            "id0000".to_owned(),
+            "id0001a".into(),
+            "id0002".into(),
+            format!("id{:04}", count - 1),
+            "id9999".into(),
+        ] {
+            let key: Arc<str> = if let Some((key, _)) = postings.get_key_value(id.as_str()) {
+                if id == "id0000" {
+                    owned.clone()
+                } else {
+                    key.clone()
+                }
+            } else {
+                Arc::from(id.as_str())
+            };
+            let actual = cursor
+                .frequency(&key, &mut || {
+                    calls += 1;
+                    Ok::<_, ()>(())
+                })
+                .unwrap();
+            assert_eq!(actual, postings.get(id.as_str()).copied());
+        }
+        assert_eq!(calls, 1);
+    }
+
+    #[test]
+    fn posting_frequency_cursor_checks_cancellation_before_seeking_over_a_gap() {
+        let count = if cfg!(miri) { 40 } else { 128 };
+        let postings: BTreeMap<Arc<str>, usize> = (0..count)
+            .map(|n| (Arc::from(format!("id{n:04}")), n + 1))
+            .collect();
+        let mut cursor = TermCursor::new(&postings, "id0000");
+        cursor
+            .frequency(postings.first_key_value().unwrap().0, &mut || {
+                Ok::<_, &str>(())
+            })
+            .unwrap();
+        let mut calls = 0;
+        let result = cursor.frequency(postings.last_key_value().unwrap().0, &mut || {
+            calls += 1;
+            Err("cancelled before seek")
+        });
+        assert_eq!(result, Err("cancelled before seek"));
+        assert_eq!(calls, 1);
+        assert_eq!(cursor.next.unwrap().0.as_ref(), "id0032");
+    }
     fn signature(index: &KnowledgeIndex) -> Vec<(String, u64)> {
         index
             .search_with_options(
@@ -2210,6 +2357,8 @@ mod wide_scoring_tests {
         let result = matching_terms_checked(
             &prepared,
             &index.documents["sparse"],
+            index.documents.get_key_value("sparse").unwrap().0,
+            None,
             &mut || {
                 checks += 1;
                 if checks == 2 {
