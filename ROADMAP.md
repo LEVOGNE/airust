@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.21 targets small Core regressions through less query preparation. Borrow already canonical ASCII words, preserving the original checked ranking and all other analysis. Keep the large-query cursor and compare two small three-version campaigns, all 96 cases, ordinary/large/broad MCP and heap costs. Retain rejected development variants and every slower outcome. Keep raw measurement archives on GitHub/local rather than in the registry package. Further changes should address measured application costs before adding features.
+0.4.22 targets small MCP response preparation: retain a private same-budget data check, move owned JSON and keep the full encoded-reply limit. Core code is unchanged. Two small-MCP three-version campaigns join retained Core/large/broad controls. Every slower outcome remains. Follow the [measured route to 0.5.0](docs/ROADMAP-TO-0.5.0.md) for repeated queries, worker lifecycle, memory and stability checks before adding features.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.22 | Less duplicate MCP response work | Implemented; read [API](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [measurements](docs/CHANGES-0.4.22.md). |
 | 0.4.21 | Borrowed single-word preparation for small queries | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.21.md). |
 | 0.4.20 | Bounded ordered document lookup for large searches | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [all measurements](docs/CHANGES-0.4.20.md). |
 | 0.4.19 | Shared exact broad-query explanations | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.19.md). |

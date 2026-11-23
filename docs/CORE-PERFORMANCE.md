@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.21 avoids temporary query preparation for a nonempty raw lowercase ASCII alphanumeric word. Earlier candidate collection, frequency cursors, exact broad explanations and the large document cursor remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.21.md).
+AIRust 0.4.22 keeps Core source byte-for-byte unchanged from 0.4.21. Earlier query preparation, candidate collection, frequency/document cursors and exact explanations remain. This release reduces duplicate MCP response work. Retained Core measurements are regression controls, including slower observations. Read [MCP](MCP.md) and [comparisons and limits](CHANGES-0.4.22.md).
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 

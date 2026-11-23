@@ -1,0 +1,86 @@
+{
+  "version": "0.4.22",
+  "created_at": "2026-11-23T17:01:26.462192+00:00",
+  "baseline": "exact registry0.4.21 8ce456be12218f38cffc32ed1737accbe24f8668",
+  "reference": "exact registry0.4.20 e30a055fab3dae32c8e59047fc01a2e32226dbed",
+  "scope": "Small MCP replies: move payload into response envelope; retain checked-data budget witness and full encoded-reply validation.",
+  "question_origin": "Retained342exposed authored questions, no new holdout or model-answer claim",
+  "mcp_processes_per_campaign": 90,
+  "mcp_campaigns": 2,
+  "wide_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7,
+    "extended": 7
+  },
+  "wide_primary_versions": [
+    "0.4.20",
+    "0.4.21",
+    "0.4.22"
+  ],
+  "wide_primary_processes": 63,
+  "wide_primary_expected_schema_replies": 4284,
+  "wide_primary_expected_complete_pairs": 2856,
+  "wide_extended_query_widths": [
+    32,
+    33,
+    64,
+    65,
+    128,
+    129,
+    192,
+    255,
+    256,
+    255
+  ],
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "small_matrix_cases": 96,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "host_load_sampling_seconds": 2,
+  "artifact_policy": "Archive proof then remove only /private/tmp/airust-ranking-0422-build and -miri",
+  "knowledge_policy": "Preserve PDFs/canonical knowledge, all previous sources and every negative outcome; no new PDF extraction",
+  "wide_extended_last_query": "255 known terms plus duplicate term0 and one absent term,256 unique normalized terms",
+  "wide_boundary_checks": {
+    "separate_processes": 3,
+    "rejected_requests": 12,
+    "known_term_widths": [
+      257,
+      512
+    ],
+    "bound": 256
+  },
+  "large_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7
+  },
+  "large_primary_versions": [
+    "0.4.20",
+    "0.4.21",
+    "0.4.22"
+  ],
+  "large_primary_processes": 42,
+  "large_primary_expected_schema_replies": 2856,
+  "large_primary_expected_complete_pairs": 1904,
+  "small_primary_campaigns": 2,
+  "small_primary_processes": 84,
+  "small_primary_expected_calls": 4284000,
+  "small_primary_expected_full_comparisons": 2688,
+  "small_mcp_primary_campaigns": 2,
+  "small_mcp_primary_cases": [
+    "tiny",
+    "tiny4",
+    "tiny16",
+    "tiny-no-progress",
+    "tiny4-no-progress",
+    "tiny16-no-progress"
+  ],
+  "small_mcp_triples_per_case": 7,
+  "small_mcp_primary_processes": 252,
+  "small_mcp_primary_expected_schemas": 17136,
+  "small_mcp_primary_expected_pairs": 11424,
+  "selected_runtime": "CheckedData immutablepayload+budgetwitness; revalidateotherbudget, moveValue intoexactlegacyenvelope, retainfullencodedreplycheck andalloriginalcheckpoints.",
+  "pilot": "Three rotating0.4.20/0.4.21/candidate triples; complete structured replies equal, tiny repeated BM25-8.12%/TFIDF-6.93%vs021,canonical+2.53/+5.32%andothercasesmixed. Pilotstaysoutsidefinaldata.",
+  "frozen_at": "2026-11-23T17:13:53.701303+00:00"
+}

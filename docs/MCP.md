@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.21
+# Optional MCP in AIRust 0.4.22
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.21 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.22 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -255,3 +255,9 @@ Admission, absolute deadlines, progress delivery, worker leases, disconnect canc
 Tools, arguments and response schemas remain. Ordinary Engine search, controlled search and callers using those paths can borrow a raw nonempty lowercase ASCII alphanumeric query word. Other inputs keep the original text analysis; no stemming, phrase or semantic behavior is added. The checked ranking and 0.4.20 large document cursor remain.
 
 All original query-term/candidate/scoring/winner checks, scopes, source positions, progress delivery, admission, absolute deadlines, cancellation/drain and frame/term/byte/result/rate budgets retain their contracts. Results own their matched strings; borrowed input does not escape the synchronous call. Startup indexing remains outside tool deadlines. Core nanoseconds and complete MCP round trips are different boundaries. See [actual schema/result comparisons and all slower cases](CHANGES-0.4.21.md).
+
+## Bounded response preparation in 0.4.22
+
+The worker returns a private immutable payload and the budget under which its data was checked. The response path reuses that check only when the budget is unchanged. A different budget triggers a new count. Moving the owned JSON into the envelope avoids an intermediate deep copy; field order and entire wire bytes match legacy construction. The complete CallToolResult is still counted against the original limit, including escaped text plus duplicated structured content. A data-only check never substitutes for this final reply bound.
+
+Tools, arguments, schemas, errors, progress/admission/cancellation and saved formats remain. Three new pure tests cover exact encoded boundaries, legacy wire bytes, changed budgets and oversized escaped/duplicated/enveloped replies. They also run under finite Miri without Tokio I/O. Native RPC hostile-input, timeout, disconnect and drain tests remain. Final response construction still follows worker search completion; startup and transport are outside tool-computation deadlines. See [both primary small campaigns and all retained/slower controls](CHANGES-0.4.22.md).

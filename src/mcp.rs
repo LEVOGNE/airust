@@ -474,7 +474,7 @@ impl McpServer {
             )
         }
     }
-    fn execute(&self, command: Command, control: &WorkControl) -> Result<Value, Failure> {
+    fn execute(&self, command: Command, control: &WorkControl) -> Result<CheckedData, Failure> {
         control.checkpoint().map_err(Failure::execution)?;
         match command{
             Command::Search(args)=>{
@@ -507,23 +507,27 @@ impl McpServer {
             },
         }.and_then(|value|{
             control.checkpoint().map_err(Failure::execution)?;
-            if json_fits(&value,self.limits().max_result_bytes-1024).ok()!=Some(true){
-                return Err(Failure{code:"output_budget",message:"Result exceeds the configured byte budget; request fewer or shorter results".into()});
-            }
+            let checked=CheckedData::new(value,self.limits().max_result_bytes-1024)?;
             control.checkpoint().map_err(Failure::execution)?;
-            Ok(value)
+            Ok(checked)
         })
     }
     fn response(&self, operation: &str, value: Value) -> CallToolResult {
-        if json_fits(&value, self.limits().max_result_bytes - 1024).ok() != Some(true) {
-            return self.error(
-                "output_budget",
-                "Result exceeds the configured byte budget; request fewer or shorter results",
-            );
+        match CheckedData::new(value, self.limits().max_result_bytes - 1024) {
+            Ok(value) => self.checked_response(operation, value),
+            Err(error) => self.error(error.code, &error.message),
         }
-        let result = CallToolResult::structured(
-            json!({"schema_version":1,"operation":operation,"data":value}),
-        );
+    }
+    fn checked_response(&self, operation: &str, value: CheckedData) -> CallToolResult {
+        let budget = self.limits().max_result_bytes - 1024;
+        if value.budget != budget && json_fits(&value.value, budget).ok() != Some(true) {
+            return self.error("output_budget", OUTPUT_BUDGET_MESSAGE);
+        }
+        let mut envelope = serde_json::Map::new();
+        envelope.insert("schema_version".into(), Value::from(1));
+        envelope.insert("operation".into(), Value::from(operation));
+        envelope.insert("data".into(), value.value);
+        let result = CallToolResult::structured(Value::Object(envelope));
         if json_fits(&result, self.limits().max_result_bytes - 1024).ok() == Some(true) {
             result
         } else {
@@ -551,6 +555,27 @@ impl McpServer {
         self.data.tools.clone()
     }
 }
+const OUTPUT_BUDGET_MESSAGE: &str =
+    "Result exceeds the configured byte budget; request fewer or shorter results";
+
+struct CheckedData {
+    value: Value,
+    budget: usize,
+}
+
+impl CheckedData {
+    fn new(value: Value, budget: usize) -> Result<Self, Failure> {
+        if json_fits(&value, budget).ok() == Some(true) {
+            Ok(Self { value, budget })
+        } else {
+            Err(Failure {
+                code: "output_budget",
+                message: OUTPUT_BUDGET_MESSAGE.into(),
+            })
+        }
+    }
+}
+
 fn prefix_end(text: &str, maximum: usize) -> usize {
     let mut end = text.len().min(maximum);
     while !text.is_char_boundary(end) {
@@ -986,7 +1011,7 @@ impl ServerHandler for Handler {
                     let result=match result{Ok(result)=>result,Err(_)=>Err(Failure::data("AIRust worker failed"))};
                     if let Some(progress)=&progress{sequence+=1;if let Err(error)=notify(&context,progress,sequence,if result.is_ok(){"AIRust work completed".into()}else{"AIRust work stopped with an error".into()},self.session.as_ref(),request_deadline).await{return Ok(self.error(error.code,&error.message).into());}}
                     if let Err(error)=control.checkpoint(){let error=Failure::execution(error);return Ok(self.error(error.code,&error.message).into());}
-                    return Ok(match result{Ok(value)=>self.response(name,value),Err(e)=>self.error(e.code,&e.message)}.into());
+                    return Ok(match result{Ok(value)=>self.checked_response(name,value),Err(e)=>self.error(e.code,&e.message)}.into());
                 },
                 _=interval.tick(),if progress.is_some()=>{
                     sequence+=1;let latest=state.lock().ok().and_then(|s|*s);
@@ -1008,6 +1033,115 @@ fn definitions(limits: &McpLimits) -> Vec<Tool> {
         ("airust_status","Inspect loaded entry/document counts and bounded worker usage. No source paths or credentials are returned.",json!({}),vec![]),
     ];
     specs.into_iter().map(|(name,description,properties,required)|{let schema=json!({"type":"object","properties":properties,"required":required,"additionalProperties":false}).as_object().cloned().unwrap_or_default();Tool::new(name,description,schema).with_raw_output_schema(self::schema::output(name)).with_annotations(ToolAnnotations::new().read_only(true).destructive(false).idempotent(true).open_world(false))}).collect()
+}
+
+#[cfg(test)]
+mod response_tests {
+    use super::*;
+
+    fn server(max_result_bytes: usize) -> McpServer {
+        McpServer::from_entries(
+            [KnowledgeEntry::new("entry", "bounded reply")],
+            McpLimits {
+                max_result_bytes,
+                ..Default::default()
+            },
+        )
+        .unwrap()
+    }
+
+    fn legacy(server: &McpServer, operation: &str, value: Value) -> CallToolResult {
+        let budget = server.limits().max_result_bytes - 1024;
+        if json_fits(&value, budget).ok() != Some(true) {
+            return server.error("output_budget", OUTPUT_BUDGET_MESSAGE);
+        }
+        let result = CallToolResult::structured(
+            json!({"schema_version":1,"operation":operation,"data":value}),
+        );
+        if json_fits(&result, budget).ok() == Some(true) {
+            result
+        } else {
+            server.error("output_budget", OUTPUT_BUDGET_MESSAGE)
+        }
+    }
+
+    #[test]
+    fn checked_payload_matches_independent_encoded_byte_boundaries() {
+        for value in [
+            Value::Null,
+            json!(""),
+            json!({"text":"quotes\" slash\\ newline\n tab\t nul\u{0} café 中文 😊"}),
+            json!([true, false, 42, u64::MAX, 1.125, {"nested": ["a", "b"]}]),
+        ] {
+            let bytes = serde_json::to_vec(&value).unwrap().len();
+            let checked = CheckedData::new(value.clone(), bytes).unwrap();
+            assert_eq!(checked.budget, bytes);
+            assert_eq!(checked.value, value);
+            assert!(matches!(
+                CheckedData::new(value, bytes - 1),
+                Err(Failure {
+                    code: "output_budget",
+                    ..
+                })
+            ));
+        }
+    }
+
+    #[test]
+    fn checked_reply_preserves_legacy_wire_bytes_and_rechecks_changed_budget() {
+        let server = server(4096);
+        let budget = server.limits().max_result_bytes - 1024;
+        for value in [
+            json!({}),
+            json!({"nested":["é", "中文", "😊"],"escaped":"\"\\\n\t\u{0}"}),
+            json!({"text":"x".repeat(3500)}),
+        ] {
+            let expected = legacy(&server, "airust_search", value.clone());
+            let checked = CheckedData::new(value.clone(), 65536).unwrap();
+            let result = server.checked_response("airust_search", checked);
+            assert_eq!(
+                serde_json::to_vec(&result).unwrap(),
+                serde_json::to_vec(&expected).unwrap()
+            );
+            let regular = server.response("airust_search", value.clone());
+            assert_eq!(
+                serde_json::to_vec(&regular).unwrap(),
+                serde_json::to_vec(&expected).unwrap()
+            );
+            if let Ok(checked) = CheckedData::new(value, budget) {
+                let result = server.checked_response("airust_search", checked);
+                assert_eq!(
+                    serde_json::to_vec(&result).unwrap(),
+                    serde_json::to_vec(&expected).unwrap()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn checked_reply_still_bounds_escaped_duplicate_and_envelope() {
+        let server = server(4096);
+        let budget = server.limits().max_result_bytes - 1024;
+        let value = json!({"text":"\"\\\n".repeat(200)});
+        assert!(serde_json::to_vec(&value).unwrap().len() <= budget);
+        let unbounded = CallToolResult::structured(
+            json!({"schema_version":1,"operation":"airust_search","data":value}),
+        );
+        assert!(serde_json::to_vec(&unbounded).unwrap().len() > budget);
+        let result = server.checked_response(
+            "airust_search",
+            CheckedData::new(value.clone(), budget).unwrap(),
+        );
+        assert_eq!(
+            result.structured_content.as_ref().unwrap()["error"]["code"],
+            "output_budget"
+        );
+        assert!(serde_json::to_vec(&result).unwrap().len() < 4096);
+        assert_eq!(
+            serde_json::to_vec(&result).unwrap(),
+            serde_json::to_vec(&legacy(&server, "airust_search", value)).unwrap()
+        );
+    }
 }
 
 #[cfg(test)]
