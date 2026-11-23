@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.22 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.23 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.22 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits calls remain. MCP workers carry private immutable checked data; response preparation reuses its same-budget check and moves the owned JSON into the envelope. A changed budget is rechecked, and the complete encoded reply is always bounded, including escaping and duplicate structured content. Core search, ranking, source positions, schemas, errors and saved formats remain. No new setting or dependency. Final response construction still follows worker search completion. Read [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [comparisons](CHANGES-0.4.22.md).
+Version 0.4.23 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Direct raw Core search and controlled search can borrow one repeated canonical lowercase ASCII alphanumeric word and its exact count when the raw query is at most 4,096 bytes. Longer, different, noncanonical or preanalyzed queries retain original analysis. This guard is not a new Core input limit. Results own matched strings, with unchanged scores, scopes, ordering, source positions and checkpoints. No dependency, setting, schema-shape or data migration is added. Bundled MCP retrieval uses preanalyzed maps; its implementation source is unchanged. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [comparisons](CHANGES-0.4.23.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 
