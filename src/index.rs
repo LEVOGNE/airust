@@ -693,7 +693,13 @@ impl KnowledgeIndex {
         };
         let mut merged = Vec::new();
         let mut wide = BTreeSet::new();
-        if prepared.len() <= 32 {
+        if let [term] = prepared.as_slice() {
+            merged.reserve(term.postings.len().min(32));
+            for id in term.postings.keys() {
+                visit()?;
+                merged.push(id);
+            }
+        } else if prepared.len() <= 32 {
             let mut pending = BinaryHeap::with_capacity(prepared.len());
             for term in &prepared {
                 let mut rest = term.postings.keys();
@@ -1725,6 +1731,36 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    fn single_posting_collection_checks_every_candidate_before_filtering() {
+        let index = KnowledgeIndex::from_entries(
+            (0..16).map(|n| KnowledgeEntry::new(format!("id{n:02}"), "common")),
+        )
+        .unwrap();
+        let before = index.to_json().unwrap();
+        let terms = text::term_frequencies("common");
+        let mut calls = 0;
+        let result = index.search_analyzed_checked(
+            &terms,
+            &SearchOptions::default(),
+            |_| panic!("candidate collection must finish before filtering"),
+            || {
+                calls += 1;
+                if calls == 10 {
+                    Err("interrupted")
+                } else {
+                    Ok(())
+                }
+            },
+            #[cfg(feature = "execution")]
+            None,
+        );
+        assert!(matches!(result, Err("interrupted")));
+        assert_eq!(calls, 10);
+        assert_eq!(index.to_json().unwrap(), before);
+        assert_eq!(index.search("common", 16).len(), 16);
+    }
 
     #[test]
     fn posting_frequency_cursor_keeps_exact_counts_and_equal_id_fallback() {

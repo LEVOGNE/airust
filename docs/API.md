@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.16 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.17 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.16 retains Engine, Retriever, SearchOptions, WorkControl, McpServer and McpLimits calls. Large small-term lexical queries may reuse exact term frequencies through bounded posting cursors. Selection is internal: no new setting, response field or data migration is introduced. Original scoring order, source positions and cancellation/deadline checks remain. Cursor storage is temporary and can add allocation traffic; persistent index fields are unchanged. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [executed comparisons](CHANGES-0.4.16.md).
+Version 0.4.17 retains Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits calls. One known indexed query term can use direct candidate collection; there is no public setting or response change. Multiple terms, ranking arithmetic, filters, deterministic ties, source positions, saved formats and large-query frequency reuse remain. Checkpoints still run for every posting and controlled errors return no partial results. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [executed comparisons](CHANGES-0.4.17.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

@@ -152,6 +152,56 @@ fn merged_and_wide_postings_preserve_complete_scoped_candidate_sets() {
 }
 
 #[test]
+fn single_known_term_keeps_scores_ties_scopes_and_limits_on_small_indices() {
+    let sizes: &[usize] = if cfg!(miri) {
+        &[1, 4]
+    } else {
+        &[1, 4, 16, 32, 33]
+    };
+    for &size in sizes {
+        let index = Engine::from_entries((0..size).rev().map(|n| {
+            KnowledgeEntry::new(format!("資料/{n:03}"), "café")
+                .with_metadata(json!({"group": n % 2}))
+        }))
+        .unwrap();
+        for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+            let idf = (1.0 + 0.5 / (size as f64 + 0.5)).ln();
+            let expected_score = match algorithm {
+                SearchAlgorithm::Bm25 => idf * (1.0 + 1.0 / 1.2) / (1.0 + 1.0 / 1.2),
+                SearchAlgorithm::Tfidf => 1.0,
+            };
+            for context in [None, Some(Context::new().with_metadata("group", 0))] {
+                let expected: Vec<_> = index
+                    .entries()
+                    .filter(|e| context.as_ref().is_none_or(|c| c.includes(e)))
+                    .map(|e| e.id.as_str())
+                    .collect();
+                for limit in [0, 1, size + 1] {
+                    let options = SearchOptions {
+                        limit,
+                        algorithm,
+                        context: context.clone(),
+                        ..Default::default()
+                    };
+                    for _ in 0..2 {
+                        let hits = index.search_with_options("CAFÉ cafe\u{301} absent", &options);
+                        assert_eq!(
+                            hits.iter().map(|h| h.entry.id.as_str()).collect::<Vec<_>>(),
+                            expected.iter().copied().take(limit).collect::<Vec<_>>()
+                        );
+                        for hit in hits {
+                            assert_eq!(hit.score.to_bits(), expected_score.to_bits());
+                            assert_eq!(hit.matched_terms, ["café"]);
+                        }
+                    }
+                    assert!(index.search_with_options("absent", &options).is_empty());
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn frequencies_reuse_normalized_keys_without_losing_repetitions_or_unicode() {
     use std::collections::BTreeMap;
     let mut expected = BTreeMap::new();

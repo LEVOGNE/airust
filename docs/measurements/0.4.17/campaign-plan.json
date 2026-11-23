@@ -1,0 +1,40 @@
+{
+  "version": "0.4.17",
+  "created_at": "2026-11-23T10:38:50.205913+00:00",
+  "baseline": "exact registry 0.4.16 VCS869a814934737ded051e9e2ec64a73395e3285a5",
+  "scope": "Reduce overhead of single known-term candidate collection; preserve original scoring, checkpoints and large posting cursors. Pilot separate from frozen final measurements.",
+  "question_origin": "Retained 342 exposed authored questions; no new holdout or logged traffic",
+  "artifact_policy": "Archive evidence then remove only /private/tmp/airust-ranking-0417-build and -miri",
+  "mcp_processes_per_campaign": 90,
+  "mcp_cases": [
+    "canonical",
+    "numpy",
+    "wide",
+    "tiny",
+    "tiny4",
+    "tiny16",
+    "tiny-no-progress",
+    "tiny4-no-progress",
+    "tiny16-no-progress"
+  ],
+  "mcp_campaigns": 2,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "reference_mcp_versions": [
+    "0.4.15",
+    "0.4.16",
+    "0.4.17"
+  ],
+  "host_load_sampling_seconds": 2,
+  "extra_small_reference": "Fresh exact 0.4.15, 0.4.16 and candidate 0.4.17 rotate in 7 triples, small_time1000 plus broader single/multiple/repeated/unknown/filter cases, final and confirmation; all samples preserved",
+  "knowledge_policy": "Keep all PDFs, source knowledge and raw results",
+  "frozen_at": "2026-11-23T10:41:45.914182+00:00",
+  "small_matrix_cases": 96,
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "reference_known_registry_commits": {
+    "0.4.15": "6ac8f081b46bc63cbc9c999e0b88d944524fc62e",
+    "0.4.16": "869a814934737ded051e9e2ec64a73395e3285a5"
+  }
+}

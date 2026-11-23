@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.17 — Less small-query candidate overhead
+
+Read one known term's sorted, unique candidate list directly instead of constructing a one-list merge heap. Bound the initial borrowed-ID reservation to 32 entries or the smaller posting count. Keep every posting checkpoint and progress count, original ranking/filter/score order, large-query frequency cursors, norm hints and the small MCP timer behavior. Add hand-calculated small-index score/tie/Unicode/scope/limit checks and candidate-collection interruption recovery. Compare fresh 0.4.15/0.4.16/0.4.17 in two small Core campaigns with 96 extended cases, alongside direct controls, full MCP comparisons and memory measurements. No new dependency, default feature, public API, schema, saved-format migration or DenkMaps integration. Read [API/performance](docs/CORE-PERFORMANCE.md) and [all measurements and limits](docs/CHANGES-0.4.17.md).
+
 ## 0.4.16 — Large queries through bounded posting-frequency cursors
 
 Reuse exact term frequencies from existing sorted postings on large small-term queries after enough candidates pass their filters. Keep contributions in normalized query-term order, compare live ID identity with exact-value fallback and checkpoint before seeking across gaps. Add bounded query-local scratch, with no new persistent field, dependency, API, schema or knowledge migration. Retain the 0.4.15 small-call timer behavior. Expand score oracles to 1,025 native records and test limits, gaps, IDs and cancellation. Preserve the rejected document-sweep prototype and compare fresh 0.4.14/0.4.15/0.4.16 servers, ordinary small/large MCP campaigns and direct control modes under sampled host load. No DenkMaps integration. Read [API/performance](docs/CORE-PERFORMANCE.md) and [all measurements and limits](docs/CHANGES-0.4.16.md).

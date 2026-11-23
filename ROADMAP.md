@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.16 targets large-query regressions through bounded posting-frequency reuse in the shared Core. Preserve the small-call timer behavior, original checkpoints, ranking and public contracts. Compare full replies, direct control modes, RAM and old/new/relevant earlier versions under recorded host load. Keep slower results and rejected prototypes. Each following release should improve a concrete usage path with repeatable evidence before adding capabilities.
+0.4.17 targets the measured small Core regressions by avoiding a merge for one already sorted candidate list. Keep the large-query frequency cursors, original checkpoints, exact ranking and public contracts. Compare fresh 0.4.15/0.4.16/0.4.17 small controls, a broad query/filter matrix and full MCP round trips under recorded host load. Preserve every slower outcome. Following releases should improve a demonstrated usage path before adding capabilities.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.17 | Direct collection for one known query term | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [all comparisons](docs/CHANGES-0.4.17.md). |
 | 0.4.16 | Large-query posting-frequency cursors | Implemented; read [performance](docs/CORE-PERFORMANCE.md), [API](docs/API-COOKBOOK.md) and [all comparisons](docs/CHANGES-0.4.16.md). |
 | 0.4.15 | Small MCP execution without the initial timer wait | Implemented; read [MCP](docs/MCP.md) and [measurements](docs/CHANGES-0.4.15.md). |
 | 0.4.14 | Warm cache-read batches and adaptive inline scratch | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.14.md). |

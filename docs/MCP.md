@@ -223,3 +223,9 @@ To request progress, pass `_meta: {"progressToken": "unique-request-token"}` in 
 Use the same airust_search arguments and algorithm values. The central Engine can reuse frequencies from sorted postings on large small-term requests, reducing repeated document word-map lookup. No tool, argument, result field or startup work is added. Scores, source positions, scopes and exact responses remain. The cursor state is temporary and bounded; large calls can allocate extra query scratch while persistent index memory remains.
 
 The 0.4.15 timer behavior remains: immediate completion/cancellation/deadline selection, requested start/completion and delayed periodic updates. Admission, cooperative checks, notification delivery limits, disconnect drain and byte/rate/result budgets remain. Faster calls do not increase configured allowances. Read [all small/large timings, direct control modes, earlier-version reference and limits](CHANGES-0.4.16.md).
+
+## Shared Core candidate collection in 0.4.17
+
+Use the existing tools, arguments and algorithms. A query with one known indexed term can skip merging its single candidate list in the central Engine. Multiple terms and the previous large-query frequency reuse retain their strategies. Scores, scopes, evidence, source positions, schemas and saved collections retain their contracts. No new endpoint, argument or startup work is added.
+
+Every posting still checks the cooperative control. Worker admission, progress/start/completion delivery bounds, absolute deadlines, connection cancellation/drain and frame/rate/result limits remain. Small Core improvements do not imply equal changes in MCP round trips. Read [initial/repeated transport results, small Core controls and negative outcomes](CHANGES-0.4.17.md).

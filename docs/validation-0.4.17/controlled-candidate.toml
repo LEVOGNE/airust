@@ -1,0 +1,14 @@
+[package]
+name="controlled-candidate"
+version="0.0.0"
+edition="2021"
+publish=false
+[dependencies]
+airust={version="=0.4.17",default-features=false,features=["retrieval","execution"]}
+serde_json="1"
+[profile.release]
+lto="thin"
+codegen-units=1
+[[bin]]
+name="controlled-candidate"
+path="controlled_work.rs"

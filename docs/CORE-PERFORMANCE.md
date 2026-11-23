@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.16 reuses posting frequencies on eligible large searches, adding bounded query-local cursor state. Read the latest section below and the [complete current measurements](CHANGES-0.4.16.md). The earlier construction/storage work remains the foundation described here.
+AIRust 0.4.17 reduces small Core candidate-collection overhead for one known query term. The 0.4.16 large-query frequency cursors remain. Read the latest section below and [all current measurements and limits](CHANGES-0.4.17.md). Earlier construction/storage work remains the foundation described here.
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -134,3 +134,9 @@ Core algorithms and memory structures are unchanged. The optional MCP handler re
 The candidate union and document lookup remain. With at least 1,024 candidates and 1–4 known query terms, after 128 candidates pass context/custom filters the query can create a small Vec of posting-frequency cursors. Each reads exact per-document term frequency from its existing sorted posting map in original query-term order. A live Arc ID identity shortcut has an exact string fallback. After 32 skipped entries the cursor checkpoints and seeks a lower bound instead of linearly walking a long gap.
 
 All original checkpoints and floating-point additions remain. Cursor state is query-local and dropped on error/completion. It adds temporary allocation traffic to eligible large calls, with no persistent index field or per-document cache. Small/narrow/wider-term queries keep the prior path. Filtered gaps may pay seek overhead; no universal speedup is promised. The existing IDF memo, norm cache, invalidation, retained clones and source bindings remain. A slower ordered-document prototype was rejected. Read [both ordinary campaigns, direct controls, three-version reference and heap/RAM](CHANGES-0.4.16.md).
+
+## Single known-term queries in 0.4.17
+
+A prepared query with exactly one indexed term already has one sorted, unique posting list. Candidate collection now reads that list directly, calling the same checkpoint/progress visitor on every ID. It avoids constructing the heap used to merge several lists. The borrowed-ID Vec initially reserves the smaller of 32 and the posting count; it can grow for larger candidate sets, just as before. The initial bound is not a total candidate or RAM bound. Repeated/unknown words can still leave exactly one known term; query preparation and scoring retain their existing semantics.
+
+Multiple known terms keep the heap/set strategies. Candidate order, filters, original score arithmetic, norm hints, winner explanations and large-query frequency cursors remain. No scratch is retained by the index and no unsafe code, field, dependency or public option is added. Existing checkpoints and cancellation/deadline precedence remain. Direct Core, full retrieval and MCP transport have different costs: read [both fresh three-version small campaigns, the 96-case extension, allocation controls and all larger/slower cases](CHANGES-0.4.17.md).
