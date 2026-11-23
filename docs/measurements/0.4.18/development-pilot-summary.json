@@ -1,0 +1,132 @@
+{
+  "scope": "Development only:3fresh rotating 0.4.16/0.4.17/0.4.18 triples; no pilot samples enter final timing",
+  "registry_vcs": {
+    "reference": "869a814934737ded051e9e2ec64a73395e3285a5",
+    "baseline": "c82e61530c201eed1967293fc0e117ee42a3e1c2"
+  },
+  "complete_responses_equal": true,
+  "small": {
+    "tiny16_bm25": {
+      "reference": 1139.208,
+      "baseline": 1003.5,
+      "candidate": 972.042
+    },
+    "tiny16_tfidf": {
+      "reference": 1200.292,
+      "baseline": 1067.542,
+      "candidate": 1032.875
+    },
+    "tiny4_bm25": {
+      "reference": 376.208,
+      "baseline": 343.0,
+      "candidate": 333.708
+    },
+    "tiny4_tfidf": {
+      "reference": 400.041,
+      "baseline": 362.417,
+      "candidate": 355.125
+    },
+    "tiny_bm25": {
+      "reference": 207.25,
+      "baseline": 189.375,
+      "candidate": 177.833
+    },
+    "tiny_tfidf": {
+      "reference": 202.625,
+      "baseline": 189.583,
+      "candidate": 176.917
+    }
+  },
+  "controlled": {
+    "plain": {
+      "Bm25": {
+        "reference": 1.9837705,
+        "baseline": 1.984583,
+        "candidate": 1.732646
+      },
+      "Tfidf": {
+        "reference": 2.2185414999999997,
+        "baseline": 2.1778545,
+        "candidate": 1.9329585
+      }
+    },
+    "deadline": {
+      "Bm25": {
+        "reference": 2.2162715,
+        "baseline": 2.228979,
+        "candidate": 2.040167
+      },
+      "Tfidf": {
+        "reference": 2.5207915,
+        "baseline": 2.5037085,
+        "candidate": 2.2806040000000003
+      }
+    },
+    "progress": {
+      "Bm25": {
+        "reference": 2.231625,
+        "baseline": 2.2385415,
+        "candidate": 2.041187
+      },
+      "Tfidf": {
+        "reference": 2.4821465,
+        "baseline": 2.4943125,
+        "candidate": 2.2835625
+      }
+    }
+  },
+  "mcp": {
+    "canonical": {
+      "initial": {
+        "bm25": {
+          "reference": 3.198812482878566,
+          "baseline": 3.2358538592234254,
+          "candidate": 3.02462512627244
+        },
+        "tfidf": {
+          "reference": 16.45508361980319,
+          "baseline": 16.535708447918296,
+          "candidate": 17.676333081908524
+        }
+      },
+      "warm": {
+        "bm25": {
+          "reference": 2.681750454939902,
+          "baseline": 2.840603468939662,
+          "candidate": 2.5738540571182966
+        },
+        "tfidf": {
+          "reference": 3.038166440092027,
+          "baseline": 3.0181669862940907,
+          "candidate": 2.852875040844083
+        }
+      }
+    },
+    "tiny": {
+      "initial": {
+        "bm25": {
+          "reference": 0.13468752149492502,
+          "baseline": 0.1306043704971671,
+          "candidate": 0.13104197569191456
+        },
+        "tfidf": {
+          "reference": 0.13352103997021914,
+          "baseline": 0.1315210247412324,
+          "candidate": 0.12877106200903654
+        }
+      },
+      "warm": {
+        "bm25": {
+          "reference": 0.12104155030101538,
+          "baseline": 0.11937494855374098,
+          "candidate": 0.11789659038186073
+        },
+        "tfidf": {
+          "reference": 0.11985399760305882,
+          "baseline": 0.11725001968443394,
+          "candidate": 0.11479156091809273
+        }
+      }
+    }
+  }
+}

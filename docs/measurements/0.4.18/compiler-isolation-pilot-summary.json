@@ -1,0 +1,129 @@
+{
+  "scope": "Separate codegen-isolation pilot: same0.4.18 merge algorithm with/without inline-never vs registry0.4.17; five rotating triples; all earlier final samples retained, no merging or causal claim from host load",
+  "complete_responses_equal": true,
+  "arms": {
+    "baseline": "Registry0.4.17",
+    "initial": "Initial0.4.18 auto-inline sourceS1",
+    "isolated": "0.4.18 inline-never sourceS2"
+  },
+  "small": {
+    "tiny16_bm25": {
+      "baseline": 991.542,
+      "initial": 988.917,
+      "isolated": 994.666
+    },
+    "tiny16_tfidf": {
+      "baseline": 1055.541,
+      "initial": 1058.25,
+      "isolated": 1055.0
+    },
+    "tiny4_bm25": {
+      "baseline": 351.75,
+      "initial": 340.083,
+      "isolated": 349.708
+    },
+    "tiny4_tfidf": {
+      "baseline": 363.25,
+      "initial": 360.333,
+      "isolated": 368.75
+    },
+    "tiny_bm25": {
+      "baseline": 200.875,
+      "initial": 183.458,
+      "isolated": 189.25
+    },
+    "tiny_tfidf": {
+      "baseline": 194.417,
+      "initial": 181.958,
+      "isolated": 187.5
+    }
+  },
+  "mcp": {
+    "initial": {
+      "bm25": {
+        "baseline": 3.384875599294901,
+        "initial": 3.5445834510028362,
+        "isolated": 3.12904198653996
+      },
+      "tfidf": {
+        "baseline": 19.174895947799087,
+        "initial": 21.157770534045994,
+        "isolated": 18.655603984370828
+      }
+    },
+    "warm": {
+      "bm25": {
+        "baseline": 3.0181880574673414,
+        "initial": 3.170208539813757,
+        "isolated": 2.7760210214182734
+      },
+      "tfidf": {
+        "baseline": 3.4271874465048313,
+        "initial": 3.8601255510002375,
+        "isolated": 3.109187469817698
+      }
+    }
+  },
+  "initial_tfidf_mean": {
+    "baseline": 16.008714227937162,
+    "initial": 20.206693382933736,
+    "isolated": 15.956195024773479
+  },
+  "initial_tfidf_process_sum_median": {
+    "baseline": 157.4768756981939,
+    "initial": 174.32095762342215,
+    "isolated": 153.96275091916323
+  },
+  "initial_tfidf_per_query": {
+    "0": {
+      "baseline": 22.843250073492527,
+      "initial": 24.8609590344131,
+      "isolated": 22.703666938468814
+    },
+    "1": {
+      "baseline": 22.98383298330009,
+      "initial": 25.12704092077911,
+      "isolated": 24.048833176493645
+    },
+    "2": {
+      "baseline": 32.449624966830015,
+      "initial": 38.086957996711135,
+      "isolated": 33.20379205979407
+    },
+    "3": {
+      "baseline": 1.4621249865740538,
+      "initial": 1.9457079470157623,
+      "isolated": 1.4994170051068068
+    },
+    "4": {
+      "baseline": 14.530499931424856,
+      "initial": 16.713582910597324,
+      "isolated": 15.331625007092953
+    },
+    "5": {
+      "baseline": 26.339999865740538,
+      "initial": 29.122959123924375,
+      "isolated": 26.390915969386697
+    },
+    "6": {
+      "baseline": 4.829500103369355,
+      "initial": 6.4920419827103615,
+      "isolated": 4.8017920926213264
+    },
+    "7": {
+      "baseline": 26.885000057518482,
+      "initial": 30.778707936406136,
+      "isolated": 26.52954193763435
+    },
+    "8": {
+      "baseline": 3.000000026077032,
+      "initial": 3.4890410024672747,
+      "isolated": 3.127124859020114
+    },
+    "9": {
+      "baseline": 0.1241669524461031,
+      "initial": 0.1527499407529831,
+      "isolated": 0.11820811778306961
+    }
+  }
+}

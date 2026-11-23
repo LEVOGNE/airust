@@ -1,0 +1,3 @@
+# Initial unpublished AIRust 0.4.18 candidate
+
+These are the complete sanitized comparisons of source S1 before the compiler-isolation follow-up. Its initial canonical TF-IDF medians were higher than 0.4.17, so it was not published. Read the [selected-source report](../../../CHANGES-0.4.18.md) and [preservation mapping](preservation-record.json). No samples are merged or deleted. Raw source documents, complete transcripts, programs, locks and source S1 stay in the local lab. Original method hash records retain their original path prefix; the mapping locates retained initial files. Source S1 differs from selected source S2 only by the absence of inline-never on merge_pair_checked.

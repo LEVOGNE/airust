@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.17 reduces small Core candidate-collection overhead for one known query term. The 0.4.16 large-query frequency cursors remain. Read the latest section below and [all current measurements and limits](CHANGES-0.4.17.md). Earlier construction/storage work remains the foundation described here.
+AIRust 0.4.18 directly merges candidate lists for exactly two known query terms. The single-term path and large-query frequency cursors remain. Read the latest section below and [all current comparisons and limits](CHANGES-0.4.18.md). Earlier construction/storage work remains the foundation described here.
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -140,3 +140,9 @@ All original checkpoints and floating-point additions remain. Cursor state is qu
 A prepared query with exactly one indexed term already has one sorted, unique posting list. Candidate collection now reads that list directly, calling the same checkpoint/progress visitor on every ID. It avoids constructing the heap used to merge several lists. The borrowed-ID Vec initially reserves the smaller of 32 and the posting count; it can grow for larger candidate sets, just as before. The initial bound is not a total candidate or RAM bound. Repeated/unknown words can still leave exactly one known term; query preparation and scoring retain their existing semantics.
 
 Multiple known terms keep the heap/set strategies. Candidate order, filters, original score arithmetic, norm hints, winner explanations and large-query frequency cursors remain. No scratch is retained by the index and no unsafe code, field, dependency or public option is added. Existing checkpoints and cancellation/deadline precedence remain. Direct Core, full retrieval and MCP transport have different costs: read [both fresh three-version small campaigns, the 96-case extension, allocation controls and all larger/slower cases](CHANGES-0.4.17.md).
+
+## Two known-term queries in 0.4.18
+
+For exactly two known indexed terms, compare the current IDs of both already sorted posting lists. Append the lower ID, or append once and advance both lists when equal. A live Arc identity shortcut uses exact string order when allocations differ. Both sides of an overlap still invoke the same posting visitor, as does every remaining tail ID. No cancellation/deadline check or progress visit is removed. More than two terms retain the previous heap/set strategies; one term keeps the 0.4.17 direct path.
+
+The private helper uses an inline-never boundary to keep merge iterator work outside the caller. The candidate Vec initially reserves min(32, the larger posting count) borrowed slots and can grow with input. Two temporary iterator states replace the pair's temporary heap. There is no persistent index field, new cache, dependency or public option. Heap profiles exclude iterator/stack state; fewer temporary allocations do not imply a total RAM bound. Original scoring/frequency reuse, filters, ties and explanations remain. Read [two ordinary MCP campaigns, direct controls, fresh three-version references, all small guards and slower cases](CHANGES-0.4.18.md).

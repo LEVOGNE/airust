@@ -1,0 +1,44 @@
+{
+  "scope": "Initial unpublished sourceS1, retained and rejected before publication; not selected-source final samples",
+  "stage_log_complete": true,
+  "compatibility": {
+    "mcp-compatibility.json": {
+      "structured_results_compared": 3470,
+      "responses_paired_by_request_id": true,
+      "all_equal_except_explicit_status_version": true,
+      "all_advertised_output_schemas_equal_except_expected_version_urn": true,
+      "processes": 90,
+      "input_files_unchanged": true
+    },
+    "reference-compatibility.json": {
+      "processes": 15,
+      "versions": {
+        "reference-0416": "0.4.16",
+        "baseline": "0.4.17",
+        "candidate": "0.4.18"
+      },
+      "complete_response_comparisons": 680,
+      "schema_validated_results": 1020,
+      "complete_payloads_equal_except_status_version": true,
+      "tool_schemas_equal_except_asserted_version_urn": true,
+      "canonical_input_unchanged": true,
+      "scope": "Separate rotating three-version canonical control; same programs/data; fresh0.4.16/0.4.17/0.4.18 builds. No samples merged into the two ordinary campaigns."
+    },
+    "controlled-compatibility.json": {
+      "processes": 14,
+      "timed_calls": 8400,
+      "initial_full_response_comparisons": 140,
+      "all_original_responses_equal": true,
+      "all_timing_signatures_equal": true,
+      "scope": "Warm canonical Retriever calls in one process with plain/deadline/progress controls, rotated within each round; no stdio transport, startup or profiler in call timer. Private readiness retains full JSON."
+    },
+    "retrieval-compatibility.json": {
+      "complete_response_comparisons": 1026,
+      "byte_identical": true,
+      "warm_samples": 10260,
+      "questions": 342,
+      "configs": 3,
+      "no_fresh_holdout_or_semantic_quality_claim": true
+    }
+  }
+}

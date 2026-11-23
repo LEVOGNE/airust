@@ -229,3 +229,9 @@ The 0.4.15 timer behavior remains: immediate completion/cancellation/deadline se
 Use the existing tools, arguments and algorithms. A query with one known indexed term can skip merging its single candidate list in the central Engine. Multiple terms and the previous large-query frequency reuse retain their strategies. Scores, scopes, evidence, source positions, schemas and saved collections retain their contracts. No new endpoint, argument or startup work is added.
 
 Every posting still checks the cooperative control. Worker admission, progress/start/completion delivery bounds, absolute deadlines, connection cancellation/drain and frame/rate/result limits remain. Small Core improvements do not imply equal changes in MCP round trips. Read [initial/repeated transport results, small Core controls and negative outcomes](CHANGES-0.4.17.md).
+
+## Two-list Core merging in 0.4.18
+
+Existing tools, arguments and algorithms remain. The shared Engine can directly merge exactly two known terms' sorted candidate lists. It keeps both overlap visits and every tail checkpoint, then uses the same scoring, scopes, source positions and result schemas. One-term, wider-query and large-scoring strategies remain. No endpoint, startup work or feature dependency is added.
+
+Progress delivery, admission, worker leases, original absolute deadlines, connection cancellation/drain and frame/rate/result budgets keep their contracts. Direct Core gains and full transport latency have different costs. Read [initial/repeated MCP results, complete response checks, small guards and all negative observations](CHANGES-0.4.18.md).

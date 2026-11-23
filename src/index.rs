@@ -220,6 +220,49 @@ impl Ord for PostingCursor<'_> {
     }
 }
 
+#[inline(never)]
+fn merge_pair_checked<'a, E>(
+    left: &'a BTreeMap<Arc<str>, usize>,
+    right: &'a BTreeMap<Arc<str>, usize>,
+    candidates: &mut Vec<&'a Arc<str>>,
+    visit: &mut impl FnMut() -> Result<(), E>,
+) -> Result<(), E> {
+    candidates.reserve(left.len().max(right.len()).min(32));
+    let mut left = left.keys();
+    let mut right = right.keys();
+    let mut first = left.next();
+    let mut second = right.next();
+    while let (Some(a), Some(b)) = (first, second) {
+        let order = if Arc::ptr_eq(a, b) {
+            std::cmp::Ordering::Equal
+        } else {
+            a.as_ref().cmp(b.as_ref())
+        };
+        visit()?;
+        match order {
+            std::cmp::Ordering::Less => {
+                candidates.push(a);
+                first = left.next();
+            }
+            std::cmp::Ordering::Greater => {
+                candidates.push(b);
+                second = right.next();
+            }
+            std::cmp::Ordering::Equal => {
+                visit()?;
+                candidates.push(a);
+                first = left.next();
+                second = right.next();
+            }
+        }
+    }
+    for id in first.into_iter().chain(left).chain(second).chain(right) {
+        visit()?;
+        candidates.push(id);
+    }
+    Ok(())
+}
+
 struct TokenBatch<'a> {
     counts: Vec<(&'a str, usize)>,
     length: usize,
@@ -699,6 +742,8 @@ impl KnowledgeIndex {
                 visit()?;
                 merged.push(id);
             }
+        } else if let [left, right] = prepared.as_slice() {
+            merge_pair_checked(left.postings, right.postings, &mut merged, &mut visit)?;
         } else if prepared.len() <= 32 {
             let mut pending = BinaryHeap::with_capacity(prepared.len());
             for term in &prepared {
@@ -1731,6 +1776,112 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    fn paired_postings_match_independent_union_with_shared_and_equal_ids() {
+        let ids: Vec<Arc<str>> = ["a\0b", "e\u{301}", "z", "é", "資料/😀"]
+            .into_iter()
+            .map(Arc::from)
+            .collect();
+        for left_mask in [0usize, 1, 7, 31] {
+            for right_mask in [0usize, 2, 15, 31] {
+                let left: BTreeMap<_, _> = ids
+                    .iter()
+                    .enumerate()
+                    .filter(|(n, _)| left_mask & (1 << n) != 0)
+                    .map(|(n, id)| (id.clone(), n + 1))
+                    .collect();
+                let right: BTreeMap<_, _> = ids
+                    .iter()
+                    .enumerate()
+                    .filter(|(n, _)| right_mask & (1 << n) != 0)
+                    .map(|(n, id)| {
+                        let key = if n % 2 == 0 {
+                            Arc::from(id.as_ref())
+                        } else {
+                            id.clone()
+                        };
+                        (key, n + 2)
+                    })
+                    .collect();
+                let expected: BTreeSet<_> = left
+                    .keys()
+                    .chain(right.keys())
+                    .map(|id| id.as_ref())
+                    .collect();
+                let mut candidates = Vec::new();
+                let mut calls = 0;
+                merge_pair_checked(&left, &right, &mut candidates, &mut || {
+                    calls += 1;
+                    Ok::<_, ()>(())
+                })
+                .unwrap();
+                assert_eq!(calls, left.len() + right.len());
+                assert_eq!(
+                    candidates.iter().map(|id| id.as_ref()).collect::<Vec<_>>(),
+                    expected.into_iter().collect::<Vec<_>>()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn paired_postings_can_interrupt_every_visit_including_overlap_and_tails() {
+        for (a, b) in [
+            (vec!["a", "c", "e"], vec!["a", "b", "d", "f"]),
+            (vec!["a", "b"], vec![]),
+            (vec![], vec!["a", "b"]),
+        ] {
+            let left: BTreeMap<Arc<str>, usize> =
+                a.into_iter().map(|id| (Arc::from(id), 1)).collect();
+            let right: BTreeMap<Arc<str>, usize> =
+                b.into_iter().map(|id| (Arc::from(id), 2)).collect();
+            for stop in 1..=left.len() + right.len() {
+                let mut candidates = Vec::new();
+                let mut calls = 0;
+                let result = merge_pair_checked(&left, &right, &mut candidates, &mut || {
+                    calls += 1;
+                    if calls == stop {
+                        Err("interrupted")
+                    } else {
+                        Ok(())
+                    }
+                });
+                assert_eq!(result, Err("interrupted"));
+                assert_eq!(calls, stop);
+            }
+        }
+    }
+
+    #[test]
+    fn paired_posting_collection_rejects_partial_results_before_filtering() {
+        let index = KnowledgeIndex::from_entries(
+            (0..16).map(|n| KnowledgeEntry::new(format!("id{n:02}"), "common second")),
+        )
+        .unwrap();
+        let before = index.to_json().unwrap();
+        let terms = text::term_frequencies("common second absent");
+        let mut calls = 0;
+        let result = index.search_analyzed_checked(
+            &terms,
+            &SearchOptions::default(),
+            |_| panic!("candidate collection must finish before filtering"),
+            || {
+                calls += 1;
+                if calls == 10 {
+                    Err("interrupted")
+                } else {
+                    Ok(())
+                }
+            },
+            #[cfg(feature = "execution")]
+            None,
+        );
+        assert!(matches!(result, Err("interrupted")));
+        assert_eq!(calls, 10);
+        assert_eq!(index.to_json().unwrap(), before);
+        assert_eq!(index.search("common second", 16).len(), 16);
+    }
 
     #[test]
     fn single_posting_collection_checks_every_candidate_before_filtering() {

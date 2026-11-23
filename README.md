@@ -1,4 +1,4 @@
-# AIRust 0.4.17
+# AIRust 0.4.18
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.17 removes unnecessary work from small searches. If only one known search word is present, the Core reads its existing sorted result list directly. Repeated and unknown words retain their established meaning. Large-search improvements, APIs, ranking, evidence, source positions and saved knowledge remain. Read [Core performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [all measurements and limits](docs/CHANGES-0.4.17.md). No DenkMaps integration is included.
+Version 0.4.18 reduces work when a search has two known words. Their sorted lists of matching entries are combined directly, avoiding a general merge heap. The small-query and large-scoring improvements from previous releases remain. Applications keep the same API, ranking, evidence, source positions and saved knowledge. Read [Core performance](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [all measurements and limits](docs/CHANGES-0.4.18.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.18](docs/CHANGES-0.4.18.md) | Combine two matching word lists directly. | Reduce merge overhead on large searches, keeping exact results and cooperative checks. |
 | [0.4.17](docs/CHANGES-0.4.17.md) | Read a single known-term candidate list directly. | Reduce small Core overhead while retaining the large-query optimization. |
 | [0.4.16](docs/CHANGES-0.4.16.md) | Reuse exact word frequencies from sorted postings for large small-term queries. | Avoid repeated word-dictionary lookups with bounded query-local state. |
 | [0.4.15](docs/CHANGES-0.4.15.md) | Remove the initial progress-timer wait from MCP calls. | Return finished small requests without waiting for an unnecessary timer wakeup. |
@@ -52,7 +53,11 @@ Version 0.4.17 removes unnecessary work from small searches. If only one known s
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.17 validation passes **238 default tests, 888 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and twenty finite Tree Borrows Miri cases pass. New regressions check exact small-index scores, ties, scopes, limits, repeated/unknown Unicode terms and interruption during candidate collection. Existing full-scan, mutation, source-position and hostile-MCP regressions remain. Read [validation and limits](docs/CHANGES-0.4.17.md).
+Local 0.4.18 validation passes **241 default tests, 891 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and twenty-three finite Tree Borrows Miri cases pass. Three new regressions check independent union results, shared/separately allocated equal IDs, Unicode/control IDs, overlap/tails and interruption before partial results can escape. Existing full-scan, small-index, mutation, source-position and hostile-MCP checks remain. Read [validation and limits](docs/CHANGES-0.4.18.md).
+
+**Measured 0.4.18 result:** in two fixed campaigns, repeated large-corpus MCP TF-IDF medians are 34.76% and 13.45% shorter than freshly built 0.4.17. Initial TF-IDF medians are 19.08% and 2.70% shorter. Direct large-search controls have about 10–14% shorter medians. Both ordinary campaigns validate 13,880 actual replies, and complete compared responses agree. The same API and saved knowledge remain.
+
+**0.4.18 limits:** results are mixed. A separate fresh three-version reference has a 6.09% higher repeated TF-IDF median than 0.4.17 and 1.27% higher than 0.4.16. A synthetic wide case has a 67.35% higher median in one ordinary campaign; a separate ten-pair follow-up observes 3.58% higher and keeps the original result. Small Core guards range from -1.83% to +2.31% and -14.61% to +1.04%; all 96 extended cases and 4,284,000 calls remain. The rejected initial candidate, compiler-isolation pilot, per-query costs, process totals, RAM and external load are retained in [the complete report](docs/CHANGES-0.4.18.md). No universal speedup, statistical significance or new semantic-quality claim is made.
 
 **Measured 0.4.17 result:** original six warm 1/4/16-entry Core cases have median changes of -14.99% to -3.67% in one fresh three-version campaign and -19.06% to -5.53% in its separate confirmation, versus 0.4.16. Negative means shorter time. Both include an earlier 0.4.15 reference and a fixed 96-case extension; all 4,284,000 timed calls and slower outcomes are retained. Canonical repeated MCP TF-IDF median changes are -1.73% and +0.99% versus 0.4.16; a separate fresh reference records -43.10% versus 0.4.15. That separate reference is +9.50% versus 0.4.16, so it does not establish preserved latency against every 0.4.16 workload. Core gains do not imply equal MCP round-trip gains: the largest repeated MCP median rise in the two ordinary campaigns is +7.37% (tiny, tfidf, campaign 2). Both ordinary campaigns validate 13,880 actual replies. Temporary allocations, all slower rows, p95, RAM and host load remain in [the complete report](docs/CHANGES-0.4.17.md). No universal speedup or new semantic-quality claim is made.
 
@@ -78,7 +83,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.17. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.18. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -154,7 +159,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.17", default-features = false }
+airust = { version = "=0.4.18", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
