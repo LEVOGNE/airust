@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.23
+# Optional MCP in AIRust 0.4.24
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.23 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.24 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -78,7 +78,7 @@ The immutable server is cloneable. Clones share the index, snapshots and worker 
 
 Worker admission and connection shutdown use one synchronized state transition. After admission closes, no new reservation can be created. An owned lease holds both the global permit and the connection's tracking token, including while the initial progress message is being sent. It moves into the blocking job and remains there after handler cancellation. An early return, abandoned reservation or panic releases both resources. Shutdown therefore cannot miss work between permit acquisition and spawning. The global permit is released before the tracker reports that lease as finished.
 
-`stats().in_flight` counts occupied permits, including a worker still winding down after cancellation. There is no unbounded waiting queue. Loading/indexing is synchronous startup work, outside request timeouts and progress. Set data limits before constructing the server. `cargo run --features mcp --example mcp` prints its local schemas and counts without starting a connection.
+`stats().in_flight` counts occupied permits, including a worker still winding down after cancellation. Since 0.4.24, admitted tool-result construction and the full encoded-size check also stay inside that worker lifetime. There is no unbounded waiting queue. Loading/indexing is synchronous startup work, outside request timeouts and progress. Set data limits before constructing the server. `cargo run --features mcp --example mcp` prints local schemas and counts without starting a connection.
 
 The five tool definitions are built once from that server's fixed limits and stored with its immutable shared data. Calls select the relevant definition without rebuilding all five schemas. `tool_definitions()` still returns an owned vector; its schema handles may share immutable data. Editing a returned tool or using copy-on-write to edit its schema does not change the server or another instance's limits. This retains a small fixed catalogue per data instance, shared by clones. Construct a new server when changing its configuration.
 
@@ -117,7 +117,7 @@ Check `isError` before reading success data. The textual JSON copy contains the 
 
 The schema validates structure and fixed declarations. It cannot establish source authenticity, permissions, factual truth, cross-field span ordering, a hash match or byte-range membership. AIRust's runtime checks still validate bindings and ranges, and the client still owns its authorization and rendering. Metadata can contain arbitrary untrusted JSON. Reject unexpected schemas/references in a hostile-server setting rather than enabling unrestricted remote resolution.
 
-AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Public reproduction programs](validation-0.4.4/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
+AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Current validation programs](validation-0.4.24/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
 
 ## Progress, cancellation and agent communication
 
@@ -139,7 +139,7 @@ To cancel that request over stdio:
 {"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":17,"reason":"User stopped the search"}}
 ```
 
-The SDK cancels the request handler and suppresses its response. AIRust's drop guard signals the core cancellation token. Checkpoints cover candidate collection, ranking, selected character explanations and edit-distance rows/cells. The worker retains its slot until it really exits. Closing the connection or dropping the serving future also signals work to stop. Unknown/already-completed cancellation IDs are harmless. Request IDs and progress tokens are separate concepts.
+The SDK cancels the request handler and suppresses its response. AIRust's drop guard signals the Core cancellation token. Checkpoints cover candidate collection, ranking, selected character explanations and edit-distance work. Since 0.4.24, final tool-result construction and its complete encoded-size check stay in the admitted blocking worker, with checks before and after preparation. A single serialization call is not forcibly interrupted. The worker keeps its slot until it really exits, including cancelled work winding down. Closing the connection or dropping the serving future also signals work to stop. Unknown/already-completed cancellation IDs are harmless; request IDs and progress tokens are separate concepts.
 
 `timeout_ms` is an absolute operation budget measured by a monotonic clock, beginning before start-progress delivery. Progress never extends it. Since 0.4.8, the start, heartbeat and final notification waits each observe that same absolute deadline and connection cancellation. An expired request returns `deadline_exceeded` without classifying that expiry as a transport failure; work is not started after expiry during initial notification delivery. Deadline errors are visible tool errors. Startup, OS scheduling, allocation, a JSON serialization section or a client that stops reading can still delay cleanup; cooperative cancellation is not a process-kill sandbox. The executable gives the runtime one second to shut down; library `serve` allows workers one second to return. A progress send that reaches its 100 ms transport-stall limit closes the session and stops its work. If the request deadline or cancellation wins first, that shorter request is stopped without treating it as a 100 ms transport failure. Response writes, OS scheduling and non-yielding work are still outside a hard wall-clock guarantee.
 
@@ -267,3 +267,11 @@ Tools, arguments, schemas, errors, progress/admission/cancellation and saved for
 MCP implementation source is byte-for-byte unchanged from 0.4.22. Bundled lexical retrieval uses preanalyzed frequency maps, so the new direct Core repeated-word guard does not add a query mode to MCP. Tools, schemas, error meanings, source bindings, progress/admission/cancellation, frames and byte/rate budgets retain their contracts. The earlier private payload witness, owned JSON move and final full encoded-reply bound remain.
 
 Final response construction still follows worker search completion; startup and final transport remain outside tool computation deadlines. Earlier pure reply Miri cases and native budget/hostile/timeout/disconnect/drain checks remain. Separate small, ordinary, wide and large actual-protocol comparisons retain all slower observations. Read [all executed controls and limits](CHANGES-0.4.23.md).
+
+## Final reply preparation in 0.4.24
+
+Admitted work returns a complete, size-checked CallToolResult from its blocking worker. That includes the textual JSON copy, owned structured content and final count of both representations and escaping. The permit and connection tracker remain held until the closure exits. A cooperative checkpoint after preparation rejects cancelled/expired success. A private Result preserves output_budget as a worker failure, so final progress reports an error before the bounded error result. The previous code could announce work completed before this final failure; a real RPC regression now covers it and later health recovery.
+
+The immutable checked-data witness, same-budget reuse, owned envelope move and legacy wire/error payloads remain. Static command names avoid a request-name copy. No tool, permission, schema shape, data format or dependency is added. Native tests hold work after final encoding to check busy admission, shutdown waiting/closed admission, cancellation and eventual release. A pure checkpoint/wire/budget test also runs under Miri, without Tokio I/O.
+
+This worker boundary covers tool-result preparation, not startup loading, SDK JSON-RPC framing or final writes. Notification delivery still observes the existing absolute deadline/stall rules. A client should end its loading indicator on result/error/cancellation/EOF even if a final notification cannot arrive. Cooperative scheduling does not impose hard OS CPU/RAM or end-to-end timing limits. Read [all timings, negative cases and validation scope](CHANGES-0.4.24.md).

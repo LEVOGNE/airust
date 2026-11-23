@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.23 borrows the word/count of a short raw repeated-word query, avoiding temporary normalized text and frequency storage. The single-word path, earlier cursors and ranking remain. Other inputs retain original analysis. Read the latest section below and [all comparisons and limits](CHANGES-0.4.23.md).
+AIRust 0.4.24 keeps Core source byte-for-byte unchanged from 0.4.23. The repeated-word preparation, single-word path, cursors, ranking, scopes and source positions remain. This release fixes MCP final-response lifetime and error-progress behavior. Core timing/allocation tables remain regression controls; read [MCP](MCP.md) and [all comparisons and limits](CHANGES-0.4.24.md).
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 

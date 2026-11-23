@@ -872,3 +872,42 @@ fn caller_schema_edits_do_not_change_the_server_or_another_instances_limits() {
             .contains_key("type"));
     }
 }
+
+#[tokio::test]
+async fn final_reply_budget_reports_error_progress_and_allows_recovery() {
+    let server = McpServer::from_entries(
+        (0..2)
+            .map(|i| KnowledgeEntry::new(i.to_string(), format!("Rust {}", "\"\\\n".repeat(300)))),
+        McpLimits {
+            max_result_bytes: 4096,
+            progress_interval_ms: 60_000,
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let observer = server.clone();
+    let mut client = Client::new(server);
+    client.initialize().await;
+    client.send(json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"airust_find_matches","arguments":{"text":"Rust","limit":2,"min_similarity":0.0},"_meta":{"progressToken":"final-budget"}}})).await;
+    let start = client.receive().await;
+    assert_eq!(start["method"], "notifications/progress");
+    assert_eq!(start["params"]["progressToken"], "final-budget");
+    assert_eq!(start["params"]["progress"].as_f64(), Some(0.0));
+    let completion = client.receive().await;
+    assert_eq!(completion["method"], "notifications/progress");
+    assert_eq!(completion["params"]["progressToken"], "final-budget");
+    assert_eq!(completion["params"]["progress"].as_f64(), Some(1.0));
+    assert_eq!(
+        completion["params"]["message"],
+        "AIRust work stopped with an error"
+    );
+    let response = client.receive().await;
+    assert_eq!(response["id"], 1);
+    assert_eq!(code(&response), "output_budget");
+    assert!(serde_json::to_vec(&response).unwrap().len() < 4096);
+    assert_eq!(observer.stats().in_flight, 0);
+    let status = client.call(2, "airust_status", json!({})).await;
+    assert_eq!(data(&status)["stats"]["in_flight"], 0);
+    assert_eq!(data(&status)["read_only"], true);
+    client.finish().await;
+}

@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.23 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.24 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.23 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Direct raw Core search and controlled search can borrow one repeated canonical lowercase ASCII alphanumeric word and its exact count when the raw query is at most 4,096 bytes. Longer, different, noncanonical or preanalyzed queries retain original analysis. This guard is not a new Core input limit. Results own matched strings, with unchanged scores, scopes, ordering, source positions and checkpoints. No dependency, setting, schema-shape or data migration is added. Bundled MCP retrieval uses preanalyzed maps; its implementation source is unchanged. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [comparisons](CHANGES-0.4.23.md).
+Version 0.4.24 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Admitted MCP workers now prepare both tool-result representations and check the complete encoded size before returning. Their permit and connection tracker stay held through that work, with cooperative checks before and after preparation. Final output_budget failures report error progress rather than successful completion. Data checks, escaping/duplicate bounds, wire payload shapes, errors, source bindings and saved formats remain. Startup, SDK JSON-RPC framing and final writes are separate from this tool-CPU boundary; cancellation is cooperative, not a forced mid-serialization stop. Core source is unchanged. Read [MCP](MCP.md), [performance](CORE-PERFORMANCE.md) and [comparisons](CHANGES-0.4.24.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

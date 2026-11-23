@@ -1,4 +1,4 @@
-# AIRust 0.4.23
+# AIRust 0.4.24
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.23 makes repeated-word searches with the Core library use fewer temporary objects. When a short query repeats the same lowercase word, AIRust can count it without making extra text copies. Other queries keep their existing processing. Search meaning, ranking, source positions, application code and saved knowledge stay the same. Read [Core performance](docs/CORE-PERFORMANCE.md), [API cookbook](docs/API-COOKBOOK.md) and [measurements and limits](docs/CHANGES-0.4.23.md). No DenkMaps integration is included.
+Version 0.4.24 keeps the preparation of a complete MCP tool answer inside its worker. AIRust checks the final answer before announcing success. If that last size check fails, progress now reports an error. Cancellation and time checks also cover the end of this work, and its worker slot stays occupied until it really finishes. Search results, application calls and saved knowledge stay the same. Read [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [tests, costs and limits](docs/CHANGES-0.4.24.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.24](docs/CHANGES-0.4.24.md) | Keep final MCP answer checks inside the worker. | Report late size errors correctly and keep admission until work ends. |
 | [0.4.23](docs/CHANGES-0.4.23.md) | Avoid extra copies for short repeated-word Core queries. | Reuse the word and its count while keeping the same results. |
 | [0.4.22](docs/CHANGES-0.4.22.md) | Prepare bounded MCP answers with less duplicate work. | Reuse a private data check and move JSON while keeping the final reply bound. |
 | [0.4.21](docs/CHANGES-0.4.21.md) | Borrow an already normalized single query word. | Avoid temporary text copies and a frequency table for simple searches. |
@@ -58,11 +59,11 @@ Version 0.4.23 makes repeated-word searches with the Core library use fewer temp
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.23 validation passes **252 default tests, 905 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and 36 finite Tree Borrows Miri cases pass. Three new tests check independent repetition counts and bounded fallback, full scores/scopes/limits and public controlled dispatch, and checkpoint/error/recovery behavior. Read [validation and limits](docs/CHANGES-0.4.23.md).
+Local 0.4.24 validation passes **252 default tests, 908 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and 37 finite Tree Borrows Miri cases pass. New tests reproduce and fix final-budget error progress, verify final checkpoints and legacy wire/budget results, and hold final work through cancellation/shutdown to check permit lifetime. Real RPC/shutdown tests remain native; the new pure case also runs under Miri. Read [validation and limits](docs/CHANGES-0.4.24.md).
 
-**Measured 0.4.23 result:** the eight repeated-word Core cases (1/4/16/33 entries, both rankers) have median changes of -43.87% to -4.80% and -57.15% to +8.55% versus fresh exact registry 0.4.22 in two separate campaigns. Negative means shorter observed time. Both include exact 0.4.21, all original-six and 96 extended cases: 4,284,000 timed calls and 2,688 complete original matrix-response comparisons with equal results. A separate 1,000-entry repeated-word heap control records 35 → 31 allocations and 19432 → 18156 allocated bytes per call, with zero retained call bytes. Read [all times, p95, allocations and limits](docs/CHANGES-0.4.23.md).
+**Measured 0.4.24 result:** two separate six-case small-MCP campaigns observe repeated median changes of -5.07% to +10.13% and -1.49% to +2.88% versus fresh exact registry 0.4.23. Negative means shorter observed time. Exact 0.4.22 is also retained. They check 252 fresh servers, 17,136 schema-valid actual replies and 11,424 complete structured comparisons with equal results. The final-budget progress defect is reproduced before the fix and passes afterward, with separate final-checkpoint and worker-drain tests. Read [all measurements and limits](docs/CHANGES-0.4.24.md).
 
-**0.4.23 limits:** 27 / 46 of the 96-case matrices have higher medians than 0.4.22. The largest non-target rises are +35.36% (4_Tfidf_limit_zero, 2.71 → 3.67 ns) / +45.55% (4_Bm25_limit_zero, 2.83 → 4.12 ns). Ordinary canonical repeated MCP TF-IDF changes are +15.92% / +3.54%; separate large guards observe -10.54% / +14.16%. Every slower row remains. Only short repetitions of one unchanged canonical word take the new path. Bundled MCP retrieval uses preanalyzed maps, and its implementation source is unchanged. Final reply construction still follows worker search completion. One host, exposed queries and finite trials do not establish universal speedup, statistical significance, new semantic quality or a security audit.
+**0.4.24 limits:** ordinary canonical repeated MCP TF-IDF changes are -1.22% / -5.60%; separate large guards observe -15.04% / +6.86%. Every slower case remains. Core source is unchanged; 44 / 49 of its 96-case controls have higher medians than 0.4.23. This is a worker/progress correctness improvement, not proof of uniform latency improvement. One serialization call is not forcibly interrupted; its post-check rejects cancelled/expired success. Startup, SDK JSON-RPC framing and final writes remain separate boundaries. One host, exposed questions and finite trials do not establish universal speed, new semantic quality, an OS resource quota or a security audit.
 
 **Measured 0.4.17 result:** original six warm 1/4/16-entry Core cases have median changes of -14.99% to -3.67% in one fresh three-version campaign and -19.06% to -5.53% in its separate confirmation, versus 0.4.16. Negative means shorter time. Both include an earlier 0.4.15 reference and a fixed 96-case extension; all 4,284,000 timed calls and slower outcomes are retained. Canonical repeated MCP TF-IDF median changes are -1.73% and +0.99% versus 0.4.16; a separate fresh reference records -43.10% versus 0.4.15. That separate reference is +9.50% versus 0.4.16, so it does not establish preserved latency against every 0.4.16 workload. Core gains do not imply equal MCP round-trip gains: the largest repeated MCP median rise in the two ordinary campaigns is +7.37% (tiny, tfidf, campaign 2). Both ordinary campaigns validate 13,880 actual replies. Temporary allocations, all slower rows, p95, RAM and host load remain in [the complete report](docs/CHANGES-0.4.17.md). No universal speedup or new semantic-quality claim is made.
 
@@ -88,7 +89,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.23. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.24. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -164,7 +165,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.23", default-features = false }
+airust = { version = "=0.4.24", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -435,7 +436,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 ## Package contents
 
-Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.4.23/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
+Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.4.24/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
 
 ## Project layout
 

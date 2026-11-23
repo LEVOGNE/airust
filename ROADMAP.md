@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.23 targets repeated-word Core costs with bounded recognition and no temporary frequency storage for the accepted form. Keep original analysis for all other/preanalyzed inputs and preserve checked ranking. Compare two full Core matrices and every small/large/broad MCP, heap and construction guard; retain both development variants and all slower cases. Follow the [route to 0.5.0](docs/ROADMAP-TO-0.5.0.md) for worker lifecycle, startup memory and stability checks before adding features.
+0.4.24 keeps final MCP tool-result preparation inside admitted blocking work and cooperative request checks. Reproduce the premature completed notification on final output-budget failure, then verify error progress, permit lifetime, shutdown and recovery. Preserve unchanged Core behavior and all positive/negative latency controls. Follow the [route to 0.5.0](docs/ROADMAP-TO-0.5.0.md) for startup memory and stability checks before adding features.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.24 | Bounded final MCP reply work and correct error progress | Implemented; read [MCP/API](docs/MCP.md) and [measurements](docs/CHANGES-0.4.24.md). |
 | 0.4.23 | Short repeated-word Core preparation | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.23.md). |
 | 0.4.22 | Less duplicate MCP response work | Implemented; read [API](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [measurements](docs/CHANGES-0.4.22.md). |
 | 0.4.21 | Borrowed single-word preparation for small queries | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.21.md). |

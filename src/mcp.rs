@@ -519,23 +519,52 @@ impl McpServer {
         }
     }
     fn checked_response(&self, operation: &str, value: CheckedData) -> CallToolResult {
+        match self.checked_result(operation, value) {
+            Ok(result) => result,
+            Err(error) => self.error(error.code, &error.message),
+        }
+    }
+    fn checked_result(
+        &self,
+        operation: &str,
+        value: CheckedData,
+    ) -> Result<CallToolResult, Failure> {
         let budget = self.limits().max_result_bytes - 1024;
         if value.budget != budget && json_fits(&value.value, budget).ok() != Some(true) {
-            return self.error("output_budget", OUTPUT_BUDGET_MESSAGE);
+            return Err(Failure::output_budget());
         }
         let mut envelope = serde_json::Map::new();
         envelope.insert("schema_version".into(), Value::from(1));
         envelope.insert("operation".into(), Value::from(operation));
         envelope.insert("data".into(), value.value);
         let result = CallToolResult::structured(Value::Object(envelope));
-        if json_fits(&result, self.limits().max_result_bytes - 1024).ok() == Some(true) {
-            result
+        if json_fits(&result, budget).ok() == Some(true) {
+            Ok(result)
         } else {
-            self.error(
-                "output_budget",
-                "Result exceeds the configured byte budget; request fewer or shorter results",
-            )
+            Err(Failure::output_budget())
         }
+    }
+    fn finish_response_checked(
+        &self,
+        operation: &str,
+        value: CheckedData,
+        mut checkpoint: impl FnMut() -> Result<(), Failure>,
+    ) -> Result<CallToolResult, Failure> {
+        checkpoint()?;
+        let result = self.checked_result(operation, value);
+        checkpoint()?;
+        result
+    }
+    fn execute_response(
+        &self,
+        command: Command,
+        control: &WorkControl,
+    ) -> Result<CallToolResult, Failure> {
+        let operation = command.operation();
+        let value = self.execute(command, control)?;
+        self.finish_response_checked(operation, value, || {
+            control.checkpoint().map_err(Failure::execution)
+        })
     }
     fn error(&self, code: &'static str, message: &str) -> CallToolResult {
         let mut end = prefix_end(message, 512);
@@ -568,10 +597,7 @@ impl CheckedData {
         if json_fits(&value, budget).ok() == Some(true) {
             Ok(Self { value, budget })
         } else {
-            Err(Failure {
-                code: "output_budget",
-                message: OUTPUT_BUDGET_MESSAGE.into(),
-            })
+            Err(Failure::output_budget())
         }
     }
 }
@@ -590,6 +616,12 @@ struct Failure {
     message: String,
 }
 impl Failure {
+    fn output_budget() -> Self {
+        Self {
+            code: "output_budget",
+            message: OUTPUT_BUDGET_MESSAGE.into(),
+        }
+    }
     fn execution(e: ExecutionError) -> Self {
         Self {
             code: match e {
@@ -692,6 +724,14 @@ enum Command {
     Relate(RelateArgs),
 }
 impl Command {
+    fn operation(&self) -> &'static str {
+        match self {
+            Self::Search(_) => "airust_search",
+            Self::Read(_) => "airust_read_passage",
+            Self::Matches(_) => "airust_find_matches",
+            Self::Relate(_) => "airust_relate",
+        }
+    }
     fn parse(name: &str, args: Value, limits: &McpLimits) -> Result<Self, Failure> {
         fn decode<T: DeserializeOwned>(args: Value) -> Result<T, Failure> {
             serde_json::from_value(args).map_err(|e| Failure {
@@ -998,7 +1038,7 @@ impl ServerHandler for Handler {
         }
         let server = self.0.clone();
         let worker_control = control.clone();
-        let mut worker = lease.spawn(move || server.execute(command, &worker_control));
+        let mut worker = lease.spawn(move || server.execute_response(command, &worker_control));
         let deadline = tokio::time::sleep_until(tokio::time::Instant::from_std(request_deadline));
         tokio::pin!(deadline);
         let mut interval =
@@ -1011,7 +1051,7 @@ impl ServerHandler for Handler {
                     let result=match result{Ok(result)=>result,Err(_)=>Err(Failure::data("AIRust worker failed"))};
                     if let Some(progress)=&progress{sequence+=1;if let Err(error)=notify(&context,progress,sequence,if result.is_ok(){"AIRust work completed".into()}else{"AIRust work stopped with an error".into()},self.session.as_ref(),request_deadline).await{return Ok(self.error(error.code,&error.message).into());}}
                     if let Err(error)=control.checkpoint(){let error=Failure::execution(error);return Ok(self.error(error.code,&error.message).into());}
-                    return Ok(match result{Ok(value)=>self.checked_response(name,value),Err(e)=>self.error(e.code,&e.message)}.into());
+                    return Ok(match result{Ok(value)=>value,Err(e)=>self.error(e.code,&e.message)}.into());
                 },
                 _=interval.tick(),if progress.is_some()=>{
                     sequence+=1;let latest=state.lock().ok().and_then(|s|*s);
@@ -1063,6 +1103,77 @@ mod response_tests {
         } else {
             server.error("output_budget", OUTPUT_BUDGET_MESSAGE)
         }
+    }
+
+    #[test]
+    fn final_reply_checks_reject_late_cancellation_and_preserve_budget_errors() {
+        let server = server(4096);
+        let budget = server.limits().max_result_bytes - 1024;
+        let before = server.data.index.to_json().unwrap();
+        for value in [
+            json!({"text":"small café"}),
+            json!({"text":"\"\\\n".repeat(200)}),
+        ] {
+            for fail_at in [1, 2] {
+                let mut checks = 0;
+                let result = server.finish_response_checked(
+                    "airust_search",
+                    CheckedData::new(value.clone(), budget).unwrap(),
+                    || {
+                        checks += 1;
+                        if checks == fail_at {
+                            Err(Failure::execution(ExecutionError::Cancelled))
+                        } else {
+                            Ok(())
+                        }
+                    },
+                );
+                assert!(matches!(
+                    result,
+                    Err(Failure {
+                        code: "cancelled",
+                        ..
+                    })
+                ));
+                assert_eq!(checks, fail_at);
+                assert_eq!(server.data.index.to_json().unwrap(), before);
+            }
+            let mut checks = 0;
+            let result = server.finish_response_checked(
+                "airust_search",
+                CheckedData::new(value.clone(), budget).unwrap(),
+                || {
+                    checks += 1;
+                    Ok(())
+                },
+            );
+            assert_eq!(checks, 2);
+            let actual = match result {
+                Ok(result) => result,
+                Err(error) => server.error(error.code, &error.message),
+            };
+            assert_eq!(
+                serde_json::to_vec(&actual).unwrap(),
+                serde_json::to_vec(&legacy(&server, "airust_search", value)).unwrap()
+            );
+        }
+        for (name, args) in [
+            ("airust_search", json!({"query":"word"})),
+            ("airust_find_matches", json!({"text":"word"})),
+            ("airust_relate", json!({"id":"entry"})),
+            (
+                "airust_read_passage",
+                json!({"document_id":"doc","revision":"0".repeat(64),"start_byte":0,"end_byte":0}),
+            ),
+        ] {
+            assert_eq!(
+                Command::parse(name, args, server.limits())
+                    .unwrap()
+                    .operation(),
+                name
+            );
+        }
+        assert_eq!(server.data.index.to_json().unwrap(), before);
     }
 
     #[test]
@@ -1148,6 +1259,83 @@ mod response_tests {
 mod shutdown_tests {
     use super::*;
     use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+
+    #[tokio::test]
+    async fn final_reply_work_keeps_admission_and_shutdown_until_cancelled_work_returns() {
+        let server = McpServer::from_entries(
+            [KnowledgeEntry::new("entry", "reply lease")],
+            McpLimits {
+                max_concurrent: 1,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let observer = server.clone();
+        let session = transport::Session::new(server.limits().clone());
+        let lease = session.reserve_worker(server.slots.clone()).unwrap();
+        let token = CancellationToken::new();
+        let control = WorkControl::new(token.clone());
+        let (entered_tx, entered_rx) = tokio::sync::oneshot::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let worker = lease.spawn(move || {
+            let value = CheckedData::new(
+                json!({"text":"finished encoding"}),
+                server.limits().max_result_bytes - 1024,
+            )
+            .unwrap();
+            let mut checks = 0;
+            let mut entered_tx = Some(entered_tx);
+            server.finish_response_checked("airust_search", value, || {
+                checks += 1;
+                if checks == 2 {
+                    entered_tx.take().unwrap().send(()).unwrap();
+                    release_rx.recv_timeout(Duration::from_secs(5)).unwrap();
+                }
+                control.checkpoint().map_err(Failure::execution)
+            })
+        });
+        tokio::time::timeout(Duration::from_secs(3), entered_rx)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(observer.stats().in_flight, 1);
+        assert!(matches!(
+            session.reserve_worker(observer.slots.clone()),
+            Err(transport::WorkerAdmissionError::Busy)
+        ));
+        token.cancel();
+        let closing = session.clone();
+        let shutdown = tokio::spawn(async move {
+            closing.shutdown_workers().await;
+        });
+        tokio::time::timeout(Duration::from_secs(3), session.stop.cancelled())
+            .await
+            .unwrap();
+        assert!(!shutdown.is_finished());
+        assert!(!worker.is_finished());
+        assert_eq!(observer.stats().in_flight, 1);
+        assert!(matches!(
+            session.reserve_worker(observer.slots.clone()),
+            Err(transport::WorkerAdmissionError::Closed)
+        ));
+        release_tx.send(()).unwrap();
+        let result = tokio::time::timeout(Duration::from_secs(3), worker)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            result,
+            Err(Failure {
+                code: "cancelled",
+                ..
+            })
+        ));
+        tokio::time::timeout(Duration::from_secs(3), shutdown)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(observer.stats().in_flight, 0);
+    }
 
     #[tokio::test]
     async fn shutdown_does_not_wait_for_other_server_clones_worker_permits() {
