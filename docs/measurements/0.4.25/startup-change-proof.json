@@ -1,0 +1,87 @@
+{
+  "version": "0.4.25",
+  "selected_change": "Release owned raw knowledge JSON after parsing and before index/schema construction",
+  "core_source_unchanged_from": "0.4.24",
+  "public_api_and_input_formats_unchanged": true,
+  "development_only_heap": {
+    "baseline": {
+      "allocated_bytes": 3172827621,
+      "allocation_blocks": 6764354,
+      "entries": 167942,
+      "live_blocks_after_load": 5243730,
+      "live_blocks_after_server_drop": 1682,
+      "live_bytes_after_load": 1435161892,
+      "live_bytes_after_server_drop": 237410,
+      "max_live_blocks_before_server_drop": 5241883,
+      "max_live_bytes_before_server_drop": 1724312462,
+      "scope": "Separate DHAT-instrumented startup load: raw read, owned JSON parse, index and schema construction included. Peak/live allocation counts exclude profiler metadata and are not process RSS. No duration used as latency evidence; no searches/norm warming. Small process-global SDK caches may remain after dropping the server.",
+      "source_bytes": 172896822,
+      "version": "0.4.24"
+    },
+    "candidate": {
+      "allocated_bytes": 3172827621,
+      "allocation_blocks": 6764354,
+      "entries": 167942,
+      "live_blocks_after_load": 5243730,
+      "live_blocks_after_server_drop": 1682,
+      "live_bytes_after_load": 1435161892,
+      "live_bytes_after_server_drop": 237410,
+      "max_live_blocks_before_server_drop": 5241882,
+      "max_live_bytes_before_server_drop": 1455877006,
+      "scope": "Separate DHAT-instrumented startup load: raw read, owned JSON parse, index and schema construction included. Peak/live allocation counts exclude profiler metadata and are not process RSS. No duration used as latency evidence; no searches/norm warming. Small process-global SDK caches may remain after dropping the server.",
+      "source_bytes": 172896822,
+      "version": "0.4.25"
+    }
+  },
+  "heap_peak_reduction_bytes": 268435456,
+  "heap_after_load_and_total_allocation_traffic_equal": true,
+  "native_pilot": {
+    "scope": "Development startup pilot only, three rotating triples for each of two cases; no sample enters final campaigns",
+    "versions": {
+      "reference": "0.4.23",
+      "baseline": "0.4.24",
+      "candidate": "0.4.25"
+    },
+    "processes": 18,
+    "all_children_exit_success": true,
+    "all_input_hashes_unchanged": true,
+    "summary": {
+      "canonical": {
+        "reference": {
+          "startup_to_initialized_ms": 7631.91824988462,
+          "peak_child_rss_bytes": 1805516800,
+          "rss_after_initialization_bytes": 1805516800
+        },
+        "baseline": {
+          "startup_to_initialized_ms": 7834.921957924962,
+          "peak_child_rss_bytes": 1804337152,
+          "rss_after_initialization_bytes": 1804337152
+        },
+        "candidate": {
+          "startup_to_initialized_ms": 7774.566499982029,
+          "peak_child_rss_bytes": 1805533184,
+          "rss_after_initialization_bytes": 1805533184
+        }
+      },
+      "tiny16": {
+        "reference": {
+          "startup_to_initialized_ms": 5.276832962408662,
+          "peak_child_rss_bytes": 5455872,
+          "rss_after_initialization_bytes": 5406720
+        },
+        "baseline": {
+          "startup_to_initialized_ms": 5.2928749937564135,
+          "peak_child_rss_bytes": 5455872,
+          "rss_after_initialization_bytes": 5390336
+        },
+        "candidate": {
+          "startup_to_initialized_ms": 5.2541249897331,
+          "peak_child_rss_bytes": 5423104,
+          "rss_after_initialization_bytes": 5357568
+        }
+      }
+    }
+  },
+  "native_rss_gain_demonstrated_by_pilot": false,
+  "scope": "Separate development observations, not final campaign samples. Instrumented peak heap is not native process RSS or latency. All negative initial results retained."
+}

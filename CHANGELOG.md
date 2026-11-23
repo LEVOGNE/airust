@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.25 — Release temporary startup input before indexing
+
+Drop the owned knowledge-file JSON string immediately after parsing owned KnowledgeEntry values, before constructing the MCP index and schemas. Preserve bounded file reading, UTF-8/JSON/entry errors, original records, source files, public APIs, schemas and saved formats. Core source is unchanged. Two startup-only campaigns retain 84 exact-child peak/live/time observations; six separate DHAT profiles distinguish heap memory from RSS. Existing correctness, feature, minimum-Rust, API, consumer and 37 finite Miri controls pass. All slower query/startup observations remain. No new dependency, default feature, streaming parser, hard OS quota or DenkMaps integration. Read [all evidence and limits](docs/CHANGES-0.4.25.md).
+
 ## 0.4.24 — Keep bounded final MCP reply work with its worker
 
 Prepare both MCP tool-result representations and perform the complete encoded-size check inside the admitted blocking worker. Hold its permit and connection tracker through that work. Add before/after cooperative checks, preserve the original absolute deadline/cancellation priority, and turn final output-budget failures into worker errors before progress completion. Preserve the immutable data witness, same-budget reuse, owned envelope move, full escaped/duplicated output bound, legacy wire/error payloads and static tool names. The pre-fix RPC test reproduces premature work completed; corrected RPC, pure final-checkpoint/wire and deterministic lease/shutdown/cancel tests pass (37 finite Miri cases overall). Core source is unchanged from 0.4.23. No new dependency, public API, schema shape, saved format or DenkMaps integration. Startup, SDK framing and final writes stay separate; no forced interruption inside serialization or hard OS quota is added. Read [MCP/API](docs/MCP.md) and [measurements and limits](docs/CHANGES-0.4.24.md).

@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.24 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.25 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.24 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Admitted MCP workers now prepare both tool-result representations and check the complete encoded size before returning. Their permit and connection tracker stay held through that work, with cooperative checks before and after preparation. Final output_budget failures report error progress rather than successful completion. Data checks, escaping/duplicate bounds, wire payload shapes, errors, source bindings and saved formats remain. Startup, SDK JSON-RPC framing and final writes are separate from this tool-CPU boundary; cancellation is cooperative, not a forced mid-serialization stop. Core source is unchanged. Read [MCP](MCP.md), [performance](CORE-PERFORMANCE.md) and [comparisons](CHANGES-0.4.24.md).
+Version 0.4.25 needs no application-code change. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. McpServer::load_knowledge releases its owned raw JSON string after parsing owned entries, before index/schema construction. Source files, entries, metadata, limits, errors and saved formats remain. This is an internal lifetime change, not a streaming parser or a persistent index. Core source is unchanged from 0.4.24; MCP tool schemas and argument/output shapes remain. Read [startup observations and limitations](CHANGES-0.4.25.md) and [MCP](MCP.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

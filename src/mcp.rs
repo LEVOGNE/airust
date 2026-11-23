@@ -329,6 +329,7 @@ impl McpServer {
         limits.validate()?;
         let input = bounded_file(path.as_ref(), limits.max_file_bytes)?;
         let entries: Vec<KnowledgeEntry> = serde_json::from_str(&input)?;
+        drop(input);
         Self::from_entries(entries, limits)
     }
     pub fn load_documents<I, P>(paths: I, limits: McpLimits) -> Result<Self, McpError>

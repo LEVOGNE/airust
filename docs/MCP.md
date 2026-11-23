@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.24
+# Optional MCP in AIRust 0.4.25
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.24 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.25 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -117,7 +117,7 @@ Check `isError` before reading success data. The textual JSON copy contains the 
 
 The schema validates structure and fixed declarations. It cannot establish source authenticity, permissions, factual truth, cross-field span ordering, a hash match or byte-range membership. AIRust's runtime checks still validate bindings and ranges, and the client still owns its authorization and rendering. Metadata can contain arbitrary untrusted JSON. Reject unexpected schemas/references in a hostile-server setting rather than enabling unrestricted remote resolution.
 
-AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Current validation programs](validation-0.4.24/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
+AIRust does not validate each response with a general JSON Schema engine in production. The schemas come from one bundled source; independent validators check actual success/error replies in the protocol suite and retained-document campaign. The test-only validator uses no HTTP/file resolver features. [Current validation programs](validation-0.4.25/README.md) include a separate schema checker that has no AIRust dependency. The bundle and per-tool definitions remain bounded by a discovery-size regression.
 
 ## Progress, cancellation and agent communication
 
@@ -275,3 +275,7 @@ Admitted work returns a complete, size-checked CallToolResult from its blocking 
 The immutable checked-data witness, same-budget reuse, owned envelope move and legacy wire/error payloads remain. Static command names avoid a request-name copy. No tool, permission, schema shape, data format or dependency is added. Native tests hold work after final encoding to check busy admission, shutdown waiting/closed admission, cancellation and eventual release. A pure checkpoint/wire/budget test also runs under Miri, without Tokio I/O.
 
 This worker boundary covers tool-result preparation, not startup loading, SDK JSON-RPC framing or final writes. Notification delivery still observes the existing absolute deadline/stall rules. A client should end its loading indicator on result/error/cancellation/EOF even if a final notification cannot arrive. Cooperative scheduling does not impose hard OS CPU/RAM or end-to-end timing limits. Read [all timings, negative cases and validation scope](CHANGES-0.4.24.md).
+
+## Knowledge startup memory in 0.4.25
+
+The bounded knowledge-file loader parses owned entries, then releases the raw JSON string before building the index and schemas. Entry IDs, text and metadata stay owned by the loaded collection; the original file is not altered. This is not a streaming parser, persisted search index or hard memory quota. Startup remains synchronous and outside per-request cancellation/time/progress. Configure file/entry/text limits before loading. [Separate native peak/live RSS, startup time, DHAT heap and query controls](CHANGES-0.4.25.md) retain both favorable and slower outcomes.

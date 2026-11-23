@@ -1,4 +1,4 @@
-# AIRust 0.4.24
+# AIRust 0.4.25
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.24 keeps the preparation of a complete MCP tool answer inside its worker. AIRust checks the final answer before announcing success. If that last size check fails, progress now reports an error. Cancellation and time checks also cover the end of this work, and its worker slot stays occupied until it really finishes. Search results, application calls and saved knowledge stay the same. Read [MCP](docs/MCP.md), [API cookbook](docs/API-COOKBOOK.md) and [tests, costs and limits](docs/CHANGES-0.4.24.md). No DenkMaps integration is included.
+Version 0.4.25 frees the temporary JSON input after reading its entries, before building the MCP search index. The original file and all loaded records remain. This reduces overlapping startup work in memory without changing your search calls or saved knowledge. Default features stay empty. Read [startup measurements and limits](docs/CHANGES-0.4.25.md), [API cookbook](docs/API-COOKBOOK.md) and [MCP](docs/MCP.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.25](docs/CHANGES-0.4.25.md) | Release temporary raw JSON before indexing. | Avoid keeping the large input buffer during MCP startup. |
 | [0.4.24](docs/CHANGES-0.4.24.md) | Keep final MCP answer checks inside the worker. | Report late size errors correctly and keep admission until work ends. |
 | [0.4.23](docs/CHANGES-0.4.23.md) | Avoid extra copies for short repeated-word Core queries. | Reuse the word and its count while keeping the same results. |
 | [0.4.22](docs/CHANGES-0.4.22.md) | Prepare bounded MCP answers with less duplicate work. | Reuse a private data check and move JSON while keeping the final reply bound. |
@@ -59,11 +60,11 @@ Version 0.4.24 keeps the preparation of a complete MCP tool answer inside its wo
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.24 validation passes **252 default tests, 908 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, API compatibility, an independent consumer and 37 finite Tree Borrows Miri cases pass. New tests reproduce and fix final-budget error progress, verify final checkpoints and legacy wire/budget results, and hold final work through cancellation/shutdown to check permit lifetime. Real RPC/shutdown tests remain native; the new pure case also runs under Miri. Read [validation and limits](docs/CHANGES-0.4.24.md).
+Local 0.4.25 validation passes **252 default tests, 908 all-feature checks including 39 doctests, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, patch-level API comparison, independent consumer and the same 37 finite Tree Borrows Miri cases pass. Existing native file-boundary, protocol, cancellation, deadline, final-reply and shutdown regressions remain. Startup-only controls verify unchanged input/counts and EOF; no new Miri coverage is implied. Read [the full scope](docs/CHANGES-0.4.25.md).
 
-**Measured 0.4.24 result:** two separate six-case small-MCP campaigns observe repeated median changes of -5.07% to +10.13% and -1.49% to +2.88% versus fresh exact registry 0.4.23. Negative means shorter observed time. Exact 0.4.22 is also retained. They check 252 fresh servers, 17,136 schema-valid actual replies and 11,424 complete structured comparisons with equal results. The final-budget progress defect is reproduced before the fix and passes afterward, with separate final-checkpoint and worker-drain tests. Read [all measurements and limits](docs/CHANGES-0.4.24.md).
+**Measured 0.4.25 result:** the canonical peak-live-heap profile is 256.000 MiB lower than exact 0.4.24. Native peak process RSS is practically unchanged (-0.00% / -0.01%). These are different memory measures. Two startup-only campaigns check 84 fresh servers on 167,942-entry and 16-entry inputs; six separate allocation profiles retain full heap counters. Files, counts and clean shutdowns pass. Read [every sample, negative timing and limit](docs/CHANGES-0.4.25.md).
 
-**0.4.24 limits:** ordinary canonical repeated MCP TF-IDF changes are -1.22% / -5.60%; separate large guards observe -15.04% / +6.86%. Every slower case remains. Core source is unchanged; 44 / 49 of its 96-case controls have higher medians than 0.4.23. This is a worker/progress correctness improvement, not proof of uniform latency improvement. One serialization call is not forcibly interrupted; its post-check rejects cancelled/expired success. Startup, SDK JSON-RPC framing and final writes remain separate boundaries. One host, exposed questions and finite trials do not establish universal speed, new semantic quality, an OS resource quota or a security audit.
+**0.4.25 limits:** six-case small-MCP repeated median changes range from -3.88% to +4.05% and -4.62% to +2.29%; ordinary canonical TF-IDF changes are -14.45% / +2.15%. Slower rows remain. This loader lifetime change does not shrink the retained index or establish uniform search/startup speed. One host, exposed questions, warm filesystem caches and power sampled only at campaign start limit conclusions. No OS quota, fresh semantic-quality advantage or security-audit claim is added.
 
 **Measured 0.4.17 result:** original six warm 1/4/16-entry Core cases have median changes of -14.99% to -3.67% in one fresh three-version campaign and -19.06% to -5.53% in its separate confirmation, versus 0.4.16. Negative means shorter time. Both include an earlier 0.4.15 reference and a fixed 96-case extension; all 4,284,000 timed calls and slower outcomes are retained. Canonical repeated MCP TF-IDF median changes are -1.73% and +0.99% versus 0.4.16; a separate fresh reference records -43.10% versus 0.4.15. That separate reference is +9.50% versus 0.4.16, so it does not establish preserved latency against every 0.4.16 workload. Core gains do not imply equal MCP round-trip gains: the largest repeated MCP median rise in the two ordinary campaigns is +7.37% (tiny, tfidf, campaign 2). Both ordinary campaigns validate 13,880 actual replies. Temporary allocations, all slower rows, p95, RAM and host load remain in [the complete report](docs/CHANGES-0.4.17.md). No universal speedup or new semantic-quality claim is made.
 
@@ -89,7 +90,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.24. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.25. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -165,7 +166,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.24", default-features = false }
+airust = { version = "=0.4.25", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -436,7 +437,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 ## Package contents
 
-Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.4.24/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
+Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.4.25/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
 
 ## Project layout
 
