@@ -91,3 +91,5 @@ Keep these two distributions separate from the ordinary 90-server campaigns, the
 ## Registry source-package boundary
 
 Keep every raw measurement JSON file in the tagged GitHub repository and local archives. Exclude docs/measurements/**/*.json only from the registry source package; retain API/Markdown guides, method source, examples and required fixtures. scripts/check_package.py rejects measurement JSON in the package listing. Verify the extracted committed package with all features before publishing. Record the actual package bytes/checksum; the earlier dirty preview is size/boundary evidence, not the published checksum. This follows [Cargo packaging guidance](https://doc.rust-lang.org/stable/cargo/reference/publishing.html). No source knowledge, rejected trial or measurement is deleted.
+
+Benchmark power labels and their limits are corrected in [the measurement errata](../BENCHMARK-ERRATA.md). Raw timing samples remain unchanged.

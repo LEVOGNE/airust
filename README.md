@@ -535,3 +535,5 @@ The script checks formatting, the default library, optional integrations, docume
 MIT. See [LICENSE](./LICENSE).
 
 For a complete future application adapter, see the [application integration guide](docs/APPLICATION-INTEGRATION.md). It covers all new APIs, revision/permission boundaries, real progress, explicit learning and reviewed rule proposals. No application integration is performed.
+
+Benchmark power labels and their limits are corrected in [the measurement errata](docs/BENCHMARK-ERRATA.md). Raw timing samples remain unchanged.
