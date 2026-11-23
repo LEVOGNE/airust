@@ -1,0 +1,56 @@
+{
+  "version": "0.4.19",
+  "created_at": "2026-11-23T13:12:49.465997+00:00",
+  "baseline": "exact registry0.4.18 fd5a0e182ece603e135feb609351cc3559bca4bf",
+  "reference": "exact registry0.4.17 c82e61530c201eed1967293fc0e117ee42a3e1c2",
+  "scope": "Reuse exact checked dictionary intersection for winner explanations as well as scoring; preserve scores/order/API, bound work between explanation checkpoints by128inspecteditems.",
+  "question_origin": "Retained342exposed authored questions, no new holdout or model-answer claim",
+  "mcp_processes_per_campaign": 90,
+  "mcp_campaigns": 2,
+  "wide_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7,
+    "extended": 7
+  },
+  "wide_primary_versions": [
+    "0.4.17",
+    "0.4.18",
+    "0.4.19"
+  ],
+  "wide_primary_processes": 63,
+  "wide_primary_expected_schema_replies": 4284,
+  "wide_primary_expected_complete_pairs": 2856,
+  "wide_extended_query_widths": [
+    32,
+    33,
+    64,
+    65,
+    128,
+    129,
+    192,
+    255,
+    256,
+    255
+  ],
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "small_matrix_cases": 96,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "host_load_sampling_seconds": 2,
+  "artifact_policy": "Archive proof then remove only /private/tmp/airust-ranking-0419-build and -miri",
+  "knowledge_policy": "Preserve PDFs/canonical knowledge, all previous sources and every negative outcome; no new PDF extraction",
+  "wide_extended_last_query": "255 known terms plus duplicate term0 and one absent term,256 unique normalized terms",
+  "development_bound_discovery": "Preserved pilot257/512-term requests correctly rejected at existing256-term excerpt bound; successful final measurements stay within the bound.",
+  "frozen_at": "2026-11-23T13:21:53.371501+00:00",
+  "wide_boundary_checks": {
+    "separate_processes": 3,
+    "rejected_requests": 12,
+    "known_term_widths": [
+      257,
+      512
+    ],
+    "bound": 256
+  }
+}

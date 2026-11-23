@@ -1,0 +1,12 @@
+[package]
+name="corpus-candidate"
+version="0.0.0"
+edition="2021"
+publish=false
+[dependencies]
+airust={version="=0.4.19",default-features=false,features=["execution","shared-index"]}
+serde_json="1"
+sha2="0.10"
+[[bin]]
+name="corpus-candidate"
+path="corpus.rs"

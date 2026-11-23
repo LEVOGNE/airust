@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.18 targets large-query merge overhead while checking previous small-query gains. Directly merge two existing posting lists; retain exact scoring, every posting checkpoint, public APIs and optional MCP contracts. Compare fresh 0.4.16/0.4.17/0.4.18, complete replies, small/wide/filter controls and memory under sampled host load. Preserve slower outcomes and knowledge. Following releases should improve a demonstrated usage path before adding capabilities.
+0.4.19 targets repeated winner-explanation work in broad MCP queries. Reuse the existing exact dictionary intersection, preserving scores, sorted matched terms and source positions. Compare three separate broad-query campaigns, both rankers, protected term limits, ordinary MCP, small Core guards and allocations. Retain all slower outcomes and knowledge. Next releases should address a demonstrated application cost before adding capabilities.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.19 | Shared exact broad-query explanations | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.19.md). |
 | 0.4.18 | Direct ordered merge of two candidate lists | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [all comparisons](docs/CHANGES-0.4.18.md). |
 | 0.4.17 | Direct collection for one known query term | Implemented; read [API](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [all comparisons](docs/CHANGES-0.4.17.md). |
 | 0.4.16 | Large-query posting-frequency cursors | Implemented; read [performance](docs/CORE-PERFORMANCE.md), [API](docs/API-COOKBOOK.md) and [all comparisons](docs/CHANGES-0.4.16.md). |

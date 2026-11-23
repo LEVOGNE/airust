@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.18 directly merges candidate lists for exactly two known query terms. The single-term path and large-query frequency cursors remain. Read the latest section below and [all current comparisons and limits](CHANGES-0.4.18.md). Earlier construction/storage work remains the foundation described here.
+AIRust 0.4.19 shares exact checked dictionary intersection between scoring fallback and winner explanations, reducing repeated absent-word lookups for broad sparse queries. Earlier single/two-term and frequency-cursor paths remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.19.md). Earlier construction/storage work remains the foundation described here.
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -146,3 +146,9 @@ Multiple known terms keep the heap/set strategies. Candidate order, filters, ori
 For exactly two known indexed terms, compare the current IDs of both already sorted posting lists. Append the lower ID, or append once and advance both lists when equal. A live Arc identity shortcut uses exact string order when allocations differ. Both sides of an overlap still invoke the same posting visitor, as does every remaining tail ID. No cancellation/deadline check or progress visit is removed. More than two terms retain the previous heap/set strategies; one term keeps the 0.4.17 direct path.
 
 The private helper uses an inline-never boundary to keep merge iterator work outside the caller. The candidate Vec initially reserves min(32, the larger posting count) borrowed slots and can grow with input. Two temporary iterator states replace the pair's temporary heap. There is no persistent index field, new cache, dependency or public option. Heap profiles exclude iterator/stack state; fewer temporary allocations do not imply a total RAM bound. Original scoring/frequency reuse, filters, ties and explanations remain. Read [two ordinary MCP campaigns, direct controls, fresh three-version references, all small guards and slower cases](CHANGES-0.4.18.md).
+
+## Broad-query explanations in 0.4.19
+
+For more than 32 known terms and more than twice the winner document vocabulary, inspect sorted document words and binary-search the prepared query. Otherwise scan prepared query words against the document dictionary. Scoring fallback and winner matched-term construction share this exact intersection; frequency-cursor scoring is unchanged. Both dictionaries are sorted, keeping matched-term order and score contribution order. No extra persistent storage or public API is added.
+
+Explanation checkpoints occur before each winner and at every 128 actually inspected words, including the first. Sparse scans do less work and can therefore make fewer explanation checks; long scans remain checked. Failure drops the partial vector. Posting and scoring/norm controls remain. Dense documents and short queries need not improve. Read [three broad campaigns, complete-response checks, Core guards, allocations, host load and all slower cases](CHANGES-0.4.19.md).

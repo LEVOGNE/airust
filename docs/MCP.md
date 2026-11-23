@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.6
+# Optional MCP in AIRust 0.4.19
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.6 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.19 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -235,3 +235,11 @@ Every posting still checks the cooperative control. Worker admission, progress/s
 Existing tools, arguments and algorithms remain. The shared Engine can directly merge exactly two known terms' sorted candidate lists. It keeps both overlap visits and every tail checkpoint, then uses the same scoring, scopes, source positions and result schemas. One-term, wider-query and large-scoring strategies remain. No endpoint, startup work or feature dependency is added.
 
 Progress delivery, admission, worker leases, original absolute deadlines, connection cancellation/drain and frame/rate/result budgets keep their contracts. Direct Core gains and full transport latency have different costs. Read [initial/repeated MCP results, complete response checks, small guards and all negative observations](CHANGES-0.4.18.md).
+
+## Broad search execution in 0.4.19
+
+Existing tools, arguments, algorithms and response shapes stay the same. Broad search winner explanations use the shared Core exact dictionary intersection, avoiding repeated absent-word probes in sparse documents. Scores, matched terms, scopes, evidence and original positions retain their contracts. No new endpoint, cache or permission is added.
+
+The 4,096-byte query limit and existing 256-unique-normalized-term assessment limit are separate. A query can fit the byte budget and still exceed the term budget; this returns operation_failed, reports error progress and exposes no partial successful result. Twelve explicit rejection/recovery checks cover both rankers and all three compared releases. This release does not raise limits.
+
+Cancellation/deadline checkpoints cover each winner and every 128 actually inspected explanation words. Sparse scans may inspect fewer words and make fewer checks. Admission, worker leases, absolute deadlines, progress delivery, connection drain and protocol budgets remain. See [actual reply validation, all timing boundaries and limits](CHANGES-0.4.19.md).

@@ -177,7 +177,19 @@ fn matching_terms_checked<E>(
                 matched(term, frequency);
             }
         }
-    } else if prepared.len() > 32 && prepared.len() > document.terms.len().saturating_mul(2) {
+    } else {
+        dictionary_terms_checked(prepared, document, checkpoint, matched)?;
+    }
+    Ok(())
+}
+
+fn dictionary_terms_checked<E>(
+    prepared: &[QueryTerm<'_>],
+    document: &IndexedEntry,
+    checkpoint: &mut impl FnMut() -> Result<(), E>,
+    mut matched: impl FnMut(&QueryTerm<'_>, usize),
+) -> Result<(), E> {
+    if prepared.len() > 32 && prepared.len() > document.terms.len().saturating_mul(2) {
         for (position, (word, frequency)) in document.terms.iter().enumerate() {
             if position.is_multiple_of(128) {
                 checkpoint()?;
@@ -197,6 +209,18 @@ fn matching_terms_checked<E>(
         }
     }
     Ok(())
+}
+
+fn matched_terms_checked<E>(
+    prepared: &[QueryTerm<'_>],
+    document: &IndexedEntry,
+    checkpoint: &mut impl FnMut() -> Result<(), E>,
+) -> Result<Vec<String>, E> {
+    let mut terms = Vec::new();
+    dictionary_terms_checked(prepared, document, checkpoint, |term, _| {
+        terms.push(term.text.to_owned());
+    })?;
+    Ok(terms)
 }
 
 struct PostingCursor<'a> {
@@ -900,15 +924,7 @@ impl KnowledgeIndex {
         let mut result = Vec::with_capacity(winners.len());
         for winner in winners {
             checkpoint()?;
-            let mut matched_terms = Vec::new();
-            for (position, term) in prepared.iter().enumerate() {
-                if position.is_multiple_of(128) {
-                    checkpoint()?;
-                }
-                if winner.document.terms.contains_key(term.text) {
-                    matched_terms.push(term.text.to_owned());
-                }
-            }
+            let matched_terms = matched_terms_checked(&prepared, winner.document, &mut checkpoint)?;
             result.push(SearchResult {
                 entry: &winner.document.entry,
                 score: winner.score,
@@ -1776,6 +1792,115 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    fn winner_terms_match_independent_sorted_intersection_across_query_widths() {
+        let count = if cfg!(miri) { 96 } else { 512 };
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("focus", "term0 term0 term5 term13 café café हिंदी 中文"),
+            KnowledgeEntry::new(
+                "vocabulary",
+                (0..count).map(|n| format!("term{n} ")).collect::<String>() + " café हिंदी 中文",
+            ),
+        ])
+        .unwrap();
+        let widths: &[usize] = if cfg!(miri) {
+            &[0, 1, 32, 33, 64, 65]
+        } else {
+            &[0, 1, 32, 33, 64, 65, 128, 257, 512]
+        };
+        let mut queries: Vec<_> = widths
+            .iter()
+            .map(|width| (0..*width).map(|n| format!("term{n} ")).collect::<String>() + " absent")
+            .collect();
+        queries.push("CAFÉ cafe\u{301} हिंदी 中文 absent".into());
+        queries.push(
+            (0..65).map(|n| format!("term{n} ")).collect::<String>()
+                + " CAFÉ cafe\u{301} हिंदी 中文 term0 term0 absent",
+        );
+        let document = index.documents.get("focus").unwrap();
+        for query in queries {
+            let frequencies = text::term_frequencies(&query);
+            let prepared: Vec<_> = frequencies
+                .iter()
+                .filter_map(|(word, count)| {
+                    index.postings.get(word.as_str()).map(|postings| QueryTerm {
+                        text: word,
+                        frequency: *count as f64,
+                        idf: 1.0,
+                        postings,
+                    })
+                })
+                .collect();
+            let wanted: BTreeSet<_> = frequencies.keys().map(String::as_str).collect();
+            let words: BTreeSet<_> = text::tokenize(&document.entry.text).into_iter().collect();
+            let expected: Vec<_> = words
+                .iter()
+                .map(String::as_str)
+                .filter(|word| wanted.contains(word))
+                .map(str::to_owned)
+                .collect();
+            let actual = matched_terms_checked(&prepared, document, &mut || Ok::<_, ()>(()));
+            assert_eq!(actual.unwrap(), expected);
+            let mut scored = Vec::new();
+            dictionary_terms_checked(&prepared, document, &mut || Ok::<_, ()>(()), |term, tf| {
+                scored.push((term.text.to_owned(), tf));
+            })
+            .unwrap();
+            assert_eq!(
+                scored,
+                expected
+                    .into_iter()
+                    .map(|word| {
+                        let tf = document.terms[word.as_str()];
+                        (word, tf)
+                    })
+                    .collect::<Vec<_>>()
+            );
+        }
+    }
+
+    #[test]
+    fn winner_terms_reject_partial_explanations_at_inspection_checkpoint() {
+        let count = if cfg!(miri) { 129 } else { 512 };
+        let body = (0..129).map(|n| format!("term{n} ")).collect::<String>();
+        let query = (0..count).map(|n| format!("term{n} ")).collect::<String>();
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("focus", body),
+            KnowledgeEntry::new("vocabulary", &query),
+        ])
+        .unwrap();
+        let frequencies = text::term_frequencies(&query);
+        let prepared: Vec<_> = frequencies
+            .iter()
+            .map(|(word, count)| QueryTerm {
+                text: word,
+                frequency: *count as f64,
+                idf: 1.0,
+                postings: &index.postings[word.as_str()],
+            })
+            .collect();
+        let document = index.documents.get("focus").unwrap();
+        let before = index.to_json().unwrap();
+        let mut checkpoints = 0;
+        let result = matched_terms_checked(&prepared, document, &mut || {
+            checkpoints += 1;
+            if checkpoints == 2 {
+                Err("interrupted")
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(result, Err("interrupted"));
+        assert_eq!(checkpoints, 2);
+        assert_eq!(index.to_json().unwrap(), before);
+        assert_eq!(
+            matched_terms_checked(&prepared, document, &mut || Ok::<_, ()>(()))
+                .unwrap()
+                .len(),
+            129
+        );
+    }
 
     #[test]
     fn paired_postings_match_independent_union_with_shared_and_equal_ids() {
