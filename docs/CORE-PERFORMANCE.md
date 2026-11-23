@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.19 shares exact checked dictionary intersection between scoring fallback and winner explanations, reducing repeated absent-word lookups for broad sparse queries. Earlier single/two-term and frequency-cursor paths remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.19.md). Earlier construction/storage work remains the foundation described here.
+AIRust 0.4.20 uses a bounded cursor to reuse sorted document lookup during large searches. Earlier single/two-term, posting-frequency and broad-explanation improvements remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.20.md). Earlier construction/storage work remains the foundation described here.
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -152,3 +152,9 @@ The private helper uses an inline-never boundary to keep merge iterator work out
 For more than 32 known terms and more than twice the winner document vocabulary, inspect sorted document words and binary-search the prepared query. Otherwise scan prepared query words against the document dictionary. Scoring fallback and winner matched-term construction share this exact intersection; frequency-cursor scoring is unchanged. Both dictionaries are sorted, keeping matched-term order and score contribution order. No extra persistent storage or public API is added.
 
 Explanation checkpoints occur before each winner and at every 128 actually inspected words, including the first. Sparse scans do less work and can therefore make fewer explanation checks; long scans remain checked. Failure drops the partial vector. Posting and scoring/norm controls remain. Dense documents and short queries need not improve. Read [three broad campaigns, complete-response checks, Core guards, allocations, host load and all slower cases](CHANGES-0.4.19.md).
+
+## Ordered document lookup in 0.4.20
+
+Candidate IDs are sorted and unique before ranking. A request with at least 1,024 candidates uses direct lookup for the first 128, then starts a private DocumentCursor at the current ID. Compare exact IDs, using Arc identity only as a shortcut for live immutable allocations. Return the existing map key/document and advance once when found. Read nearby lower keys; after eight, check cancellation/deadlines and seek directly to the target. Original per-candidate checkpoints and filters remain. No additional progress visit is counted for skipped map keys.
+
+The cursor borrows the immutable map and owns no heap storage. Persistent index layout, norm-cache identity and saved formats remain. Query-local range/iterator stack state is excluded from heap profiles. Sparse gaps can add work; this heuristic is not optimal for every distribution. Native tests compare independent lookup, Unicode/equal IDs, gaps, exhaustion, recovery and large-index hand calculations. Read [two large-corpus campaigns, direct controls, broad/small guards, heap costs and all slower observations](CHANGES-0.4.20.md).

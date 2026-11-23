@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.19
+# Optional MCP in AIRust 0.4.20
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.19 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.20 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -243,3 +243,9 @@ Existing tools, arguments, algorithms and response shapes stay the same. Broad s
 The 4,096-byte query limit and existing 256-unique-normalized-term assessment limit are separate. A query can fit the byte budget and still exceed the term budget; this returns operation_failed, reports error progress and exposes no partial successful result. Twelve explicit rejection/recovery checks cover both rankers and all three compared releases. This release does not raise limits.
 
 Cancellation/deadline checkpoints cover each winner and every 128 actually inspected explanation words. Sparse scans may inspect fewer words and make fewer checks. Admission, worker leases, absolute deadlines, progress delivery, connection drain and protocol budgets remain. See [actual reply validation, all timing boundaries and limits](CHANGES-0.4.19.md).
+
+## Large-query document access in 0.4.20
+
+Existing tools, arguments and response schemas remain. The shared Engine uses ordered document access for large sorted candidate sets, retaining exact scores, source positions and filters. Small sets keep their previous lookup path. The cursor checks before a fallback seek after eight lower map keys; original candidate/scoring checks remain. It adds no endpoint, permission or persistent cache.
+
+Admission, absolute deadlines, progress delivery, worker leases, disconnect cancellation/drain, byte/term/frame/result/rate limits and no-partial-result errors retain their contracts. Startup indexing remains outside tool deadlines. Sparse gaps, query-local stack state, startup, Rust search and transport are separate costs. Read [actual MCP comparisons, initial/repeated timings, RAM and all limits](CHANGES-0.4.20.md).

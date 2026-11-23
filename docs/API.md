@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.19 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.20 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.19 retains Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits calls. Broad winner explanations share the exact checked dictionary intersection already used by scoring. Matched terms remain sorted and exact; scoring order, scopes and original positions remain. Checkpoints cover every 128 actually inspected explanation words plus each winner; sparse scans can do less work and fewer checks. Failed checks discard partial results. No new dependency, setting, schema or format migration. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [comparisons](CHANGES-0.4.19.md).
+Version 0.4.20 retains Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits usage. Searches with at least 1,024 candidates can use a document cursor after the first 128 candidates. It reads nearby sorted IDs and seeks after eight lower keys, with an extra cooperative check before seeking. Original candidate checks, score arithmetic, scopes, matched terms and source positions remain. No new setting, dependency, schema or saved-format migration. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [all comparisons](CHANGES-0.4.20.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

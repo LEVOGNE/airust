@@ -1,0 +1,146 @@
+{
+  "scope": "Development pilot only; three fresh rotating0.4.18/0.4.19/0.4.20 triples, standard+extendedwide/canonical/tinyMCP and original6smallCore cases; no samples enter final campaigns",
+  "registry_vcs": {
+    "reference": "fd5a0e182ece603e135feb609351cc3559bca4bf",
+    "baseline": "0c4df4d1ff1d3624fe10869b02f1e41bef3f1adf"
+  },
+  "complete_responses_equal": true,
+  "small": {
+    "tiny16_bm25": {
+      "reference": 1017.25,
+      "baseline": 984.375,
+      "candidate": 984.458
+    },
+    "tiny16_tfidf": {
+      "reference": 1087.917,
+      "baseline": 1062.208,
+      "candidate": 1044.292
+    },
+    "tiny4_bm25": {
+      "reference": 349.542,
+      "baseline": 343.042,
+      "candidate": 345.041
+    },
+    "tiny4_tfidf": {
+      "reference": 371.291,
+      "baseline": 353.042,
+      "candidate": 365.542
+    },
+    "tiny_bm25": {
+      "reference": 208.083,
+      "baseline": 182.416,
+      "candidate": 184.5
+    },
+    "tiny_tfidf": {
+      "reference": 191.25,
+      "baseline": 174.667,
+      "candidate": 181.459
+    }
+  },
+  "mcp": {
+    "wide": {
+      "initial": {
+        "bm25": {
+          "reference": 0.5431874888017774,
+          "baseline": 0.5431249737739563,
+          "candidate": 0.5092084174975753
+        },
+        "tfidf": {
+          "reference": 0.481916475109756,
+          "baseline": 0.4947501001879573,
+          "candidate": 0.47714589163661003
+        }
+      },
+      "repeated": {
+        "bm25": {
+          "reference": 0.4468748811632395,
+          "baseline": 0.43695804197341204,
+          "candidate": 0.45000005047768354
+        },
+        "tfidf": {
+          "reference": 0.4378539742901921,
+          "baseline": 0.43350004125386477,
+          "candidate": 0.4446874372661114
+        }
+      }
+    },
+    "extended": {
+      "initial": {
+        "bm25": {
+          "reference": 0.6572295678779483,
+          "baseline": 0.5910624749958515,
+          "candidate": 0.588291441090405
+        },
+        "tfidf": {
+          "reference": 0.8603126043453813,
+          "baseline": 0.7983534596860409,
+          "candidate": 0.7952295709401369
+        }
+      },
+      "repeated": {
+        "bm25": {
+          "reference": 0.6340210093185306,
+          "baseline": 0.5403539398685098,
+          "candidate": 0.5433750338852406
+        },
+        "tfidf": {
+          "reference": 0.8029164746403694,
+          "baseline": 0.7296664407476783,
+          "candidate": 0.7196044316515326
+        }
+      }
+    },
+    "canonical": {
+      "initial": {
+        "bm25": {
+          "reference": 3.195500001311302,
+          "baseline": 3.3787295687943697,
+          "candidate": 2.8336455579847097
+        },
+        "tfidf": {
+          "reference": 19.66624951455742,
+          "baseline": 19.839437445625663,
+          "candidate": 18.619708018377423
+        }
+      },
+      "repeated": {
+        "bm25": {
+          "reference": 2.8665625723078847,
+          "baseline": 2.7651044074445963,
+          "candidate": 2.3388538975268602
+        },
+        "tfidf": {
+          "reference": 3.2957084476947784,
+          "baseline": 3.1415204284712672,
+          "candidate": 2.5965420063585043
+        }
+      }
+    },
+    "tiny": {
+      "initial": {
+        "bm25": {
+          "reference": 0.14266697689890862,
+          "baseline": 0.14093751087784767,
+          "candidate": 0.1314579276368022
+        },
+        "tfidf": {
+          "reference": 0.13885449152439833,
+          "baseline": 0.13989594299346209,
+          "candidate": 0.13304094318300486
+        }
+      },
+      "repeated": {
+        "bm25": {
+          "reference": 0.12450001668184996,
+          "baseline": 0.1254579983651638,
+          "candidate": 0.12550014071166515
+        },
+        "tfidf": {
+          "reference": 0.12435449752956629,
+          "baseline": 0.12389547191560268,
+          "candidate": 0.12668792624026537
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "baseline": {
+    "processes": 5,
+    "new_group_query_ns": {
+      "n": 500,
+      "mean": 135644.662,
+      "median": 140229.5,
+      "p95": 148975.65,
+      "min": 105375,
+      "max": 198917
+    },
+    "post_readers_first_ns": {
+      "n": 5,
+      "mean": 142533,
+      "median": 137458,
+      "p95": 165166.4,
+      "min": 124083,
+      "max": 168208
+    },
+    "post_readers_second_ns": {
+      "n": 5,
+      "mean": 83641.8,
+      "median": 84250,
+      "p95": 86150.0,
+      "min": 80917,
+      "max": 86500
+    },
+    "warm_reader_calls": 660
+  },
+  "candidate": {
+    "processes": 5,
+    "new_group_query_ns": {
+      "n": 500,
+      "mean": 176566.17,
+      "median": 173271.0,
+      "p95": 190670.19999999998,
+      "min": 166667,
+      "max": 216583
+    },
+    "post_readers_first_ns": {
+      "n": 5,
+      "mean": 157349.8,
+      "median": 145208,
+      "p95": 182908.0,
+      "min": 135250,
+      "max": 182958
+    },
+    "post_readers_second_ns": {
+      "n": 5,
+      "mean": 85516.6,
+      "median": 85375,
+      "p95": 86975.2,
+      "min": 83583,
+      "max": 87167
+    },
+    "warm_reader_calls": 2261
+  }
+}

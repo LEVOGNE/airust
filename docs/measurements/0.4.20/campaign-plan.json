@@ -1,0 +1,71 @@
+{
+  "version": "0.4.20",
+  "created_at": "2026-11-23T14:13:19.033896+00:00",
+  "baseline": "exact registry0.4.19 0c4df4d1ff1d3624fe10869b02f1e41bef3f1adf",
+  "reference": "exact registry0.4.18 fd5a0e182ece603e135feb609351cc3559bca4bf",
+  "scope": "Bounded ordered document lookup cursor for large sorted candidate sets; retain exact scoring, original checkpoints and public contracts.",
+  "question_origin": "Retained342exposed authored questions, no new holdout or model-answer claim",
+  "mcp_processes_per_campaign": 90,
+  "mcp_campaigns": 2,
+  "wide_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7,
+    "extended": 7
+  },
+  "wide_primary_versions": [
+    "0.4.18",
+    "0.4.19",
+    "0.4.20"
+  ],
+  "wide_primary_processes": 63,
+  "wide_primary_expected_schema_replies": 4284,
+  "wide_primary_expected_complete_pairs": 2856,
+  "wide_extended_query_widths": [
+    32,
+    33,
+    64,
+    65,
+    128,
+    129,
+    192,
+    255,
+    256,
+    255
+  ],
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "small_matrix_cases": 96,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "host_load_sampling_seconds": 2,
+  "artifact_policy": "Archive proof then remove only /private/tmp/airust-ranking-0420-build and -miri",
+  "knowledge_policy": "Preserve PDFs/canonical knowledge, all previous sources and every negative outcome; no new PDF extraction",
+  "wide_extended_last_query": "255 known terms plus duplicate term0 and one absent term,256 unique normalized terms",
+  "wide_boundary_checks": {
+    "separate_processes": 3,
+    "rejected_requests": 12,
+    "known_term_widths": [
+      257,
+      512
+    ],
+    "bound": 256
+  },
+  "large_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7
+  },
+  "large_primary_versions": [
+    "0.4.18",
+    "0.4.19",
+    "0.4.20"
+  ],
+  "large_primary_processes": 42,
+  "large_primary_expected_schema_replies": 2856,
+  "large_primary_expected_complete_pairs": 1904,
+  "frozen_at": "2026-11-23T14:26:19.215269+00:00",
+  "development_pilot": "Three rotating triples; full responses equal; largeMCP repeat medians -15.42%Bm25/-17.35%Tfidf vs019, small/wide mixed. Pilot stays separate fromfinalsamples; only additional native test/format changed after pilot, runtimealgorithmunchanged.",
+  "runtime": "DocumentCursor for>=1024candidates starting at position128; skip max8lowerkeys thencheckpoint+reseek; original per-candidate checks retained.",
+  "metadata_corrected_at": "2026-11-23T14:26:19.215269+00:00",
+  "template_correction": "Corrected inherited plan.json stale source identities/mechanism/unsupported query widths to the already selected runtime, supported inputs and campaign-plan before any final timing. Initial template retained privately. No runtime or benchmark input changed."
+}

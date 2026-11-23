@@ -108,6 +108,61 @@ struct QueryTerm<'a> {
     postings: &'a BTreeMap<Arc<str>, usize>,
 }
 
+type DocumentMap = BTreeMap<Arc<str>, Shared<IndexedEntry>>;
+
+struct DocumentCursor<'a> {
+    documents: &'a DocumentMap,
+    rest: std::collections::btree_map::Range<'a, Arc<str>, Shared<IndexedEntry>>,
+    next: Option<(&'a Arc<str>, &'a Shared<IndexedEntry>)>,
+}
+
+impl<'a> DocumentCursor<'a> {
+    fn new(documents: &'a DocumentMap, first: &str) -> Self {
+        let mut rest = documents
+            .range::<str, _>((std::ops::Bound::Included(first), std::ops::Bound::Unbounded));
+        let next = rest.next();
+        Self {
+            documents,
+            rest,
+            next,
+        }
+    }
+
+    fn get_checked<E>(
+        &mut self,
+        id: &Arc<str>,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<Option<(&'a Arc<str>, &'a IndexedEntry)>, E> {
+        let mut skipped = 0;
+        while let Some((key, document)) = self.next {
+            let order = if Arc::ptr_eq(key, id) {
+                std::cmp::Ordering::Equal
+            } else {
+                key.as_ref().cmp(id.as_ref())
+            };
+            match order {
+                std::cmp::Ordering::Equal => {
+                    self.next = self.rest.next();
+                    return Ok(Some((key, shared_ref(document))));
+                }
+                std::cmp::Ordering::Greater => return Ok(None),
+                std::cmp::Ordering::Less => {
+                    skipped += 1;
+                    if skipped == 8 {
+                        checkpoint()?;
+                        self.rest = self.documents.range::<str, _>((
+                            std::ops::Bound::Included(id.as_ref()),
+                            std::ops::Bound::Unbounded,
+                        ));
+                    }
+                    self.next = self.rest.next();
+                }
+            }
+        }
+        Ok(None)
+    }
+}
+
 struct TermCursor<'a> {
     postings: &'a BTreeMap<Arc<str>, usize>,
     rest: std::collections::btree_map::Range<'a, Arc<str>, usize>,
@@ -445,7 +500,7 @@ impl<'a> NormQuery<'a> {
 
 #[derive(Debug, Clone, Default)]
 pub struct KnowledgeIndex {
-    documents: BTreeMap<Arc<str>, Shared<IndexedEntry>>,
+    documents: DocumentMap,
     postings: HashMap<Arc<str>, Shared<BTreeMap<Arc<str>, usize>>>,
     normalized_ids: BTreeMap<Arc<str>, Shared<BTreeSet<Arc<str>>>>,
     total_tokens: usize,
@@ -828,12 +883,8 @@ impl KnowledgeIndex {
         let mut results = TopK::new(options.limit);
         let mut admitted = 0usize;
         let mut cursors = None;
-        for (position, id) in merged
-            .into_iter()
-            .map(|id| id.as_ref())
-            .chain(wide.into_iter().map(|id| id.as_ref()))
-            .enumerate()
-        {
+        let mut documents = None;
+        for (position, id) in merged.into_iter().chain(wide).enumerate() {
             #[cfg(not(feature = "execution"))]
             let _ = position;
             checkpoint()?;
@@ -850,10 +901,17 @@ impl KnowledgeIndex {
                     );
                 }
             }
-            let (key, document) = self
-                .documents
-                .get_key_value(id)
-                .expect("indexed candidate ID");
+            if position == 128 && candidate_count >= 1024 {
+                documents = Some(DocumentCursor::new(&self.documents, id));
+            }
+            let (key, document) = if let Some(cursor) = documents.as_mut() {
+                cursor.get_checked(id, &mut checkpoint)?
+            } else {
+                self.documents
+                    .get_key_value(id.as_ref())
+                    .map(|(key, document)| (key, shared_ref(document)))
+            }
+            .expect("indexed candidate ID");
             if options
                 .context
                 .as_ref()
@@ -861,7 +919,7 @@ impl KnowledgeIndex {
             {
                 continue;
             }
-            if !includes(id) {
+            if !includes(id.as_ref()) {
                 continue;
             }
             if admitted == 128 && candidate_count >= 1024 && (1..=4).contains(&prepared.len()) {
@@ -1792,6 +1850,182 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    #[cfg(not(miri))]
+    fn large_ordered_document_lookup_keeps_ties_filters_scores_and_partial_result_rejection() {
+        let index = KnowledgeIndex::from_entries((0..2048).map(|n| {
+            KnowledgeEntry::new(
+                format!("entry/{n:04}"),
+                if !(512..1536).contains(&n) {
+                    "chosen"
+                } else {
+                    "other"
+                },
+            )
+            .with_metadata(serde_json::json!({"scope": n % 3}))
+        }))
+        .unwrap();
+        let before = index.to_json().unwrap();
+        let terms = text::term_frequencies("chosen chosen absent");
+        for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+            for scope in [None, Some(1), Some(9)] {
+                for limit in [0, 1, 1024, 2048] {
+                    let options = SearchOptions {
+                        algorithm,
+                        limit,
+                        context: scope.map(|n| Context::new().with_metadata("scope", n)),
+                        ..Default::default()
+                    };
+                    let actual = index
+                        .search_analyzed_checked(
+                            &terms,
+                            &options,
+                            |id| !id.ends_with('3'),
+                            || Ok::<_, ()>(()),
+                            #[cfg(feature = "execution")]
+                            None,
+                        )
+                        .unwrap();
+                    let expected: Vec<_> = index
+                        .entries()
+                        .filter(|entry| {
+                            entry.text == "chosen"
+                                && !entry.id.ends_with('3')
+                                && scope
+                                    .is_none_or(|n| entry.metadata.as_ref().unwrap()["scope"] == n)
+                        })
+                        .take(limit)
+                        .map(|entry| entry.id.as_str())
+                        .collect();
+                    assert_eq!(
+                        actual
+                            .iter()
+                            .map(|hit| hit.entry.id.as_str())
+                            .collect::<Vec<_>>(),
+                        expected
+                    );
+                    for hit in actual {
+                        let expected = match algorithm {
+                            SearchAlgorithm::Bm25 => 2.0_f64.ln(),
+                            SearchAlgorithm::Tfidf => 1.0,
+                        };
+                        assert!((hit.score - expected).abs() < 1e-12);
+                        assert_eq!(hit.matched_terms, ["chosen"]);
+                    }
+                }
+            }
+            let seen = std::cell::Cell::new(0usize);
+            let result = index.search_analyzed_checked(
+                &terms,
+                &SearchOptions {
+                    algorithm,
+                    limit: 1024,
+                    ..Default::default()
+                },
+                |_| {
+                    seen.set(seen.get() + 1);
+                    true
+                },
+                || {
+                    if seen.get() == 512 {
+                        Err("interrupted")
+                    } else {
+                        Ok(())
+                    }
+                },
+                #[cfg(feature = "execution")]
+                None,
+            );
+            assert_eq!(result.unwrap_err(), "interrupted");
+            assert_eq!(seen.get(), 512);
+        }
+        assert_eq!(index.to_json().unwrap(), before);
+    }
+
+    #[test]
+    fn document_cursor_matches_independent_lookup_for_ordered_ids_and_gaps() {
+        let count = if cfg!(miri) { 24 } else { 256 };
+        let mut records: Vec<_> = (0..count)
+            .map(|n| KnowledgeEntry::new(format!("id/{n:03}"), format!("body {n}")))
+            .collect();
+        records.extend([
+            KnowledgeEntry::new("a\0b", "control identifier"),
+            KnowledgeEntry::new("e\u{301}", "decomposed identifier"),
+            KnowledgeEntry::new("é", "composed identifier"),
+            KnowledgeEntry::new("資料/😀", "unicode identifier"),
+        ]);
+        let index = KnowledgeIndex::from_entries(records).unwrap();
+        let mut ids: Vec<Arc<str>> = [
+            "",
+            "a\0b",
+            "e\u{301}",
+            "id/000",
+            "id/001",
+            "id/001a",
+            "id/004",
+            "id/022",
+            "id/255",
+            "id/999",
+            "é",
+            "資料/😀",
+            "𐀀",
+        ]
+        .into_iter()
+        .map(Arc::from)
+        .collect();
+        ids.sort();
+        let mut cursor = DocumentCursor::new(&index.documents, "");
+        let mut checks = 0;
+        for id in ids {
+            let wanted = index.documents.get_key_value(id.as_ref());
+            let actual = cursor
+                .get_checked(&id, &mut || {
+                    checks += 1;
+                    Ok::<_, ()>(())
+                })
+                .unwrap();
+            assert_eq!(
+                actual.map(|(key, doc)| (key.as_ref(), &doc.entry)),
+                wanted.map(|(key, doc)| (key.as_ref(), &doc.entry))
+            );
+        }
+        assert!(checks > 0);
+        let mut cursor = DocumentCursor::new(&index.documents, "");
+        for (key, wanted) in &index.documents {
+            let (found, actual) = cursor
+                .get_checked(key, &mut || Ok::<_, ()>(()))
+                .unwrap()
+                .unwrap();
+            assert!(Arc::ptr_eq(found, key));
+            assert!(std::ptr::eq(actual, shared_ref(wanted)));
+        }
+    }
+
+    #[test]
+    fn document_cursor_checks_before_gap_seek_and_recovers_after_interruption() {
+        let index = KnowledgeIndex::from_entries(
+            (0..24).map(|n| KnowledgeEntry::new(format!("{n:02}"), "entry")),
+        )
+        .unwrap();
+        let id = Arc::from("23");
+        let before = index.to_json().unwrap();
+        let mut cursor = DocumentCursor::new(&index.documents, "");
+        let mut checks = 0;
+        let result = cursor.get_checked(&id, &mut || {
+            checks += 1;
+            Err("interrupted")
+        });
+        assert_eq!(result.unwrap_err(), "interrupted");
+        assert_eq!(checks, 1);
+        let (key, found) = cursor
+            .get_checked(&id, &mut || Ok::<_, ()>(()))
+            .unwrap()
+            .unwrap();
+        assert_eq!(key.as_ref(), "23");
+        assert_eq!(found.entry.id, "23");
+        assert_eq!(index.to_json().unwrap(), before);
+    }
 
     #[test]
     fn winner_terms_match_independent_sorted_intersection_across_query_widths() {
