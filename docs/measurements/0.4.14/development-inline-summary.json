@@ -1,0 +1,76 @@
+{
+  "scope": "Development pilot, not final benchmark; retained published-source baseline MCP binary and fresh registry0.4.13 query app",
+  "mcp": {
+    "canonical": {
+      "initial_search_samples": {
+        "baseline": 18.99470796342939,
+        "candidate": 17.996020964346826
+      },
+      "search_samples": {
+        "baseline": 5.683478899300098,
+        "candidate": 5.324499914422631
+      }
+    },
+    "tiny": {
+      "initial_search_samples": {
+        "baseline": 1.3157919747754931,
+        "candidate": 1.3298746198415756
+      },
+      "search_samples": {
+        "baseline": 1.3204580172896385,
+        "candidate": 1.3196455547586083
+      }
+    }
+  },
+  "small_core": {
+    "small_time/tiny16_bm25": {
+      "baseline": 1385.5,
+      "candidate": 1354.042
+    },
+    "small_time/tiny16_tfidf": {
+      "baseline": 1511.167,
+      "candidate": 1381.208
+    },
+    "small_time/tiny4_bm25": {
+      "baseline": 456.167,
+      "candidate": 444.375
+    },
+    "small_time/tiny4_tfidf": {
+      "baseline": 486.416,
+      "candidate": 464.458
+    },
+    "small_time/tiny_bm25": {
+      "baseline": 250.834,
+      "candidate": 255.833
+    },
+    "small_time/tiny_tfidf": {
+      "baseline": 249.125,
+      "candidate": 232.709
+    },
+    "cold_time/index": {
+      "baseline": 123604.0,
+      "candidate": 121729.0
+    },
+    "cold_time/sparse": {
+      "baseline": 520312.0,
+      "candidate": 518791.5
+    },
+    "cold_time/tiny": {
+      "baseline": 667.0,
+      "candidate": 666.5
+    },
+    "cold_time/tiny16": {
+      "baseline": 2916.0,
+      "candidate": 2833.5
+    },
+    "cold_time/tiny4": {
+      "baseline": 937.5,
+      "candidate": 895.5
+    },
+    "cold_time/wide": {
+      "baseline": 42854.5,
+      "candidate": 39521.0
+    }
+  },
+  "structured_responses_equal": true
+}

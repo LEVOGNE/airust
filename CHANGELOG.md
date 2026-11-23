@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.14 — Warm and small query work
+
+Batch successful norm-hint reads with bounded guard lifetimes; release before misses, callbacks and winner explanations. Keep warm dispatch compact and cold computation separate. Use an eight-slot inline exact-IDF memo and promote to the existing 256-slot heap memo after completed cold work, avoiding immediate 4 KiB allocation for small requests. Preserve persistent storage, exact scores/order, source positions and Rust/MCP contracts. Add release/miss, deferred-scratch and overlapping reader/cold-query regressions; measure tiny inputs and concurrent mixed work alongside retained warm/cold controls. No dependencies or DenkMaps integration. Read [API/performance](docs/CORE-PERFORMANCE.md) and [all measured costs and limits](docs/CHANGES-0.4.14.md).
+
 ## 0.4.13 — Bounded cold-query TF-IDF reuse
 
 Reuse exact IDF word weights in a lazy 256-slot request-local memo while computing missing document norms. Compare full live-term identities; collisions recompute and replace a slot. Drop the memo after the query, preserving persistent cache size, exact arithmetic, sorted contribution order, checkpoints and nonblocking hint fallback. Add collision/recomputation and warm/interrupted allocation regressions. Preserve public Rust/MCP signatures, schemas, source positions and knowledge formats, with no startup prewarming, dependencies or DenkMaps integration. Read [performance/API](docs/CORE-PERFORMANCE.md) and [honest cold/warm/RAM results](docs/CHANGES-0.4.13.md).

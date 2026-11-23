@@ -112,3 +112,13 @@ When a document norm is missing, one query can reuse exact word IDF values in a 
 The memo is allocated lazily after the first cold norm checkpoint and is freed on completion, cancellation or failure. On the measured 64-bit build it adds a 4,096-byte Box plus existing allocation overhead/temporary stack costs. BM25, unknown queries and complete warm norm hits allocate no memo. Persistent norm storage, corpus invalidation, metadata reuse, shared-clone ownership and nonblocking lock/poison fallback remain. Sorted term order, arithmetic and checkpoints every 128 inspected norm terms stay exact. Startup does not compute or prewarm document norms. No index field, dependency, feature flag, public option or storage migration is added.
 
 Cold gains must be weighed against this temporary allocation and unchanged/slower warm cases, especially on tiny collections. Read [first/repeated MCP, tiny controls, heap and RSS](CHANGES-0.4.13.md).
+
+## Warm and small TF-IDF work in 0.4.14
+
+A request-local norm reader retains one successful try_read guard for at most 128 cache hits. It releases the guard on a miss, at the batch boundary, before a progress callback and before winner explanations. Cache-hit dispatch remains small; exact cold norm computation is a separate non-inlined helper. No cache guard escapes the synchronous query or becomes an index field.
+
+Misses release the query's read guard before computation and try_write publication. Another reader or a poisoned/busy lock can still prevent caching a computed norm; the exact result is returned without waiting. A later quiescent query can populate the hint. Native regressions cover bounded release, misses and overlapping warm/cold calls. This is a best-effort optimization, not a lock-free/fairness or process-time guarantee.
+
+Cold word weights first use eight inline slots (128 payload bytes on the measured 64-bit build). After at least 128 terms from earlier completed cold norms, a later norm can promote to the existing 256-slot / 4,096-byte heap memo, preserving surviving exact weights. Neither warm hits nor interrupted work contribute cold-work credit. Both memos compare full live term-allocation identities; collisions recompute exactly. Small requests can avoid the immediate 4 KiB allocation. Inline state/control fields and temporary frames still cost stack space; heap profiles do not measure it.
+
+Sorted term order, floating-point operations, checkpoints, scope, mutation invalidation, shared-clone ownership, source positions and persistent norm storage remain. Startup does not prewarm norms. No dependency, public option, feature flag or storage migration is added. Read [all small/warm/cold/mixed measurements](CHANGES-0.4.14.md).

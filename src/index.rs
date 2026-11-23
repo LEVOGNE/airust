@@ -6,7 +6,7 @@ use crate::ranking::TopK;
 use crate::search::{tfidf_idf, SearchAlgorithm, SearchOptions, SearchResult};
 use crate::text;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
-use std::sync::{Arc, OnceLock, RwLock};
+use std::sync::{Arc, OnceLock, RwLock, RwLockReadGuard};
 use thiserror::Error;
 
 #[cfg(feature = "shared-index")]
@@ -228,26 +228,88 @@ struct QueryWeight {
     idf: f64,
 }
 
-struct QueryWeights {
-    slots: [QueryWeight; 256],
+struct QueryWeights<const N: usize = 256> {
+    slots: [QueryWeight; N],
 }
 
-impl Default for QueryWeights {
+impl<const N: usize> Default for QueryWeights<N> {
     fn default() -> Self {
         Self {
-            slots: [QueryWeight::default(); 256],
+            slots: [QueryWeight::default(); N],
         }
     }
 }
 
-impl QueryWeights {
+impl<const N: usize> QueryWeights<N> {
     fn get(&mut self, key: usize, compute: impl FnOnce() -> f64) -> f64 {
-        let slot = &mut self.slots[((key >> 4) ^ (key >> 12)) & 255];
+        let slot = &mut self.slots[((key >> 4) ^ (key >> 12)) & (N - 1)];
         if slot.key != key {
             slot.idf = compute();
             slot.key = key;
         }
         slot.idf
+    }
+}
+
+struct NormQuery<'a> {
+    cache: &'a TfidfNorms,
+    values: Option<RwLockReadGuard<'a, HashMap<NormKey, f64>>>,
+    read_hits: usize,
+    cold_terms: usize,
+    small: Option<QueryWeights<8>>,
+    weights: Option<Box<QueryWeights>>,
+}
+
+impl<'a> NormQuery<'a> {
+    fn new(cache: &'a TfidfNorms) -> Self {
+        Self {
+            cache,
+            values: None,
+            read_hits: 0,
+            cold_terms: 0,
+            small: None,
+            weights: None,
+        }
+    }
+
+    fn release(&mut self) {
+        self.values.take();
+        self.read_hits = 0;
+    }
+
+    fn get(&mut self, key: NormKey) -> Option<f64> {
+        if self.values.is_none() {
+            self.values = self.cache.values.try_read().ok();
+        }
+        let value = self.values.as_ref()?.get(&key).copied();
+        if value.is_some() {
+            self.read_hits += 1;
+        }
+        if value.is_none() || self.read_hits == 128 {
+            self.release();
+        }
+        value
+    }
+
+    fn weight(&mut self, key: usize, compute: impl FnOnce() -> f64) -> f64 {
+        if self.cold_terms < 128 {
+            return self
+                .small
+                .get_or_insert_with(QueryWeights::default)
+                .get(key, compute);
+        }
+        let weights = self.weights.get_or_insert_with(|| {
+            let mut weights = Box::new(QueryWeights::default());
+            if let Some(small) = self.small.take() {
+                for slot in small.slots {
+                    if slot.key != 0 {
+                        weights.get(slot.key, || slot.idf);
+                    }
+                }
+            }
+            weights
+        });
+        weights.get(key, compute)
     }
 }
 
@@ -618,12 +680,13 @@ impl KnowledgeIndex {
         } else {
             0.0
         };
-        let norms =
+        let mut norms =
             (options.algorithm == SearchAlgorithm::Tfidf && candidate_count > 0).then(|| {
-                self.tfidf_norms
-                    .get_or_init(|| Arc::new(TfidfNorms::default()))
+                NormQuery::new(
+                    self.tfidf_norms
+                        .get_or_init(|| Arc::new(TfidfNorms::default())),
+                )
             });
-        let mut query_weights = None;
         let mut results = TopK::new(options.limit);
         for (position, id) in merged
             .into_iter()
@@ -637,6 +700,9 @@ impl KnowledgeIndex {
             #[cfg(feature = "execution")]
             if position.is_multiple_of(512) {
                 if let Some(control) = control {
+                    if let Some(norms) = norms.as_mut() {
+                        norms.release();
+                    }
                     control.progress(
                         crate::execution::WorkPhase::Ranking,
                         position,
@@ -675,8 +741,7 @@ impl KnowledgeIndex {
                     let norm = self.tfidf_norm_checked(
                         key,
                         document,
-                        norms.expect("TF-IDF cache"),
-                        &mut query_weights,
+                        norms.as_mut().expect("TF-IDF cache"),
                         &mut checkpoint,
                     )?;
                     if norm > 0.0 && query_norm > 0.0 {
@@ -690,6 +755,7 @@ impl KnowledgeIndex {
                 results.push(RankedDocument { document, score });
             }
         }
+        drop(norms);
         checkpoint()?;
         let winners = results.finish();
         let mut result = Vec::with_capacity(winners.len());
@@ -727,33 +793,40 @@ impl KnowledgeIndex {
         &self,
         id: &Arc<str>,
         document: &IndexedEntry,
-        cache: &TfidfNorms,
-        weights: &mut Option<Box<QueryWeights>>,
+        query: &mut NormQuery<'_>,
         checkpoint: &mut impl FnMut() -> Result<(), E>,
     ) -> Result<f64, E> {
         let key = NormKey::from_id(id);
-        if let Ok(values) = cache.values.try_read() {
-            if let Some(value) = values.get(&key) {
-                return Ok(*value);
-            }
+        if let Some(value) = query.get(key) {
+            return Ok(value);
         }
+        self.compute_tfidf_norm_checked(key, document, query, checkpoint)
+    }
+
+    #[inline(never)]
+    fn compute_tfidf_norm_checked<E>(
+        &self,
+        key: NormKey,
+        document: &IndexedEntry,
+        query: &mut NormQuery<'_>,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<f64, E> {
         let mut sum = 0.0;
         for (position, (term, tf)) in document.terms.iter().enumerate() {
             if position.is_multiple_of(128) {
                 checkpoint()?;
             }
-            let idf = weights
-                .get_or_insert_with(|| Box::new(QueryWeights::default()))
-                .get(Arc::as_ptr(term).addr(), || {
-                    tfidf_idf(self.len(), self.postings[term].len())
-                });
+            let idf = query.weight(Arc::as_ptr(term).addr(), || {
+                tfidf_idf(self.len(), self.postings[term].len())
+            });
             sum += (*tf as f64 * idf).powi(2);
         }
         let norm = sum.sqrt();
         checkpoint()?;
-        if let Ok(mut values) = cache.values.try_write() {
+        if let Ok(mut values) = query.cache.values.try_write() {
             values.entry(key).or_insert(norm);
         }
+        query.cold_terms = query.cold_terms.saturating_add(document.terms.len());
         Ok(norm)
     }
 
@@ -1753,25 +1826,42 @@ mod optimization_tests {
     }
     #[test]
     fn query_weight_collisions_recompute_instead_of_reusing_another_word() {
-        let mut memo = QueryWeights::default();
-        let mut computes = 0;
-        let first = 16;
-        let collision = first + (1 << 20);
-        for (key, expected, calls) in [
-            (first, 3.5, 1),
-            (first, 3.5, 1),
-            (collision, 7.25, 2),
-            (collision, 7.25, 2),
-            (first, 3.5, 3),
-        ] {
-            let actual = memo.get(key, || {
-                computes += 1;
-                expected
-            });
-            assert_eq!(actual.to_bits(), expected.to_bits());
-            assert_eq!(computes, calls);
+        fn check<const N: usize>() {
+            let mut memo = QueryWeights::<N>::default();
+            let mut computes = 0;
+            let first = 16;
+            let collision = first + (1 << 20);
+            for (key, expected, calls) in [
+                (first, 3.5, 1),
+                (first, 3.5, 1),
+                (collision, 7.25, 2),
+                (collision, 7.25, 2),
+                (first, 3.5, 3),
+            ] {
+                let actual = memo.get(key, || {
+                    computes += 1;
+                    expected
+                });
+                assert_eq!(actual.to_bits(), expected.to_bits());
+                assert_eq!(computes, calls);
+            }
         }
+        check::<8>();
+        check::<256>();
+        let cache = TfidfNorms::default();
+        let mut query = NormQuery::new(&cache);
+        assert_eq!(query.weight(16, || 3.5), 3.5);
+        query.cold_terms = 128;
+        assert_eq!(
+            query.weight(16, || panic!("promotion lost the exact weight")),
+            3.5
+        );
+        assert!(query.small.is_none());
+        assert!(query.weights.is_some());
+        assert_eq!(query.weight(16 + (1 << 20), || 7.25), 7.25);
+        assert_eq!(query.weight(16, || 3.5), 3.5);
     }
+
     #[test]
     fn warm_and_interrupted_norms_do_not_allocate_query_weights() {
         let index = KnowledgeIndex::from_entries([
@@ -1781,22 +1871,134 @@ mod optimization_tests {
         .unwrap();
         let (id, document) = index.documents.first_key_value().unwrap();
         let cache = TfidfNorms::default();
-        let mut weights = None;
+        let mut query = NormQuery::new(&cache);
         let interrupted =
-            index.tfidf_norm_checked(id, document, &cache, &mut weights, &mut || Err("cancelled"));
+            index.tfidf_norm_checked(id, document, &mut query, &mut || Err("cancelled"));
         assert_eq!(interrupted, Err("cancelled"));
-        assert!(weights.is_none());
+        assert!(query.weights.is_none());
+        assert_eq!(query.cold_terms, 0);
+        assert!(query.small.is_none());
         assert!(cache.values.read().unwrap().is_empty());
         let cold = index
-            .tfidf_norm_checked(id, document, &cache, &mut weights, &mut || Ok::<_, ()>(()))
+            .tfidf_norm_checked(id, document, &mut query, &mut || Ok::<_, ()>(()))
             .unwrap();
-        assert!(weights.is_some());
-        let mut fresh = None;
+        assert!(query.weights.is_none());
+        let mut fresh = NormQuery::new(&cache);
         let warm = index
-            .tfidf_norm_checked(id, document, &cache, &mut fresh, &mut || Ok::<_, ()>(()))
+            .tfidf_norm_checked(id, document, &mut fresh, &mut || Ok::<_, ()>(()))
             .unwrap();
         assert_eq!(cold.to_bits(), warm.to_bits());
-        assert!(fresh.is_none());
+        assert!(fresh.weights.is_none());
+        assert_eq!(fresh.cold_terms, 0);
+        assert!(fresh.small.is_none());
+    }
+    #[test]
+    fn batched_norm_reader_releases_before_misses_at_boundaries_and_on_drop() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "beta gamma gamma"),
+        ])
+        .unwrap();
+        let cache = TfidfNorms::default();
+        let mut query = NormQuery::new(&cache);
+        let (a, document) = index.documents.get_key_value("a").unwrap();
+        let first = index
+            .tfidf_norm_checked(a, document, &mut query, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        for _ in 0..128 {
+            assert_eq!(
+                query.get(NormKey::from_id(a)).unwrap().to_bits(),
+                first.to_bits()
+            );
+        }
+        assert!(cache.values.try_write().is_ok());
+        assert!(query.get(NormKey::from_id(a)).is_some());
+        assert!(cache.values.try_write().is_err());
+        let (b, document) = index.documents.get_key_value("b").unwrap();
+        index
+            .tfidf_norm_checked(b, document, &mut query, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        assert_eq!(cache.values.try_read().unwrap().len(), 2);
+        assert!(cache.values.try_write().is_ok());
+        assert!(query.get(NormKey::from_id(b)).is_some());
+        drop(query);
+        assert!(cache.values.try_write().is_ok());
+    }
+    #[test]
+    fn query_weight_scratch_waits_for_completed_cold_work() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new(
+                "seed",
+                (0..128).map(|n| format!("word{n} ")).collect::<String>(),
+            ),
+            KnowledgeEntry::new("next", "alpha beta"),
+            KnowledgeEntry::new("last", "beta gamma"),
+        ])
+        .unwrap();
+        let cache = TfidfNorms::default();
+        let mut query = NormQuery::new(&cache);
+        let (id, document) = index.documents.get_key_value("seed").unwrap();
+        assert_eq!(
+            index.tfidf_norm_checked(id, document, &mut query, &mut || Err("cancelled")),
+            Err("cancelled")
+        );
+        assert_eq!(query.cold_terms, 0);
+        assert!(query.weights.is_none());
+        for name in ["seed", "next", "last"] {
+            let (id, document) = index.documents.get_key_value(name).unwrap();
+            let actual = index
+                .tfidf_norm_checked(id, document, &mut query, &mut || Ok::<_, ()>(()))
+                .unwrap();
+            let expected = document
+                .terms
+                .iter()
+                .map(|(term, tf)| {
+                    (*tf as f64 * tfidf_idf(index.len(), index.postings[term].len())).powi(2)
+                })
+                .sum::<f64>()
+                .sqrt();
+            assert_eq!(actual.to_bits(), expected.to_bits());
+            assert_eq!(query.weights.is_some(), name != "seed");
+        }
+    }
+    #[test]
+    fn warm_norm_reader_does_not_block_cold_norms_and_hints_recover() {
+        let index = KnowledgeIndex::from_entries([
+            KnowledgeEntry::new("a", "alpha beta"),
+            KnowledgeEntry::new("b", "gamma gamma"),
+        ])
+        .unwrap();
+        let cache = TfidfNorms::default();
+        let mut warm = NormQuery::new(&cache);
+        let (a, document) = index.documents.get_key_value("a").unwrap();
+        index
+            .tfidf_norm_checked(a, document, &mut warm, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        assert!(warm.get(NormKey::from_id(a)).is_some());
+        let (b, document) = index.documents.get_key_value("b").unwrap();
+        let expected = (2.0 * tfidf_idf(index.len(), 1)).powi(2).sqrt();
+        std::thread::scope(|scope| {
+            let (send, receive) = std::sync::mpsc::channel();
+            let cache = &cache;
+            let index = &index;
+            scope.spawn(move || {
+                let value =
+                    index.tfidf_norm_checked(b, document, &mut NormQuery::new(cache), &mut || {
+                        Ok::<_, ()>(())
+                    });
+                let _ = send.send(value);
+            });
+            let result = receive.recv_timeout(std::time::Duration::from_secs(2));
+            drop(warm);
+            assert_eq!(result.unwrap().unwrap().to_bits(), expected.to_bits());
+        });
+        assert_eq!(cache.values.read().unwrap().len(), 1);
+        let mut recovered = NormQuery::new(&cache);
+        let actual = index
+            .tfidf_norm_checked(b, document, &mut recovered, &mut || Ok::<_, ()>(()))
+            .unwrap();
+        assert_eq!(actual.to_bits(), expected.to_bits());
+        assert_eq!(cache.values.read().unwrap().len(), 2);
     }
     #[test]
     fn poisoned_norm_hint_falls_back_to_exact_computation() {
@@ -1845,14 +2047,15 @@ mod optimization_tests {
         let (id, document) = index.documents.first_key_value().unwrap();
         let cache = TfidfNorms::default();
         let mut checks = 0;
-        let result = index.tfidf_norm_checked(id, document, &cache, &mut None, &mut || {
-            checks += 1;
-            if checks == 2 {
-                Err("stopped")
-            } else {
-                Ok(())
-            }
-        });
+        let result =
+            index.tfidf_norm_checked(id, document, &mut NormQuery::new(&cache), &mut || {
+                checks += 1;
+                if checks == 2 {
+                    Err("stopped")
+                } else {
+                    Ok(())
+                }
+            });
         assert_eq!(result, Err("stopped"));
         assert!(cache.values.read().unwrap().is_empty());
         let expected = document
@@ -1865,7 +2068,12 @@ mod optimization_tests {
             .sqrt();
         assert_eq!(
             index
-                .tfidf_norm_checked(id, document, &cache, &mut None, &mut || Ok::<_, ()>(()))
+                .tfidf_norm_checked(
+                    id,
+                    document,
+                    &mut NormQuery::new(&cache),
+                    &mut || Ok::<_, ()>(())
+                )
                 .unwrap()
                 .to_bits(),
             expected.to_bits()

@@ -207,3 +207,7 @@ Select `algorithm: "tfidf"` with the existing `airust_search` arguments. The sam
 ## Cold search execution in 0.4.13
 
 Use the existing `airust_search` arguments with `algorithm: "tfidf"`. The central lexical engine reuses exact word weights in a bounded memo while computing missing norms. It does not prewarm at startup or store extra corpus state. The temporary memo is allocated only if needed, adds about 4 KiB on the measured build and is released after the request. Existing tools, output schemas, IDs, scores, source bindings, spans, progress, cancellation, worker admission and deadlines remain. Warm-hit and tiny-input costs can differ from large cold queries; see [all initial/repeated measurements and memory costs](CHANGES-0.4.13.md).
+
+## Warm and small execution in 0.4.14
+
+Keep the existing `airust_search` arguments and `algorithm: "tfidf"`. The central Engine batches warm hint reads, uses an eight-slot inline word memo for small cold work and promotes to the existing bounded heap memo after enough completed work. The server adds no tool, argument, response field or startup prewarming. Scores, IDs, source binding, spans, progress, cancellation, worker admission and deadlines remain. Contended hints fall back to exact computation without waiting; their publication can be deferred. Core changes do not imply equal gains in tiny stdio round trips. Read [both four-input MCP campaigns, small controls and mixed work](CHANGES-0.4.14.md).

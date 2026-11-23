@@ -1,0 +1,37 @@
+{
+  "version": "0.4.14",
+  "created_at": "2026-11-23T05:55:30.020118+00:00",
+  "baseline": "exact registry0.4.13 VCS6ad1fc98bc95af93e234624976c3c19587b2db5d",
+  "scope": "Bounded batched norm-hint reads and delayed scratch for completed cold work; preserve exact public results and cold gains",
+  "question_origin": "Retained342exposed authored questions; no new holdout or logged traffic",
+  "artifact_policy": "Archive proof then delete only /private/tmp/airust-ranking-0414-build and -miri",
+  "query_fixtures": 25,
+  "query_plain_processes": 14,
+  "cold_time_processes": 14,
+  "cold_time_calls": 1680,
+  "cold_fixtures": [
+    "index",
+    "wide",
+    "sparse",
+    "tiny",
+    "tiny4",
+    "tiny16"
+  ],
+  "small_warm_processes": 14,
+  "small_warm_fixtures": 6,
+  "small_warm_calls": 84000,
+  "small_heap_processes": 2,
+  "small_heap_calls": 1200,
+  "mcp_campaigns": 2,
+  "mcp_processes_per_campaign": 40,
+  "mcp_cases": [
+    "canonical",
+    "numpy",
+    "wide",
+    "tiny"
+  ],
+  "mixed_processes": 10,
+  "mixed_reader_threads": 4,
+  "mixed_new_group_calls": 1000,
+  "mixed_scope": "Finite stop-on-completed-new-group-calls control; variable warm work counts, not a throughput/capacity benchmark"
+}

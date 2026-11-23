@@ -1,4 +1,4 @@
-# AIRust 0.4.13
+# AIRust 0.4.14
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,10 +8,11 @@ AIRust is a Rust library for finding information, comparing text, and suggesting
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.13 targets first TF-IDF requests, including optional MCP. A bounded per-request memo reuses exact word weights while uncached document norms are computed. It is created only when needed and freed after the request. Persistent norm storage, original scores, public APIs, source positions and MCP schemas remain. The memo adds temporary working memory; cold and warm results are measured separately. See [performance/API](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [measurements and limits](docs/CHANGES-0.4.13.md). No DenkMaps integration is included.
+Version 0.4.14 targets warm and small TF-IDF requests, including optional MCP. Warm norm hints share short batches of cache reads. Small cold requests use a tiny inline word-weight memo; larger cold work can promote it to the existing bounded heap memo. Exact scores, public APIs, source positions, knowledge formats and MCP schemas remain. Read [performance/API](docs/CORE-PERFORMANCE.md), [MCP](docs/MCP.md) and [all warm, small, cold and mixed-work measurements](docs/CHANGES-0.4.14.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.4.14](docs/CHANGES-0.4.14.md) | Bounded warm hint reads and a small inline weight memo. | Reduce repeated locking and avoid an immediate 4 KiB allocation on small cold work. |
 | [0.4.13](docs/CHANGES-0.4.13.md) | Bounded request-local reuse of exact TF-IDF word weights. | Reduce repeated cold-query work while keeping persistent cache storage and ranking. |
 | [0.4.12](docs/CHANGES-0.4.12.md) | Compact transient TF-IDF cache keys. | Reduce hint storage and repeated ID hashing without changing ranking. |
 | [0.4.11](docs/CHANGES-0.4.11.md) | TF-IDF hint lookup and sparse broad-query scoring. | Spend less work on absent words while preserving scores and exposing cache-memory costs. |
@@ -48,7 +49,9 @@ Version 0.4.13 targets first TF-IDF requests, including optional MCP. A bounded 
 | [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
 | [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.13 validation passes **231 default tests, 879 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, an independent consumer, API compatibility and fourteen targeted Tree Borrows Miri cases pass. New tests cover memo collisions, exact recomputation, interruption and allocation-free warm norm reuse. Existing snapshot conflict checks remain. Read [validation and limits](docs/CHANGES-0.4.13.md).
+Local 0.4.14 validation passes **234 default tests, 882 all-feature checks including 39 documentation examples, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, an independent consumer, API compatibility and sixteen targeted Tree Borrows Miri cases pass. New regressions cover read-batch release, cache misses, deferred scratch and overlapping warm/cold work. Existing exact-score, source and snapshot checks remain. Read [validation and limits](docs/CHANGES-0.4.14.md).
+
+**Measured 0.4.14 result:** repeated canonical MCP TF-IDF medians change by -1.66% and -1.05% across two preplanned campaigns. One-entry MCP medians change by -0.14% and +0.17%. Negative values are shorter times. Small cold controls request 4,096 fewer heap bytes, with added inline stack state. Small warm Core results are mostly flat/slower; tiny MCP transport is essentially unchanged and some tails rise. Mixed-work gains are a finite synthetic control, with slower post-reader calls. All 1,026 document responses match byte-for-byte; 80 real MCP servers provide 7,080 schema-valid replies. Read [all measurements and limits](docs/CHANGES-0.4.14.md).
 
 **Measured 0.4.13 result:** canonical initial MCP TF-IDF median latency changes by -23.25% and -14.90% across two preplanned campaigns. Negative changes are shorter times. A cold request adds a bounded 4 KiB temporary memo while retained norm storage remains unchanged. Repeated canonical TF-IDF medians are 0.4–0.9% higher, and the one-entry cold control is 14.3% slower; a warm p95 also rises. Whole-process RAM is essentially unchanged. All 1,026 document response pairs remain byte-identical and 60 real MCP servers produce 5,720 schema-valid responses. Read [all first/repeated timings, memory and limits](docs/CHANGES-0.4.13.md).
 
@@ -66,7 +69,7 @@ Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Ru
 
 The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
 
-The [release history](CHANGELOG.md) explains completed work through 0.4.13. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
+The [release history](CHANGELOG.md) explains completed work through 0.4.14. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
 
 To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
 
@@ -142,7 +145,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.13", default-features = false }
+airust = { version = "=0.4.14", default-features = false }
 ```
 
 For local source development, use the checkout path instead:

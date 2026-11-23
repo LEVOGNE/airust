@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.4.13 targets cold TF-IDF work with a bounded, temporary word-weight memo. Existing public calls, exact ranking, knowledge formats and source positions remain. Startup does not prewarm norms. See [validation](docs/CHANGES-0.4.13.md), [API cookbook](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [MCP](docs/MCP.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the checkout.
+AIRust is a Rust library with optional tools. Version 0.4.14 targets warm and small queries with bounded cache-read batches and a small inline word-weight memo. Existing public calls, exact ranking, knowledge and source positions remain. Norms stay lazy. See [validation](docs/CHANGES-0.4.14.md), [API cookbook](docs/API-COOKBOOK.md), [performance](docs/CORE-PERFORMANCE.md) and [MCP](docs/MCP.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included. Run commands from the checkout.
 
 ## Keep build storage under control
 
@@ -13,7 +13,7 @@ export CARGO_PROFILE_TEST_DEBUG=0
 export CARGO_INCREMENTAL=0
 ```
 
-The directory must be dedicated to regenerable Cargo output. Keep PDFs, knowledge, source snapshots and measurement data elsewhere. `cargo clean` with the same configured target removes compiled output; the next build compiles it again. Archive release packages, exact locks and test receipts first. The 0.4.13 campaign follows this policy and removes its two named temporary build targets after verifying publication. Normal application consumers can enable only the features they need.
+The directory must be dedicated to regenerable Cargo output. Keep PDFs, knowledge, source snapshots and measurement data elsewhere. `cargo clean` with the same configured target removes compiled output; the next build compiles it again. Archive release packages, exact locks and test receipts first. The 0.4.14 campaign follows this policy and removes its two named temporary build targets after verifying publication. Normal application consumers can enable only the features they need.
 
 ## Try the core
 
