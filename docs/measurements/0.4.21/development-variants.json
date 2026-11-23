@@ -1,0 +1,170 @@
+[
+  {
+    "variant": "ranking helper, default inlining",
+    "source_sha256": "e68dbc41cbfd02772b117dbc4de7a52c968887207a457f14580e70269272076e",
+    "seven_rotating_triples": true,
+    "results": {
+      "tiny16_bm25": {
+        "reference": 951.166,
+        "baseline": 987.833,
+        "candidate": 960.208
+      },
+      "tiny16_tfidf": {
+        "reference": 1024.584,
+        "baseline": 1054.541,
+        "candidate": 1027.334
+      },
+      "tiny4_bm25": {
+        "reference": 327.875,
+        "baseline": 333.292,
+        "candidate": 336.25
+      },
+      "tiny4_tfidf": {
+        "reference": 349.541,
+        "baseline": 352.958,
+        "candidate": 355.167
+      },
+      "tiny_bm25": {
+        "reference": 175.417,
+        "baseline": 183.625,
+        "candidate": 176.709
+      },
+      "tiny_tfidf": {
+        "reference": 173.333,
+        "baseline": 179.792,
+        "candidate": 181.083
+      }
+    },
+    "vs_020_percent_range": [
+      -3.7663716814159254,
+      0.8875100512463652
+    ],
+    "all_signatures_equal": true
+  },
+  {
+    "variant": "ranking helper, inline-never",
+    "source_sha256": "734e8771dba3beac923f06c1113e12c305dfb19d6a739e28fea3da51c20a564e",
+    "seven_rotating_triples": true,
+    "results": {
+      "tiny16_bm25": {
+        "reference": 983.625,
+        "baseline": 1003.791,
+        "candidate": 982.834
+      },
+      "tiny16_tfidf": {
+        "reference": 1044.292,
+        "baseline": 1064.041,
+        "candidate": 1049.125
+      },
+      "tiny4_bm25": {
+        "reference": 359.417,
+        "baseline": 345.0,
+        "candidate": 345.458
+      },
+      "tiny4_tfidf": {
+        "reference": 366.25,
+        "baseline": 383.166,
+        "candidate": 366.291
+      },
+      "tiny_bm25": {
+        "reference": 185.5,
+        "baseline": 184.75,
+        "candidate": 184.833
+      },
+      "tiny_tfidf": {
+        "reference": 181.583,
+        "baseline": 181.875,
+        "candidate": 185.042
+      }
+    },
+    "vs_020_percent_range": [
+      -4.404096396861934,
+      1.741305841924401
+    ],
+    "all_signatures_equal": true
+  },
+  {
+    "variant": "whole search, index-size specialization",
+    "source_sha256": "bf96a26b0aee1a83a6ff7272783eb6c213f59e6ccc7ea1d4eb4a8bdb2fd6010c",
+    "seven_rotating_triples": true,
+    "results": {
+      "tiny16_bm25": {
+        "reference": 972.875,
+        "baseline": 991.75,
+        "candidate": 1029.916
+      },
+      "tiny16_tfidf": {
+        "reference": 1057.834,
+        "baseline": 1046.5,
+        "candidate": 1090.625
+      },
+      "tiny4_bm25": {
+        "reference": 332.959,
+        "baseline": 339.0,
+        "candidate": 359.125
+      },
+      "tiny4_tfidf": {
+        "reference": 351.791,
+        "baseline": 359.125,
+        "candidate": 382.667
+      },
+      "tiny_bm25": {
+        "reference": 180.042,
+        "baseline": 191.875,
+        "candidate": 186.75
+      },
+      "tiny_tfidf": {
+        "reference": 178.875,
+        "baseline": 183.333,
+        "candidate": 186.709
+      }
+    },
+    "vs_020_percent_range": [
+      -2.671009771986965,
+      6.555377654020189
+    ],
+    "all_signatures_equal": true
+  },
+  {
+    "variant": "selected borrowed query",
+    "source_sha256": "a942da819d3be7bb72b3b9ebddf2558ccdea59235b6d33efecd05fef4750de4e",
+    "seven_rotating_triples": true,
+    "results": {
+      "tiny16_bm25": {
+        "reference": 960.75,
+        "baseline": 1013.209,
+        "candidate": 926.208
+      },
+      "tiny16_tfidf": {
+        "reference": 1028.292,
+        "baseline": 1077.5,
+        "candidate": 1002.709
+      },
+      "tiny4_bm25": {
+        "reference": 338.583,
+        "baseline": 336.416,
+        "candidate": 297.75
+      },
+      "tiny4_tfidf": {
+        "reference": 352.333,
+        "baseline": 357.291,
+        "candidate": 315.083
+      },
+      "tiny_bm25": {
+        "reference": 182.167,
+        "baseline": 182.0,
+        "candidate": 124.542
+      },
+      "tiny_tfidf": {
+        "reference": 180.958,
+        "baseline": 182.458,
+        "candidate": 128.417
+      }
+    },
+    "vs_020_percent_range": [
+      -31.570329670329667,
+      -6.94116009280743
+    ],
+    "all_signatures_equal": true
+  }
+]

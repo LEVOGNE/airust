@@ -1,6 +1,6 @@
-# AIRust 0.4.20 API cookbook
+# AIRust 0.4.21 API cookbook
 
-Version 0.4.20 needs no application-code change. Reuse one Engine and your existing search, Retriever or MCP calls. Large sorted candidate sets can reuse a bounded document cursor; small sets retain direct tree lookup. Both rankers, filters, matched terms, source positions, schemas and saved knowledge keep their contracts. Use WorkControl or MCP timeout_ms as before. The cursor retains original candidate checkpoints and checks again before a gap seek. Query-local stack state, heap traffic, total RAM, startup and transport latency are separate costs. Existing byte/term/result bounds remain. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [measured cases and limits](CHANGES-0.4.20.md).
+Version 0.4.21 needs no application-code change. Reuse your Engine and existing search, Retriever or MCP calls. Simple raw lowercase ASCII alphanumeric words avoid a normalized text copy and temporary frequency table; all other inputs keep the original analysis. Results own their matched-term strings as before. Both rankers, filters, exact source positions, schema shapes, cancellation/deadlines and saved knowledge retain their contracts. The 0.4.20 large-query cursor remains. Raw benchmark JSON is retained on GitHub outside the registry source package. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [all measured cases and limits](CHANGES-0.4.21.md).
 
 Version 0.4.7 adds `LexicalCoverageSource`, an explicit source that balances the existing prepared lexical score with distinct question-term coverage. Inspect query, counts, normalized score and original lexical rank through `inspect`. [Complete API and limitations](LEXICAL-COVERAGE.md); [executed report](CHANGES-0.4.7.md). Literal BM25 and optional MCP defaults remain unchanged.
 
@@ -8,7 +8,7 @@ Version 0.4.6 adds explicit lexical question preparation and conservative leadin
 
 Version 0.4.5 introduced opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
 
-For 0.4.20, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.20.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.21, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.21.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -16,7 +16,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.20", default-features = false }
+airust = { version = "=0.4.21", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -411,7 +411,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.20", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.21", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.

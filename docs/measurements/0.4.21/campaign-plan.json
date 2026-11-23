@@ -1,0 +1,75 @@
+{
+  "version": "0.4.21",
+  "created_at": "2026-11-23T15:08:34.705550+00:00",
+  "baseline": "exact registry0.4.20 e30a055fab3dae32c8e59047fc01a2e32226dbed",
+  "reference": "exact registry0.4.19 0c4df4d1ff1d3624fe10869b02f1e41bef3f1adf",
+  "scope": "Borrow an unchanged nonempty lowercaseASCIIalphanumeric single query word; yield its count1 to shared checked scoring, avoid normalization/frequency-table allocations; keep all other queries on original normalization/sorted frequencies.",
+  "question_origin": "Retained342exposed authored questions, no new holdout or model-answer claim",
+  "mcp_processes_per_campaign": 90,
+  "mcp_campaigns": 2,
+  "wide_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7,
+    "extended": 7
+  },
+  "wide_primary_versions": [
+    "0.4.19",
+    "0.4.20",
+    "0.4.21"
+  ],
+  "wide_primary_processes": 63,
+  "wide_primary_expected_schema_replies": 4284,
+  "wide_primary_expected_complete_pairs": 2856,
+  "wide_extended_query_widths": [
+    32,
+    33,
+    64,
+    65,
+    128,
+    129,
+    192,
+    255,
+    256,
+    255
+  ],
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "small_matrix_cases": 96,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "host_load_sampling_seconds": 2,
+  "artifact_policy": "Archive proof then remove only /private/tmp/airust-ranking-0421-build and -miri",
+  "knowledge_policy": "Preserve PDFs/canonical knowledge, all previous sources and every negative outcome; no new PDF extraction",
+  "wide_extended_last_query": "255 known terms plus duplicate term0 and one absent term,256 unique normalized terms",
+  "wide_boundary_checks": {
+    "separate_processes": 3,
+    "rejected_requests": 12,
+    "known_term_widths": [
+      257,
+      512
+    ],
+    "bound": 256
+  },
+  "large_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7
+  },
+  "large_primary_versions": [
+    "0.4.19",
+    "0.4.20",
+    "0.4.21"
+  ],
+  "large_primary_processes": 42,
+  "large_primary_expected_schema_replies": 2856,
+  "large_primary_expected_complete_pairs": 1904,
+  "small_primary_campaigns": 2,
+  "small_primary_processes": 84,
+  "small_primary_expected_calls": 4284000,
+  "small_primary_expected_full_comparisons": 2688,
+  "prior_variants_retained": "pilot-small-default, pilot-small-noinline and pilot-small-indexshape preserve unsuccessful specialization trials; pilot-small-borrowed is selected. All stay outside final timing.",
+  "frozen_at": "2026-11-23T15:24:48.465583+00:00",
+  "selected_runtime": "Borrow nonempty lowercaseASCIIalphanumeric one-word queries; directcount1iterator to unchanged20ranking; allotherqueries retain normalization/sorted frequencies. No const-specialization remains.",
+  "pilot": "Seven rotating small triples plus full3tripleswide/extended/canonical/tinyMCP: all signatures/structuredresponses equal. Pilot data excluded fromfinalcampaigns.",
+  "packaging": "Exclude measurementJSON fromregistryarchive only; allrecords preservedonGitHub/local. Dirtypreview1757701bytes vs020published10392668; exactcleanpackagegatespublication."
+}

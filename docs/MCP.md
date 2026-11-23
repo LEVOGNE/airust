@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.4.20
+# Optional MCP in AIRust 0.4.21
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.4.20 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.4.21 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -249,3 +249,9 @@ Cancellation/deadline checkpoints cover each winner and every 128 actually inspe
 Existing tools, arguments and response schemas remain. The shared Engine uses ordered document access for large sorted candidate sets, retaining exact scores, source positions and filters. Small sets keep their previous lookup path. The cursor checks before a fallback seek after eight lower map keys; original candidate/scoring checks remain. It adds no endpoint, permission or persistent cache.
 
 Admission, absolute deadlines, progress delivery, worker leases, disconnect cancellation/drain, byte/term/frame/result/rate limits and no-partial-result errors retain their contracts. Startup indexing remains outside tool deadlines. Sparse gaps, query-local stack state, startup, Rust search and transport are separate costs. Read [actual MCP comparisons, initial/repeated timings, RAM and all limits](CHANGES-0.4.20.md).
+
+## Single-word preparation in 0.4.21
+
+Tools, arguments and response schemas remain. Ordinary Engine search, controlled search and callers using those paths can borrow a raw nonempty lowercase ASCII alphanumeric query word. Other inputs keep the original text analysis; no stemming, phrase or semantic behavior is added. The checked ranking and 0.4.20 large document cursor remain.
+
+All original query-term/candidate/scoring/winner checks, scopes, source positions, progress delivery, admission, absolute deadlines, cancellation/drain and frame/term/byte/result/rate budgets retain their contracts. Results own their matched strings; borrowed input does not escape the synchronous call. Startup indexing remains outside tool deadlines. Core nanoseconds and complete MCP round trips are different boundaries. See [actual schema/result comparisons and all slower cases](CHANGES-0.4.21.md).

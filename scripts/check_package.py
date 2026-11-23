@@ -27,6 +27,8 @@ def main():
             unexpected.append(name)
         elif name not in allowed_files and path.parts[0] not in allowed_roots:
             unexpected.append(name)
+        elif path.parts[:2] == ("docs", "measurements") and path.suffix == ".json":
+            unexpected.append(name)
     if unexpected or not required.issubset(files):
         raise SystemExit(f"Unexpected package content: {unexpected}; missing required files: {sorted(required-set(files))}")
     if args.report:

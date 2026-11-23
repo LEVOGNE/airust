@@ -1,0 +1,149 @@
+{
+  "version": "0.4.21",
+  "directories": 15,
+  "source_copies_match_public_method": true,
+  "locks_and_manifests_checked": true,
+  "registry_baseline_vcs": "e30a055fab3dae32c8e59047fc01a2e32226dbed",
+  "registry_reference_vcs": "0c4df4d1ff1d3624fe10869b02f1e41bef3f1adf",
+  "registry_source_integrity": {
+    "scope": "Exact cached registry files compared byte-for-byte with preserved checksum-verified published crate archives before final timing",
+    "versions": [
+      {
+        "version": "0.4.20",
+        "vcs_commit": "e30a055fab3dae32c8e59047fc01a2e32226dbed",
+        "published_crate_sha256": "fa3b30ae9762ac28e5b4549561505b3e4dfc62eff0bd237e887151745129a8c0",
+        "published_files_checked": 2318,
+        "registry_source_matches_archive": true
+      },
+      {
+        "version": "0.4.19",
+        "vcs_commit": "0c4df4d1ff1d3624fe10869b02f1e41bef3f1adf",
+        "published_crate_sha256": "35f35613c0186125ed41a3b796a72501546b407da63cbc54aee343086df186a0",
+        "published_files_checked": 2202,
+        "registry_source_matches_archive": true
+      }
+    ]
+  },
+  "rows": [
+    {
+      "worker": "build-baseline",
+      "source": "local-lab/ranking-0.4.21/build-baseline/index_build.rs",
+      "public_method": "docs/validation-0.4.21/index_build.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "build-candidate",
+      "source": "local-lab/ranking-0.4.21/build-candidate/index_build.rs",
+      "public_method": "docs/validation-0.4.21/index_build.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "controlled-baseline",
+      "source": "local-lab/ranking-0.4.21/controlled-baseline/controlled_work.rs",
+      "public_method": "docs/validation-0.4.21/controlled_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "controlled-candidate",
+      "source": "local-lab/ranking-0.4.21/controlled-candidate/controlled_work.rs",
+      "public_method": "docs/validation-0.4.21/controlled_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "corpus-baseline",
+      "source": "local-lab/ranking-0.4.21/corpus-baseline/corpus.rs",
+      "public_method": "docs/validation-0.4.21/corpus.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "corpus-candidate",
+      "source": "local-lab/ranking-0.4.21/corpus-candidate/corpus.rs",
+      "public_method": "docs/validation-0.4.21/corpus.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "matrix-baseline",
+      "source": "local-lab/ranking-0.4.21/matrix-baseline/small_matrix.rs",
+      "public_method": "docs/validation-0.4.21/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "matrix-candidate",
+      "source": "local-lab/ranking-0.4.21/matrix-candidate/small_matrix.rs",
+      "public_method": "docs/validation-0.4.21/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "matrix-reference",
+      "source": "local-lab/ranking-0.4.21/matrix-reference/small_matrix.rs",
+      "public_method": "docs/validation-0.4.21/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.19",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "query-baseline",
+      "source": "local-lab/ranking-0.4.21/query-baseline/query_work.rs",
+      "public_method": "docs/validation-0.4.21/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "query-candidate",
+      "source": "local-lab/ranking-0.4.21/query-candidate/query_work.rs",
+      "public_method": "docs/validation-0.4.21/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "query-reference",
+      "source": "local-lab/ranking-0.4.21/query-reference/query_work.rs",
+      "public_method": "docs/validation-0.4.21/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.19",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "schema",
+      "source": "local-lab/ranking-0.4.21/schema/schema.rs",
+      "public_method": "docs/validation-0.4.21/schema.rs",
+      "source_copies_equal": true,
+      "airust_version": "not linked",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "worker-baseline",
+      "source": "local-lab/ranking-0.4.21/worker-baseline/worker.rs",
+      "public_method": "docs/validation-0.4.21/retrieval-worker.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.20",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "worker-candidate",
+      "source": "local-lab/ranking-0.4.21/worker-candidate/worker.rs",
+      "public_method": "docs/validation-0.4.21/retrieval-worker.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": true
+    }
+  ]
+}

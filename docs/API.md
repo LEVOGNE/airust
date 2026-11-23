@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.20 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.21 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.20 retains Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits usage. Searches with at least 1,024 candidates can use a document cursor after the first 128 candidates. It reads nearby sorted IDs and seeks after eight lower keys, with an extra cooperative check before seeking. Original candidate checks, score arithmetic, scopes, matched terms and source positions remain. No new setting, dependency, schema or saved-format migration. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [all comparisons](CHANGES-0.4.20.md).
+Version 0.4.21 retains Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits calls. A nonempty raw query containing only a-z and 0-9 borrows its unchanged word with count 1; all other queries and preanalyzed maps retain existing normalization/sorted counts. The checked ranking pipeline, scopes, score arithmetic, matched terms, original positions and large-query cursors remain. No new setting, dependency, schema or saved-format migration. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [comparisons](CHANGES-0.4.21.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

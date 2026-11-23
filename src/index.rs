@@ -108,6 +108,29 @@ struct QueryTerm<'a> {
     postings: &'a BTreeMap<Arc<str>, usize>,
 }
 
+enum QueryTerms<'a> {
+    One(Option<&'a str>),
+    Sorted(std::collections::btree_map::Iter<'a, String, usize>),
+}
+
+impl<'a> Iterator for QueryTerms<'a> {
+    type Item = (&'a str, usize);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::One(word) => word.take().map(|word| (word, 1)),
+            Self::Sorted(terms) => terms.next().map(|(word, count)| (word.as_str(), *count)),
+        }
+    }
+}
+
+fn is_borrowed_query_word(query: &str) -> bool {
+    !query.is_empty()
+        && query
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
+}
+
 type DocumentMap = BTreeMap<Arc<str>, Shared<IndexedEntry>>;
 
 struct DocumentCursor<'a> {
@@ -723,6 +746,9 @@ impl KnowledgeIndex {
         if options.limit == 0 || self.is_empty() {
             return Vec::new();
         }
+        if is_borrowed_query_word(query) {
+            return self.search_terms(QueryTerms::One(Some(query)), options, |_| true);
+        }
         let query_terms = text::term_frequencies(query);
         self.search_analyzed(&query_terms, options, |_| true)
     }
@@ -745,6 +771,25 @@ impl KnowledgeIndex {
             Err(error) => match error {},
         }
     }
+
+    fn search_terms(
+        &self,
+        query_terms: QueryTerms<'_>,
+        options: &SearchOptions,
+        includes: impl Fn(&str) -> bool,
+    ) -> Vec<SearchResult<'_>> {
+        match self.search_terms_checked(
+            query_terms,
+            options,
+            includes,
+            || Ok::<_, std::convert::Infallible>(()),
+            #[cfg(feature = "execution")]
+            None,
+        ) {
+            Ok(results) => results,
+            Err(error) => match error {},
+        }
+    }
     #[cfg(feature = "execution")]
     pub fn search_controlled(
         &self,
@@ -753,6 +798,15 @@ impl KnowledgeIndex {
         control: &crate::execution::WorkControl,
     ) -> Result<Vec<SearchResult<'_>>, crate::execution::ExecutionError> {
         control.checkpoint()?;
+        if is_borrowed_query_word(query) {
+            return self.search_terms_checked(
+                QueryTerms::One(Some(query)),
+                options,
+                |_| true,
+                || control.checkpoint(),
+                Some(control),
+            );
+        }
         let terms = text::term_frequencies(query);
         self.search_analyzed_checked(
             &terms,
@@ -765,6 +819,24 @@ impl KnowledgeIndex {
     pub(crate) fn search_analyzed_checked<E>(
         &self,
         query_terms: &BTreeMap<String, usize>,
+        options: &SearchOptions,
+        includes: impl Fn(&str) -> bool,
+        checkpoint: impl FnMut() -> Result<(), E>,
+        #[cfg(feature = "execution")] control: Option<&crate::execution::WorkControl>,
+    ) -> Result<Vec<SearchResult<'_>>, E> {
+        self.search_terms_checked(
+            QueryTerms::Sorted(query_terms.iter()),
+            options,
+            includes,
+            checkpoint,
+            #[cfg(feature = "execution")]
+            control,
+        )
+    }
+
+    fn search_terms_checked<E>(
+        &self,
+        query_terms: QueryTerms<'_>,
         options: &SearchOptions,
         includes: impl Fn(&str) -> bool,
         mut checkpoint: impl FnMut() -> Result<(), E>,
@@ -783,14 +855,14 @@ impl KnowledgeIndex {
         let mut prepared = Vec::new();
         for (term, frequency) in query_terms {
             checkpoint()?;
-            if let Some(postings) = self.postings.get(term.as_str()) {
+            if let Some(postings) = self.postings.get(term) {
                 let idf = match options.algorithm {
                     SearchAlgorithm::Bm25 => crate::search::bm25_idf(self.len(), postings.len()),
                     SearchAlgorithm::Tfidf => tfidf_idf(self.len(), postings.len()),
                 };
                 prepared.push(QueryTerm {
-                    text: term.as_str(),
-                    frequency: *frequency as f64,
+                    text: term,
+                    frequency: frequency as f64,
                     idf,
                     postings,
                 });
@@ -1850,6 +1922,229 @@ fn checked_distance<E>(
 #[cfg(test)]
 mod optimization_tests {
     use super::*;
+
+    #[test]
+    fn borrowed_query_word_guard_matches_independent_normalization() {
+        let mut inputs: Vec<String> = (0..128u8)
+            .map(|byte| char::from(byte).to_string())
+            .collect();
+        let count = if cfg!(miri) { 32 } else { 512 };
+        inputs.extend((0..count).map(|n| format!("word{n}")));
+        inputs.push("x".repeat(if cfg!(miri) { 64 } else { 8192 }));
+        for input in inputs {
+            if is_borrowed_query_word(&input) {
+                let expected = text::term_frequencies(&input);
+                let actual: BTreeMap<_, _> = QueryTerms::One(Some(&input))
+                    .map(|(word, frequency)| (word.to_owned(), frequency))
+                    .collect();
+                assert_eq!(actual, expected);
+                let mut terms = QueryTerms::One(Some(&input));
+                assert_eq!(terms.next(), Some((input.as_str(), 1)));
+                assert_eq!(terms.next(), None);
+                assert_eq!(terms.next(), None);
+            }
+        }
+        for input in [
+            "",
+            " ",
+            "UPPER",
+            "café",
+            "e\u{301}",
+            "ＦＯＯ",
+            "a_b",
+            "a-b",
+            "a/b",
+            "a\0b",
+            "a b",
+            "a\tb",
+            "a😊",
+        ] {
+            assert!(!is_borrowed_query_word(input), "{input:?}");
+        }
+    }
+
+    #[test]
+    fn borrowed_query_search_matches_sorted_scores_filters_and_boundaries() {
+        let sizes: &[usize] = if cfg!(miri) {
+            &[1, 4, 9]
+        } else {
+            &[1, 4, 33, 127, 128, 129, 1023, 1024, 1025]
+        };
+        for &count in sizes {
+            let records: Vec<_> = (0..count)
+                .map(|n| {
+                    KnowledgeEntry::new(format!("prefix/é/{n:04}"), "shared café")
+                        .with_metadata(serde_json::json!({"scope": n % 2}))
+                })
+                .collect();
+            let index = KnowledgeIndex::from_entries(records.clone()).unwrap();
+            let queries: &[&str] = &["shared"];
+            for query in queries {
+                let terms = text::term_frequencies(query);
+                for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+                    for scope in [None, Some(0), Some(3)] {
+                        for limit in [1, count + 1] {
+                            let options = SearchOptions {
+                                algorithm,
+                                limit,
+                                context: scope.map(|n| Context::new().with_metadata("scope", n)),
+                                ..Default::default()
+                            };
+                            let borrowed = index
+                                .search_terms_checked(
+                                    QueryTerms::One(Some("shared")),
+                                    &options,
+                                    |_| true,
+                                    || Ok::<_, ()>(()),
+                                    #[cfg(feature = "execution")]
+                                    None,
+                                )
+                                .unwrap();
+                            let sorted = index
+                                .search_analyzed_checked(
+                                    &terms,
+                                    &options,
+                                    |_| true,
+                                    || Ok::<_, ()>(()),
+                                    #[cfg(feature = "execution")]
+                                    None,
+                                )
+                                .unwrap();
+                            let dispatched = index.search_with_options(query, &options);
+                            let signature = |hits: &[SearchResult<'_>]| {
+                                hits.iter()
+                                    .map(|hit| {
+                                        (
+                                            hit.entry.clone(),
+                                            hit.score.to_bits(),
+                                            hit.matched_terms.clone(),
+                                        )
+                                    })
+                                    .collect::<Vec<_>>()
+                            };
+                            assert_eq!(signature(&borrowed), signature(&sorted));
+                            assert_eq!(signature(&borrowed), signature(&dispatched));
+                            let mut expected: Vec<_> = records
+                                .iter()
+                                .filter(|entry| {
+                                    scope.is_none_or(|n| {
+                                        entry.metadata.as_ref().unwrap()["scope"] == n
+                                    })
+                                })
+                                .map(|entry| entry.id.as_str())
+                                .collect();
+                            expected.sort_unstable();
+                            expected.truncate(limit);
+                            assert_eq!(
+                                borrowed
+                                    .iter()
+                                    .map(|hit| hit.entry.id.as_str())
+                                    .collect::<Vec<_>>(),
+                                expected
+                            );
+                            for hit in borrowed {
+                                let expected = match algorithm {
+                                    SearchAlgorithm::Bm25 => {
+                                        (1.0 + 0.5 / (count as f64 + 0.5)).ln()
+                                    }
+                                    SearchAlgorithm::Tfidf => 1.0 / 2.0_f64.sqrt(),
+                                };
+                                assert!((hit.score - expected).abs() < 1e-12);
+                                assert_eq!(hit.matched_terms.len(), 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn borrowed_query_search_preserves_checkpoints_and_rejects_partial_results() {
+        let count = if cfg!(miri) { 4 } else { 33 };
+        let index = KnowledgeIndex::from_entries(
+            (0..count).map(|n| KnowledgeEntry::new(format!("id/{n:03}"), "shared café")),
+        )
+        .unwrap();
+        let terms = text::term_frequencies("shared");
+        for algorithm in [SearchAlgorithm::Bm25, SearchAlgorithm::Tfidf] {
+            let options = SearchOptions {
+                algorithm,
+                limit: count,
+                ..Default::default()
+            };
+            let mut totals = Vec::new();
+            for sorted in [false, true] {
+                let fresh = index.clone();
+                let mut checks = 0;
+                let checkpoint = || {
+                    checks += 1;
+                    Ok::<_, ()>(())
+                };
+                let result = if sorted {
+                    fresh.search_analyzed_checked(
+                        &terms,
+                        &options,
+                        |_| true,
+                        checkpoint,
+                        #[cfg(feature = "execution")]
+                        None,
+                    )
+                } else {
+                    fresh.search_terms_checked(
+                        QueryTerms::One(Some("shared")),
+                        &options,
+                        |_| true,
+                        checkpoint,
+                        #[cfg(feature = "execution")]
+                        None,
+                    )
+                }
+                .unwrap();
+                assert_eq!(result.len(), count);
+                totals.push(checks);
+            }
+            assert_eq!(totals[0], totals[1]);
+            for fail_at in [1, 2, totals[0] / 2, totals[0]] {
+                for sorted in [false, true] {
+                    let fresh = index.clone();
+                    let before = fresh.to_json().unwrap();
+                    let mut checks = 0;
+                    let checkpoint = || {
+                        checks += 1;
+                        if checks == fail_at {
+                            Err("interrupted")
+                        } else {
+                            Ok(())
+                        }
+                    };
+                    let result = if sorted {
+                        fresh.search_analyzed_checked(
+                            &terms,
+                            &options,
+                            |_| true,
+                            checkpoint,
+                            #[cfg(feature = "execution")]
+                            None,
+                        )
+                    } else {
+                        fresh.search_terms_checked(
+                            QueryTerms::One(Some("shared")),
+                            &options,
+                            |_| true,
+                            checkpoint,
+                            #[cfg(feature = "execution")]
+                            None,
+                        )
+                    };
+                    assert!(matches!(result, Err("interrupted")));
+                    assert_eq!(checks, fail_at);
+                    assert_eq!(fresh.to_json().unwrap(), before);
+                    assert_eq!(fresh.search_with_options("shared", &options).len(), count);
+                }
+            }
+        }
+    }
 
     #[test]
     #[cfg(not(miri))]

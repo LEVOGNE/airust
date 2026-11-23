@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.20 uses a bounded cursor to reuse sorted document lookup during large searches. Earlier single/two-term, posting-frequency and broad-explanation improvements remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.20.md). Earlier construction/storage work remains the foundation described here.
+AIRust 0.4.21 avoids temporary query preparation for a nonempty raw lowercase ASCII alphanumeric word. Earlier candidate collection, frequency cursors, exact broad explanations and the large document cursor remain. Read the latest section below and [all comparisons and limits](CHANGES-0.4.21.md).
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 
@@ -158,3 +158,9 @@ Explanation checkpoints occur before each winner and at every 128 actually inspe
 Candidate IDs are sorted and unique before ranking. A request with at least 1,024 candidates uses direct lookup for the first 128, then starts a private DocumentCursor at the current ID. Compare exact IDs, using Arc identity only as a shortcut for live immutable allocations. Return the existing map key/document and advance once when found. Read nearby lower keys; after eight, check cancellation/deadlines and seek directly to the target. Original per-candidate checkpoints and filters remain. No additional progress visit is counted for skipped map keys.
 
 The cursor borrows the immutable map and owns no heap storage. Persistent index layout, norm-cache identity and saved formats remain. Query-local range/iterator stack state is excluded from heap profiles. Sparse gaps can add work; this heuristic is not optimal for every distribution. Native tests compare independent lookup, Unicode/equal IDs, gaps, exhaustion, recovery and large-index hand calculations. Read [two large-corpus campaigns, direct controls, broad/small guards, heap costs and all slower observations](CHANGES-0.4.20.md).
+
+## Borrowed single-word preparation in 0.4.21
+
+A raw query made only of a-z and 0-9 is already one unchanged normalized token. Borrow it and yield frequency 1 through a private iterator variant, avoiding a normalized String, owned map key and temporary frequency-map node. The existing sorted-map iterator supplies all other/preanalyzed queries in the same order with identical counts. Result matched terms remain owned, and entry references remain tied to the Engine. Uppercase, spaces, punctuation, Unicode and repeated-word input keep original analysis. No new cache or stored field is added.
+
+The shared checked ranking body keeps all previous checkpoints and progress visits, exact arithmetic, scopes, norm hints, explanations and source positions. The 0.4.20 document cursor remains. Tests compare independently normalized words, hand-calculated scores, ties, metadata filters and the 1,023/1,024/1,025 boundaries, plus exact checkpoint parity and recovery. Thirty finite Miri cases include scaled versions of all three new tests. Read [primary small Core comparisons, rejected trials, heap deltas and all MCP guards](CHANGES-0.4.21.md). Fewer query allocations do not establish a total process-RAM bound.
