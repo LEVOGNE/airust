@@ -211,3 +211,9 @@ Use the existing `airust_search` arguments with `algorithm: "tfidf"`. The centra
 ## Warm and small execution in 0.4.14
 
 Keep the existing `airust_search` arguments and `algorithm: "tfidf"`. The central Engine batches warm hint reads, uses an eight-slot inline word memo for small cold work and promotes to the existing bounded heap memo after enough completed work. The server adds no tool, argument, response field or startup prewarming. Scores, IDs, source binding, spans, progress, cancellation, worker admission and deadlines remain. Contended hints fall back to exact computation without waiting; their publication can be deferred. Core changes do not imply equal gains in tiny stdio round trips. Read [both four-input MCP campaigns, small controls and mixed work](CHANGES-0.4.14.md).
+
+## Small requests in 0.4.15
+
+Use the same tools and arguments. After an admitted worker starts, the handler immediately waits for completion, cancellation or the original absolute deadline. It no longer awaits an initial timer tick. The first periodic progress update is scheduled one `progress_interval_ms` later, with missed ticks skipped. A requested start message still precedes worker launch and a completion/error message precedes the response; small requests can therefore have just two notifications. Without a progress token there are no notifications and no initial timer wait.
+
+To request progress, pass `_meta: {"progressToken": "unique-request-token"}` in the existing `tools/call` parameters, outside tool arguments. Each simultaneous request needs a unique token. The agent/host decides how notifications appear and whether it narrates its actions; these notifications do not predict remaining time. Defaults, rate/frame/result budgets, worker admission and bounded notification delivery remain. Lower latency does not increase the configured requests/messages allowance. Read [all nine cases in both campaigns](CHANGES-0.4.15.md).

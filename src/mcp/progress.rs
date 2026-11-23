@@ -13,6 +13,12 @@ pub(super) enum Delivery {
     Transport,
 }
 
+pub(super) fn heartbeat(period: Duration) -> tokio::time::Interval {
+    let mut interval = tokio::time::interval_at(tokio::time::Instant::now() + period, period);
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+    interval
+}
+
 pub(super) async fn deliver<F, E>(
     send: F,
     cancellation: &CancellationToken,
@@ -43,6 +49,27 @@ where
 mod tests {
     use super::*;
     use crate::mcp::McpLimits;
+
+    #[tokio::test]
+    async fn first_heartbeat_is_deferred_and_ready_work_needs_no_timer_wakeup() {
+        use std::task::{Context, Poll, Waker};
+
+        let mut interval = heartbeat(Duration::from_secs(60));
+        assert_eq!(
+            interval.missed_tick_behavior(),
+            tokio::time::MissedTickBehavior::Skip
+        );
+        let mut tick = std::pin::pin!(interval.tick());
+        let mut context = Context::from_waker(Waker::noop());
+        assert!(matches!(tick.as_mut().poll(&mut context), Poll::Pending));
+        let mut ready = std::pin::pin!(async {
+            tokio::select! {biased;
+                result = std::future::ready(7) => result,
+                _ = &mut tick => panic!("premature heartbeat"),
+            }
+        });
+        assert!(matches!(ready.as_mut().poll(&mut context), Poll::Ready(7)));
+    }
 
     #[tokio::test]
     async fn expired_request_wins_over_an_already_ready_notification() {

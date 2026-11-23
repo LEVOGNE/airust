@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.4.14 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.4.15 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.4.14 batches warm norm-hint reads and adapts request-local word-weight scratch to completed cold work. Engine, `SearchOptions`, `SearchAlgorithm`, Retriever and MCP signatures remain. Read guards are bounded and released before computing a miss. The inline memo and optional heap promotion are temporary; persistent norm storage, invalidation, original IDs, source positions and exact scores remain. No new setting, dependency or startup prewarming is introduced. See [performance](CORE-PERFORMANCE.md), [cookbook](API-COOKBOOK.md) and [executed measurements](CHANGES-0.4.14.md).
+Version 0.4.15 removes an initial MCP progress-timer wait. Use the same Engine, Retriever, `McpServer`, `McpLimits` and tool calls. Search algorithms and Core memory layout are unchanged. Worker completion, cancellation and the original absolute deadline are selected immediately after worker launch; requested progress retains start, periodic and final updates. No new setting, schema, dependency or data migration is added. Read [MCP](MCP.md), [cookbook](API-COOKBOOK.md) and [executed measurements](CHANGES-0.4.15.md).
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

@@ -1,0 +1,94 @@
+{
+  "scope": "Separate instrumented diagnostic after both final campaigns, not a replacement; same private build path, Rust crate version0.4.15, release profile and dependency lock; only initial timer wait differs. Worker clock/log instrumentation affects scheduling and cost.",
+  "processes": 10,
+  "structured_payloads_identical": true,
+  "warm_medians_ms": {
+    "bm25": {
+      "wait": {
+        "samples": 100,
+        "roundtrip_ms": 6.804791511967778,
+        "worker_ms": 6.26925,
+        "remaining_roundtrip_ms": 0.4589789376386404
+      },
+      "direct": {
+        "samples": 100,
+        "roundtrip_ms": 6.8472090642899275,
+        "worker_ms": 6.527875,
+        "remaining_roundtrip_ms": 0.3360209777621632
+      }
+    },
+    "tfidf": {
+      "wait": {
+        "samples": 100,
+        "roundtrip_ms": 7.0986669743433595,
+        "worker_ms": 6.6436245,
+        "remaining_roundtrip_ms": 0.48204157303702755
+      },
+      "direct": {
+        "samples": 100,
+        "roundtrip_ms": 7.036791532300413,
+        "worker_ms": 6.5342915,
+        "remaining_roundtrip_ms": 0.3452080035539271
+      }
+    }
+  },
+  "stage_start_activity": [
+    {
+      "run": "0-wait",
+      "processes_over_50_cpu": 1,
+      "rustc_processes": 0
+    },
+    {
+      "run": "0-direct",
+      "processes_over_50_cpu": 1,
+      "rustc_processes": 1
+    },
+    {
+      "run": "1-direct",
+      "processes_over_50_cpu": 1,
+      "rustc_processes": 0
+    },
+    {
+      "run": "1-wait",
+      "processes_over_50_cpu": 0,
+      "rustc_processes": 0
+    },
+    {
+      "run": "2-wait",
+      "processes_over_50_cpu": 0,
+      "rustc_processes": 0
+    },
+    {
+      "run": "2-direct",
+      "processes_over_50_cpu": 0,
+      "rustc_processes": 0
+    },
+    {
+      "run": "3-direct",
+      "processes_over_50_cpu": 2,
+      "rustc_processes": 1
+    },
+    {
+      "run": "3-wait",
+      "processes_over_50_cpu": 2,
+      "rustc_processes": 2
+    },
+    {
+      "run": "4-wait",
+      "processes_over_50_cpu": 1,
+      "rustc_processes": 1
+    },
+    {
+      "run": "4-direct",
+      "processes_over_50_cpu": 1,
+      "rustc_processes": 1
+    }
+  ],
+  "program_sha256": {
+    "wait": "779a57072193356daf86532745b94f928a319807b14718f2697313c2f76f4fea",
+    "direct": "19b86e122877bd563ecb5891b63c6922748e7c3641f2dc811e27082961b15d87",
+    "wait-mcp.rs": "4a18c8e9e0d74927e8e5fc4cec76e9179e17d5b40914684a10e6f7d2bc1ccccc",
+    "direct-mcp.rs": "4a02083e43f30ac8f7c94033c50eab1d054ca305604e055daa822f005d019f31",
+    "probe.py": "a5d327b60b53a46d452f4e1177f2762ac9cba4b1a0c87d554ffc1b98f8ea1159"
+  }
+}

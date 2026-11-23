@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.4.14 targets warm and small TF-IDF work. Preserve the cold-query benefit, exact results, persistent memory gains and public API/MCP contracts. Measure tiny input, warm input, cold input and concurrent mixed work separately. Retain slower outcomes and distinguish Core improvements from transport latency.
+0.4.15 targets small MCP latency by removing an unnecessary timer wait while preserving progress, cancellation, absolute deadlines and bounded admission. Measure both rankers and larger inputs alongside 1/4/16-entry controls, with and without progress. Keep negative results and Core/RAM controls. Further work must follow demonstrated defects or measured bottlenecks.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.4.15 | Small MCP execution without the initial timer wait | Implemented; read [MCP](docs/MCP.md) and [measurements](docs/CHANGES-0.4.15.md). |
 | 0.4.14 | Warm cache-read batches and adaptive inline scratch | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.14.md). |
 | 0.4.13 | Bounded cold-query TF-IDF weight reuse | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.13.md). |
 | 0.4.12 | Compact transient TF-IDF cache | Implemented; see [API](docs/CORE-PERFORMANCE.md) and [measurements](docs/CHANGES-0.4.12.md). |

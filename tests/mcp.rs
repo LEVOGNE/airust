@@ -162,6 +162,50 @@ fn code(response: &Value) -> &str {
 }
 
 #[tokio::test]
+async fn small_tools_keep_identical_payloads_and_start_completion_without_heartbeat_wait() {
+    let snapshot = snapshot();
+    let mut client = Client::new(
+        McpServer::new(
+            entries(),
+            [snapshot.clone()],
+            McpLimits {
+                progress_interval_ms: 60_000,
+                ..Default::default()
+            },
+        )
+        .unwrap(),
+    );
+    client.initialize().await;
+    for (number, (name, arguments)) in [
+        ("airust_search", json!({"query":"ownership","algorithm":"bm25"})),
+        ("airust_search", json!({"query":"ownership","algorithm":"tfidf"})),
+        ("airust_find_matches", json!({"text":"Rust ownership and memory safety","strategy":"exact"})),
+        ("airust_relate", json!({"id":"a"})),
+        ("airust_read_passage", json!({"document_id":"manual","revision":snapshot.revision(),"start_byte":0,"end_byte":7})),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let plain = client.call(number + 1, name, arguments.clone()).await;
+        assert_ne!(plain["result"]["isError"], true);
+        let id = number + 100;
+        let token = format!("small-{number}");
+        client.send(json!({"jsonrpc":"2.0","id":id,"method":"tools/call","params":{"name":name,"arguments":arguments,"_meta":{"progressToken":token}}})).await;
+        for (sequence, message) in [(0, format!("Starting {name}")), (1, "AIRust work completed".into())] {
+            let event = client.receive().await;
+            assert_eq!(event["method"], "notifications/progress");
+            assert_eq!(event["params"]["progressToken"], token);
+            assert_eq!(event["params"]["progress"].as_f64(), Some(sequence as f64));
+            assert_eq!(event["params"]["message"], message);
+        }
+        let response = client.receive().await;
+        assert_eq!(response["id"], id);
+        assert_eq!(response["result"], plain["result"]);
+    }
+    client.finish().await;
+}
+
+#[tokio::test]
 async fn escaped_argument_bytes_enforce_exact_limits_and_allow_session_recovery() {
     let mut client = Client::new(server(McpLimits {
         max_frame_bytes: 4096,

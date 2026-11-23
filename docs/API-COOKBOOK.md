@@ -1,6 +1,6 @@
-# AIRust 0.4.14 API cookbook
+# AIRust 0.4.15 API cookbook
 
-Version 0.4.14 retains public calls and exact ranking. Choose `SearchAlgorithm::Tfidf` or MCP `algorithm: "tfidf"` as before. Warm hints share a read guard for at most 128 hits, released on misses, progress callbacks and query completion. Small cold work uses an eight-slot inline word-weight memo; after 128 completed cold terms, later norms may promote it to the existing 256-slot heap memo. Hints remain best effort under contention and exact computation never waits for their write lock. Reuse a stable Engine and update through its APIs. Read [performance](CORE-PERFORMANCE.md), [MCP](MCP.md) and [measured costs](CHANGES-0.4.14.md).
+Version 0.4.15 keeps public calls, ranking and source positions. Existing MCP tools finish small work without an initial timer wait. A client that wants work updates supplies `_meta.progressToken` as before; start/completion remain and periodic updates begin after `McpLimits::progress_interval_ms`. No progress token is required for search. Cancellation, absolute deadlines, admission and byte/rate budgets remain. Faster small calls do not raise those limits. Read [MCP](MCP.md) and [both complete benchmark campaigns](CHANGES-0.4.15.md).
 
 Version 0.4.7 adds `LexicalCoverageSource`, an explicit source that balances the existing prepared lexical score with distinct question-term coverage. Inspect query, counts, normalized score and original lexical rank through `inspect`. [Complete API and limitations](LEXICAL-COVERAGE.md); [executed report](CHANGES-0.4.7.md). Literal BM25 and optional MCP defaults remain unchanged.
 
@@ -8,7 +8,7 @@ Version 0.4.6 adds explicit lexical question preparation and conservative leadin
 
 Version 0.4.5 introduced opt-in distinct paragraph evidence and provider-neutral citation validation. The existing Engine BM25 ranking and default retrieval/MCP behavior remain. No embedding or language model is required. Use the bounded citation checker after generation against the exact response used as context, and distinguish quote verification from factual support.
 
-For 0.4.14, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.14.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
+For 0.4.15, read the [document API and upgrade](DOCUMENTS.md), [support contract](STABILITY.md), and [executed validation report](CHANGES-0.4.15.md). Earlier [0.3.0 migration notes](MIGRATION-0.3.0.md) remain relevant when upgrading from older data/model formats. No application integration is performed.
 
 AIRust finds knowledge, compares content and returns evidence. Your application owns its records, permissions and durable storage. Start with the smallest feature set that solves the task. All examples named below ship with the crate and are checked by the release process.
 
@@ -16,7 +16,7 @@ AIRust finds knowledge, compares content and returns evidence. Your application 
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.14", default-features = false }
+airust = { version = "=0.4.15", default-features = false }
 ```
 
 | Feature | What it adds | Guide and executable example |
@@ -411,7 +411,7 @@ For an entry restored from knowledge JSON, take its reserved `metadata["airust_d
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.14", default-features = false, features = ["mcp"] }
+airust = { version = "=0.4.15", default-features = false, features = ["mcp"] }
 ```
 
 Use `McpServer::from_entries` for generic records, `from_documents` for nonblank snapshot pages, or `new(entries, snapshots, limits)` for explicitly chunked revision-bound passages. `load_knowledge` and `load_documents` read bounded startup files. Call `serve_stdio().await` in a Tokio runtime, or use the packaged `airust-mcp` executable. The default core still loads no SDK or async runtime.

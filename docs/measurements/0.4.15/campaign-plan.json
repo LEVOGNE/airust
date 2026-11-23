@@ -1,0 +1,43 @@
+{
+  "version": "0.4.15",
+  "created_at": "2026-11-23T08:28:35.088654+00:00",
+  "baseline": "exact registry0.4.14 VCSc0a718604ad36026a33c5a15a67ad7f49c5f41da",
+  "scope": "Remove the initial progress timer wait; preserve start/completion, periodic updates, absolute deadlines and cancellation; Core unchanged",
+  "question_origin": "Retained342exposed authored questions; no new holdout or logged traffic",
+  "artifact_policy": "Archive proof then delete only /private/tmp/airust-ranking-0415-build and -miri",
+  "query_fixtures": 25,
+  "query_plain_processes": 14,
+  "cold_time_processes": 14,
+  "cold_time_calls": 1680,
+  "cold_fixtures": [
+    "index",
+    "wide",
+    "sparse",
+    "tiny",
+    "tiny4",
+    "tiny16"
+  ],
+  "small_warm_processes": 14,
+  "small_warm_fixtures": 6,
+  "small_warm_calls": 84000,
+  "small_heap_processes": 2,
+  "small_heap_calls": 1200,
+  "mcp_campaigns": 2,
+  "mcp_processes_per_campaign": 90,
+  "mcp_cases": [
+    "canonical",
+    "numpy",
+    "wide",
+    "tiny",
+    "tiny4",
+    "tiny16",
+    "tiny-no-progress",
+    "tiny4-no-progress",
+    "tiny16-no-progress"
+  ],
+  "mixed_processes": 10,
+  "mixed_reader_threads": 4,
+  "mixed_new_group_calls": 1000,
+  "mixed_scope": "Finite stop-on-completed-new-group-calls control; variable warm work counts, not a throughput/capacity benchmark",
+  "searches_with_and_without_progress": true
+}

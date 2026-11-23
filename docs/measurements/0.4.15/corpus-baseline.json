@@ -1,0 +1,95 @@
+{
+  "all_incremental_rebuilds_identical": true,
+  "all_roundtrip_and_concurrent_signatures_identical": true,
+  "baseline_export_sha256": "7084acd514f46e0fadf6b213a1d19bf1263961646656a8d36149e1b9dd1b2676",
+  "build_ms": 4586.337334,
+  "cancelled_and_expired_searches_rejected": true,
+  "clone_and_detach_ms": 9.90775,
+  "concurrent": {
+    "elapsed_ms": 309.11075,
+    "latency": {
+      "bm25": {
+        "max_ms": 9.931000000000001,
+        "p50_ms": 5.443167,
+        "p95_ms": 9.929083,
+        "p99_ms": 9.931000000000001,
+        "samples": 80
+      },
+      "tfidf": {
+        "max_ms": 34.280125,
+        "p50_ms": 5.939458,
+        "p95_ms": 34.278583000000005,
+        "p99_ms": 34.280125,
+        "samples": 80
+      }
+    },
+    "queries_per_reader": 40,
+    "readers": 4
+  },
+  "entries": 167942,
+  "features": [
+    "execution",
+    "shared-index"
+  ],
+  "fixture": "real-corpus-readiness-v1",
+  "initial_search": {
+    "bm25": {
+      "max_ms": 9.673584,
+      "p50_ms": 5.435792,
+      "p95_ms": 9.673584,
+      "p99_ms": 9.673584,
+      "samples": 10
+    },
+    "tfidf": {
+      "max_ms": 29.216958,
+      "p50_ms": 18.204375,
+      "p95_ms": 29.216958,
+      "p99_ms": 29.216958,
+      "samples": 10
+    }
+  },
+  "parse_ms": 434.38216600000004,
+  "rebuild": {
+    "max_ms": 4678.553542,
+    "p50_ms": 4678.553542,
+    "p95_ms": 4678.553542,
+    "p99_ms": 4678.553542,
+    "samples": 1
+  },
+  "repeated_search": {
+    "bm25": {
+      "max_ms": 9.408625,
+      "p50_ms": 4.985042,
+      "p95_ms": 9.408625,
+      "p99_ms": 9.408625,
+      "samples": 10
+    },
+    "tfidf": {
+      "max_ms": 9.313709,
+      "p50_ms": 5.142583,
+      "p95_ms": 9.313709,
+      "p99_ms": 9.313709,
+      "samples": 10
+    }
+  },
+  "retained_clone_unchanged": true,
+  "rounds": 1,
+  "roundtrip": {
+    "max_ms": 4632.751042,
+    "p50_ms": 4632.751042,
+    "p95_ms": 4632.751042,
+    "p99_ms": 4632.751042,
+    "samples": 1
+  },
+  "scope": "Trusted real PDF-derived lexical entries, shared-index/execution. Fixed literal queries, not semantic relevance labels. Timings include validation checks where stated; no model, external DB transaction or capacity/security guarantee. Canonical source never written; mutations remain in memory.",
+  "source_export_sha256": "13168d87872a137355fd8499c90a6084f52243a2ec7456f29b5fcb2a1c7423c3",
+  "update_delete_128": {
+    "max_ms": 1.533875,
+    "p50_ms": 1.533875,
+    "p95_ms": 1.533875,
+    "p99_ms": 1.533875,
+    "samples": 1
+  },
+  "version": "0.4.14",
+  "child_wall_s": 18.032477000029758
+}

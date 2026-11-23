@@ -977,9 +977,7 @@ impl ServerHandler for Handler {
         let deadline = tokio::time::sleep_until(tokio::time::Instant::from_std(request_deadline));
         tokio::pin!(deadline);
         let mut interval =
-            tokio::time::interval(Duration::from_millis(self.limits().progress_interval_ms));
-        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
-        interval.tick().await;
+            progress::heartbeat(Duration::from_millis(self.limits().progress_interval_ms));
         loop {
             tokio::select! {biased;
                 _=context.ct.cancelled()=>return Ok(self.error("cancelled","Request cancelled").into()),

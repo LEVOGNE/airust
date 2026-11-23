@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.15 — Small MCP calls without the initial timer wait
+
+Schedule the first periodic progress tick one interval later and enter the existing worker/cancellation/deadline selector immediately. Preserve start/completion notifications, missed-tick skipping, original absolute deadlines, cancellation precedence, worker admission and transport budgets. Keep Core ranking, sources, APIs, schemas, formats and dependencies. Add direct timer-poll and complete small-tool progress/payload regressions. Compare freshly built 0.4.14/0.4.15 in two nine-case MCP campaigns including 1/4/16 entries with/without progress; retain the unfavorable pilot and all Core/RAM controls. No DenkMaps integration. Read [API/MCP](docs/MCP.md) and [all measurements and limits](docs/CHANGES-0.4.15.md).
+
 ## 0.4.14 — Warm and small query work
 
 Batch successful norm-hint reads with bounded guard lifetimes; release before misses, callbacks and winner explanations. Keep warm dispatch compact and cold computation separate. Use an eight-slot inline exact-IDF memo and promote to the existing 256-slot heap memo after completed cold work, avoiding immediate 4 KiB allocation for small requests. Preserve persistent storage, exact scores/order, source positions and Rust/MCP contracts. Add release/miss, deferred-scratch and overlapping reader/cold-query regressions; measure tiny inputs and concurrent mixed work alongside retained warm/cold controls. No dependencies or DenkMaps integration. Read [API/performance](docs/CORE-PERFORMANCE.md) and [all measured costs and limits](docs/CHANGES-0.4.14.md).
