@@ -1,112 +1,32 @@
-# AIRust 0.4.25
+# AIRust 0.5.0
 
 **A Modular Knowledge Intelligence Engine**
 
 AIRust is a Rust library for finding information, comparing text, and suggesting possible connections. Give it entries with IDs, text, and optional metadata. Your application decides how to display and store the results.
 
-**Earlier 0.4.4 comparison, not a superiority claim:** a completed local experiment used the same Qwen model for 400 answers over 100 document-derived reference questions. AIRust hybrid found the reference passage in the first six results for 64/88 answerable questions; SQLite FTS5 plus the same embeddings found 66/88, simple keyword search 58/88, and AIRust BM25 alone 69/88. These are authored questions, not logged user questions. The run demonstrates no AIRust hybrid answer-quality advantage over SQLite and no material token saving. Read the [honest comparison, answer checks, timings, RAM, failures and proposed improvements](docs/HONEST-COMPARISON-0.4.4.md). That report evaluated 0.4.4 and did not publish a new version.
+Earlier local comparisons with the same Qwen model found no general AIRust hybrid quality or token-saving advantage over SQLite FTS5 plus embeddings. The [complete comparison](docs/HONEST-COMPARISON-0.4.4.md) preserves the measurements and limits; these are historical results from 0.4.4.
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.4.25 frees the temporary JSON input after reading its entries, before building the MCP search index. The original file and all loaded records remain. This reduces overlapping startup work in memory without changing your search calls or saved knowledge. Default features stay empty. Read [startup measurements and limits](docs/CHANGES-0.4.25.md), [API cookbook](docs/API-COOKBOOK.md) and [MCP](docs/MCP.md). No DenkMaps integration is included.
+Version 0.5.0 is a stability release for the existing knowledge core and optional MCP. It keeps the runtime fixes through 0.4.25, checks repeated changes against independent records, and tests large synthetic indexes and retained copies. Your application still owns its data and permissions. Cargo users select the new 0.5 compatibility line explicitly. Start with [upgrade](docs/MIGRATION-0.5.0.md), [API cookbook](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [executed tests and limits](docs/CHANGES-0.5.0.md). No DenkMaps integration is included.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.5.0](docs/CHANGES-0.5.0.md) | Verify Core/MCP stability and large-index behavior. | Keep contracts explicit and check state over repeated changes. |
 | [0.4.25](docs/CHANGES-0.4.25.md) | Release temporary raw JSON before indexing. | Avoid keeping the large input buffer during MCP startup. |
 | [0.4.24](docs/CHANGES-0.4.24.md) | Keep final MCP answer checks inside the worker. | Report late size errors correctly and keep admission until work ends. |
 | [0.4.23](docs/CHANGES-0.4.23.md) | Avoid extra copies for short repeated-word Core queries. | Reuse the word and its count while keeping the same results. |
 | [0.4.22](docs/CHANGES-0.4.22.md) | Prepare bounded MCP answers with less duplicate work. | Reuse a private data check and move JSON while keeping the final reply bound. |
-| [0.4.21](docs/CHANGES-0.4.21.md) | Borrow an already normalized single query word. | Avoid temporary text copies and a frequency table for simple searches. |
-| [0.4.20](docs/CHANGES-0.4.20.md) | Reuse sorted document lookup for large searches. | Read nearby candidate documents without searching the tree again each time. |
-| [0.4.19](docs/CHANGES-0.4.19.md) | Reuse exact word intersections for broad-search explanations. | Avoid checking absent words repeatedly while preserving ranking and sources. |
-| [0.4.18](docs/CHANGES-0.4.18.md) | Combine two matching word lists directly. | Reduce merge overhead on large searches, keeping exact results and cooperative checks. |
-| [0.4.17](docs/CHANGES-0.4.17.md) | Read a single known-term candidate list directly. | Reduce small Core overhead while retaining the large-query optimization. |
-| [0.4.16](docs/CHANGES-0.4.16.md) | Reuse exact word frequencies from sorted postings for large small-term queries. | Avoid repeated word-dictionary lookups with bounded query-local state. |
-| [0.4.15](docs/CHANGES-0.4.15.md) | Remove the initial progress-timer wait from MCP calls. | Return finished small requests without waiting for an unnecessary timer wakeup. |
-| [0.4.14](docs/CHANGES-0.4.14.md) | Bounded warm hint reads and a small inline weight memo. | Reduce repeated locking and avoid an immediate 4 KiB allocation on small cold work. |
-| [0.4.13](docs/CHANGES-0.4.13.md) | Bounded request-local reuse of exact TF-IDF word weights. | Reduce repeated cold-query work while keeping persistent cache storage and ranking. |
-| [0.4.12](docs/CHANGES-0.4.12.md) | Compact transient TF-IDF cache keys. | Reduce hint storage and repeated ID hashing without changing ranking. |
-| [0.4.11](docs/CHANGES-0.4.11.md) | TF-IDF hint lookup and sparse broad-query scoring. | Spend less work on absent words while preserving scores and exposing cache-memory costs. |
-| [0.4.10](docs/CHANGES-0.4.10.md) | Direct ASCII normalization and bounded ordered posting-list merge. | Reduce construction and candidate-collection work while retaining results and cancellation. |
-| [0.4.9](docs/CHANGES-0.4.9.md) | Faster complete retrieval, bounded excerpt analysis and shared JSON counting. | Spend less work on selected evidence while retaining byte limits and MCP contracts. |
-| [0.4.8](docs/CHANGES-0.4.8.md) | Less temporary query allocation and deadline-aware MCP progress. | Preserve evidence and keep request expiry distinct from transport failure. |
-| [0.4.7](docs/LEXICAL-COVERAGE.md) | Inspectable lexical coverage scoring. | Balance rank strength and distinct query terms without a model. |
-| [0.4.6](docs/LEXICAL-QUERY.md) | Optional question-word/identifier preparation and conservative leading context. | Inspect the real lexical query and keep more surrounding evidence. |
-| [0.4.5](docs/EVIDENCE-SELECTION.md) | Optional paragraph evidence, exact excerpt deduplication and bounded citation validation. | Spend context on distinct passages and detect references or quotations that were not supplied. |
-| [0.4.4](docs/CORE-PERFORMANCE.md) | Less temporary allocation traffic during construction. | Create and discard fewer working buffers while keeping the same index. |
-| [0.4.3](docs/CHANGES-0.4.3.md) | Faster construction and BM25 with retained memory sharing. | Spend less time building the index and scoring discarded candidates. |
-| [0.4.2](docs/CORE-PERFORMANCE.md) | Shared index text and reusable TF-IDF calculations; MCP response schemas. | Use less repeated storage and let clients validate structured answers. |
-| [0.4.1](docs/MCP.md) | Optional local MCP with read-only tools, exact citations, progress and cancellation. | Give agents bounded access to selected knowledge without a separate AIRust crate. |
-| [0.4.0](docs/DOCUMENTS.md) | Bind passages to identified source/text revisions and checked UTF-8 ranges. | Keep citations and text positions attached to their exact document version. |
-| [0.3.15](docs/PDF-PAGE-TREE-MEMORY.md) | Keep compact pending PDF child references. | Reduce validation memory while retaining count and resource checks. |
-| [0.3.14](docs/PDF-PAGE-COUNTS.md) | Validate actual PDF page-tree counts before extracting text. | Prevent hidden or duplicated pages from inconsistent metadata. |
-| [0.3.13](docs/PDF-STRUCTURE-LIMITS.md) | Reject covered PDF work-limit failures explicitly. | Protect existing knowledge from incomplete imports. |
-| [0.3.12](docs/SHARED-IDENTIFIERS.md) | Reuse entry identifiers across word lists and duplicate groups. | Reduce repeated ID allocations in large indexes. |
-| [0.3.11](docs/TOKEN-MATCHING.md) | Calculate character explanations after selecting token matches. | Avoid expensive comparisons for discarded candidates. |
-| [0.3.10](docs/PDF-CLEANING-PASS.md) | Complete Latin-ligature expansion and combine initial cleaning steps. | Correct st forms and reduce intermediate text copying. |
-| [0.3.9](docs/PDF-OVERLAP.md) | Avoid temporary copies while processing overlapping chunks. | Reduce wasted work while retaining knowledge and budget behavior. |
-| [0.3.8](docs/PDF-CHUNKS.md) | Preserve source characters when splitting long PDF pages. | Avoid rewriting existing separators during chunking. |
-| [0.3.7](docs/PDF-PREVIEW.md) | Extract only the usable pages displayed in a PDF preview. | Reduce repeated extraction and preserve early import-budget rejection. |
-| [0.3.6](docs/PDF-TEXT-FIDELITY.md) | Preserve numeric data, paragraph breaks and normalized Unicode when cleaning PDF text. | Avoid misleading joined numbers and unnecessary loss of technical content. |
-| [0.3.5](docs/PDF-IMPORT-PIPELINE.md) | Check chunk budgets while processing pages and retain one staged copy. | Reject over-budget imports earlier while preserving existing knowledge. |
-| [0.3.4](docs/PDF-PARSER.md) | Read complete small PDF objects without repeatedly scanning huge physical lines. | Import the measured slow documents faster while keeping their structure and text. |
-| [0.3.3](docs/PDF-WORKERS.md) | Run PDF conversion in an owned child with a time budget and validated output. | Stop a blocking parser job while protecting previous knowledge. |
-| [0.3.2](docs/PDF-LIMITS.md) | Apply explicit import budgets and reject unsafe argument handling. | Stop oversized imports before publishing partial output. |
-| [0.3.1](docs/PDF-STABILITY.md) | Protect PDF outputs and reject failed imports without losing existing data. | Make large-document processing safer and retain reusable knowledge. |
-| [0.3.0](docs/CHANGES-0.3.0.md) | Validate imports consistently, check feature isolation, and test existing data files. | Upgrade with a clear compatibility and validation record. |
-| [0.2.26](docs/QUALITY-GATES.md) | Compare identified search runs against explicit quality and resource rules. | Show regressions before approving a change. |
-| [0.2.27](docs/EVIDENCE-FRESHNESS.md) | Check proof dependencies against current facts, rules and source versions. | Find conclusions that need renewed review. |
-| [0.2.28](docs/RANK-EXPLANATIONS.md) | Show the actual feature and feedback contributions to a score. | Make ranking decisions inspectable. |
-| [0.2.29](docs/TRAINING-PIPELINE.md) | Curate trusted feedback, train with separate query groups, approve and roll back models. | Keep learning and deployment explicit. |
-| [0.2.30](docs/DISK-INDEX.md) | Search and update a disk-backed index with checked revisions and bounded export. | Work with larger collections under a smaller process-memory budget. |
 
-Local 0.4.25 validation passes **252 default tests, 908 all-feature checks including 39 doctests, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, patch-level API comparison, independent consumer and the same 37 finite Tree Borrows Miri cases pass. Existing native file-boundary, protocol, cancellation, deadline, final-reply and shutdown regressions remain. Startup-only controls verify unchanged input/counts and EOF; no new Miri coverage is implied. Read [the full scope](docs/CHANGES-0.4.25.md).
+Read the [complete history](CHANGELOG.md) and [completed route](docs/ROADMAP-TO-0.5.0.md).
 
-**Measured 0.4.25 result:** the canonical peak-live-heap profile is 256.000 MiB lower than exact 0.4.24. Native peak process RSS is practically unchanged (-0.00% / -0.01%). These are different memory measures. Two startup-only campaigns check 84 fresh servers on 167,942-entry and 16-entry inputs; six separate allocation profiles retain full heap counters. Files, counts and clean shutdowns pass. Read [every sample, negative timing and limit](docs/CHANGES-0.4.25.md).
+Local 0.5.0 validation passes **253 default tests, 909 all-feature checks including 39 doctests, and 39 isolated feature entries**. Strict Clippy/docs, Rust 1.89/1.92, patch-level API comparison, an independent consumer and 38 finite Tree Borrows Miri cases pass. The added state test checks 250 native mutation steps; its Miri form uses eight steps and a reduced matrix without native threads/I/O. Existing protocol, bounds, cancellation, deadline and shutdown tests remain. Read [exact scope and limits](docs/CHANGES-0.5.0.md).
 
-**0.4.25 limits:** six-case small-MCP repeated median changes range from -3.88% to +4.05% and -4.62% to +2.29%; ordinary canonical TF-IDF changes are -14.45% / +2.15%. Slower rows remain. This loader lifetime change does not shrink the retained index or establish uniform search/startup speed. One host, exposed questions, warm filesystem caches and power sampled only at campaign start limit conclusions. No OS quota, fresh semantic-quality advantage or security-audit claim is added.
+**Measured 0.5.0 result:** all 30 finite scale/clone processes pass across exact 0.4.21, 0.4.25 and 0.5.0. The million-entry case checks search, 100 updates, 20 deletes and four readers; the 500,000-entry case preserves three retained clones when one changes. Independent mutation/cache tests and all retained RPC/startup/heap/source controls pass. Read [every timing, memory observation and limit](docs/CHANGES-0.5.0.md).
 
-**Measured 0.4.17 result:** original six warm 1/4/16-entry Core cases have median changes of -14.99% to -3.67% in one fresh three-version campaign and -19.06% to -5.53% in its separate confirmation, versus 0.4.16. Negative means shorter time. Both include an earlier 0.4.15 reference and a fixed 96-case extension; all 4,284,000 timed calls and slower outcomes are retained. Canonical repeated MCP TF-IDF median changes are -1.73% and +0.99% versus 0.4.16; a separate fresh reference records -43.10% versus 0.4.15. That separate reference is +9.50% versus 0.4.16, so it does not establish preserved latency against every 0.4.16 workload. Core gains do not imply equal MCP round-trip gains: the largest repeated MCP median rise in the two ordinary campaigns is +7.37% (tiny, tfidf, campaign 2). Both ordinary campaigns validate 13,880 actual replies. Temporary allocations, all slower rows, p95, RAM and host load remain in [the complete report](docs/CHANGES-0.4.17.md). No universal speedup or new semantic-quality claim is made.
+**0.5.0 limits:** Core/MCP runtime source is unchanged from 0.4.25. Small-MCP repeated median changes still range from -1.63% to +2.31% and -0.79% to +1.56%; ordinary canonical TF-IDF changes are +1.75% / +0.67%. All slower outcomes remain. Shared-host variation is not a new algorithmic speedup. Synthetic records do not prove real-document capacity or uptime. Finite tests, exposed questions and one host establish no zero-bug, semantic-quality, OS-quota or independent security-audit guarantee.
 
-**Measured 0.4.16 result:** repeated canonical MCP TF-IDF medians change by -45.84% and -45.57% against freshly built 0.4.15 in two fixed campaigns. One-entry medians change by +1.17% and -15.38%. Negative means shorter time. A separate fresh three-version control observes -47.36% versus 0.4.14 for canonical repeated TF-IDF. Both ordinary campaigns retain 180 servers and 13,880 schema-valid replies; a separate 15-server reference validates 1,020 replies. Direct control modes, temporary allocation costs, all slower cases, tails and host-load samples remain in [the complete report](docs/CHANGES-0.4.16.md). Small Core controls have 0.9–7.6% higher medians in this run. Eligible large calls add temporary cursor allocation; retained index and norm-hint memory stay unchanged in the measured controls. No universal speedup or new semantic-quality claim is made.
-
-**Measured 0.4.15 result:** one-entry repeated MCP TF-IDF medians change by -90.36% and -90.13% in two preplanned campaigns. Negative means shorter observed time. Canonical repeated TF-IDF medians change by +21.22% and +1.74%. Both versions are freshly built. The nine input/progress cases cover 1/4/16 entries with and without notifications, plus retained larger inputs. All 1,026 document responses match byte-for-byte; 180 actual MCP servers provide 13,880 schema-valid replies. Core allocation controls, RAM, slower cases and the unfavorable large-query pilot remain in [the full report](docs/CHANGES-0.4.15.md). Large-query latency is not shown to be preserved; a separate instrumented control does not explain the remaining variation.
-
-**Measured 0.4.14 result:** repeated canonical MCP TF-IDF medians change by -1.66% and -1.05% across two preplanned campaigns. One-entry MCP medians change by -0.14% and +0.17%. Negative values are shorter times. Small cold controls request 4,096 fewer heap bytes, with added inline stack state. Small warm Core results are mostly flat/slower; tiny MCP transport is essentially unchanged and some tails rise. Mixed-work gains are a finite synthetic control, with slower post-reader calls. All 1,026 document responses match byte-for-byte; 80 real MCP servers provide 7,080 schema-valid replies. Read [all measurements and limits](docs/CHANGES-0.4.14.md).
-
-**Measured 0.4.13 result:** canonical initial MCP TF-IDF median latency changes by -23.25% and -14.90% across two preplanned campaigns. Negative changes are shorter times. A cold request adds a bounded 4 KiB temporary memo while retained norm storage remains unchanged. Repeated canonical TF-IDF medians are 0.4–0.9% higher, and the one-entry cold control is 14.3% slower; a warm p95 also rises. Whole-process RAM is essentially unchanged. All 1,026 document response pairs remain byte-identical and 60 real MCP servers produce 5,720 schema-valid responses. Read [all first/repeated timings, memory and limits](docs/CHANGES-0.4.13.md).
-
-**Measured 0.4.12 result:** canonical first-pass retained norm hints change from 3,276,888 to 2,228,312 bytes (-32.00%). This is one cache component, not total application RAM. Cold MCP latency is mixed between campaigns and total process RAM is essentially unchanged. Several warm microfixtures are slower. Cold/warm and initial/repeated measurements remain separate. All 1,026 complete document responses remain byte-identical, with 5,720 schema-valid replies from 60 real MCP servers. Read [cold-cache/RAM/timing results and limits](docs/CHANGES-0.4.12.md).
-
-**Measured 0.4.11 result:** repeated TF-IDF over the 167,942-entry canonical MCP dataset has 15.29% and 16.67% lower median latency in two preplanned campaigns. Authored sparse 512-term Core calls improve about 74%; synthetic wide MCP latency changes little. Several other microcases and small-snapshot medians are slower. Cold hint storage/allocation can increase, despite fewer allocation calls. All 1,026 complete document responses remain byte-identical; 60 real MCP servers provide 5,720 schema-valid replies. Read [initial/repeated samples, all negative costs and limits](docs/CHANGES-0.4.11.md).
-
-**Measured 0.4.10 result:** repeated construction of the complete 167,942-entry corpus has 13.92% lower median build time in this run, excluding input parsing. Canonical MCP BM25 medians are 12–17% lower across two preplanned campaigns; TF-IDF and small-snapshot results are mixed. All 1,026 complete document-retrieval responses remain byte-identical. Temporary query allocation falls in the tested merge cases, while the broad fallback can request more bytes. Retained index/process memory is essentially unchanged. Read [both campaigns, the preserved initial candidate and limits](docs/CHANGES-0.4.10.md).
-
-**Measured 0.4.9 result:** on the same 342 exposed questions, prepared retrieval and coverage have about 23% lower median complete context latency, with 1,026 byte-identical response comparisons. Literal BM25 changes little and has a slightly higher p95; individual questions and unchanged search microtests can be slower. Forty real MCP processes yield mixed latency results, including a slower first canonical campaign; confirmation does not establish a general MCP gain. Process RAM is essentially unchanged. Read [both campaigns, all timings and limits](docs/CHANGES-0.4.9.md).
-
-The earlier 0.4.4 10,000-entry allocator profile records **23.87% fewer build allocation operations** and **23.89% fewer cumulative allocated bytes** than 0.4.3. The completed index uses exactly the same tracked live heap; its build peak is 1 KiB higher in this trace. With just a few very long words, the temporary buffer can reserve extra space. Eight authored edge cases document this tradeoff. These are allocator measurements, not process-RAM or latency guarantees. Read the [complete measurements and limits](docs/CHANGES-0.4.4.md).
-
-Enable `documents` for `DocumentSnapshot`, `SourceFingerprint` and `Passage`. Run `cargo run --features documents --example documents`. Positions are bytes in an identified text snapshot; original PDF bytes and graphical coordinates are separate. Restoring a snapshot rechecks its hashes, page partition and revision. A hash identifies supplied data rather than authenticating its meaning or extraction coverage.
-
-The planned 0.3.x cycle ended at 0.3.15; additional patches require concrete defects. The first 0.4 release keeps a focused optional document contract. Cargo requires an explicit update from the 0.3 compatibility range, while existing core APIs and knowledge formats remain compatible. See [upgrade and limits](docs/DOCUMENTS.md#upgrade-and-boundaries).
-
-The [release history](CHANGELOG.md) explains completed work through 0.4.25. The [application guide](docs/APPLICATION-INTEGRATION.md) describes possible later adapters; this release changes no application dependency or database.
-
-To use relevant excerpts, enable `retrieval` and pass `RetrievalOptions::new(10).with_relevant_excerpts(ExcerptOptions::default())`. Run `cargo run --features retrieval --example relevant_excerpts` for a complete example. A semantic result without literal word overlap reports that limitation rather than inventing a supporting passage.
-
-To keep related data consistent, enable `snapshots` and acquire one `manager.snapshot()` per request. Use that view for search, vectors and source lookup. Run `cargo run --features snapshots,retrieval --example snapshots` for a complete example. These are RAM read views; an application still coordinates its own database transactions.
-
-To assess evidence, enable `retrieval` and add `.with_evidence_policy(EvidencePolicy::default())`. Run `cargo run --features retrieval --example evidence_assessment`. The fixed twelve-case evaluation includes a false acceptance and a false rejection to show the limits of word coverage.
-
-In the 0.3.12 fixture with 500,000 short synthetic records and three retained copies, `shared-index` lowers median process peak RSS from 2.895 to 0.981 GiB across three runs. A changed clone still pays to detach shared data. In a separate 160,085-entry real-corpus validation workload, shared identifiers lower median process peak RSS by 22.08% against 0.3.11. These processes retain several complete working views; the figures do not describe every application or one index's memory requirement. See [measurements and limits](docs/CHANGES-0.3.12.md) and the [original sharing design](docs/CHANGES-0.2.20.md).
-
-**Historical 0.4.5 comparison:** 630 local model replies cover 210 authored questions, including 48 fresh same-corpus holdout cases. On their 36 answerable questions, reference evidence is present for 28 with old BM25, 26 with optional compact delivery and 30 with SQLite hybrid. Compact delivery uses 17.4% fewer mean prompt tokens on the holdout, with changed evidence; no equal-quality saving or answer-quality advantage is established. The 72-reply anonymized assistant audit also shows no A/C semantic-quality gain. Keep ordinary BM25 as the starting configuration. See [all results, failures, costs and limits](docs/CHANGES-0.4.5.md).
-
-**Historical 0.4.6 comparison:** 846 local model replies cover 282 authored questions, including 72 fresh same-corpus holdout cases. On their 54 answerable questions, reference evidence is present for 45 with literal BM25, 44 with prepared/leading delivery and 45 with SQLite hybrid. Reference MRR@6 is 0.723, 0.747 and 0.724. Ranks improve modestly while reference coverage does not; ordinary BM25 remains the starting configuration. Read [all answer checks, costs, failures and limits](docs/CHANGES-0.4.6.md).
-
-**Historical 0.4.7 comparison:** 180 new local model replies accompany 342 retrieval questions. On 48 fresh answerable questions, literal 0.4.6 BM25 finds 36 reference quotations; prepared 0.4.6 and coverage 0.4.7 each find 39. Their reference MRR@6 is 0.624, 0.659 and 0.661. Coverage adds one reference on exposed development questions, with no new reference loss against the prepared configuration. The small masked semantic review finds equal prepared/coverage results. Warm context medians are 0.879, 1.259 and 1.266 ms. These authored cases do not prove a general accuracy or speed advantage; literal BM25 remains the default. Read [answers, failed quotes, costs and limitations](docs/CHANGES-0.4.7.md).
-
-**Fresh 0.4.8 stability comparison:** all 1,026 full retrieval responses match exact registry 0.4.7. Twenty real MCP processes validate 1,380 responses and 820 exact snapshot readbacks; 690 structured result/error pairs match apart from declared release versions. Large-corpus consistency checks pass on all 167,942 retained entries. Repeated short-token counting uses 4 instead of 258 allocation blocks per call; optional coverage inspection uses 941 instead of 1,244. Mixed-document round trips are slightly slower in this run and process RAM is essentially unchanged. No semantic-quality gain or universal speedup is claimed. Read [measurements, initial regressions and limitations](docs/CHANGES-0.4.8.md).
+The [complete change history](CHANGELOG.md) preserves earlier performance and model comparisons. The [API cookbook](docs/API-COOKBOOK.md) explains optional documents, source positions, snapshots, evidence checks and other features. Raw benchmark JSON stays in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.5.0/docs/measurements) and local lab; it is excluded from the registry source package. Read the [power metadata errata](docs/BENCHMARK-ERRATA.md) when comparing historical campaigns.
 
 ## What it does
 
@@ -166,7 +86,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.4.25", default-features = false }
+airust = { version = "=0.5.0", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -437,7 +357,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 ## Package contents
 
-Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.4.25/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
+Raw benchmark JSON archives stay in the [tagged GitHub repository](https://github.com/LEVOGNE/airust/tree/v0.5.0/docs/measurements) and local lab. They are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
 
 ## Project layout
 

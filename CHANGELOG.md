@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 — Verify Core and optional MCP stability
+
+Keep Core/MCP runtime source unchanged from 0.4.25, retaining earlier measured fixes. Add a fixed-seed 250-step state/cache/clone regression against independent records, with a separately reduced Miri form. Compare exact 0.4.21/0.4.25/0.5.0 through 30 finite million-entry/500,000-entry clone processes and all retained RPC/startup/heap/retrieval controls. Preserve slower outcomes. Document explicit Cargo 0.5 selection, unchanged calls/formats and version-qualified MCP schema refresh. No new algorithm, dependency, default feature or DenkMaps integration. Read [results and limits](docs/CHANGES-0.5.0.md) and [migration](docs/MIGRATION-0.5.0.md).
+
 ## 0.4.25 — Release temporary startup input before indexing
 
 Drop the owned knowledge-file JSON string immediately after parsing owned KnowledgeEntry values, before constructing the MCP index and schemas. Preserve bounded file reading, UTF-8/JSON/entry errors, original records, source files, public APIs, schemas and saved formats. Core source is unchanged. Two startup-only campaigns retain 84 exact-child peak/live/time observations; six separate DHAT profiles distinguish heap memory from RSS. Existing correctness, feature, minimum-Rust, API, consumer and 37 finite Miri controls pass. All slower query/startup observations remain. No new dependency, default feature, streaming parser, hard OS quota or DenkMaps integration. Read [all evidence and limits](docs/CHANGES-0.4.25.md).

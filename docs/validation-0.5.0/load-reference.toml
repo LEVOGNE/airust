@@ -1,0 +1,12 @@
+[package]
+name="load-reference"
+version="0.0.0"
+edition="2021"
+publish=false
+[dependencies]
+airust={version="=0.4.21",default-features=false,features=["mcp"]}
+serde_json="1"
+dhat="=0.3.3"
+[[bin]]
+name="load-reference"
+path="load_heap.rs"

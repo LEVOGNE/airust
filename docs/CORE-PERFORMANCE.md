@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.4.25 keeps Core source byte-for-byte unchanged from 0.4.24. Its MCP knowledge loader releases the owned raw input after parsing and before constructing the index. Entry values remain owned and source files unchanged. Startup RSS, retained heap, allocation traffic and search times are separate measurements; read [the full report](CHANGES-0.4.25.md).
+AIRust 0.5.0 keeps Core/MCP runtime source byte-for-byte unchanged from 0.4.25. Independent state checks test invalidation and retained views through mutations; finite million-entry/clone controls report timing/RSS separately from startup heap profiles. Stress build time includes generation. Read [results and limits](CHANGES-0.5.0.md) and [upgrade](MIGRATION-0.5.0.md).
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 

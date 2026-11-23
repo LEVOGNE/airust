@@ -1,0 +1,114 @@
+{
+  "version": "0.5.0",
+  "created_at": "2026-11-23T21:28:00.940990+00:00",
+  "baseline": "exact registry 0.4.25 ee6610ed9cbae234b6c543511712c0520fd859bd",
+  "reference": "exact registry 0.4.21 8ce456be12218f38cffc32ed1737accbe24f8668",
+  "scope": "Stability release: retain 0.4.25 Core/MCP runtime, independently verify mutation/cache/clone state and finite million-entry controls; no integration or new model",
+  "question_origin": "Retained342exposed authored questions, no new holdout or model-answer claim",
+  "mcp_processes_per_campaign": 90,
+  "mcp_campaigns": 2,
+  "wide_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7,
+    "extended": 7
+  },
+  "wide_primary_versions": [
+    "0.4.21",
+    "0.4.25",
+    "0.5.0"
+  ],
+  "wide_primary_processes": 63,
+  "wide_primary_expected_schema_replies": 4284,
+  "wide_primary_expected_complete_pairs": 2856,
+  "wide_extended_query_widths": [
+    32,
+    33,
+    64,
+    65,
+    128,
+    129,
+    192,
+    255,
+    256,
+    255
+  ],
+  "small_reference_triples": 7,
+  "small_reference_campaigns": 2,
+  "small_matrix_cases": 96,
+  "controlled_processes": 14,
+  "controlled_matrix_calls": 8400,
+  "reference_mcp_processes": 15,
+  "host_load_sampling_seconds": 2,
+  "artifact_policy": "Archive proof then remove only /private/tmp/airust-ranking-050-build and -miri",
+  "knowledge_policy": "Preserve PDFs/canonical knowledge, all previous sources and every negative outcome; no new PDF extraction",
+  "wide_extended_last_query": "255 known terms plus duplicate term0 and one absent term,256 unique normalized terms",
+  "wide_boundary_checks": {
+    "separate_processes": 3,
+    "rejected_requests": 12,
+    "known_term_widths": [
+      257,
+      512
+    ],
+    "bound": 256
+  },
+  "large_primary_campaigns": {
+    "standard": 7,
+    "confirmation": 7
+  },
+  "large_primary_versions": [
+    "0.4.21",
+    "0.4.25",
+    "0.5.0"
+  ],
+  "large_primary_processes": 42,
+  "large_primary_expected_schema_replies": 2856,
+  "large_primary_expected_complete_pairs": 1904,
+  "small_primary_campaigns": 2,
+  "small_primary_processes": 84,
+  "small_primary_expected_calls": 4284000,
+  "small_primary_expected_full_comparisons": 2688,
+  "small_mcp_primary_campaigns": 2,
+  "small_mcp_primary_cases": [
+    "tiny",
+    "tiny4",
+    "tiny16",
+    "tiny-no-progress",
+    "tiny4-no-progress",
+    "tiny16-no-progress"
+  ],
+  "small_mcp_triples_per_case": 7,
+  "small_mcp_primary_processes": 252,
+  "small_mcp_primary_expected_schemas": 17136,
+  "small_mcp_primary_expected_pairs": 11424,
+  "miri_expected_cases": 37,
+  "startup_memory_controls": {
+    "versions": [
+      "0.4.21",
+      "0.4.25",
+      "0.5.0"
+    ],
+    "cases": [
+      "canonical167942",
+      "tiny16"
+    ],
+    "campaigns": 2,
+    "rotating_triples_each_case": 7,
+    "processes": 84,
+    "exact_child_wait4": true,
+    "heap_profiles_separate": 6
+  },
+  "selected_runtime": "Unchanged from 0.4.25; new independent stateful regression test and stability/migration documentation",
+  "stability_stress": {
+    "versions": [
+      "0.4.21",
+      "0.4.25",
+      "0.5.0"
+    ],
+    "source_sha256": "7e5c8cb26cc92f073fccf8379780755b60ef607b85a72528f8704ff91404fc34",
+    "million_scale_triples": 7,
+    "half_million_clone_triples": 3,
+    "processes": 30,
+    "generation_included_in_build_time": true
+  },
+  "frozen_at": "2026-11-23T21:32:10.180892+00:00"
+}

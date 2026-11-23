@@ -1,15 +1,13 @@
-# AIRust: the route to 0.5.0
+# AIRust: completed stability route to 0.5.0
 
-This is an authorized working sequence, not a claim that future releases already exist. Keep stability, measured performance, reliability and the Rust API/optional MCP contracts as release priorities. No DenkMaps integration is part of this sequence.
+Keep Core/MCP runtime source unchanged from 0.4.25, retaining earlier measured fixes. Add a fixed-seed 250-step state/cache/clone regression against independent records, with a separately reduced Miri form. Compare exact 0.4.21/0.4.25/0.5.0 through 30 finite million-entry/500,000-entry clone processes and all retained RPC/startup/heap/retrieval controls. Preserve slower outcomes. Document explicit Cargo 0.5 selection, unchanged calls/formats and version-qualified MCP schema refresh. No new algorithm, dependency, default feature or DenkMaps integration.
 
-| Planned release | Work | Required evidence |
+| Release | Implemented work | Evidence |
 | --- | --- | --- |
-| 0.4.22 | Reduce small MCP response preparation work | Complete wire/schema equality, escaped/full-output byte limits, cancellation/deadline behavior, fresh small/large MCP comparisons |
-| 0.4.23 | Address remaining small repeated/multiword Core costs | Independent normalization/frequency/score checks, bounded temporary memory, both rankers, all small and large controls |
-| 0.4.24 | Check response work, worker admission and deadlines under load | Slow/stalled clients, cancellation, shutdown/drain, output failures, latency tails and retained resource bounds |
-| 0.4.25 | Reduce demonstrated startup/loading costs | Large retained knowledge, peak/live memory distinguished, malformed/oversized input checks and unchanged knowledge |
-| 0.5.0 | Stabilize and audit the existing API/MCP release line | Full native/features/MSRV/API/consumer/package/CI validation, honest performance report and documented remaining limits |
+| 0.4.22 | Reuse bounded MCP payload checks and owned JSON | [Report](CHANGES-0.4.22.md) |
+| 0.4.23 | Borrow short repeated normalized query words | [Report](CHANGES-0.4.23.md) |
+| 0.4.24 | Keep final reply work admitted; correct late-error progress | [Report](CHANGES-0.4.24.md) |
+| 0.4.25 | Free raw knowledge JSON before indexing | [Heap versus RSS evidence](CHANGES-0.4.25.md) |
+| 0.5.0 | Independent state tests, finite scale/clone controls and upgrade | [Report](CHANGES-0.5.0.md), [migration](MIGRATION-0.5.0.md) |
 
-Insert a corrective patch if a blocking defect appears. Do not publish an unverified change to satisfy a version number. Do not add integrations or large model dependencies to fill the sequence. Each released version gets its own tests, report, README/API update, GitHub tag/release, verified crates.io package and temporary-build cleanup. Keep knowledge, source inputs, rejected trials, measurements and proof.
-
-Version 0.5.0 is a new Cargo compatibility boundary for 0.x dependencies. Any migration requirements must be documented from the actual final API comparison; a version number alone is not proof of stability or a security audit.
+Each release has its own validation and benchmark record. Publication completion requires four exact-commit CI jobs, a fresh registry consumer, tag/VCS/registry/asset checksum agreement and temporary-build cleanup. Knowledge, rejected trials and all measurements remain. [Power metadata errata](BENCHMARK-ERRATA.md) correct older labels without replacing samples. Cargo 0.5 is a new compatibility line, not a 1.0, zero-defect, semantic-quality or security-audit guarantee. Future work should follow real defects and representative application measurements.

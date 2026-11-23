@@ -1,12 +1,12 @@
 # Stability and support contract
 
-AIRust 0.4.25 retains the public Core and optional MCP contracts. Knowledge startup releases its owned raw input before constructing the index, while preserving files, records and bounds. Core source is unchanged from 0.4.24. Default features stay empty; optional subsystems remain explicit. Read [the current report](CHANGES-0.4.25.md).
+AIRust 0.5.0 stabilizes the existing public Core and optional MCP line. Runtime source stays unchanged from 0.4.25, with independent state/cache/clone checks and finite large-index measurements. Default features stay empty. Read [validation](CHANGES-0.5.0.md) and [upgrade](MIGRATION-0.5.0.md).
 
 ## Compatibility
 
-AIRust is still before 1.0. Cargo treats `0.3` and `0.4` as separate compatibility lines. Select `=0.4.25` for a reproducible dependency, or `0.4` to accept later compatible fixes. Changes within 0.4.x should retain public API contracts and readable versioned formats; future incompatible changes require migration notes and a new minor line. This is a maintenance policy, not an unlimited 1.0 support promise.
+AIRust is still before 1.0. Cargo treats 0.4 and 0.5 as separate compatibility lines. Select `=0.5.0` for reproducibility, or `0.5` for compatible later fixes. A 0.4 requirement does not select 0.5 automatically. Within 0.5.x, preserve public contracts and readable versioned formats; incompatible changes need a new line and migration notes. This is a maintenance policy, not an unlimited 1.0 support promise.
 
-For 0.4.25, public APIs are compared against 0.4.24 with patch-level checks: 229 pass, 31 skip. Native validation passes 252 default tests, 908 all-feature checks including 39 doctests and 39 isolated feature entries; the same 37 finite Miri cases retain their stated scope. Source knowledge and existing saved formats remain. Startup memory/time and full retrieval/protocol controls are reported separately, with all negative observations. Earlier model evaluations remain historical evidence, not fresh native-inference or universal security claims.
+For 0.5.0, a deliberately strict patch-level comparison against 0.4.25 reports 229 pass, 31 skip; it finds no required application-call changes. Native validation passes 253 default, 909 all-feature checks including 39 doctests and 39 isolated features. The 38 finite Miri cases include the new state test reduced to eight steps, four queries, two scopes and one limit; native execution retains 250 steps and parallel readers. Earlier native-model evaluations remain historical, not newly rerun. Knowledge formats remain; MCP schema URNs include the crate version. Full scope and negative observations stay in the current report.
 
 Since 0.3.0, malformed model objects imported directly through Serde fail immediately. Previously some invariants were checked only by constructors and the model-use APIs. `LinearModel::from_json` also enforces a 1 MiB input cap. General Serde calls validate the object but do not impose a total transport-byte cap.
 

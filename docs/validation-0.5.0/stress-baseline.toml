@@ -1,0 +1,11 @@
+[package]
+name="stress-baseline"
+version="0.0.0"
+edition="2021"
+publish=false
+[dependencies]
+airust={version="=0.4.25",default-features=false}
+serde_json="1"
+[[bin]]
+name="stress-baseline"
+path="stress_index.rs"

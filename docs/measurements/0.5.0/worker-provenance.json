@@ -1,0 +1,197 @@
+{
+  "version": "0.5.0",
+  "directories": 21,
+  "source_copies_match_public_method": true,
+  "locks_and_manifests_checked": true,
+  "registry_baseline_vcs": "ee6610ed9cbae234b6c543511712c0520fd859bd",
+  "registry_reference_vcs": "8ce456be12218f38cffc32ed1737accbe24f8668",
+  "registry_source_integrity": {
+    "scope": "Exact cached registry files compared byte-for-byte with preserved checksum-verified published crate archives before final timing",
+    "versions": [
+      {
+        "version": "0.4.25",
+        "vcs_commit": "ee6610ed9cbae234b6c543511712c0520fd859bd",
+        "published_crate_sha256": "7559338ee65c25e17c5dca044cea8ce85f2e4e65a1516ca3b639d2238309c7c3",
+        "published_files_checked": 1308,
+        "registry_source_matches_archive": true
+      },
+      {
+        "version": "0.4.21",
+        "vcs_commit": "8ce456be12218f38cffc32ed1737accbe24f8668",
+        "published_crate_sha256": "e3dc50de632009e92b51b0dbdeda1eb70c3db98d5d9da2c1b761dd2bfbd21826",
+        "published_files_checked": 1147,
+        "registry_source_matches_archive": true
+      }
+    ]
+  },
+  "rows": [
+    {
+      "worker": "build-baseline",
+      "source": "local-lab/ranking-0.5.0/build-baseline/index_build.rs",
+      "public_method": "docs/validation-0.5.0/index_build.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "build-candidate",
+      "source": "local-lab/ranking-0.5.0/build-candidate/index_build.rs",
+      "public_method": "docs/validation-0.5.0/index_build.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "controlled-baseline",
+      "source": "local-lab/ranking-0.5.0/controlled-baseline/controlled_work.rs",
+      "public_method": "docs/validation-0.5.0/controlled_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "controlled-candidate",
+      "source": "local-lab/ranking-0.5.0/controlled-candidate/controlled_work.rs",
+      "public_method": "docs/validation-0.5.0/controlled_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "corpus-baseline",
+      "source": "local-lab/ranking-0.5.0/corpus-baseline/corpus.rs",
+      "public_method": "docs/validation-0.5.0/corpus.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "corpus-candidate",
+      "source": "local-lab/ranking-0.5.0/corpus-candidate/corpus.rs",
+      "public_method": "docs/validation-0.5.0/corpus.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "load-baseline",
+      "source": "local-lab/ranking-0.5.0/load-baseline/load_heap.rs",
+      "public_method": "docs/validation-0.5.0/load_heap.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "load-candidate",
+      "source": "local-lab/ranking-0.5.0/load-candidate/load_heap.rs",
+      "public_method": "docs/validation-0.5.0/load_heap.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "load-reference",
+      "source": "local-lab/ranking-0.5.0/load-reference/load_heap.rs",
+      "public_method": "docs/validation-0.5.0/load_heap.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "matrix-baseline",
+      "source": "local-lab/ranking-0.5.0/matrix-baseline/small_matrix.rs",
+      "public_method": "docs/validation-0.5.0/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "matrix-candidate",
+      "source": "local-lab/ranking-0.5.0/matrix-candidate/small_matrix.rs",
+      "public_method": "docs/validation-0.5.0/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "matrix-reference",
+      "source": "local-lab/ranking-0.5.0/matrix-reference/small_matrix.rs",
+      "public_method": "docs/validation-0.5.0/small_matrix.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "query-baseline",
+      "source": "local-lab/ranking-0.5.0/query-baseline/query_work.rs",
+      "public_method": "docs/validation-0.5.0/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "query-candidate",
+      "source": "local-lab/ranking-0.5.0/query-candidate/query_work.rs",
+      "public_method": "docs/validation-0.5.0/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "query-reference",
+      "source": "local-lab/ranking-0.5.0/query-reference/query_work.rs",
+      "public_method": "docs/validation-0.5.0/query_work.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "schema",
+      "source": "local-lab/ranking-0.5.0/schema/schema.rs",
+      "public_method": "docs/validation-0.5.0/schema.rs",
+      "source_copies_equal": true,
+      "airust_version": "not linked",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "stress-baseline",
+      "source": "local-lab/ranking-0.5.0/stress-baseline/stress_index.rs",
+      "public_method": "docs/validation-0.5.0/stress_index.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "stress-candidate",
+      "source": "local-lab/ranking-0.5.0/stress-candidate/stress_index.rs",
+      "public_method": "docs/validation-0.5.0/stress_index.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    },
+    {
+      "worker": "stress-reference",
+      "source": "local-lab/ranking-0.5.0/stress-reference/stress_index.rs",
+      "public_method": "docs/validation-0.5.0/stress_index.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.21",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "worker-baseline",
+      "source": "local-lab/ranking-0.5.0/worker-baseline/worker.rs",
+      "public_method": "docs/validation-0.5.0/retrieval-worker.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.4.25",
+      "candidate_local_path_only": false
+    },
+    {
+      "worker": "worker-candidate",
+      "source": "local-lab/ranking-0.5.0/worker-candidate/worker.rs",
+      "public_method": "docs/validation-0.5.0/retrieval-worker.rs",
+      "source_copies_equal": true,
+      "airust_version": "=0.5.0",
+      "candidate_local_path_only": true
+    }
+  ]
+}

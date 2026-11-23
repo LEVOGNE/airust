@@ -1,0 +1,21 @@
+{
+  "processes": 30,
+  "scale_processes": 21,
+  "scale_entries_each": 1000000,
+  "clone_processes": 9,
+  "clone_entries_each": 500000,
+  "versions": {
+    "reference": "0.4.21",
+    "baseline": "0.4.25",
+    "candidate": "0.5.0"
+  },
+  "rotating_triples": {
+    "million": 7,
+    "retained-clones": 3
+  },
+  "all_score_signatures_equal_per_triple": true,
+  "all_updates_deletes_reader_and_retained_clone_assertions_passed": true,
+  "all_children_exited_cleanly": true,
+  "source": "Unchanged examples/stress_index.rs across all three versions",
+  "scope": "Synthetic short lexical records. Build includes lazy entry generation. Query-category medians are per-process summaries, not pooled independent calls. Child peak via exact wait4, no allocation profiler. Warm OS/process caches. Finite trials, not an uptime/capacity/security guarantee or fresh PDF parsing."
+}
