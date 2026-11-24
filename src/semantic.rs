@@ -542,12 +542,12 @@ impl SemanticIndex {
     }
 }
 
-#[cfg(feature = "execution")]
+#[cfg(all(feature = "execution", feature = "snapshots"))]
 pub(crate) struct ControlledProvider<'a> {
     pub(crate) provider: &'a mut dyn EmbeddingProvider,
     pub(crate) control: &'a crate::execution::WorkControl,
 }
-#[cfg(feature = "execution")]
+#[cfg(all(feature = "execution", feature = "snapshots"))]
 impl EmbeddingProvider for ControlledProvider<'_> {
     fn space(&self) -> &EmbeddingSpace {
         self.provider.space()

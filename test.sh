@@ -7,6 +7,8 @@ python3 -B tests/reference_dataset_test.py
 cargo test --locked --features mcp --example reference_workspace
 cargo build --locked --features mcp --example reference_workspace
 python3 -B tests/reference_workflow_test.py
+cargo build --locked --features mcp,sqlite-storage,advanced-search,quality-gates,hybrid,reranking --example reference_evaluation
+python3 -B tests/reference_evaluation_test.py
 cargo test --workspace --locked
 cargo test --workspace --all-features --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
