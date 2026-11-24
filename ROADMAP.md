@@ -6,6 +6,7 @@ Every release prioritizes stability, performance, reliability and a clear public
 
 0.5.0 completes the scoped [stability route](docs/ROADMAP-TO-0.5.0.md). Retain the existing Core/MCP runtime, independently check mutation/cache/clone state, rerun real-corpus retrieval and finite million-entry controls, and document the new Cargo line. 0.5.1 and 0.5.2 follow that rule: the fuzz checks found no defect to change, so the runtime stays at 0.5.0 and no new measurement campaign was invented. Future 0.5.x work should follow demonstrated defects and representative application measurements. Stability, performance, reliability and API/MCP remain priorities; new optional capabilities need separate evidence and scope.
 
+The verified 0.5.2 baseline is commit `6031fe5f5fda4727e13d89497aa238797cf6474f`. Its [post-release closeout record](docs/validation-0.5.2/closeout.json) binds the published archive, exact-commit CI, repeated native checks and a pinned Rust 1.89 registry consumer to that baseline. The consumer manifest, lock and source are retained beside the record; its reproduction steps use the published crate. Raw evidence is retained locally and dedicated build directories were removed. These subsequent audit files are separate from the immutable published 0.5.2 archive.
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
 

@@ -1,0 +1,205 @@
+{
+  "format_version": 1,
+  "status": "complete",
+  "verified_at": "2026-11-24T08:22:22.830152+00:00",
+  "scope": "Post-release verification of the immutable 0.5.2 baseline. This record and consumer reproduction files are subsequent documentation, not contents of the published 0.5.2 archive.",
+  "baseline": {
+    "version": "0.5.2",
+    "commit": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+    "git_tree": "bf59aa1084c9950dceb433720c642106ae80d5cc",
+    "source_tree": "684b1b141d2cbcafa16efe3116fed54a99f8efea",
+    "pdf_backend_tree": "043527f2f48723db449a13ce295d45c208bc5d27",
+    "annotated_tag": "v0.5.2",
+    "tag_object": "08eb08a9bdc1dcbde66ff0cffea7363f53efd18a",
+    "github_master_at_remote_check": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+    "source_worktree_clean_before_and_after_native_validation": true,
+    "runtime_source_and_feature_graph_identical_to": [
+      "v0.5.0",
+      "v0.5.1"
+    ],
+    "runtime_comparison_scope": [
+      "src/",
+      "crates/",
+      "build.rs",
+      "Cargo.toml dependencies and features"
+    ],
+    "version_string_change": "Cargo package version is 0.5.2."
+  },
+  "publication": {
+    "github_release": "https://github.com/LEVOGNE/airust/releases/tag/v0.5.2",
+    "published_at": "2026-11-24T08:04:02Z",
+    "github_release_assets": [],
+    "registry_metadata": "https://crates.io/api/v1/crates/airust/0.5.2",
+    "archive_url": "https://static.crates.io/crates/airust/airust-0.5.2.crate",
+    "registry_yanked": false,
+    "archive_sha256": "b169f95e6861281335d2a70083007f7f29b42c7ceb45cf5afa2352c4af1d9167",
+    "archive_bytes": 4902505,
+    "archive_files": 3859,
+    "embedded_vcs_commit": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+    "archive_matches_clean_release_package_listing": true,
+    "files_matching_git_blobs": 3856,
+    "cargo_generated_files": [
+      ".cargo_vcs_info.json",
+      "Cargo.toml"
+    ],
+    "published_lock_normalization": {
+      "package": "airust-pdf-backend",
+      "version": "0.3.5",
+      "added_registry_fields": {
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "00a4127e8310419e0c36a61941cba0cf244c298017c3fbeec3f9dbe304ddf663"
+      },
+      "other_changes": false
+    },
+    "versioned_seed_files_all_sha256_verified": {
+      "lexical": {
+        "files": 973,
+        "bytes": 57751
+      },
+      "pdf": {
+        "files": 1516,
+        "bytes": 11338506
+      }
+    }
+  },
+  "fresh_native_validation": {
+    "command": [
+      "bash",
+      "-x",
+      "./test.sh"
+    ],
+    "commit": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+    "started_at": "2026-11-24T08:11:12.626093+00:00",
+    "finished_at": "2026-11-24T08:19:32.005331+00:00",
+    "elapsed_seconds": 499.37754425010644,
+    "exit_code": 0,
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+    "host": "aarch64-apple-darwin",
+    "environment": {
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "CARGO_PROFILE_TEST_DEBUG": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_BUILD_JOBS": "4"
+    },
+    "test_totals": {
+      "default": {
+        "passed": 253,
+        "failed": 0,
+        "ignored": 0
+      },
+      "all_features": {
+        "passed": 911,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "all_features_doctests_included": 39,
+    "ignored_helper": "persistence::tests::crash_writer_child; exercised by its parent crash-recovery test",
+    "isolated_feature_entries_including_default": 39,
+    "strict_clippy": "passed",
+    "strict_rustdoc": "passed",
+    "examples_and_python_checks": "passed",
+    "package_boundary_files_at_release_commit": 3859,
+    "raw_log_sha256": "f038ea452fb38fbaa10e9259f3cdd4bc38d30fdfa36bf64c7992e0d1d9c68f96"
+  },
+  "github_ci": [
+    {
+      "run_id": 45352890145,
+      "ref": "codex/performance-0.5.1",
+      "head_sha": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+      "conclusion": "success",
+      "url": "https://github.com/LEVOGNE/airust/actions/runs/45352890145",
+      "jobs": {
+        "pdf-backend": "success",
+        "minimum-rust": "success",
+        "local-embedding-rust": "success",
+        "checks": "success"
+      }
+    },
+    {
+      "run_id": 45352885583,
+      "ref": "v0.5.2",
+      "head_sha": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+      "conclusion": "success",
+      "url": "https://github.com/LEVOGNE/airust/actions/runs/45352885583",
+      "jobs": {
+        "checks": "success",
+        "local-embedding-rust": "success",
+        "minimum-rust": "success",
+        "pdf-backend": "success"
+      }
+    },
+    {
+      "run_id": 45352882585,
+      "ref": "master",
+      "head_sha": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+      "conclusion": "success",
+      "url": "https://github.com/LEVOGNE/airust/actions/runs/45352882585",
+      "jobs": {
+        "checks": "success",
+        "local-embedding-rust": "success",
+        "minimum-rust": "success",
+        "pdf-backend": "success"
+      }
+    }
+  ],
+  "fresh_registry_consumer": {
+    "rustc": "rustc 1.89.0 (29483883e 2025-08-04)",
+    "host": "aarch64-apple-darwin",
+    "dependency": "airust = { version = \"=0.5.2\", default-features = false, features = [\"mcp\"] }",
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "checksum": "b169f95e6861281335d2a70083007f7f29b42c7ceb45cf5afa2352c4af1d9167",
+    "path_override": false,
+    "results": {
+      "clone_isolation": "passed",
+      "core": "passed",
+      "document_spans_and_round_trip": "passed",
+      "invalid_update_rollback": "passed",
+      "json_round_trip": "passed",
+      "mcp_stats_and_five_versioned_schemas": "passed",
+      "typed_cancellation": "passed",
+      "unicode": "passed",
+      "version": "0.5.2"
+    },
+    "files_sha256": {
+      "consumer.lock": "6c2321038aa5d781f1206b3ec3c4188fbd939405a56c8322f51e36fc77603757",
+      "consumer.rs": "2399aad02f7507f1969933ccd477902fcb1d8811997379c48bd08a8695f97dd6",
+      "consumer.toml": "e7f3cd951fd858e62f4234b661b602a4d32cc259ba260b473a274c03138fbc30"
+    },
+    "reproduce": [
+      "Copy consumer.toml as Cargo.toml, consumer.rs as src/main.rs, and consumer.lock as Cargo.lock into a new temporary directory.",
+      "Run cargo +1.89.0 run --locked --manifest-path <directory>/Cargo.toml. No model files are required."
+    ]
+  },
+  "historical_checks_not_repeated_in_this_closeout": {
+    "source": "https://github.com/LEVOGNE/airust/blob/6031fe5f5fda4727e13d89497aa238797cf6474f/docs/CHANGES-0.5.2.md",
+    "coverage_guided_fuzz": {
+      "lexical_seconds": 420,
+      "lexical_executions": 51748,
+      "pdf_seconds": 420,
+      "pdf_executions": 74296
+    },
+    "finite_tree_borrows_miri": {
+      "reported_passed": 71,
+      "large_index_tests_excluded": 4,
+      "async_mcp_tests_excluded": 2
+    },
+    "evidence_limit": "Original campaign and Miri logs were reported deleted in the handoff. Their results remain historical release-report statements; this closeout independently reran the native suite and versioned seed replays, not those campaigns.",
+    "patch_level_api_comparison": "Not repeated; runtime source, dependency declarations and feature graph were compared directly with the earlier tags.",
+    "performance_and_retrieval_quality": "No new campaign; 0.5.0 measurements retain their original scope."
+  },
+  "retained_local_evidence": {
+    "directory": "local-lab/closeout-0.5.2-2026-11-24",
+    "manifest": "local-lab/closeout-0.5.2-2026-11-24/MANIFEST.json",
+    "manifest_sha256": "9c3b1c3b1f2f0f980754325792841a3227664b93cbcae3cfae6e2be2291f38e3",
+    "files": 24,
+    "scope": "Raw logs, registry archive, public API responses and verification methods; excluded from Git and registry packages by existing local-lab policy."
+  },
+  "cleanup": {
+    "dedicated_native_build_removed": true,
+    "dedicated_consumer_build_removed": true,
+    "raw_evidence_preserved": true
+  }
+}
