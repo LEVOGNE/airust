@@ -12,7 +12,7 @@ AIRust pins `airust-pdf-backend = 0.3.5`, an independently named derivative of `
 | `src/extractors/text.rs` Form failures and cache handling | Propagate existing depth/processing-budget errors, restore local state and avoid caching a partial successful prefix. | Supported nesting, excessive depth, processing budget and repeated extraction. | Complete supported text and explicit errors at the same limits across extraction APIs; failed caches never become successful prefixes. |
 | `src/document.rs` fallback page-count exhaustion | Preserve exhaustion as an error instead of accepting a partial count. | `fallback_page_count_rejects_depth_exhaustion`. | Exhaustion remains explicit; valid fallback page counts remain complete. |
 
-The current owned suite has 14 regression tests. It is separate from unavailable upstream fixture-dependent tests. The provenance check verifies 381 original source-file identities, permits the three recorded modified files and the owned helper, compares `upstream.patch`, and preserves MIT/Apache license texts, NOTICE and trademark material. [Exact provenance](../crates/airust-pdf-backend/UPSTREAM.md).
+The current owned suite has 14 regression tests. It is separate from unavailable upstream fixture-dependent tests. The provenance check verifies 381 original source-file identities, permits the three recorded modified files and the owned helper, compares `upstream.patch`, and preserves MIT/Apache license texts, NOTICE and trademark material. [Exact provenance](https://github.com/LEVOGNE/airust/blob/v0.5.2/crates/airust-pdf-backend/UPSTREAM.md).
 
 ## Upstream status
 

@@ -103,4 +103,4 @@ The [historical 0.4.4 comparison](docs/HONEST-COMPARISON-0.4.4.md) found no gene
 
 This checks the default library, optional features, complete examples, real CLI/MCP boundaries, Clippy, documentation and package contents. Native-model evaluation is a separate explicit operation. Read [contribution requirements](CONTRIBUTING.md), [platform support](docs/SUPPORT.md), [startup and tools](STARTUP.md), and the [roadmap](ROADMAP.md).
 
-AIRust is MIT-licensed. The optional maintained PDF backend preserves its own upstream licenses and notices; its maintenance contract is described in [the backend guide](crates/airust-pdf-backend/README.md).
+AIRust is MIT-licensed. The optional maintained PDF backend preserves its own upstream licenses and notices; its maintenance contract is described in [PDF maintenance](docs/PDF-MAINTENANCE.md).

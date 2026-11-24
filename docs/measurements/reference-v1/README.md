@@ -36,6 +36,8 @@ BGE-M3 was served by local Ollama 0.40.17 with raw text and `truncate=false`, 1,
 
 The native reranker is `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` at revision `1427fd652930e4ba29e8149678df786c240d8825`, using the five verified [asset hashes](../../models/mmarco-minilm-v2.json), local ONNX Runtime 1.32.0 and two intra-op threads. Runtime and executable hashes are in the summary. Model loading is reported in construction, not warm query time. Assets are retained locally and are not committed or included in the crate. No model or runtime is downloaded by normal tests.
 
+The retrieval worker uses precomputed query vectors. Its RSS excludes the external Ollama embedding service, whose peak memory was not measured in this campaign; the reported 4 GiB worker gate is not a combined application-plus-service memory guarantee.
+
 The timed worker produces a six-hit RetrievalResponse, not the workspace CLI’s outer citation wrapper, file restoration or process startup. The separate workflow tests exercise actual CLI startup, full wrapper bounds and stdio MCP. These timing boundaries must stay distinct when using the result.
 
 ## Regressions and limits
@@ -50,4 +52,4 @@ One corpus and one shared host do not establish general semantic quality, speed,
 
 Follow the explicit local-asset commands in [STARTUP.md](../../../STARTUP.md#evaluate-search-configurations). The frozen [policy](../../evaluation/reference-v1-policy.json) and [dataset](../../../tests/fixtures/reference-v1/) must validate first. `scripts/run_reference_evaluation.py` writes development selection before opening evaluation and rejects source changes during a campaign. A new campaign needs a new output directory.
 
-[Artifact manifest](artifact-manifest.json) records SHA-256 identities of all raw worker reports and logs. The source campaign and logs remain under ignored `local-lab/reference-workflow/campaign-01`; numeric reports are versioned here but excluded from the registry package. Historical 0.5.2 receipts and older measurement reports remain unchanged.
+[Artifact manifest](artifact-manifest.json) records SHA-256 identities of all raw worker reports and logs. The source campaign and logs remain under ignored `local-lab/reference-workflow/campaign-01`; numeric reports are versioned here but excluded from the registry package. Historical 0.5.2 receipts and older measurement reports remain unchanged. The later private-index extraction has [separate exact-signature and paired controls](../index-refactor/README.md); the model campaign was not rerun after that extraction.
