@@ -64,13 +64,18 @@
       "id": 7,
       "priority": "P2",
       "title": "Define platform, feature and PDF maintenance support",
-      "status": "in_progress",
+      "status": "complete",
       "evidence": [
         "SUPPORT.md",
         "support-matrix.json",
         "PDF-MAINTENANCE.md",
         "../.github/workflows/ci.yml"
-      ]
+      ],
+      "validation": "All five hosted CI jobs passed, including complete Linux/macOS checks and both minimum-Rust gates; local full suite, exact clean package and 14 PDF backend regressions passed.",
+      "completion_evidence": "evaluation/completion-validation.json"
     }
-  ]
+  ],
+  "completion_guide": "REFERENCE-VALIDATION.md",
+  "development_version": "0.5.3-dev",
+  "published_release_changed": false
 }

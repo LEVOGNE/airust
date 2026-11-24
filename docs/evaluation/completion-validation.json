@@ -1,0 +1,159 @@
+{
+  "format_version": 1,
+  "completed_at": "2026-11-24T10:57:11.309171+00:00",
+  "development_version": "0.5.3-dev",
+  "published_version_unchanged": "0.5.2",
+  "runtime_test_and_workflow_commit": "e8e7c34d5d438489f22f65ae43c70972e19153c5",
+  "documentation_and_verified_package_commit": "e95b229b405a2751e12f06a8e4f22275db4257cb",
+  "runtime_tests_examples_scripts_manifests_and_ci_unchanged_after_validated_commit": true,
+  "baseline_feature_definitions_unchanged": true,
+  "backend_and_original_knowledge_unchanged_from_baseline": true,
+  "dataset": {
+    "fixture": "tests/fixtures/reference-v1/fixture-manifest.json",
+    "identity_sha256": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
+    "source_documents": 41,
+    "questions": 150,
+    "development": 90,
+    "evaluation": 60,
+    "question_origin": "assistant_authored"
+  },
+  "local_validation": {
+    "command": "bash -x ./test.sh",
+    "exit_code": 0,
+    "rust": "1.98.0",
+    "default_checks": 253,
+    "all_feature_checks_including_doctests": 911,
+    "all_feature_doctests": 39,
+    "isolated_feature_entries": 39,
+    "reference_example_tests": 6,
+    "reference_dataset_tests": 5,
+    "real_cli_and_stdio_tests": 5,
+    "evaluation_harness_tests": 4,
+    "strict_clippy_and_documentation": "passed",
+    "backend_owned_regressions": 14,
+    "backend_c_api_check": "passed",
+    "backend_provenance": "381 original file identities, three maintained files and one owned helper",
+    "onboarding_registry_consumer": {
+      "version": "0.5.2",
+      "rust": "1.89.0",
+      "programs": [
+        "README core program",
+        "API cookbook retrieval program"
+      ],
+      "result": "passed"
+    },
+    "index_refactor": {
+      "exact_signature_match": true,
+      "paired_campaigns": 2,
+      "workers": 56,
+      "aggregate_p95_and_rss_gate": "passed",
+      "details": "../measurements/index-refactor/summary.json"
+    }
+  },
+  "hosted_validation": {
+    "run_id": 45374728068,
+    "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068",
+    "head_sha": "e8e7c34d5d438489f22f65ae43c70972e19153c5",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "checks",
+        "conclusion": "success",
+        "started_at": "2026-11-24T10:25:57Z",
+        "completed_at": "2026-11-24T10:36:26Z",
+        "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068/job/138377768641"
+      },
+      {
+        "name": "minimum-rust",
+        "conclusion": "success",
+        "started_at": "2026-11-24T10:25:57Z",
+        "completed_at": "2026-11-24T10:27:02Z",
+        "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068/job/138377768865"
+      },
+      {
+        "name": "local-embedding-rust",
+        "conclusion": "success",
+        "started_at": "2026-11-24T10:25:57Z",
+        "completed_at": "2026-11-24T10:27:08Z",
+        "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068/job/138377768907"
+      },
+      {
+        "name": "pdf-backend",
+        "conclusion": "success",
+        "started_at": "2026-11-24T10:25:57Z",
+        "completed_at": "2026-11-24T10:27:54Z",
+        "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068/job/138377768918"
+      },
+      {
+        "name": "macos-checks",
+        "conclusion": "success",
+        "started_at": "2026-11-24T10:25:59Z",
+        "completed_at": "2026-11-24T10:56:08Z",
+        "url": "https://github.com/LEVOGNE/airust/actions/runs/45374728068/job/138377769154"
+      }
+    ]
+  },
+  "verified_clean_development_package": {
+    "file": "local-lab/reference-workflow/validation/airust-0.5.3-dev-e95b229.crate",
+    "sha256": "9c999c2c67f7aa27eb56c7500d866939af135b4ef300a86ad5010a83b825493a",
+    "bytes": 5100527,
+    "files": 3938,
+    "vcs": {
+      "git": {
+        "sha1": "e95b229b405a2751e12f06a8e4f22275db4257cb"
+      },
+      "path_in_vcs": ""
+    },
+    "cargo_package_verification": "passed",
+    "published": false,
+    "scope": "Source before the separate completion-evidence commit; the final clean package and its own source/hash are retained locally after that commit."
+  },
+  "evidence_only_completion_commit": {
+    "scope": "Adds this receipt, the human-readable validation guide, final work-program state and roadmap entry. No runtime, test or CI configuration changes.",
+    "ci_policy": "[skip ci] avoids repeating the already green full suites for completion evidence. Current document links and the final clean package are checked locally."
+  },
+  "raw_evidence": "local-lab/reference-workflow/validation; campaign-01; index-refactor-01; index-control-builds",
+  "raw_log_sha256": {
+    "campaign.log": "79d91b8c912a96b299fffff5de84bea743abe0c956b165368abf8684cafc01d4",
+    "ci-source.log": "098fc33bb1c2084b968de4ff0bc7b359e73d3c1eba024ad2d245284fbec50046",
+    "embeddings.log": "d545f0f7dfb9a041be62a1a69fcbbb99054a20a12117044500ca3a53ac4740f0",
+    "evaluation-tests.log": "dc39362ef304949b2587d1c0f6ddb1c3c0e09f4ed0d20da89ca561978104a0c3",
+    "evaluator-build.log": "f7d4de231916b734cc81dcadc789aa5edee7c172f6e4bdd35d5663ddfa6d40c2",
+    "evaluator-clippy.log": "cb837ee1873021152326028a323f1ddc1252db7d6af73335b81360876bda46e3",
+    "evaluator-debug.log": "3701190320433bd8c991a774547a69a7efa053cdd2dc111f5ef7250bb500b88c",
+    "evaluator-release.log": "43ac31256868cf014c85032ff95ffa66b521b346e0c9bdbac89e4e0ca58a37e5",
+    "full-validation.log": "01a6de8d0e714e4ea612e29c32beafd007c0792ac3716e8a585d0a82d4244852",
+    "index-builder-smoke.log": "1901024f3b378453c626515075297b3c782943e7f60ec9094176aa906bdadca1",
+    "index-refactor-tests.log": "a5ff00f710d47284635e761def78081af10f2d8a3f1deaba3b8239042370fd7f",
+    "native-model-smoke.log": "bdb1d4e9433ff5d272008128dfeb239cd2769b73d2a11f54de4fd833d873a545",
+    "ollama.log": "a596956f2011240a29a85c308a0274e955bac1d4fe2b96afe82fa1ee080cdf01",
+    "onboarding-cookbook.log": "6efee09d5a12ab648b111e8a70d1f346b526bf5704dc9fa3abe63ff972abfa8c",
+    "onboarding-readme.log": "572b89648e3291d115301abbb11a3d07a18b42bef212b75fb5bacd6f9df16c67",
+    "package-validation.log": "df8a9a6558fd699c7f45e999ec35a62e7cce283426487879c528c2771d751b63",
+    "pdf-final.log": "c6ce162a45bbf0837d124d6254a1e1b7fc809d068c50bf537ca43b97f083a9d1",
+    "pdf-provenance.log": "41382b9bcf2a892d739426f19896523ff3347a041279dacf7ce3c401281668e5",
+    "release-refs.log": "add5adaceee74a7e0112e68fe955464e1bed8d93749f65b7dc7eb012d1a43053",
+    "reranker-download.log": "e637023dd48a93035b9e796d21d3b9c014aaf71357f5e90ff7c6538e7fea0644",
+    "stdio-tests.log": "51f22f808b53b60416606f8c204f373de5967df7daa7f130ff307319230edb9e",
+    "workflow-final.log": "25d388628014dc0bf5df30f63decd38a1fc8a3c04bc2794f5d921845150ade49",
+    "workspace-binary.log": "cc6e082c1c0a21e9270fd96bff77e43ca6a13fcf9db029b441a15f4563ae5c53",
+    "workspace-build.log": "d20c9d4d4e228f36bc0f76cecc2c3583ccbf1237ae23ab559749270c53c1abf7",
+    "workspace-clippy.log": "155728416048ee7ee7d460a0b7f28f5a277a7c22f09059445a96bee2a734abec",
+    "workspace-tests.log": "de6d0172ad8858632954276fddcdc73af03aeeeab835cb6a26d79be5e6a09947"
+  },
+  "demo": {
+    "source_documents": 41,
+    "resolved_query_citations": 11,
+    "binary_sha256": "17b9b2622480d374679ed6540c64c88936367d65b5ea0169bbed6e2ca7b76cb4",
+    "workspace_sha256": "38849816b11f7ae659479fe27225a3406b879eefabd9dd94209d37ec9402d945",
+    "scope": "Full frozen corpus import and two real CLI queries plus a no-hit control; CLI leaves answerability unassessed on hits."
+  },
+  "limits": [
+    "Questions and known references are assistant-authored; they are not independent exhaustive judgments or customer traffic.",
+    "Model quality/cost results precede the private-index extraction; that campaign is not claimed as repeated afterward. Exact lexical signatures and separate paired costs cover the extraction.",
+    "Retrieval timings exclude externally computed embeddings, CLI startup and the workspace outer wrapper. Embedding-service RSS was not measured.",
+    "No new libFuzzer or Miri campaign is claimed; baseline historical evidence remains historical.",
+    "Passing finite controls and hosted CI does not prove correctness for all inputs or targets. Windows and other unvalidated targets have no support claim.",
+    "No crate, tag, release, upstream message or pull request was published by this development work."
+  ]
+}

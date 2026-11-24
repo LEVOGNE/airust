@@ -20,6 +20,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.5.3-dev | Reference application, frozen evaluation and measured maintenance | Implemented and validated; unreleased. Read [the completion record](docs/REFERENCE-VALIDATION.md). |
 | 0.5.2 | Coverage-guided fuzzing with versioned seeds | Implemented; read [scope](docs/CHANGES-0.5.2.md) and [migration](docs/MIGRATION-0.5.2.md). |
 | 0.5.1 | Fuzz-check the unchanged 0.5.0 runtime | Implemented; read [scope](docs/CHANGES-0.5.1.md) and [migration](docs/MIGRATION-0.5.1.md). |
 | 0.5.0 | Existing Core/MCP stability and explicit upgrade | Implemented; read [validation](docs/CHANGES-0.5.0.md) and [migration](docs/MIGRATION-0.5.0.md). |
