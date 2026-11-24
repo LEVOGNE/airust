@@ -1,6 +1,6 @@
 # Core performance and bounded retrieval
 
-AIRust 0.5.0 keeps Core/MCP runtime source byte-for-byte unchanged from 0.4.25. Independent state checks test invalidation and retained views through mutations; finite million-entry/clone controls report timing/RSS separately from startup heap profiles. Stress build time includes generation. Read [results and limits](CHANGES-0.5.0.md) and [upgrade](MIGRATION-0.5.0.md).
+AIRust 0.5.1 keeps the 0.5.0 Core/MCP runtime byte-for-byte unchanged from 0.4.25. Independent state checks test invalidation and retained views through mutations; finite million-entry/clone controls report timing/RSS separately from startup heap profiles. Those measurements belong to 0.5.0 and were not repeated for 0.5.1. Stress build time includes generation. Read [0.5.0 results](CHANGES-0.5.0.md), [0.5.1 fuzz scope](CHANGES-0.5.1.md) and [upgrade](MIGRATION-0.5.1.md).
 
 AIRust 0.4.4 reduces temporary allocation traffic during index construction. It keeps the construction/ranking design from 0.4.3 and the shared strings/TF-IDF reuse introduced in 0.4.2. Applications keep the same `Engine`, entries and search methods. There is no model to download or new default feature to enable.
 

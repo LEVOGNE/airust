@@ -1,10 +1,10 @@
 # Stability and support contract
 
-AIRust 0.5.0 stabilizes the existing public Core and optional MCP line. Runtime source stays unchanged from 0.4.25, with independent state/cache/clone checks and finite large-index measurements. Default features stay empty. Read [validation](CHANGES-0.5.0.md) and [upgrade](MIGRATION-0.5.0.md).
+AIRust 0.5.1 keeps the public Core and optional MCP line stabilized in 0.5.0. Runtime source stays unchanged from 0.4.25 through 0.5.0, with the 0.5.0 state/cache/clone checks and finite large-index measurements still describing that runtime. 0.5.1 adds a fixed-seed fuzz check and no behavior change. Default features stay empty. Read [fuzz scope](CHANGES-0.5.1.md), [0.5.0 validation](CHANGES-0.5.0.md) and [upgrade](MIGRATION-0.5.1.md).
 
 ## Compatibility
 
-AIRust is still before 1.0. Cargo treats 0.4 and 0.5 as separate compatibility lines. Select `=0.5.0` for reproducibility, or `0.5` for compatible later fixes. A 0.4 requirement does not select 0.5 automatically. Within 0.5.x, preserve public contracts and readable versioned formats; incompatible changes need a new line and migration notes. This is a maintenance policy, not an unlimited 1.0 support promise.
+AIRust is still before 1.0. Cargo treats 0.4 and 0.5 as separate compatibility lines. Select `=0.5.1` for reproducibility, or `0.5` for compatible later fixes. A 0.4 requirement does not select 0.5 automatically. Within 0.5.x, preserve public contracts and readable versioned formats; incompatible changes need a new line and migration notes. This is a maintenance policy, not an unlimited 1.0 support promise.
 
 For 0.5.0, a deliberately strict patch-level comparison against 0.4.25 reports 229 pass, 31 skip; it finds no required application-call changes. Native validation passes 253 default, 909 all-feature checks including 39 doctests and 39 isolated features. The 38 finite Miri cases include the new state test reduced to eight steps, four queries, two scopes and one limit; native execution retains 250 steps and parallel readers. Earlier native-model evaluations remain historical, not newly rerun. Knowledge formats remain; MCP schema URNs include the crate version. Full scope and negative observations stay in the current report.
 

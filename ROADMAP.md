@@ -4,7 +4,7 @@
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
 
-0.5.0 completes the scoped [stability route](docs/ROADMAP-TO-0.5.0.md). Retain the existing Core/MCP runtime, independently check mutation/cache/clone state, rerun real-corpus retrieval and finite million-entry controls, and document the new Cargo line. Future 0.5.x work should follow demonstrated defects and representative application measurements. Stability, performance, reliability and API/MCP remain priorities; new optional capabilities need separate evidence and scope.
+0.5.0 completes the scoped [stability route](docs/ROADMAP-TO-0.5.0.md). Retain the existing Core/MCP runtime, independently check mutation/cache/clone state, rerun real-corpus retrieval and finite million-entry controls, and document the new Cargo line. 0.5.1 follows that rule: the fuzz check found no defect to change, so the runtime stays at 0.5.0 and no new measurement campaign was invented. Future 0.5.x work should follow demonstrated defects and representative application measurements. Stability, performance, reliability and API/MCP remain priorities; new optional capabilities need separate evidence and scope.
 
 
 AIRust's direction is a universal Rust knowledge engine. Any application can supply records and consume ranked evidence. The engine should remain independent of a particular document editor, mind-map format, database, or agent transport.
@@ -13,6 +13,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
+| 0.5.1 | Fuzz-check the unchanged 0.5.0 runtime | Implemented; read [scope](docs/CHANGES-0.5.1.md) and [migration](docs/MIGRATION-0.5.1.md). |
 | 0.5.0 | Existing Core/MCP stability and explicit upgrade | Implemented; read [validation](docs/CHANGES-0.5.0.md) and [migration](docs/MIGRATION-0.5.0.md). |
 | 0.4.25 | Release raw startup JSON before indexing | Implemented; read [memory, time and compatibility observations](docs/CHANGES-0.4.25.md). |
 | 0.4.24 | Bounded final MCP reply work and correct error progress | Implemented; read [MCP/API](docs/MCP.md) and [measurements](docs/CHANGES-0.4.24.md). |

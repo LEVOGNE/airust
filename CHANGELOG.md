@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 — Fuzz-check the unchanged 0.5.0 runtime
+
+Keep runtime source unchanged from 0.5.0. Run a 10,000-seed differential fuzzer for lexical search, rebuilds, equivalent queries, retrieval and text spans, document JSON and rehashed caches, plus 160 bounded PDF import cases. No panic or score/contract mismatch was found. No new algorithm, dependency, default feature, public API, schema shape, saved format or DenkMaps integration. The 0.5.0 measurements were not repeated. Read [scope and limits](docs/CHANGES-0.5.1.md) and [migration](docs/MIGRATION-0.5.1.md).
+
 ## 0.5.0 — Verify Core and optional MCP stability
 
 Keep Core/MCP runtime source unchanged from 0.4.25, retaining earlier measured fixes. Add a fixed-seed 250-step state/cache/clone regression against independent records, with a separately reduced Miri form. Compare exact 0.4.21/0.4.25/0.5.0 through 30 finite million-entry/500,000-entry clone processes and all retained RPC/startup/heap/retrieval controls. Preserve slower outcomes. Document explicit Cargo 0.5 selection, unchanged calls/formats and version-qualified MCP schema refresh. No new algorithm, dependency, default feature or DenkMaps integration. Read [results and limits](docs/CHANGES-0.5.0.md) and [migration](docs/MIGRATION-0.5.0.md).

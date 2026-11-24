@@ -2,11 +2,11 @@
 
 This guide records the public behavior of AIRust's knowledge core. Use `cargo doc --locked --no-deps --open` for generated type signatures, and `cargo run --locked --example core` for a complete working example.
 
-For the complete current feature map and integration recipes, see the [0.5.0 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
+For the complete current feature map and integration recipes, see the [0.5.1 API cookbook](API-COOKBOOK.md). Existing core search methods retain their behavior; optional reranking is a separate explicit second step.
 
 ## Stability and upgrades
 
-Version 0.5.0 starts a new Cargo compatibility line. Select it explicitly; the strict patch-level comparison with 0.4.25 finds no required application-call changes. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Core and MCP runtime source is unchanged from 0.4.25. Saved knowledge and existing versioned formats remain; optional features stay opt-in. Refresh MCP validators because discovery IDs include the crate version, while tool argument/result shapes remain compatible. Read [migration](MIGRATION-0.5.0.md), [validation](CHANGES-0.5.0.md) and [MCP](MCP.md).
+Version 0.5.1 is a patch on the 0.5 line. Runtime behavior matches 0.5.0. Engine, SearchOptions, Retriever, WorkControl, McpServer and McpLimits remain. Saved knowledge and existing versioned formats remain; optional features stay opt-in. Refresh MCP validators because discovery IDs include the crate version, while tool argument/result shapes remain compatible. Read [migration](MIGRATION-0.5.1.md), [fuzz scope](CHANGES-0.5.1.md) and [MCP](MCP.md). The 0.5 line itself is described in [the 0.5.0 migration](MIGRATION-0.5.0.md): Cargo users coming from 0.4 select it explicitly, and the strict patch-level comparison with 0.4.25 found no required application-call changes.
 
 See the [0.3.0 migration guide](MIGRATION-0.3.0.md) for dependency changes, existing artifact compatibility and stricter model imports. The [stability contract](STABILITY.md) describes supported builds, result semantics and validation limits.
 

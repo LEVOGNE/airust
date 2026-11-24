@@ -1,6 +1,6 @@
 # Start AIRust
 
-AIRust is a Rust library with optional tools. Version 0.5.0 stabilizes the existing Core/MCP line with independent state checks and finite large-index controls. Existing runtime calls and knowledge remain. Select Cargo 0.5 explicitly. Read [upgrade](docs/MIGRATION-0.5.0.md), [API cookbook](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [tests and limits](docs/CHANGES-0.5.0.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included.
+AIRust is a Rust library with optional tools. Version 0.5.1 keeps the 0.5.0 runtime and records a fixed-seed fuzz check of search, retrieval and bounded PDF import. Existing runtime calls and knowledge remain. Select Cargo 0.5 explicitly, or pin `=0.5.1`. Read [upgrade](docs/MIGRATION-0.5.1.md), [API cookbook](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [fuzz scope](docs/CHANGES-0.5.1.md). Provider-neutral features use Rust 1.89+; optional local ONNX adapters need Rust 1.92. No DenkMaps integration is included.
 
 ## Keep build storage under control
 
