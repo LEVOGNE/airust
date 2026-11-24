@@ -10,9 +10,9 @@ import time
 
 
 class StdioClient:
-    def __init__(self, command, timeout=10):
+    def __init__(self, command, timeout=10, stderr_path=None):
         self.timeout = timeout
-        self.errors = tempfile.TemporaryFile()
+        self.errors = stderr_path.open('x+b') if stderr_path is not None else tempfile.TemporaryFile()
         self.process = subprocess.Popen(list(map(str, command)), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.errors)
         self.messages = queue.Queue(maxsize=1024)
         self.next_id = 1

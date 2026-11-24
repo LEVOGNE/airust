@@ -85,7 +85,7 @@ def worker(binary, workspace, cases, policy, output, label, profile=None, servic
     previous_started = 0.0
     request_count = 0
     started = time.perf_counter()
-    client = StdioClient(command, timeout=30)
+    client = StdioClient(command, timeout=30, stderr_path=directory / 'stderr.txt')
     startup_ms = (time.perf_counter() - started) * 1000
     try:
         def query(case, repetition):
@@ -114,6 +114,8 @@ def worker(binary, workspace, cases, policy, output, label, profile=None, servic
                 samples.append({'id': case['id'], 'repetition': repetition, 'ms': elapsed, 'data_sha256': signature})
             if service and request_count % 25 == 0:
                 memory.append(model_memory(*service))
+            if request_count % 100 == 0:
+                print(json.dumps({'worker': label, 'completed_requests': request_count, 'phase': 'warmup' if repetition < 0 else 'measured'}), flush=True)
 
         if service:
             memory.append(model_memory(*service))
@@ -122,6 +124,11 @@ def worker(binary, workspace, cases, policy, output, label, profile=None, servic
         for repetition in range(policy['repetitions_per_query']):
             for case in ordered:
                 query(case, repetition)
+    except BaseException:
+        put(directory / 'partial-probes.json', probes)
+        put(directory / 'partial-samples.json', samples)
+        put(directory / 'partial-service-memory.json', memory)
+        raise
     finally:
         usage = client.close()
     if usage is None or usage['exit_code'] != 0:
