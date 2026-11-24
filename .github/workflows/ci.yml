@@ -36,9 +36,12 @@ jobs:
       - run: cargo package --locked
       - run: cargo clean -p airust
   macos-checks:
-    # Hosted ARM64 capacity failures are retained in the release receipts.
-    # Local ARM64 checks remain separate from this explicit Intel CI job.
-    runs-on: macos-26-intel
+    # Retain unavailable macOS 26 attempts; use an explicit supported image.
+    # Bound compiler parallelism and the job while preserving the full matrix.
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      CARGO_BUILD_JOBS: "2"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -60,6 +63,8 @@ jobs:
           restore-keys: |
             rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
             rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-
+      - run: sysctl -n hw.memsize hw.ncpu
+      - run: df -h .
       - run: rustc -vV
       - run: python3 --version
       - run: ./test.sh

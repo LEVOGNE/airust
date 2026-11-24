@@ -95,4 +95,4 @@ The example below is an empty template. Null fields and `not_run` are deliberate
 
 Update the next work program only after recording the actual result and evidence path. The agent may prepare artifacts and analyze results, but external human input remains awaiting inputs until it exists.
 
-The release macOS CI runner is explicitly `macos-26-intel` after recorded hosted ARM64 capacity cancellations. Its cache keys include `runner.arch`; local ARM64 full checks and scoped Miri remain separate evidence. Do not report Intel CI as hosted ARM64 validation. See the final release manifest for actual job conclusions.
+The release macOS CI job explicitly selects the supported `macos-15` ARM64 image, uses two Cargo build jobs and a 45-minute job bound, with architecture-specific cache keys. Earlier macOS 26 ARM64 capacity cancellations and an unresponsive/log-unavailable Intel attempt remain separate non-passing evidence. The Intel attempt does not establish Intel support or a proven library failure. Read actual final job conclusions in the release manifest; keep complete local ARM64 checks and scoped Miri separately recorded.
