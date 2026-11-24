@@ -1,6 +1,43 @@
 # AIRust roadmap
 
-## Current application milestone
+## Active roadmap after 0.5.3
+
+AIRust 0.5.3 is released. Its seven-stage [work program](docs/WORK-PROGRAM.json) is complete. The next work follows the order below; the future version numbers are milestone targets, not implemented capabilities. The frozen reference-v1 questions, policy and results remain unchanged.
+
+| Order | Target | Deliverable | Exit criterion | Status |
+| --- | --- | --- | --- | --- |
+| 1 / P0 | 0.5.4 | Reproducible local pilot and explicit case capture | A user can run the documented Markdown/MCP pilot and export bounded, revision-bound search cases without replacing existing data. | Next implementation milestone |
+| 2 / P1 | 0.6.0 | Optional live hybrid and reranking profiles, evaluated on real cases | CLI/MCP profiles work end to end; independent reference-v2 judgments and predeclared quality/resource gates support the chosen profile. | Planned; depends on pilot inputs |
+| 3 / P2 | After the pilot | Reliable document refresh for continuing use | Prioritize source refresh, retained-reader behavior and operational recovery from observed pilot failures. | Scope decided from pilot evidence |
+| Parallel | Maintenance | Dependency and PDF upkeep | Each recorded maintenance warning has a reviewed upgrade or documented upstream/compatibility decision; affected gates pass. | Ongoing |
+
+### 0.5.4: make the pilot usable and observable
+
+- [ ] Provide one documented local path from a user-selected Markdown directory to a saved workspace, a query and an MCP client. Preserve the existing bounds and original source files.
+- [ ] Add explicit local case capture/export. Record query language and origin, workspace/document revisions, selected source ranges, optional human judgments, review status and the active retrieval recipe. Capture remains off unless the caller requests it; export does not overwrite an existing file.
+- [ ] Validate the capture format and failure behavior with clearly identified synthetic fixtures. Synthetic smoke cases remain distinct from genuine user questions.
+- [ ] Record the dependency paths and compatible upgrade options for the existing `chrono`, `paste`, `ttf-parser` and backend-lockfile `anymap2` notices. Apply an upgrade only with the affected compatibility/provenance checks; retain decisions when upstream work is required.
+
+**First implementation task:** define the revision-bound pilot-case format and add a local capture/export command to the reference workflow. Keep the core API, default features and current saved workspace format compatible.
+
+Real search questions and independent source judgments are external human inputs. Tooling can prepare and validate their collection; it cannot manufacture customer traffic or independent review. Reference-v2 remains explicitly awaiting those inputs until they exist. Completing pilot tooling does not claim that real-world quality has already been measured.
+
+### 0.6.0: make measured search profiles available in the live workflow
+
+- [ ] Add explicitly selected `bm25`, `hybrid` and `hybrid_rerank` configurations to the reference CLI/MCP workflow. Preserve literal lexical defaults. Start the pilot comparison with hybrid without reranking, which already met the reference-v1 quality objectives with lower measured retrieval latency than the reranked profile.
+- [ ] Use the same collection, immutable source revisions, candidate/output bounds and cooperative execution controls across profiles. Report model/recipe identity and the configured model-failure policy; a fallback is visible in the response.
+- [ ] Build a separately versioned reference-v2 set from at least 50 genuine pilot questions, including unsupported questions. Retain origin and independent source-review status. Separate development/evaluation source families and freeze the split, judgments and budgets before candidate execution. Do not tune on reserved results.
+- [ ] Set initial known-reference quality gates at nDCG@10 >= 0.75 and Hit@6 >= 0.80 on answerable cases, with zero source-range mismatches or scope leaks. An optional profile recommendation must also demonstrate its predeclared gain and acceptable resource cost against the lexical baseline on both splits. Retain failed targets and individual losses.
+- [ ] Measure the complete warm request path, including query embedding, retrieval/reranking and final CLI/MCP response serialization. Report cold startup/model loading separately. Record retrieval and embedding-service process memory, plus available GPU/shared-memory observations; unavailable measurements remain explicit. Freeze numerical resource budgets for the selected host before comparison.
+- [ ] Run default/feature/consumer/platform gates on the final implementation and document any exposed interface changes. Preserve the small default build and explicit model assets.
+
+The application still returns evidence, not generated answers. Candidate returns on unsupported questions do not by themselves establish answerability or an answer-error rate.
+
+### Later milestones and 1.0 gate
+
+Use pilot evidence to scope live source refresh, restart/recovery, old-reader retention and longer-running operation. Reuse existing storage, snapshot and incremental APIs before adding another state-management layer. A future 1.0 requires a reviewed public compatibility contract, reproducible use outside the authored reference corpus and supported-platform operational evidence. No 1.0 date or new model-training/agent milestone is committed by this roadmap.
+
+## Completed foundation: 0.5.3
 
 The 0.5.3 work program turns the verified 0.5.2 baseline into a reproducible reference application: local Markdown search with exact source coordinates, bounded evidence and optional MCP. The [reference use case and frozen acceptance policy](docs/REFERENCE-APPLICATION.md) define completion. The [150-question comparison](docs/measurements/reference-v1/README.md) retains failed targets, local model costs and individual losses. [WORK-PROGRAM.json](docs/WORK-PROGRAM.json) records the seven implementation stages and their evidence.
 
