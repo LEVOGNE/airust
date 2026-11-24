@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+python3 -B scripts/check_support.py
 cargo fmt --package airust -- --check
 python3 -B tests/reference_dataset_test.py
 cargo test --locked --features mcp --example reference_workspace
@@ -14,6 +15,7 @@ cargo test --workspace --all-features --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 cargo clippy --workspace --all-targets --features cli --locked -- -D warnings
+cargo clippy --workspace --all-targets --no-default-features --features mcp,hybrid --locked -- -D warnings
 cargo check --lib --no-default-features --features pdf --locked
 cargo check --lib --no-default-features --features bots --locked
 cargo check --lib --no-default-features --features async --locked

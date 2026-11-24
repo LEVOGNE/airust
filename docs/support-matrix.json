@@ -1,0 +1,302 @@
+{
+  "format_version": 1,
+  "default_features": [],
+  "platforms": [
+    {
+      "platform": "Linux GitHub-hosted ubuntu-latest",
+      "scope": "Default/all-feature tests, MSRV checks, packaging and owned PDF backend regressions",
+      "ci_job": "checks, minimum-rust, local-embedding-rust, pdf-backend"
+    },
+    {
+      "platform": "macOS GitHub-hosted macos-latest",
+      "scope": "Core, MCP, persistence, reference CLI/stdio and full feature checks",
+      "ci_job": "macos-checks"
+    },
+    {
+      "platform": "macOS ARM64 local host",
+      "scope": "Explicit frozen reference comparison with BGE-M3 and verified MiniLMv2 assets",
+      "evidence": "measurements/reference-v1/README.md"
+    },
+    {
+      "platform": "Windows and other targets",
+      "scope": "No current CI validation claim; APIs may compile but require their own integration checks",
+      "ci_job": null
+    }
+  ],
+  "features": {
+    "adaptive": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "ADAPTIVE.md",
+      "purpose": "Explicit routing among registered retrieval sources.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "advanced-search": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "TEXT-SEARCH.md",
+      "purpose": "Positional phrases and optional German stemming.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "async": {
+      "tier": "compatibility-marker",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Enables the Tokio dependency; no separate async Engine API is selected.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "bots": {
+      "tier": "compatibility",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Alias enabling the optional web integration and its crawler.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "cache": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "CACHE.md",
+      "purpose": "Rebuildable derived lexical and optional vector caches.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "cli": {
+      "tier": "compatibility",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Historical agent and training-file command-line tools.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "colors": {
+      "tier": "compatibility-marker",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Retained empty feature flag; no standalone behavior is switched by this flag.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "context-assembly": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "CONTEXT.md",
+      "purpose": "Bounded ranked context and explicit graph neighbors.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "default": {
+      "tier": "core",
+      "minimum_rust": "1.89",
+      "guide": "../README.md",
+      "purpose": "Lexical search, matching and relation suggestions.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "disk-index": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "DISK-INDEX.md",
+      "purpose": "Own-format SQLite original records and full-text index.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "documents": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "DOCUMENTS.md",
+      "purpose": "Immutable text revisions and checked UTF-8 source ranges.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "embedded-knowledge": {
+      "tier": "compatibility",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Explicitly embeds the sample training knowledge through build.rs.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "embeddings": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "SEMANTIC.md",
+      "purpose": "Provider-neutral validated vectors and exact cosine retrieval.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "evidence-freshness": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "EVIDENCE-FRESHNESS.md",
+      "purpose": "Explicit evidence revision and freshness assessments.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "execution": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "EXECUTION.md",
+      "purpose": "Cooperative cancellation, monotonic deadlines and progress.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "feedback": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "FEEDBACK.md",
+      "purpose": "Explicit local feedback ledger and bounded preference adjustment.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "graph": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "GRAPH.md",
+      "purpose": "Application-owned relationships and bounded traversal.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "hnsw": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "ANN.md",
+      "purpose": "Explicit approximate vector retrieval with exact fallback.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "hybrid": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "HYBRID.md",
+      "purpose": "Reciprocal-rank fusion over lexical and exact semantic candidates.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "learned-ranking": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "LEARNED_RANKING.md",
+      "purpose": "Explicit small linear ranker trained on supplied labels.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "local-embeddings": {
+      "tier": "native-model",
+      "minimum_rust": "1.92",
+      "guide": "LOCAL-EMBEDDINGS.md",
+      "purpose": "Explicit verified local E5 ONNX adapter.",
+      "native_assets_in_ordinary_ci": false
+    },
+    "local-reranking": {
+      "tier": "native-model",
+      "minimum_rust": "1.92",
+      "guide": "LOCAL-RERANKING.md",
+      "purpose": "Explicit verified local multilingual MiniLMv2 ONNX adapter.",
+      "native_assets_in_ordinary_ci": false
+    },
+    "mcp": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "MCP.md",
+      "purpose": "Bounded read-only local stdio transport with five tools.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "pdf": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "PDF-STABILITY.md",
+      "purpose": "Maintained bounded PDF import and supervised CLI path.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "plotting": {
+      "tier": "compatibility-marker",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Retained empty feature flag; no standalone plotting API is switched by this flag.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "provenance": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "PROVENANCE.md",
+      "purpose": "Explicit shared source definitions and checked locations.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "quality": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "QUALITY.md",
+      "purpose": "Inspectable ranking metrics from supplied judgments.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "quality-gates": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "QUALITY-GATES.md",
+      "purpose": "Comparable runs and explicit quality/resource policies.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "rank-explanations": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "RANK-EXPLANATIONS.md",
+      "purpose": "Inspectable learned and feedback ranking contributions.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "reasoning": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "REASONING.md",
+      "purpose": "Bounded explicit rule proposals and proof chains.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "reranking": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "RERANKING.md",
+      "purpose": "Provider-neutral scoring of actual candidate prefixes.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "retrieval": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "RETRIEVAL.md",
+      "purpose": "Owned bounded excerpts, evidence and complete JSON.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "shared-index": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "SHARED-INDEX.md",
+      "purpose": "Shared immutable payloads across cloned indexes.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "snapshots": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "SNAPSHOTS.md",
+      "purpose": "Checked publication of coherent immutable dataset views.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "sqlite-storage": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "STORAGE.md",
+      "purpose": "Own-format SQLite original-record adapter.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "storage": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "STORAGE.md",
+      "purpose": "Atomic original-record batches, fenced revisions and pages.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "training-pipeline": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "TRAINING-PIPELINE.md",
+      "purpose": "Explicit grouped training and evaluation orchestration.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "versioning": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "VERSIONING.md",
+      "purpose": "Conflict-checked record revisions and bounded history.",
+      "native_assets_in_ordinary_ci": null
+    },
+    "web": {
+      "tier": "compatibility",
+      "minimum_rust": "1.89",
+      "guide": "../STARTUP.md",
+      "purpose": "Optional dashboard, HTTP/WebSocket, crawler and administration.",
+      "native_assets_in_ordinary_ci": null
+    }
+  },
+  "policy": "Within the 0.5 line preserve public contracts and readable versioned formats. Feature isolation plus targeted interaction checks does not enumerate every possible subset. Native-model execution requires explicit assets and is separate from ordinary CI."
+}

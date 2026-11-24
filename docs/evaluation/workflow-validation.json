@@ -8,13 +8,17 @@
     "python3 -B tests/reference_workflow_test.py"
   ],
   "rust_example_tests_passed": 6,
-  "real_cli_and_stdio_tests_passed": 3,
+  "real_cli_and_stdio_tests_passed": 5,
   "strict_clippy": "passed",
   "source_sha256": {
     "examples/reference_workspace.rs": "31d462b7e1881a7c0c1fd1690f8fe7a0db44bb8bb705a09551bc4c213c30b68a",
     "examples/reference_support/mod.rs": "03fb2390e1b0058a99b07d6da2f3e53b01e423a68dd4c89bba933514b162983d",
-    "tests/reference_workflow_test.py": "51664744dd90f6791ed95b90765b343da0d56ba5bf74298e7f7399aca990ba81"
+    "tests/reference_workflow_test.py": "dd371a43c69163aef85555746d49ed4f2cd82d9cf17d20655a3e25a88f4a1489"
   },
   "raw_logs": "local-lab/reference-workflow",
-  "limits": "Checksum consistency does not authenticate a caller who can rewrite both workspace payload and checksum. Query results leave answerability unassessed."
+  "limits": "Checksum consistency does not authenticate a caller who can rewrite both workspace payload and checksum. Query results leave answerability unassessed.",
+  "additional_failure_controls": [
+    "Rehashed outer envelope rejects a stale inner document identity.",
+    "Complete query wrapper stays bounded with control characters expanded by JSON escaping."
+  ]
 }

@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -50,6 +51,34 @@ class ReferenceWorkflowTests(unittest.TestCase):
         result = self.run_cli('query', self.workspace, 'Rust', check=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, '')
+
+    def test_rehashed_envelope_cannot_restore_stale_document_identity(self):
+        path = self.workspace / 'workspace.json'
+        envelope = json.loads(path.read_text())
+        stored = json.loads(envelope['payload'])
+        snapshot = json.loads(stored['documents'][0]['snapshot'])
+        snapshot['text'] = snapshot['text'].replace('Rust', 'Changed')
+        stored['documents'][0]['snapshot'] = json.dumps(snapshot, ensure_ascii=False)
+        envelope['payload'] = json.dumps(stored, ensure_ascii=False)
+        envelope['payload_sha256'] = hashlib.sha256(envelope['payload'].encode()).hexdigest()
+        path.write_text(json.dumps(envelope, ensure_ascii=False))
+        result = self.run_cli('query', self.workspace, 'Rust', check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, '')
+
+    def test_final_wrapper_bounds_include_json_escaping_and_citations(self):
+        (self.sources / 'escaped.md').write_text(''.join(f'Rust {n:03} ' + '\x01' * 1700 + '\n\n' for n in range(20)))
+        another = self.root / 'escaped-workspace'
+        self.run_cli('build', self.sources, another, 'manuals')
+        result = self.run_cli('query', another, 'Rust')
+        value = json.loads(result.stdout)
+        self.assertLessEqual(len(result.stdout.rstrip('\n').encode()), 65536)
+        hits = value['retrieval']['hits']
+        self.assertTrue(hits)
+        self.assertEqual(len(hits), len(value['citations']))
+        self.assertLessEqual(len(hits), 6)
+        self.assertLessEqual(sum(len(hit['excerpt'].encode()) for hit in hits), 12000)
+        self.assertTrue(all(len(hit['excerpt'].encode()) <= 2000 for hit in hits))
 
     def test_real_stdio_search_and_read_use_the_saved_document_revision(self):
         citation_reply = json.loads(self.run_cli('query', self.workspace, 'Rust').stdout)

@@ -1,5 +1,11 @@
 # AIRust roadmap
 
+## Current application milestone
+
+The 0.5.3-dev work program turns the verified 0.5.2 baseline into a reproducible reference application: local Markdown search with exact source coordinates, bounded evidence and optional MCP. The [reference use case and frozen acceptance policy](docs/REFERENCE-APPLICATION.md) define completion. The [150-question comparison](docs/measurements/reference-v1/README.md) retains failed targets, local model costs and individual losses. [WORK-PROGRAM.json](docs/WORK-PROGRAM.json) records the seven implementation stages and their evidence.
+
+Further quality work requires a new dataset/version, genuine user questions or independent judgments. Version-one reserved results are not a tuning set. The current milestone does not publish a new crate or imply a 1.0 compatibility promise. Keep provider-neutral defaults small; real external-application integration remains separate.
+
 ## Release priorities
 
 Every release prioritizes stability, performance, reliability and a clear public API, including optional MCP. Preserve the small optional architecture. Run compatibility and feature checks, test cancellation/budgets/scope where affected, and report measured costs and regressions honestly. Keep original knowledge and evidence; remove regenerable build artifacts after verified publication. New capabilities require a demonstrated use and must not silently change defaults. Model training and agent expansion are possible long-term research directions, not committed version milestones.
