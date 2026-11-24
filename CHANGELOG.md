@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1 — Unreleased: bounded reranking configuration and preflight
+
+Expose existing validated batch/candidate controls in the reference profile, preserve legacy automatic defaults, and add offline bounded profile checks. Actual local answer attempts and compatible native measurements precede this configuration work; failed quotes, semantic failures and slower measurements remain explicit. See [scope](docs/CHANGES-0.6.1.md), [configuration](docs/CONFIGURATION.md), [migration](docs/MIGRATION-0.6.1.md) and [validation](docs/validation-0.6.1/README.md). No 0.6.1 publication is asserted.
+
 ## 0.6.0 — Bounded local pilot and explicit live search profiles
 
 Bounded local pilot initialization/capture/review/export, independently verified provenance, explicit live CLI/MCP search profiles and an application-owned MCP backend hook. Defaults and saved workspace schema remain compatible; import/serialization/vector-allocation limits are strengthened. Genuine independently reviewed pilot-data readiness remains a separate unmet gate. See [scope and evidence](docs/CHANGES-0.6.0.md) and [migration](docs/MIGRATION-0.6.0.md).

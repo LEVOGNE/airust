@@ -161,3 +161,5 @@ For the full interface, read [the cookbook](docs/API-COOKBOOK.md). Platform and 
 ## Collect pilot questions and run live profiles
 
 Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the source build for 0.6.0 profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
+
+The unpublished 0.6.1 checkout adds `profile-check CONFIG` for configuration-only checks before workspace/cache/model loading, plus explicit native `batch_size` and `candidates` fields. Build with `--features pilot`; native execution additionally needs `local-reranking` and supplied assets. See [configuration ownership](docs/CONFIGURATION.md) and [0.6.1 migration](docs/MIGRATION-0.6.1.md) for defaults, budgets and the distinction between preflight validity and service readiness.

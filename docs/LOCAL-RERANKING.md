@@ -20,7 +20,7 @@ Supply the platform-specific ONNX Runtime shared library separately. Native eval
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.9", default-features = false, features = ["local-reranking"] }
+airust = { version = "=0.6.0", default-features = false, features = ["local-reranking"] }
 ```
 
 ```rust,no_run
@@ -54,6 +54,10 @@ This tiny example supplies both records so the model can compare them. In an act
 The constructor requires a positive CPU thread count and forces CPU execution. It scores query/document pairs with a maximum combined sequence length of 512 tokens, longest-first pair truncation, no E5 query/passage prefixes and one raw classifier logit. Longer model inputs can lose query or document tokens despite passing the pipeline's separate byte budgets. Prefer appropriately sized passages. Scores can be negative or greater than one; they are not relevance probabilities. FastEmbed's sorted native results are mapped back to input document order and checked for missing/duplicate indexes.
 
 The local scorer uses internal batches of at most sixteen; the outer reranking pipeline can impose a smaller batch size. Reuse the loaded model. Model loading and pair inference add CPU and RAM cost, and reranking does not make the first-stage search faster.
+
+`RerankOptions::with_batch_size` and `with_candidates` already expose those pipeline choices. For CPU workloads with mixed paragraph lengths, benchmark smaller outer batches with an unchanged candidate prefix: each native batch is padded to its longest tokenized pair. Changing the batch can change floating-point logits slightly even with the same model/text. Compare all scores, rankings, known-reference losses, complete request cost and peak memory; additional threads are an explicit CPU tradeoff. Do not infer an energy or general quality improvement from lower wall time.
+
+The unpublished 0.6.1 reference profile makes these existing controls available as bounded `reranker.batch_size` and `reranker.candidates`, with configuration-only preflight. Existing profiles keep their old defaults. Read [configuration](CONFIGURATION.md), [migration](MIGRATION-0.6.1.md) and [the actual local-model investigation](measurements/profile-practical-0.6.0/README.md). Its small conversation probes and exposed authored regression corpus do not establish independent customer quality.
 
 E5 and the reranker share one process-wide AIRust ONNX environment. Simultaneous local providers now work without the previous second-environment initialization error. Supply the same canonical runtime-library path for every AIRust local provider. A different path returns an error rather than silently loading another runtime. The shared environment remains alive for the process lifetime. If another library already owns an independently initialized ORT environment, supply your own `Reranker`/`EmbeddingProvider` around that setup; these convenience constructors do not adopt an arbitrary external environment.
 

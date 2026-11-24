@@ -28,8 +28,8 @@ The third version component is a patch; 0.5 to 0.6 is a minor boundary. The 0.6.
 
 | Target | Intended work | Acceptance and boundaries | Status |
 | --- | --- | --- | --- |
-| **0.6.0** | Developer entry point, bounded pilot and explicit live profiles | Complete release checks and source/tag/registry identities; publish measured limits and keep G1–G5 external requirements explicit. | Engineering implemented; actual publication receipts govern release completion. |
-| 0.6.1 | Configuration clarity | Inventory existing configuration types/defaults and concrete onboarding failures first. Reuse validated APIs; document precedence, invalid combinations and compatibility. Add a central facade only if it reduces demonstrated integration work. | Next implementation candidate; not implemented. |
+| **0.6.0** | Developer entry point, bounded pilot and explicit live profiles | Complete release checks and source/tag/registry identities; publish measured limits and keep G1–G5 external requirements explicit. | Released and verified; authoritative receipts retained. |
+| 0.6.1 | Configuration clarity and measured native controls | Reuse existing configuration; bounded reranking batches/prefixes, offline preflight, documented precedence/defaults/compatibility. Practical local LLM/profile evidence precedes changes. | Implemented in an unpublished candidate; full native/MSRV checks passed; complete-MCP performance confirmation and finite Miri/package gates pending. |
 | 0.6.2 | Diagnostics | Reproducible structured error/cost information for observed failure paths; no sensitive source leakage, hidden work or unstable error-category changes. Measure overhead. | Planned conditionally. |
 | 0.6.3 | Observability | Opt-in timing/resource/quality observations with bounded storage/cardinality and measured overhead. Distinguish request cost from retrieval and reference labels from actual user outcomes. | Planned conditionally. |
 | 0.6.4 | Resource management | Extend existing admission, queue, byte/count limits, cancellation and absolute deadlines with adversarial/recovery controls. State cooperative limits accurately; hard CPU/RAM isolation needs a separately verified mechanism. | Planned conditionally. |
@@ -43,7 +43,7 @@ The third version component is a patch; 0.5 to 0.6 is a minor boundary. The 0.6.
 
 ## Start the next work here
 
-1. **R0 — finish/verify 0.6.0 closeout.** Check tag, registry checksum and release receipts before doing anything again. If already complete, preserve them and move on; do not republish or move the tag.
+1. **R0 — preserve the verified 0.6.0 closeout.** Publication and all closing checks passed; inspect authoritative receipts before repeating any action. Never republish or move the tag. The current priority is [practical local LLM/profile evidence](docs/measurements/profile-practical-0.6.0/README.md), then the [unpublished 0.6.1 configuration candidate](docs/CHANGES-0.6.1.md).
 2. **DX1 — independent onboarding and application attempts.** Use the prepared [protocol](docs/INDEPENDENT-VALIDATION.md). Keep failure reports and assistance levels. The agent can prepare/verify artifacts, but cannot act as an independent human participant.
 3. **Q1 — genuine pilot collection and source review.** Use [PILOT.md](docs/PILOT.md); retain originals/private data outside Git. Freeze reference-v2 only after the independently reviewed minimum, source-family split and policy exist. Never substitute conversation replays.
 4. **C1 — configuration inventory before a new API.** Map existing core/retrieval/document/MCP/profile settings, defaults, bounds and ownership to concrete example tasks. Prepare a small compatible proposal tied to an observed integration problem. Test only justified behavior changes.

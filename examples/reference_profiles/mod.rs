@@ -96,6 +96,20 @@ pub struct NativeReranker {
     pub directory: PathBuf,
     pub runtime: PathBuf,
     pub threads: usize,
+    #[serde(default = "default_rerank_batch_size")]
+    pub batch_size: usize,
+    #[serde(default)]
+    pub candidates: Option<usize>,
+}
+fn default_rerank_batch_size() -> usize {
+    16
+}
+impl NativeReranker {
+    fn options(&self, limit: usize) -> std::result::Result<RerankOptions, RetrievalError> {
+        Ok(RerankOptions::new(limit)
+            .with_candidates(self.candidates.unwrap_or_else(|| limit.max(20)))?
+            .with_batch_size(self.batch_size)?)
+    }
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -129,6 +143,12 @@ impl Config {
             if r.threads == 0 || r.threads > 64 {
                 return Err("reranker threads must be 1..64".into());
             }
+            if r.batch_size > 16 || r.candidates.is_some_and(|n| n > 100) {
+                return Err(
+                    "reranker batch_size must be 1..16 and candidates must be 1..100".into(),
+                );
+            }
+            r.options(0)?;
         }
         match config.profile {
             Kind::Bm25
@@ -462,6 +482,15 @@ impl Profile {
                 "model profiles require BM25 fusion; TF-IDF is an explicit lexical profile",
             ));
         }
+        if let Some(control) = options.control() {
+            control.checkpoint()?;
+        }
+        let rerank_options = self
+            .config
+            .reranker
+            .as_ref()
+            .map(|config| config.options(options.limit()))
+            .transpose()?;
         let mut state = self.lock(options)?;
         let State {
             semantic,
@@ -485,11 +514,8 @@ impl Profile {
             fallback: None,
         };
         let mut retriever = Retriever::new(source);
-        if let Some(model) = reranker.as_mut() {
-            retriever = retriever.with_reranker(
-                model.as_mut(),
-                RerankOptions::new(options.limit()).with_candidates(options.limit().max(20))?,
-            );
+        if let (Some(model), Some(rerank_options)) = (reranker.as_mut(), rerank_options) {
+            retriever = retriever.with_reranker(model.as_mut(), rerank_options);
         }
         let result = retriever.query(query, options);
         drop(retriever);
@@ -544,5 +570,158 @@ fn native(paths: &NativeReranker) -> Result<Box<dyn Reranker + Send>> {
     {
         let _ = paths;
         Err("enable local-reranking and supply the verified native assets explicitly".into())
+    }
+}
+
+#[cfg(test)]
+mod configuration_tests {
+    use super::*;
+    use airust::{execution::CancellationToken, reranking::RerankError};
+
+    fn profile() -> Value {
+        json!({
+            "schema_version": 1, "profile": "hybrid_rerank", "failure_policy": "error",
+            "embedding": {"url": "http://127.0.0.1:1", "model": "fixture:local", "digest": "1".repeat(64), "dimensions": 3, "timeout_ms": 1000},
+            "vectors": "missing-vectors.json",
+            "reranker": {"directory": "missing-model", "runtime": "missing-runtime", "threads": 2},
+        })
+    }
+    fn read(value: &Value) -> Config {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("profile.json");
+        std::fs::write(&path, serde_json::to_vec(value).unwrap()).unwrap();
+        Config::read(&path).unwrap()
+    }
+
+    #[test]
+    fn existing_profiles_keep_batch_and_automatic_candidate_defaults() {
+        let config = read(&profile());
+        let native = config.reranker.unwrap();
+        assert_eq!(native.batch_size, 16);
+        assert_eq!(native.candidates, None);
+        for limit in [0, 6, 20, 25, 100] {
+            let options = native.options(limit).unwrap();
+            assert_eq!(options.limit(), limit);
+            assert_eq!(options.batch_size(), 16);
+            assert_eq!(options.candidates(), limit.max(20));
+        }
+    }
+
+    #[test]
+    fn explicit_batch_and_candidate_budget_reuse_validated_reranking_options() {
+        let mut value = profile();
+        value["reranker"]["batch_size"] = json!(1);
+        value["reranker"]["candidates"] = json!(20);
+        let config = read(&value);
+        let native = config.reranker.unwrap();
+        let options = native.options(6).unwrap();
+        assert_eq!(options.candidates(), 20);
+        assert_eq!(options.batch_size(), 1);
+        assert!(matches!(
+            native.options(21),
+            Err(RetrievalError::Rerank(RerankError::Configuration(_)))
+        ));
+    }
+
+    #[test]
+    fn invalid_native_bounds_and_unknown_fields_fail_without_loading_assets() {
+        for (name, invalid) in [
+            ("batch_size", json!(0)),
+            ("batch_size", json!(17)),
+            ("candidates", json!(0)),
+            ("candidates", json!(101)),
+            ("threads", json!(0)),
+            ("threads", json!(65)),
+            ("batch_size", json!(1.5)),
+            ("candidates", json!(-1)),
+            ("batch_szie", json!(1)),
+        ] {
+            let mut value = profile();
+            value["reranker"][name] = invalid;
+            let dir = tempfile::tempdir().unwrap();
+            let path = dir.path().join("profile.json");
+            let original = serde_json::to_vec(&value).unwrap();
+            std::fs::write(&path, &original).unwrap();
+            assert!(Config::read(&path).is_err(), "{name}");
+            assert_eq!(std::fs::read(&path).unwrap(), original);
+        }
+    }
+
+    #[test]
+    fn preflight_resolves_relative_paths_without_accessing_cache_model_or_service() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("profile.json");
+        std::fs::write(&path, serde_json::to_vec(&profile()).unwrap()).unwrap();
+        let config = Config::read(&path).unwrap();
+        assert_eq!(
+            config.vectors.unwrap(),
+            dir.path().join("missing-vectors.json")
+        );
+        let native = config.reranker.unwrap();
+        assert_eq!(native.directory, dir.path().join("missing-model"));
+        assert_eq!(native.runtime, dir.path().join("missing-runtime"));
+        assert!(!native.directory.exists() && !native.runtime.exists());
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
+
+    fn unloaded(config: Config) -> Profile {
+        Profile {
+            config,
+            recipe: "not-loaded".into(),
+            state: Mutex::new(State {
+                semantic: None,
+                provider: None,
+                reranker: None,
+            }),
+        }
+    }
+
+    #[test]
+    fn request_cannot_expand_explicit_window_or_turn_configuration_into_fallback() {
+        let mut value = profile();
+        value["failure_policy"] = json!("lexical_fallback");
+        value["reranker"]["candidates"] = json!(5);
+        let profile = unloaded(read(&value));
+        assert!(matches!(
+            profile.query(
+                &Engine::new(),
+                "Rust",
+                SearchAlgorithm::Bm25,
+                &RetrievalOptions::new(6)
+            ),
+            Err(RetrievalError::Rerank(RerankError::Configuration(_)))
+        ));
+    }
+
+    #[test]
+    fn cancellation_retains_priority_over_invalid_explicit_window() {
+        let mut value = profile();
+        value["reranker"]["candidates"] = json!(5);
+        let profile = unloaded(read(&value));
+        let cancel = CancellationToken::new();
+        cancel.cancel();
+        let options = RetrievalOptions::new(6).with_control(WorkControl::new(cancel));
+        assert!(matches!(
+            profile.query(&Engine::new(), "Rust", SearchAlgorithm::Bm25, &options),
+            Err(RetrievalError::Execution(
+                airust::execution::ExecutionError::Cancelled
+            ))
+        ));
+    }
+
+    #[test]
+    fn expired_deadline_retains_priority_over_invalid_explicit_window() {
+        let mut value = profile();
+        value["reranker"]["candidates"] = json!(5);
+        let profile = unloaded(read(&value));
+        let control =
+            WorkControl::new(CancellationToken::new()).with_deadline(std::time::Instant::now());
+        let options = RetrievalOptions::new(6).with_control(control);
+        assert!(matches!(
+            profile.query(&Engine::new(), "Rust", SearchAlgorithm::Bm25, &options),
+            Err(RetrievalError::Execution(
+                airust::execution::ExecutionError::DeadlineExceeded
+            ))
+        ));
     }
 }

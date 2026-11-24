@@ -2,9 +2,21 @@
 
 Read this file first when resuming roadmap/release work. Then read [the roadmap](../ROADMAP.md), [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json) and [CONTRIBUTING.md](../CONTRIBUTING.md). Communicate with the user in German; keep repository code/docs in English. Do not restart completed benchmark campaigns or ask the user to restate the project.
 
+## Current work: practical profiles before 0.6.1
+
+The user first authorized C1 configuration work, then explicitly prioritized testing the three profiles with an existing local answer LLM and actual user questions before implementing 0.6.1. They also requested a substantial, measured reranking performance investigation. Follow that order. Branch: `codex/configuration-0.6.1`; library/example implementation is initially unchanged from published 0.6.0. Do not infer authorization to publish 0.6.1.
+
+Live evidence and continuation: `local-lab/profile-practical-0.6.0-2026-11-24/PROGRESS.json`, `frozen-policy.json`, executed Python methods and raw baseline results. The new immutable workload has 18 current published-source documents / 729 passages, three verbatim earlier user-question replays and one current user improvement request. This is a small nonrepresentative exposed local workload, not four independent customer questions or human judgments. Original replays/frozen reference-v1 and release evidence remain unchanged.
+
+The fresh baseline binary is compiled from exact source `8c098f15a39f6085f748c56ac52e5737abdff423`, SHA-256 `45abd1eef5cae133762514f7ecdf61c133f22f3ff73d73170348c307f9b665ad`. Complete MCP baseline measurements completed with 20 timed requests per profile; all source ranges matched. Their p95 values are approximately 1.285 / 32.089 / 474.982 ms for bm25 / hybrid / hybrid_rerank. These are not speedups against the historical 150-question chart: workload identities differ. Local Qwen3.8:27b answer attempts and no-context controls follow separately, with exact quote validation and retained failures.
+
+The task owns an Ollama service at `127.0.0.1:11437`; read `owned-service.json` for its actual PID/liveness. It uses existing BGE-M3 and Qwen3.8:27b, cloud/pruning disabled, one request at a time, at most two loaded models and an 8192-token answer context. No models were downloaded. The service home/log, questions and answers are private ignored evidence, not publication assets. Stop only this recorded owned process after the run. Temporary builds: `/tmp/airust-profile-practical-0.6.0`; retain binary/locks/methods before cleanup.
+
+Next: inspect all actual local answers and errors, then test existing bounded thread/batch controls with unchanged model, 20-candidate prefix and max512 pair tokenization. Freeze comparable paired campaigns, preserve numerical/ranking/quality losses and avoid timings during compilation or unrelated model work. Only adopt a measured improvement. Use the resulting integration problems to scope C1; no global configuration layer is justified by the initial inventory alone. Independent quality/adoption gates remain unmet.
+
 ## First action: verify the actual release state
 
-The active authorized release is **AIRust 0.6.0**, including merge to master, annotated tag, GitHub release and crates.io. The user explicitly requested all closing checks and honest limits, without routine questions. The engineering work is implemented. Publication is an external observed event: use the receipts below, not a source version string or this document, to determine whether the release is already complete. If complete, do not republish or move the tag.
+**AIRust 0.6.0 is released.** Its final local receipt `local-lab/release-0.6.0-2026-11-24/final-closeout.json` records clean source/tag/registry identities, all five exact-source candidate/master/tag CI jobs, 13 anonymous payload downloads plus two separate public receipt files, docs.rs and completed owned-build cleanup. The public GitHub release and crates.io archive agree. Verify authoritative receipts if needed; do not repeat publication or move the tag. The earlier release authorization applied to finishing 0.6.0, not automatically publishing a later version.
 
 ```bash
 git status --short --branch

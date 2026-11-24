@@ -30,6 +30,8 @@ def main():
         ('mcp-backend', ['--no-default-features', '--features', 'mcp', '--lib', 'mcp::search_backend_tests'], [], False),
         ('pilot', ['--no-default-features', '--features', 'mcp', '--example', 'reference_workspace'],
          ['independent_python_corpus_and_rust_snapshot_passages_agree'], True),
+        ('profile-config', ['--no-default-features', '--features', 'pilot', '--example', 'reference_workspace',
+                            'reference_profiles::configuration_tests::'], [], True),
     ]
     report = {'format_version': 1, 'started_at': datetime.now(timezone.utc).isoformat(),
               'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),

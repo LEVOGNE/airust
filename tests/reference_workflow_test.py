@@ -39,6 +39,12 @@ class ReferenceWorkflowTests(unittest.TestCase):
         for hit, citation in zip(value['retrieval']['hits'], value['citations']):
             self.assertEqual(text[citation['start_byte']:citation['end_byte']].decode(), hit['excerpt'])
 
+    def test_profile_check_without_pilot_reports_feature_requirement_before_file_access(self):
+        result = self.run_cli('profile-check', self.root / 'not-present.json', check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('compile with --features pilot', result.stderr)
+
     def test_existing_destination_and_modified_workspace_fail_without_success_output(self):
         path = self.workspace / 'workspace.json'
         original = path.read_bytes()

@@ -203,6 +203,56 @@ class ProfileWorkflowTests(unittest.TestCase):
             self.assertEqual(value['structuredContent']['data']['retrieval']['recipe'], 'airust-pilot-tfidf-v1')
         self.assertEqual(len(self.server.paths), requests)
 
+    def test_profile_check_reports_effective_bounds_without_assets_or_network(self):
+        self.write_config(profile='hybrid_rerank', vectors='missing-cache.json', reranker={
+            'directory': 'missing-model', 'runtime': 'missing-runtime', 'threads': 8, 'batch_size': 1, 'candidates': 20})
+        original = self.config.read_bytes()
+        requests = len(self.server.paths)
+        value = json.loads(self.run_cli('profile-check', self.config).stdout)
+        self.assertEqual(value['check'], 'configuration_only')
+        self.assertFalse(value['assets_checked'])
+        self.assertFalse(value['service_contacted'])
+        actual = value['configuration']
+        self.assertEqual(actual['vectors'], str(self.root / 'missing-cache.json'))
+        self.assertEqual(actual['reranker']['batch_size'], 1)
+        self.assertEqual(actual['reranker']['candidates'], 20)
+        self.assertEqual(actual['reranker']['directory'], str(self.root / 'missing-model'))
+        self.assertEqual(len(self.server.paths), requests)
+        self.assertEqual(self.config.read_bytes(), original)
+        self.assertFalse((self.root / 'missing-model').exists())
+        legacy = json.loads(original)
+        del legacy['reranker']['batch_size']
+        del legacy['reranker']['candidates']
+        self.config.write_text(json.dumps(legacy))
+        defaults = json.loads(self.run_cli('profile-check', self.config).stdout)['configuration']['reranker']
+        self.assertEqual(defaults['batch_size'], 16)
+        self.assertIsNone(defaults['candidates'])
+        self.assertEqual(len(self.server.paths), requests)
+
+    def test_profile_check_rejects_invalid_bounds_without_output_or_service_work(self):
+        self.write_config(profile='hybrid_rerank', reranker={
+            'directory': 'missing', 'runtime': 'missing', 'threads': 2})
+        valid = json.loads(self.config.read_text())
+        requests = len(self.server.paths)
+        for field, value in [('batch_size', 0), ('batch_size', 17), ('candidates', 0),
+                             ('candidates', 101), ('threads', 65), ('batch_szie', 1)]:
+            with self.subTest(field=field, value=value):
+                changed = json.loads(json.dumps(valid))
+                changed['reranker'][field] = value
+                self.config.write_text(json.dumps(changed))
+                original = self.config.read_bytes()
+                self.run_cli('profile-check', self.config, check=False)
+                self.assertEqual(self.config.read_bytes(), original)
+        self.assertEqual(len(self.server.paths), requests)
+
+    def test_profile_check_rejects_oversized_input_without_output_or_service_work(self):
+        original = b' ' * (16 * 1024 + 1)
+        self.config.write_bytes(original)
+        requests = len(self.server.paths)
+        self.run_cli('profile-check', self.config, check=False)
+        self.assertEqual(self.config.read_bytes(), original)
+        self.assertEqual(len(self.server.paths), requests)
+
     def test_cancellation_does_not_publish_a_late_model_success(self):
         self.server.embedding_started.clear()
         self.server.mode = 'slow'

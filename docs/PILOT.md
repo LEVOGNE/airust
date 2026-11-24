@@ -132,7 +132,23 @@ The digest above identifies the retained reference model, not a promise about th
 
 The cache is tied to actual workspace passage IDs, source revisions and the model recipe. It is rebuildable derived data, at most 64 MiB encoded. Preparation also rejects more than 64 MiB of raw f32 vector values before embedding. Workspace, case and vector-envelope serialization stops when its byte budget is reached, including JSON escaping. A stale/corrupt/missing cache is a setup error. Preparation batches at most 16 texts/64 KiB with responses limited to 2 MiB. Service timeouts are 1–30000 ms; the active request's remaining budget can shorten them. Digest bracketing detects normal model replacement, not a malicious inference server impersonating an identity.
 
-`hybrid` uses exact cosine plus BM25 with fixed RRF k=60 and equal weights, candidates capped at 100. `hybrid_rerank` additionally reranks the actual first 20 candidates (or the requested limit if larger). Build with `--features pilot,local-reranking` on Rust 1.92 or newer and set `reranker` to an object with `directory`, `runtime` and `threads` (1–64). Use the explicit asset setup in [LOCAL-RERANKING.md](LOCAL-RERANKING.md); the constructor verifies its pinned model files before loading the supplied native runtime. Native code is outside owned Rust's `forbid(unsafe_code)` and Miri coverage.
+`hybrid` uses exact cosine plus BM25 with fixed RRF k=60 and equal weights. `hybrid_rerank` defaults to reranking the actual first 20 candidates (or the requested limit if larger). Build with `--features pilot,local-reranking` on Rust 1.92 or newer and set `reranker` to an object with `directory`, `runtime` and `threads` (1–64). Use the explicit asset setup in [LOCAL-RERANKING.md](LOCAL-RERANKING.md); the constructor verifies its pinned model files before loading the supplied native runtime. Native code is outside owned Rust's `forbid(unsafe_code)` and Miri coverage.
+
+The **unpublished 0.6.1 source candidate** additionally accepts `reranker.batch_size` (1–16, missing means 16) and `reranker.candidates` (1–100 when explicit). Missing/null candidates preserves the automatic max(20, requested result limit). An explicit candidate budget is not expanded by a larger result request: that request fails before model work and cannot become fallback. The first-stage window is at least 100 or the request's own bounded candidate count; a new explicit rerank window is capped at 100. An example tuning object is:
+
+```json
+{"directory":"/models/mmarco-minilm-v2","runtime":"/runtime/libonnxruntime.dylib","threads":2,"batch_size":1,"candidates":20}
+```
+
+Select a setting using compatible workload measurements, with the same first-stage candidates and token recipe. Smaller batches can avoid padding short documents to a longer peer on CPU; they do not shorten the 512-token maximum or recover missing candidates. More CPU threads have a resource cost. [The practical measurements](measurements/profile-practical-0.6.0/README.md) retain all tested options and regressions, including answer-quality failures.
+
+Check the effective configuration before expensive loading:
+
+```bash
+"$AIRUST_PILOT_BIN" profile-check /tmp/hybrid.json
+```
+
+This requires the 0.6.1 source candidate built with `pilot`. It reads only the at-most-16-KiB config, validates settings and resolves paths relative to that config, and emits at most 32 KiB JSON. `assets_checked` and `service_contacted` are false: a missing cache/model/runtime may be structurally configured, but real execution still checks them. No workspace is needed and no HTTP/model/runtime loading occurs. Existing files remain unchanged and failed preflight emits no success JSON. See [configuration ownership](CONFIGURATION.md) and [migration](MIGRATION-0.6.1.md).
 
 `failure_policy: "error"` returns provider/reranker failures. Opt-in `"lexical_fallback"` retries lexical retrieval only for inference-stage source/reranker errors and reports its distinct recipe and `fallback_reason`. Invalid setup and elapsed/cancelled requests never become successful fallbacks. Profile access is serialized per loaded model state; lock waiting observes cancellation/deadlines. HTTP/native work is cooperative and cannot be forcibly interrupted at an arbitrary instruction. CLI query work has a two-second budget after profile loading; MCP applies its request/server budgets and retains worker admission until the worker actually returns.
 

@@ -97,6 +97,24 @@ fn main() -> Result<()> {
                 return Err("compile with --features pilot to prepare model vectors".into());
             }
         }
+        Some("profile-check") if args.len() == 2 => {
+            #[cfg(feature = "pilot")]
+            {
+                let config = reference_profiles::Config::read(Path::new(&args[1]))?;
+                let report = json!({
+                    "check": "configuration_only",
+                    "assets_checked": false,
+                    "service_contacted": false,
+                    "configuration": config,
+                });
+                let encoded = reference_support::encode_bounded(&report, 32 * 1024)?;
+                println!("{}", String::from_utf8(encoded)?);
+            }
+            #[cfg(not(feature = "pilot"))]
+            {
+                return Err("compile with --features pilot to check profile configuration".into());
+            }
+        }
         Some("pilot") => match args.get(1).map(String::as_str) {
             Some("init") if args.len() == 5 => println!(
                 "{}",
@@ -152,7 +170,7 @@ fn main() -> Result<()> {
             _ => return Err("invalid pilot arguments; use --help".into()),
         },
         Some("--help" | "help") | None => {
-            println!("reference_workspace build INPUT_DIRECTORY NEW_WORKSPACE COLLECTION\nreference_workspace query WORKSPACE QUESTION [--profile CONFIG]\nreference_workspace serve WORKSPACE [--profile CONFIG]\nreference_workspace profile-build WORKSPACE CONFIG NEW_VECTORS\nreference_workspace pilot init INPUT_DIRECTORY NEW_PILOT COLLECTION\nreference_workspace pilot capture PILOT REQUEST_JSON NEW_CASE_JSON [--profile CONFIG]\nreference_workspace pilot review PILOT CASE_JSON REVIEW_JSON NEW_CASE_JSON\nreference_workspace pilot check PILOT CASE_JSON\nreference_workspace pilot export PILOT SELECTED_CASE_DIRECTORY NEW_EXPORT");
+            println!("reference_workspace build INPUT_DIRECTORY NEW_WORKSPACE COLLECTION\nreference_workspace query WORKSPACE QUESTION [--profile CONFIG]\nreference_workspace serve WORKSPACE [--profile CONFIG]\nreference_workspace profile-check CONFIG\nreference_workspace profile-build WORKSPACE CONFIG NEW_VECTORS\nreference_workspace pilot init INPUT_DIRECTORY NEW_PILOT COLLECTION\nreference_workspace pilot capture PILOT REQUEST_JSON NEW_CASE_JSON [--profile CONFIG]\nreference_workspace pilot review PILOT CASE_JSON REVIEW_JSON NEW_CASE_JSON\nreference_workspace pilot check PILOT CASE_JSON\nreference_workspace pilot export PILOT SELECTED_CASE_DIRECTORY NEW_EXPORT");
         }
         _ => return Err("invalid arguments; use reference_workspace --help".into()),
     }

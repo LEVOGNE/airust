@@ -20,12 +20,13 @@
       "id": "R0",
       "priority": "P0",
       "name": "Verify or finish 0.6.0 publication closeout",
-      "status": "verify_authoritative_receipts_before_repeating",
+      "status": "complete",
       "acceptance": "Master/annotated tag/package/registry identities and actual checks/public assets verified; never move or republish a completed version.",
       "evidence": [
         "docs/validation-0.6.0/README.md",
         "local-lab/release-0.6.0-2026-11-24/",
-        "v0.6.0 release assets"
+        "v0.6.0 release assets",
+        "local-lab/release-0.6.0-2026-11-24/final-closeout.json"
       ]
     },
     {
@@ -38,6 +39,19 @@
         "docs/SESSION-HANDOFF.md",
         "ROADMAP.md"
       ]
+    },
+    {
+      "id": "PRACT1",
+      "priority": "P0",
+      "name": "Test all three profiles with local answer LLM and actual user inputs; investigate measured reranking cost",
+      "status": "model_attempts_and_native_controls_complete_full_mcp_confirmation_pending",
+      "source_baseline": "8c098f15a39f6085f748c56ac52e5737abdff423",
+      "evidence": [
+        "local-lab/profile-practical-0.6.0-2026-11-24/",
+        "docs/SESSION-HANDOFF.md"
+      ],
+      "acceptance": "Complete real local model attempts and retain answers/failures/citations/source identities; distinguish replayed questions from independent traffic/review. Optimize only with compatible repeated paired measurements, unchanged candidate/token bounds and visible quality regressions. Then scope C1 from observed configuration issues.",
+      "independently_reviewed_cases": 0
     },
     {
       "id": "DX1",
@@ -66,9 +80,10 @@
       "priority": "P1",
       "name": "Inventory existing configuration before adding a facade",
       "target": "0.6.1 conditional",
-      "status": "not_started",
+      "status": "implemented_validation_in_progress",
       "can_progress_without_external_cases": true,
-      "acceptance": "Map validated configuration/defaults/bounds/ownership and feature interactions; demonstrate an integration problem and propose the smallest compatible improvement, with affected tests and documentation."
+      "acceptance": "Map validated configuration/defaults/bounds/ownership and feature interactions; demonstrate an integration problem and propose the smallest compatible improvement, with affected tests and documentation.",
+      "current_evidence": "docs/CONFIGURATION.md; bounded example batch/candidate knobs and offline profile-check; 20 pilot Rust tests and 10 Python loopback tests passed; full matrix/paired MCP confirmation/Miri pending"
     },
     {
       "id": "QA1",
@@ -135,6 +150,6 @@
       "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
     }
   ],
-  "next_action": "Check R0 publication receipts; preserve completed release. Start C1 inventory as independent engineering work while DX1/Q1/QA1 await real external inputs.",
+  "next_action": "Complete full native/compiler checks, then paired complete-MCP confirmations without concurrent compilation/Miri; finish finite Miri and package consumers afterward. Keep 0.6.1 unpublished and external gates open.",
   "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization."
 }
