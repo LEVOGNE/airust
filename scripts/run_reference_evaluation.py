@@ -56,7 +56,7 @@ def summarize(report, peak_rss_bytes, policy):
 
 
 def qualifies(candidate, baseline, policy):
-    return candidate['resource_budget_passed'] and candidate['reference_ndcg_at_10'] - baseline['reference_ndcg_at_10'] + 1e-12 >= policy['quality']['recommended_profile_ndcg_gain_minimum'] and baseline['reference_hit_at_6'] - candidate['reference_hit_at_6'] <= policy['quality']['recommended_profile_hit_at_6_loss_maximum'] + 1e-12
+    return candidate['resource_budget_passed'] and candidate['quality_objective_passed'] and candidate['reference_ndcg_at_10'] - baseline['reference_ndcg_at_10'] + 1e-12 >= policy['quality']['recommended_profile_ndcg_gain_minimum'] and baseline['reference_hit_at_6'] - candidate['reference_hit_at_6'] <= policy['quality']['recommended_profile_hit_at_6_loss_maximum'] + 1e-12
 
 
 def select_development(summaries, policy):
@@ -110,9 +110,12 @@ def losses(baseline, candidate):
 def host_identity():
     result = {'os': platform.system(), 'release': platform.release(), 'machine': platform.machine(), 'processor': platform.processor(), 'logical_cpus': os.cpu_count()}
     if sys.platform == 'darwin':
-        result['cpu_brand'] = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string'], text=True).strip()
-        result['physical_memory_bytes'] = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True))
-        result['power_observation'] = subprocess.check_output(['pmset', '-g', 'batt'], text=True).strip()
+        for name, command in [('cpu_brand', ['sysctl', '-n', 'machdep.cpu.brand_string']), ('physical_memory_bytes', ['sysctl', '-n', 'hw.memsize']), ('power_observation', ['pmset', '-g', 'batt'])]:
+            try:
+                value = subprocess.check_output(command, text=True, stderr=subprocess.DEVNULL).strip()
+                result[name] = int(value) if name == 'physical_memory_bytes' else value
+            except (OSError, subprocess.CalledProcessError):
+                result[name] = 'unavailable in this process environment'
     return result
 
 
@@ -125,6 +128,8 @@ def main():
     parser.add_argument('--runtime', type=Path)
     args = parser.parse_args()
     started_at = datetime.now(timezone.utc).isoformat()
+    source_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    host = host_identity()
     identity, artifacts = validate()
     policy = json.loads(POLICY.read_text())
     model_metadata = None
@@ -147,7 +152,7 @@ def main():
     for line in artifacts['qrels.jsonl'].splitlines():
         row = json.loads(line)
         judgments.setdefault(row['query_id'], {})[row['document_id']] = row['grade']
-    methods = [ROOT / 'examples/reference_evaluation.rs', *sorted((ROOT / 'examples/reference_eval').glob('*.rs'))]
+    methods = [ROOT / 'examples/reference_evaluation.rs', *sorted((ROOT / 'examples/reference_eval').glob('*.rs')), *sorted((ROOT / 'src').rglob('*.rs')), ROOT / 'Cargo.toml', ROOT / 'Cargo.lock', Path(__file__).resolve(), ROOT / 'scripts/reference_dataset.py', ROOT / 'scripts/reference_embeddings.py']
     method_hashes = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in methods}
     profiles = ['bm25', 'prepared', 'coverage', 'german', 'sqlite']
     if args.vectors:
@@ -199,8 +204,8 @@ def main():
         'embedding_preparation': model_metadata,
         'native_reranker': {'asset_manifest': json.loads((ROOT / 'docs/models/mmarco-minilm-v2.json').read_text()), 'runtime_file': args.runtime.name, 'runtime_sha256': digest(args.runtime.read_bytes()), 'threads': 2} if args.reranker and args.runtime else None,
         'worker_binary_sha256': digest(args.binary.read_bytes()), 'method_sha256': method_hashes,
-        'host': host_identity(),
-        'source_commit_at_campaign_start': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+        'host': host,
+        'source_commit_at_campaign_start': source_commit,
         'rustc': subprocess.check_output(['rustc', '-vV'], text=True),
         'selection': {'selected_on_development': selection, 'evaluation_qualified': promoted, 'recommended_optional_profile': selection if promoted else None, 'literal_defaults_changed': False},
         'observations': observations,
