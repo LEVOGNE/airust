@@ -48,6 +48,6 @@ One corpus and one shared host do not establish general semantic quality, speed,
 
 ## Reproduce
 
-Follow the explicit local-asset commands in [STARTUP.md](../../../STARTUP.md#reproduce-the-reference-evaluation). The frozen [policy](../../evaluation/reference-v1-policy.json) and [dataset](../../../tests/fixtures/reference-v1/) must validate first. `scripts/run_reference_evaluation.py` writes development selection before opening evaluation and rejects source changes during a campaign. A new campaign needs a new output directory.
+Follow the explicit local-asset commands in [STARTUP.md](../../../STARTUP.md#evaluate-search-configurations). The frozen [policy](../../evaluation/reference-v1-policy.json) and [dataset](../../../tests/fixtures/reference-v1/) must validate first. `scripts/run_reference_evaluation.py` writes development selection before opening evaluation and rejects source changes during a campaign. A new campaign needs a new output directory.
 
 [Artifact manifest](artifact-manifest.json) records SHA-256 identities of all raw worker reports and logs. The source campaign and logs remain under ignored `local-lab/reference-workflow/campaign-01`; numeric reports are versioned here but excluded from the registry package. Historical 0.5.2 receipts and older measurement reports remain unchanged.

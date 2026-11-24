@@ -38,7 +38,7 @@ The versioned policy is [reference-v1-policy.json](evaluation/reference-v1-polic
 | Evidence integrity | Every delivered span resolves to identical bytes in its registered snapshot. No stale revision or collection mismatch is accepted. |
 | Bounds | At most six hits, 2,000 bytes per excerpt, 12,000 excerpt bytes total and 64 KiB complete JSON. |
 | Failure behavior | Invalid files, changed snapshots and interrupted work produce errors. An empty search reports no evidence; a nonempty search leaves answerability unassessed. |
-| Core retrieval budget | Warm p95 at most 25 ms on the frozen reference corpus; complete query JSON included, model inference excluded and reported separately. |
+| Core retrieval budget | Warm p95 at most 25 ms on the frozen reference corpus; six-hit RetrievalResponse JSON included; external query embedding is measured separately. |
 | Resource budget | Lexical worker peak RSS at most 512 MiB; construction at most 5 seconds for the reference corpus. These budgets describe this workload and recorded host. |
 | Quality objective | Reference nDCG@10 at least 0.75 and reference Hit@6 at least 0.80 on answerable evaluation questions. Failure remains visible. |
 | New profile recommendation | At least +0.03 reference nDCG@10 over literal BM25 on development and evaluation splits, Hit@6 loss no greater than 0.02, and the profile's resource budget met. |
