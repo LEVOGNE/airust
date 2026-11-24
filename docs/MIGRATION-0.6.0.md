@@ -1,6 +1,6 @@
-# Upgrade to the 0.6.0 source milestone
+# Upgrade to AIRust 0.6.0
 
-Cargo treats `0.5` and `0.6` as separate compatibility lines. Select 0.6 explicitly when consuming that version; a 0.5 requirement does not select it. This development milestone is prepared in source. The last verified published baseline is 0.5.3; a source version bump, branch push, package or successful publish dry run does not publish a registry version.
+Cargo treats `0.5` and `0.6` as separate compatibility lines. Select `airust = { version = "=0.6.0", default-features = false }` explicitly; a 0.5 requirement does not select it. The planned 0.5.4 pilot is included in this minor release rather than published separately. Version count is not a test-coverage measure: patch and minor releases both require the applicable native, compatibility and package gates. See [release requirements](../CONTRIBUTING.md#release-size-and-validation) and the final receipts attached to [v0.6.0](https://github.com/LEVOGNE/airust/releases/tag/v0.6.0).
 
 Existing Engine, SearchOptions, Retriever, WorkControl, document/snapshot formats and the five MCP tools retain their contracts. The change adds `McpSearchBackend` and `McpServer::with_search_backend` for trusted application-owned inference. No automatic model, HTTP, PDF or database dependency is added to the default library. The standalone `airust-mcp` executable keeps its lexical arguments. Clients rediscover the crate-version-qualified schema identifiers; payload `schema_version` stays one.
 

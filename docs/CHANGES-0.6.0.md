@@ -1,6 +1,6 @@
 # AIRust 0.6.0: bounded local pilot and explicit live inference
 
-The source milestone integrates the planned 0.5.4 pilot into 0.6.0: one local path from Markdown import and MCP setup to explicit capture, immutable review and independently checked export. It adds explicitly selected live lexical/hybrid/reranked profiles without changing lexical defaults or generating answers. Publication is separate from implementing and testing this source version.
+This release integrates the planned 0.5.4 pilot into 0.6.0: one local path from Markdown import and MCP setup to explicit capture, immutable review and independently checked export. It adds explicitly selected live lexical/hybrid/reranked profiles without changing lexical defaults or generating answers. The [GitHub release](https://github.com/LEVOGNE/airust/releases/tag/v0.6.0) carries the final source/tag/package/registry receipts alongside the development measurements.
 
 ## Source and memory boundaries
 

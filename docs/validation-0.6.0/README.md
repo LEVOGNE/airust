@@ -1,6 +1,6 @@
 # AIRust 0.6.0 engineering validation
 
-The source milestone implements the local pilot originally planned for 0.5.4 and explicit live CLI/MCP inference profiles. It is prepared on `codex/pilot-0.6.0`; no master merge, 0.6.0 tag, GitHub release or registry publication is asserted. The last verified published baseline remains `705803e34382be856c288c7c5c2eeb2507217330` / 0.5.3.
+AIRust 0.6.0 implements the local pilot originally planned for 0.5.4 and explicit live CLI/MCP inference profiles. The comparison baseline is published commit `705803e34382be856c288c7c5c2eeb2507217330` / 0.5.3. The records below describe the completed development checks with their original source identities. Final release checks and publication receipts are attached to [v0.6.0](https://github.com/LEVOGNE/airust/releases/tag/v0.6.0): the manifest binds master, annotated tag, packaged commit, registry checksum, independent consumers and actual CI conclusions. Consult those receipts for the release-source rerun; an earlier successful run is not silently relabelled as another commit.
 
 The engineering checks and empirical real-data readiness are separate. The new collection/validation/freeze tools work, but **zero genuine independently reviewed pilot questions have been established** against the required minimum of 50. Three historical user questions were locally replayed, explicitly unreviewed and excluded from that gate. No new independent quality recommendation is made.
 
@@ -42,7 +42,7 @@ The initial MCP exact-data comparison failed because the external baseline omitt
 
 Original knowledge and `airust.db` are preserved; database SHA-256 stayed `8048756bb34ea465ed4bdbc90537102e83e9690d360bba6c9d951b3b285bfbe8`. Private question replays remain local. The task-owned loopback model service was stopped after measurement. Rebuildable target directories are separate from retained evidence/model assets and may be cleaned only after their binaries, locks and results are archived.
 
-Read [the machine validation record](validation.json), [work program](../WORK-PROGRAM-0.6.0.json), [pilot guide](../PILOT.md), [migration](../MIGRATION-0.6.0.md) and [maintenance decisions](../DEPENDENCY-DECISIONS-0.6.0.md). A new publication still needs explicit release authorization and final source/tag/package/registry verification.
+Read [the machine validation record](validation.json), [work program](../WORK-PROGRAM-0.6.0.json), [pilot guide](../PILOT.md), [migration](../MIGRATION-0.6.0.md) and [maintenance decisions](../DEPENDENCY-DECISIONS-0.6.0.md). The release procedure repeats the full native script and finite Miri scope, verifies package/default and minimum-compiler consumers, audits both locks, inspects package contents and checks the public registry/release assets. Performance campaigns retain their original measured source/model identities; unchanged runtime sources are compared before those measurements are reused. Hosted cancellations remain unavailable results, never passes.
 
 
 ## Reproduce with explicit inputs

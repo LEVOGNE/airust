@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 — source milestone
+## 0.6.0 — Bounded local pilot and explicit live search profiles
 
 Bounded local pilot initialization/capture/review/export, independently verified provenance, explicit live CLI/MCP search profiles and an application-owned MCP backend hook. Defaults and saved workspace schema remain compatible; import/serialization/vector-allocation limits are strengthened. Genuine independently reviewed pilot-data readiness remains a separate unmet gate. See [scope and evidence](docs/CHANGES-0.6.0.md) and [migration](docs/MIGRATION-0.6.0.md).
 

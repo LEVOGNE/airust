@@ -27,6 +27,12 @@ cargo publish --locked --dry-run
 
 Inspect the package contents. Local databases, credentials, logs, and backups must stay out of the crate. Publishing with `cargo publish` requires explicit release authorization. Check that the repository tag, packaged commit, registry checksum, and release asset identify the same source.
 
+## Release size and validation
+
+The third version component is a patch (`0.4.24` to `0.4.25`); the second is a minor release (`0.5` to `0.6`). Cargo treats pre-1.0 minor lines as separate compatibility ranges. Publish a patch for a coherent validated fix, and a minor release for a justified milestone or compatibility boundary. Do not manufacture intermediate versions to increase the release count. Planned patch work may be integrated into the next minor release, with its scope documented.
+
+Both patch and minor releases require the complete applicable native, feature, minimum-compiler, backend, package and independent-consumer gates. Record counts per invocation; default and all-feature totals overlap and must not be added as unique tests. Miri is a separately documented finite interpreter scope with explicit exclusions. Benchmarks require compatible source/features/models and retained raw samples, failures and regressions. A documentation-only release adjustment can reuse earlier measurements after verifying unchanged measured implementation and inputs; report that reuse instead of claiming a fresh campaign. A cancelled or unavailable platform job remains unavailable even when local checks pass. Attach exact release-source checks and publication receipts to the release without rewriting historical evidence.
+
 For reranking changes, retain frozen judgments, compare actual first-stage prefixes without injecting relevant documents, record individual regressions and added cost, and test malformed outputs/recipe changes/scopes/fallbacks. Native inference remains an explicit asset-backed check; normal builds/tests must not download models or runtimes.
 
 

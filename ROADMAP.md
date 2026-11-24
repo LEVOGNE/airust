@@ -1,8 +1,8 @@
 # AIRust roadmap
 
-## Active roadmap after 0.5.3
+## Active roadmap after 0.6.0
 
-AIRust 0.5.3 is released. Its seven-stage [work program](docs/WORK-PROGRAM.json) is complete. The pilot originally targeted at 0.5.4 is integrated into the 0.6.0 source milestone. Live profiles and collection tooling are implemented; final engineering evidence is recorded separately from the still-unmet genuine-data quality gate. The frozen reference-v1 questions, policy and results remain unchanged.
+AIRust 0.6.0 integrates the pilot originally targeted at 0.5.4. Its seven-stage [engineering work program](docs/WORK-PROGRAM-0.6.0.json) is complete. Live profiles and collection tooling are implemented; final engineering evidence is recorded separately from the still-unmet genuine-data quality gate. The frozen reference-v1 questions, policy and results remain unchanged.
 
 | Order | Target | Deliverable | Exit criterion | Status |
 | --- | --- | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. This checkout prepares the AIRust 0.6.0 source milestone with a bounded local pilot and explicit live profiles. Registry installation examples below use the last verified published baseline, 0.5.3; the source version is not a publication receipt. Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. AIRust 0.6.0 includes a bounded local pilot and explicit live profiles. Registry installation examples select 0.6.0. See [release validation and open limits](docs/validation-0.6.0/README.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -37,7 +37,7 @@ An MCP client launches the compiled example executable with `serve` and the abso
 For the published executable:
 
 ```bash
-cargo install airust --version 0.5.3 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.0 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
