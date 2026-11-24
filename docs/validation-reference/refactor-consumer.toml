@@ -1,0 +1,19 @@
+[package]
+name = "airust-refactor-consumer"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[features]
+shared = ["airust/shared-index"]
+
+[dependencies]
+airust = { version = "=0.5.2", default-features = false, features = ["execution", "retrieval"] }
+serde_json = "1.0"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

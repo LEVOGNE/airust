@@ -1,4 +1,9 @@
 #![cfg_attr(feature="shared-index", doc=include_str!("../docs/SHARED-INDEX.md"))]
+mod cursors;
+mod query_weights;
+use cursors::{DocumentCursor, TermCursor};
+use query_weights::QueryWeights;
+
 use crate::context::Context;
 use crate::knowledge::{KnowledgeEntry, RelationKind, RelationSuggestion};
 use crate::matching::{MatchError, MatchOptions, MatchResult, MatchStrategy, Similarity};
@@ -153,113 +158,6 @@ fn borrowed_repeated_query(query: &str) -> Option<(&str, usize)> {
 }
 
 type DocumentMap = BTreeMap<Arc<str>, Shared<IndexedEntry>>;
-
-struct DocumentCursor<'a> {
-    documents: &'a DocumentMap,
-    rest: std::collections::btree_map::Range<'a, Arc<str>, Shared<IndexedEntry>>,
-    next: Option<(&'a Arc<str>, &'a Shared<IndexedEntry>)>,
-}
-
-impl<'a> DocumentCursor<'a> {
-    fn new(documents: &'a DocumentMap, first: &str) -> Self {
-        let mut rest = documents
-            .range::<str, _>((std::ops::Bound::Included(first), std::ops::Bound::Unbounded));
-        let next = rest.next();
-        Self {
-            documents,
-            rest,
-            next,
-        }
-    }
-
-    fn get_checked<E>(
-        &mut self,
-        id: &Arc<str>,
-        checkpoint: &mut impl FnMut() -> Result<(), E>,
-    ) -> Result<Option<(&'a Arc<str>, &'a IndexedEntry)>, E> {
-        let mut skipped = 0;
-        while let Some((key, document)) = self.next {
-            let order = if Arc::ptr_eq(key, id) {
-                std::cmp::Ordering::Equal
-            } else {
-                key.as_ref().cmp(id.as_ref())
-            };
-            match order {
-                std::cmp::Ordering::Equal => {
-                    self.next = self.rest.next();
-                    return Ok(Some((key, shared_ref(document))));
-                }
-                std::cmp::Ordering::Greater => return Ok(None),
-                std::cmp::Ordering::Less => {
-                    skipped += 1;
-                    if skipped == 8 {
-                        checkpoint()?;
-                        self.rest = self.documents.range::<str, _>((
-                            std::ops::Bound::Included(id.as_ref()),
-                            std::ops::Bound::Unbounded,
-                        ));
-                    }
-                    self.next = self.rest.next();
-                }
-            }
-        }
-        Ok(None)
-    }
-}
-
-struct TermCursor<'a> {
-    postings: &'a BTreeMap<Arc<str>, usize>,
-    rest: std::collections::btree_map::Range<'a, Arc<str>, usize>,
-    next: Option<(&'a Arc<str>, &'a usize)>,
-}
-
-impl<'a> TermCursor<'a> {
-    fn new(postings: &'a BTreeMap<Arc<str>, usize>, first: &str) -> Self {
-        let mut rest = postings
-            .range::<str, _>((std::ops::Bound::Included(first), std::ops::Bound::Unbounded));
-        let next = rest.next();
-        Self {
-            postings,
-            rest,
-            next,
-        }
-    }
-
-    fn frequency<E>(
-        &mut self,
-        id: &Arc<str>,
-        checkpoint: &mut impl FnMut() -> Result<(), E>,
-    ) -> Result<Option<usize>, E> {
-        let mut skipped = 0;
-        while let Some((key, frequency)) = self.next {
-            let order = if Arc::ptr_eq(key, id) {
-                std::cmp::Ordering::Equal
-            } else {
-                key.as_ref().cmp(id.as_ref())
-            };
-            match order {
-                std::cmp::Ordering::Equal => {
-                    let frequency = *frequency;
-                    self.next = self.rest.next();
-                    return Ok(Some(frequency));
-                }
-                std::cmp::Ordering::Greater => return Ok(None),
-                std::cmp::Ordering::Less => {
-                    skipped += 1;
-                    if skipped == 32 {
-                        checkpoint()?;
-                        self.rest = self.postings.range::<str, _>((
-                            std::ops::Bound::Included(id.as_ref()),
-                            std::ops::Bound::Unbounded,
-                        ));
-                    }
-                    self.next = self.rest.next();
-                }
-            }
-        }
-        Ok(None)
-    }
-}
 
 fn matching_terms_checked<E>(
     prepared: &[QueryTerm<'_>],
@@ -437,6 +335,7 @@ pub struct IndexStats {
     pub tokens: usize,
 }
 
+// An index generation owns these live IDs; mutations invalidate its norm cache.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct NormKey(usize);
 
@@ -451,35 +350,7 @@ struct TfidfNorms {
     values: RwLock<HashMap<NormKey, f64>>,
 }
 
-#[derive(Clone, Copy, Default)]
-struct QueryWeight {
-    key: usize,
-    idf: f64,
-}
-
-struct QueryWeights<const N: usize = 256> {
-    slots: [QueryWeight; N],
-}
-
-impl<const N: usize> Default for QueryWeights<N> {
-    fn default() -> Self {
-        Self {
-            slots: [QueryWeight::default(); N],
-        }
-    }
-}
-
-impl<const N: usize> QueryWeights<N> {
-    fn get(&mut self, key: usize, compute: impl FnOnce() -> f64) -> f64 {
-        let slot = &mut self.slots[((key >> 4) ^ (key >> 12)) & (N - 1)];
-        if slot.key != key {
-            slot.idf = compute();
-            slot.key = key;
-        }
-        slot.idf
-    }
-}
-
+// Read guards are released on misses and periodically so norm writers can proceed.
 struct NormQuery<'a> {
     cache: &'a TfidfNorms,
     values: Option<RwLockReadGuard<'a, HashMap<NormKey, f64>>>,
@@ -530,11 +401,7 @@ impl<'a> NormQuery<'a> {
         let weights = self.weights.get_or_insert_with(|| {
             let mut weights = Box::new(QueryWeights::default());
             if let Some(small) = self.small.take() {
-                for slot in small.slots {
-                    if slot.key != 0 {
-                        weights.get(slot.key, || slot.idf);
-                    }
-                }
+                small.transfer_into(&mut weights);
             }
             weights
         });
@@ -2910,7 +2777,7 @@ mod optimization_tests {
         });
         assert_eq!(result, Err("cancelled before seek"));
         assert_eq!(calls, 1);
-        assert_eq!(cursor.next.unwrap().0.as_ref(), "id0032");
+        assert_eq!(cursor.next_id(), Some("id0032"));
     }
     fn signature(index: &KnowledgeIndex) -> Vec<(String, u64)> {
         index

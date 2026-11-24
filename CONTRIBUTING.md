@@ -1,6 +1,6 @@
 # Contribute to AIRust
 
-Use Rust 1.89 or newer for the core and provider-neutral embeddings/reranking. The optional local ONNX adapters and the complete all-feature check script need Rust 1.92 or newer. Python 3.11 or newer is needed for the model-download helper tests and the manifest-driven feature matrix, not for the library. Run the repository checks before submitting a change:
+Use Rust 1.89 or newer for the core and provider-neutral embeddings/reranking. The optional local ONNX adapters and the complete all-feature check script need Rust 1.92 or newer. Python 3.11 or newer is needed for the model-download helper tests and the manifest-driven feature and support matrices, not for the library. Run the repository checks before submitting a change:
 
 ```bash
 ./test.sh
@@ -14,7 +14,7 @@ A relevance score is not a probability. Shared words do not prove a logical rela
 
 For index changes, verify insertion, replacement, and removal. For text processing, cover Unicode and word boundaries. Preserve supported training formats and metadata.
 
-Keep source identifiers, errors, interface text, and project documentation in English. Language samples used to test Unicode behavior may remain in their original script. Owned AIRust source files contain no comments. Preserved third-party source keeps its original notices and comments, with modifications marked for license and provenance compliance. Put public API contracts and design explanations in `docs/`, and demonstrate behavior with executable examples and meaningful tests.
+Keep source identifiers, errors, interface text, and project documentation in English. Language samples used to test Unicode behavior may remain in their original script. Use concise Rustdoc for public contracts and comments for invariants, lock lifetimes, algorithmic choices and surprising constraints. Avoid comments that repeat obvious code. Preserved third-party source keeps its original notices and comments, with modifications marked for license and provenance compliance. Keep detailed public API contracts and design explanations in `docs/`, and demonstrate behavior with executable examples and meaningful tests.
 
 Update the README, startup guide, API guide, migration notes, and changelog when public behavior changes. DenkMaps storage and rendering belong in DenkMaps. MCP tools and transport belong in the calling agent.
 
@@ -32,8 +32,10 @@ For reranking changes, retain frozen judgments, compare actual first-stage prefi
 
 ## Maintained optional PDF backend
 
-The separately published backend lives under crates/airust-pdf-backend and has its own workspace. Keep its source at the exact maintained patch; `cargo fmt --all` also traverses local path dependencies and would reformat unchanged third-party code. Use `cargo fmt --package airust` for owned code, and `python3 scripts/check_pdf_backend.py` for backend provenance, licenses and its helper/test formatting. Run its ten regressions separately as shown in [the validation guide](docs/validation-0.3.4/README.md). Its C ABI is explicitly opt-in; default Rust code must coexist with the original parser without duplicate symbols.
+The separately published backend lives under crates/airust-pdf-backend and has its own workspace. Keep its source at the exact maintained patch; `cargo fmt --all` also traverses local path dependencies and would reformat unchanged third-party code. Use `cargo fmt --package airust` for owned code, and `python3 scripts/check_pdf_backend.py` for backend provenance, licenses and its helper/test formatting. Run its owned regression suite separately as shown in [the validation guide](docs/validation-0.3.4/README.md). Its C ABI is explicitly opt-in; default Rust code must coexist with the original parser without duplicate symbols.
 
 Audit both Cargo.lock and crates/airust-pdf-backend/Cargo.lock so the recorded upstream comparison dependency remains visible to advisory checks. Publish a changed backend only after its own exact-commit CI, extracted tests and registry verification. Then publish AIRust against the exact backend version and repeat the main release gates. Source files, checksums, tags and package archives have separate recorded identities. See [the parser guide](docs/PDF-PARSER.md).
 
 For the document feature, preserve version-one hash framing and the independent Python-calculated fixtures. Test stale source/text/recipe/page identities, UTF-8 boundaries, bounded restoration and retained knowledge before changing its contract. See [documents](docs/DOCUMENTS.md).
+
+For index refactoring, retain exact published-baseline signatures for BM25 and TF-IDF, including score bits, scopes, Unicode, retained clones, replacement/removal and JSON restoration. Run the paired controls described in [the index maintenance guide](docs/INDEX-INTERNALS.md). Keep slower measurements visible.
