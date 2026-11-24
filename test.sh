@@ -4,6 +4,9 @@ cd "$(dirname "$0")"
 
 cargo fmt --package airust -- --check
 python3 -B tests/reference_dataset_test.py
+cargo test --locked --features mcp --example reference_workspace
+cargo build --locked --features mcp --example reference_workspace
+python3 -B tests/reference_workflow_test.py
 cargo test --workspace --locked
 cargo test --workspace --all-features --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings

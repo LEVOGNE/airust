@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.5.2"
+version = "0.5.3-dev"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -122,6 +122,10 @@ all-features = true
 [[example]]
 name = "checked_evidence"
 required-features = ["retrieval"]
+
+[[example]]
+name = "reference_workspace"
+required-features = ["mcp"]
 
 [[example]]
 name = "mcp"

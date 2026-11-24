@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3-dev — Reference workflow and measured maintenance work
+
+Unreleased development after the verified 0.5.2 baseline. Add a frozen, explicitly authored 150-question reference dataset, predeclared acceptance policy and an executable Markdown-to-snapshot-to-retrieval-to-MCP workflow. Preserve the published 0.5.2 artifact and runtime behavior apart from the development version string. The example keeps its own bounded workspace format; it adds no default feature or public library API. See [the reference application](docs/REFERENCE-APPLICATION.md) and [work program](docs/WORK-PROGRAM.json).
+
 ## 0.5.2 — Coverage-guided fuzzing with versioned seeds
 
 Keep runtime source unchanged from 0.5.1, and therefore from 0.5.0, apart from the version string. Run nightly libFuzzer for 420 seconds on lexical search, rebuilds, retrieval, text spans, document JSON and damaged caches, and for 420 seconds on bounded PDF import. Minimize the inputs and replay them from `tests/fixtures/fuzz-seeds/v0.5.2/` with stable `cargo test`. No panic, timeout or score mismatch was found. `sha2` 0.10 is a dev-dependency for the seed manifest, not a new runtime dependency. No new algorithm, default feature, public API, schema shape, saved format or DenkMaps integration. The 0.5.0 measurements were not repeated. Read [scope and limits](docs/CHANGES-0.5.2.md) and [migration](docs/MIGRATION-0.5.2.md).

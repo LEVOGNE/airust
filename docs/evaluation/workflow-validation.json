@@ -1,0 +1,20 @@
+{
+  "format_version": 1,
+  "development_version": "0.5.3-dev",
+  "commands": [
+    "cargo test --locked --features mcp --example reference_workspace",
+    "cargo clippy --locked --features mcp --example reference_workspace -- -D warnings",
+    "cargo build --locked --features mcp --example reference_workspace",
+    "python3 -B tests/reference_workflow_test.py"
+  ],
+  "rust_example_tests_passed": 6,
+  "real_cli_and_stdio_tests_passed": 3,
+  "strict_clippy": "passed",
+  "source_sha256": {
+    "examples/reference_workspace.rs": "31d462b7e1881a7c0c1fd1690f8fe7a0db44bb8bb705a09551bc4c213c30b68a",
+    "examples/reference_support/mod.rs": "03fb2390e1b0058a99b07d6da2f3e53b01e423a68dd4c89bba933514b162983d",
+    "tests/reference_workflow_test.py": "51664744dd90f6791ed95b90765b343da0d56ba5bf74298e7f7399aca990ba81"
+  },
+  "raw_logs": "local-lab/reference-workflow",
+  "limits": "Checksum consistency does not authenticate a caller who can rewrite both workspace payload and checksum. Query results leave answerability unassessed."
+}

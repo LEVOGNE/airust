@@ -12,6 +12,23 @@ The intended user is a developer integrating document search into a desktop appl
 4. Connect an MCP client to the same saved collection using local standard input and output.
 5. Rebuild a separate workspace from changed documents while retaining the previous workspace for existing consumers.
 
+## Run the complete example
+
+From this source checkout:
+
+```bash
+export AIRUST_DEMO_DIR="$(mktemp -d /tmp/airust-reference.XXXXXX)"
+cargo run --locked --features mcp --example reference_workspace -- build tests/fixtures/reference-v1/sources "$AIRUST_DEMO_DIR/workspace" manuals
+cargo run --locked --features mcp --example reference_workspace -- query "$AIRUST_DEMO_DIR/workspace" "Welche Bytepositionen verwendet TextSpan?"
+cargo run --locked --features mcp --example reference_workspace -- serve "$AIRUST_DEMO_DIR/workspace"
+```
+
+The serve command runs until its MCP client closes standard input. Configure the client with the compiled example executable, `serve` and the absolute workspace path. The server's standard output contains only protocol messages. All loaded documents are readable by that client.
+
+Import accepts 1..256 visible, regular UTF-8 `.md` files, at most 4 MiB per file and 32 MiB total, with directory depth at most 32. Symlink sources are rejected. It preserves supplied bytes and labels positions as supplied text without inventing physical page numbers. The workspace JSON is bounded to 64 MiB, checksummed and validated on restoration. The checksum detects accidental changes; a writer who can replace both payload and checksum can supply new internally consistent data. Input documents can change later while an older saved workspace deliberately retains its original revision.
+
+The output directory must be new. Complete JSON is published without replacing an existing workspace file. A write failure can leave the newly created directory without a usable workspace; choose another new path after resolving the error. Query work has a cooperative two-second deadline. Original documents are not rewritten.
+
 ## Measurable acceptance criteria
 
 The versioned policy is [reference-v1-policy.json](evaluation/reference-v1-policy.json). Its thresholds are fixed before running candidate retrieval configurations.
