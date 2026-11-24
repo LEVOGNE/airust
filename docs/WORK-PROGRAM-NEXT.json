@@ -1,0 +1,140 @@
+{
+  "format_version": 1,
+  "milestone": "after-0.6.0-to-1.0",
+  "direction": "Evidence-led evolution; conditional version targets, no blanket future publication authorization.",
+  "priorities": [
+    "memory safety",
+    "performance",
+    "stability",
+    "robustness",
+    "honesty"
+  ],
+  "planning_effort_preference": {
+    "quality_documentation_integration_real_validation": 0.7,
+    "justified_new_capabilities": 0.3,
+    "actual_time_accounting": false
+  },
+  "baseline_release_receipt": "https://github.com/LEVOGNE/airust/releases/tag/v0.6.0",
+  "tasks": [
+    {
+      "id": "R0",
+      "priority": "P0",
+      "name": "Verify or finish 0.6.0 publication closeout",
+      "status": "verify_authoritative_receipts_before_repeating",
+      "acceptance": "Master/annotated tag/package/registry identities and actual checks/public assets verified; never move or republish a completed version.",
+      "evidence": [
+        "docs/validation-0.6.0/README.md",
+        "local-lab/release-0.6.0-2026-11-24/",
+        "v0.6.0 release assets"
+      ]
+    },
+    {
+      "id": "DX0",
+      "priority": "P0",
+      "name": "Prepare independent validation protocol and continuation record",
+      "status": "complete",
+      "evidence": [
+        "docs/INDEPENDENT-VALIDATION.md",
+        "docs/SESSION-HANDOFF.md",
+        "ROADMAP.md"
+      ]
+    },
+    {
+      "id": "DX1",
+      "priority": "P0",
+      "name": "Independent timed onboarding and complete reference application",
+      "status": "awaiting_independent_participant",
+      "acceptance": "Observed independent default-library onboarding <=15 minutes and clean application/MCP attempt without undocumented source patches; actual external LLM-client run recorded separately.",
+      "existing_engineering_evidence": "Nine-line Rust 1.89 consumer and automated real CLI/stdio workflow; these do not establish independent usability."
+    },
+    {
+      "id": "Q1",
+      "priority": "P0",
+      "name": "Genuine source-reviewed pilot collection and frozen reference-v2 inputs",
+      "status": "awaiting_genuine_independently_reviewed_cases",
+      "minimum_cases": 50,
+      "established_eligible_cases_at_0_6_0_closeout": 0,
+      "excluded_from_eligibility": [
+        "150 assistant-authored frozen reference-v1 questions",
+        "three unreviewed historical user-question replays",
+        "synthetic format/failure fixtures"
+      ],
+      "acceptance": "Reviewed provenance, >=50 eligible unique cases including unsupported, disjoint source-family split, frozen judgments/policy/resource budgets before candidate execution; input freeze alone is not a quality pass."
+    },
+    {
+      "id": "C1",
+      "priority": "P1",
+      "name": "Inventory existing configuration before adding a facade",
+      "target": "0.6.1 conditional",
+      "status": "not_started",
+      "can_progress_without_external_cases": true,
+      "acceptance": "Map validated configuration/defaults/bounds/ownership and feature interactions; demonstrate an integration problem and propose the smallest compatible improvement, with affected tests and documentation."
+    },
+    {
+      "id": "QA1",
+      "priority": "P1",
+      "name": "Independent reproduction and workload-specific alternatives comparison",
+      "status": "awaiting_independent_environment_and_review",
+      "acceptance": "Comparable sources/features/models/locks/cost boundaries; raw samples, individual regressions, unavailable observations and all failures retained. No unmeasured advantage claim."
+    },
+    {
+      "id": "Q2",
+      "priority": "P1",
+      "name": "Execute independent quality/resource comparison",
+      "status": "awaiting_frozen_reference_v2",
+      "depends_on": [
+        "Q1"
+      ],
+      "acceptance": {
+        "ndcg_at_10_minimum": 0.75,
+        "hit_at_6_minimum": 0.8,
+        "source_range_mismatches": 0,
+        "scope_leaks": 0,
+        "optional_profile_gain_and_cost": "predeclared before execution; development selection precedes reserved evaluation",
+        "evaluation_ready": false
+      }
+    },
+    {
+      "id": "D1",
+      "priority": "P2",
+      "name": "Diagnostics, observability, resource management and security hardening",
+      "target": "0.6.2-0.6.5 conditional",
+      "status": "not_started",
+      "depends_on": [
+        "C1"
+      ],
+      "acceptance": "Observed failure/use case, existing control inventory, compatible bounded implementation, measured overhead and adversarial/recovery checks. Security and safety gates remain cross-cutting."
+    },
+    {
+      "id": "P1",
+      "priority": "P2",
+      "name": "Knowledge refresh pipeline and incremental sync",
+      "target": "0.7 conditional",
+      "status": "awaiting_observed_pilot_failures",
+      "acceptance": "Reuse existing storage/snapshots; atomic source revisions, retained readers and deletion/rename/restart recovery; no new database by default."
+    },
+    {
+      "id": "M1",
+      "priority": "P3",
+      "name": "Justified model extensions and external SDK integrations",
+      "target": "0.8-0.9 conditional",
+      "status": "awaiting_concrete_external_consumer_need",
+      "acceptance": "Extend existing optional providers, explicit assets/identities and supported integration contracts; no duplicate tensor framework or nominal crate split."
+    },
+    {
+      "id": "S1",
+      "priority": "P3",
+      "name": "Reviewed stable 1.0 contract",
+      "target": "1.0 evidence gate",
+      "status": "awaiting_product_readiness_gates",
+      "depends_on": [
+        "DX1",
+        "Q2",
+        "QA1"
+      ],
+      "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
+    }
+  ],
+  "next_action": "Check R0 publication receipts; preserve completed release. Start C1 inventory as independent engineering work while DX1/Q1/QA1 await real external inputs.",
+  "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization."
+}

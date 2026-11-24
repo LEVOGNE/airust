@@ -36,7 +36,9 @@ jobs:
       - run: cargo package --locked
       - run: cargo clean -p airust
   macos-checks:
-    runs-on: macos-latest
+    # Hosted ARM64 capacity failures are retained in the release receipts.
+    # Local ARM64 checks remain separate from this explicit Intel CI job.
+    runs-on: macos-26-intel
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -54,10 +56,10 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git/db
             target
-          key: rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
+          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
           restore-keys: |
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
+            rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
+            rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-
       - run: rustc -vV
       - run: python3 --version
       - run: ./test.sh

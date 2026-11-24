@@ -1,6 +1,6 @@
 # Resume AIRust 0.6.0 development
 
-Historical pause checkpoint: development resumed at the user's request on 2026-11-24. Current results are in [the validation record](validation-0.6.0/README.md); the snapshot below describes the earlier pause.
+Historical pause checkpoint only. Development resumed at the user's request on 2026-11-24. For the active continuation state, read [SESSION-HANDOFF.md](SESSION-HANDOFF.md), the [roadmap](../ROADMAP.md) and [release validation](validation-0.6.0/README.md). The pause, branch and unpublished version statements below describe the earlier snapshot; they are not current instructions to stop.
 
 Paused at the user's explicit request on 2026-11-24. This is a development checkpoint, not a completed or released 0.6.0 milestone. Resume only when the user asks to continue. Do not start background work during the pause.
 

@@ -10,3 +10,7 @@ The user's standing priorities are memory safety and performance, together with 
 - Do not mark a quality or adoption gate complete without its actual inputs and observed result. No unmeasured speed, safety, accuracy, token-saving or production-capacity claims.
 
 Follow CONTRIBUTING.md for release, backend provenance and compatibility requirements. Original knowledge, user databases and retained evidence are not build artifacts.
+
+## Resume roadmap work
+
+For roadmap/release continuation, read docs/SESSION-HANDOFF.md first, then ROADMAP.md and docs/WORK-PROGRAM-NEXT.json. Verify current Git/release receipts before repeating completed work. Keep the handoff and work-program statuses current after each coherent step; retain original test/measurement identities and external-input gates. The user's planning preference is approximately 70% quality/documentation/integration/real validation and 30% justified new capabilities. Do not blindly implement or publish every roadmap version, duplicate existing control mechanisms, or create nominal crates merely to match conceptual component names.

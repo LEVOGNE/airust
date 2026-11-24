@@ -71,3 +71,7 @@ The application owns durable storage, source acquisition and authorization. Scop
 The separately maintained PDF backend stays pinned at 0.3.5. Its exact source provenance, owned regressions, C ABI boundary and upstream replacement gates are in [PDF-MAINTENANCE.md](PDF-MAINTENANCE.md). Original knowledge, rejected trials and raw measurements are retained. Regenerable build output can be removed after its evidence is archived.
 
 The 0.6 milestone preserves the existing public calls and readable versioned formats. Changes to an exposed format or incompatible call require a separately identified compatibility boundary and migration instructions. A development branch and CI results do not publish a new registry version.
+
+### Release CI architecture
+
+The macOS job selects `macos-26-intel` explicitly and keeps architecture in its cache keys/restore prefixes. GitHub cancelled earlier hosted ARM64 attempts before executing steps because a runner was not acquired; its notices identify ARM64 capacity constraints. The release receipts distinguish actual Intel CI, complete local ARM64 checks and unavailable hosted ARM64 runs. No unexecuted platform job is counted as passing.

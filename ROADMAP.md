@@ -1,43 +1,63 @@
 # AIRust roadmap
 
-## Active roadmap after 0.6.0
+For a new session, start with [SESSION-HANDOFF.md](docs/SESSION-HANDOFF.md), then inspect [the next work program](docs/WORK-PROGRAM-NEXT.json). The roadmap defines direction and acceptance evidence; it does not authorize blindly publishing every listed version. Follow [engineering priorities](AGENTS.md) and [release requirements](CONTRIBUTING.md).
 
-AIRust 0.6.0 integrates the pilot originally targeted at 0.5.4. Its seven-stage [engineering work program](docs/WORK-PROGRAM-0.6.0.json) is complete. Live profiles and collection tooling are implemented; final engineering evidence is recorded separately from the still-unmet genuine-data quality gate. The frozen reference-v1 questions, policy and results remain unchanged.
+## Current baseline and priorities
 
-| Order | Target | Deliverable | Exit criterion | Status |
-| --- | --- | --- | --- | --- |
-| 1 / P0 | 0.5.4 | Reproducible local pilot and explicit case capture | A user can run the documented Markdown/MCP pilot and export bounded, revision-bound search cases without replacing existing data. | Implemented in 0.6.0; see docs/PILOT.md |
-| 2 / P1 | 0.6.0 | Optional live hybrid and reranking profiles, evaluated on real cases | CLI/MCP profiles work end to end; independent reference-v2 judgments and predeclared quality/resource gates support the chosen profile. | Live tooling implemented; independent real-data evaluation still awaits human inputs |
-| 3 / P2 | After the pilot | Reliable document refresh for continuing use | Prioritize source refresh, retained-reader behavior and operational recovery from observed pilot failures. | Scope decided from pilot evidence |
-| Parallel | Maintenance | Dependency and PDF upkeep | Each recorded maintenance warning has a reviewed upgrade or documented upstream/compatibility decision; affected gates pass. | Ongoing |
+AIRust 0.6.0 completes the engineering work for the bounded local pilot and explicit CLI/MCP search profiles. It includes the pilot originally planned for 0.5.4; no intermediate release was omitted from testing. The [release receipts](https://github.com/LEVOGNE/airust/releases/tag/v0.6.0), [validation](docs/validation-0.6.0/README.md) and [measurement record](docs/measurements/pilot-0.6.0/README.md) establish the actual source, checks and publication state. Original evidence is not rewritten when final documentation changes.
 
-### 0.5.4: make the pilot usable and observable
+Prioritize memory safety and performance together with stability, robustness and honesty. Plan roughly 70% of effort for quality, documentation, integration and actual usage, and 30% for justified new capabilities. This is a planning preference, not measured time accounting. Keep default features empty. Extend existing configuration, cancellation, deadlines, admission, storage and model interfaces before adding another layer. Do not add a database, tensor framework or search algorithm without an observed workload need and comparative evidence.
 
-- [x] Provide one documented local path from a user-selected Markdown directory to a saved workspace, a query and an MCP client. Preserve the existing bounds and original source files.
-- [x] Add explicit local case capture/export. Record query language and origin, workspace/document revisions, selected source ranges, optional human judgments, review status and the active retrieval recipe. Capture remains off unless the caller requests it; export does not overwrite an existing file.
-- [x] Validate the capture format and failure behavior with clearly identified synthetic fixtures. Synthetic smoke cases remain distinct from genuine user questions.
-- [x] Record the dependency paths and compatible upgrade options for the existing `chrono`, `paste`, `ttf-parser` and backend-lockfile `anymap2` notices. Apply an upgrade only with the affected compatibility/provenance checks; retain decisions when upstream work is required.
+The next product question is which concrete local-document/evidence task makes AIRust useful to a developer. Compare appropriate existing tools, such as SQLite, Tantivy or LanceDB, with comparable source data, scopes, models and cost accounting before claiming an advantage. The historical [0.4.4 comparison](docs/HONEST-COMPARISON-0.4.4.md) remains evidence, including its negative results.
 
-The revision-bound format, capture/review/check/export commands and independent validator/freezer are implemented; read [the pilot guide](docs/PILOT.md). The core defaults and saved workspace schema remain compatible. No separate 0.5.4 publication was made.
+## Five product-readiness gates
 
-Real search questions and independent source judgments are external human inputs. Tooling can prepare and validate their collection; it cannot manufacture customer traffic or independent review. Reference-v2 remains explicitly awaiting those inputs until they exist. Completing pilot tooling does not claim that real-world quality has already been measured.
+| Gate | Required observed result | Current evidence and open work |
+| --- | --- | --- |
+| G1: developer onboarding | A developer independent of this implementation completes the documented default-library example and a real query in at most 15 minutes, without manual source fixes. Record starting prerequisites, elapsed time, help and failures. | Engine/KnowledgeEntry work without MCP/server/models. A nine-line Rust 1.89 consumer is part of the 0.6.0 release checks. No independent timed onboarding session is established. |
+| G2: complete reference application | Follow the documented import/index/query/MCP path on a clean supported environment without undocumented edits; preserve original files and exact source revisions. Record an actual external LLM-client integration separately from protocol tests. | The reference application and automated real CLI/stdio tests exist. Independent clean-machine execution and external-client experience remain open. |
+| G3: independent retrieval quality | At least 50 genuine independently source-reviewed questions, including unsupported cases; freeze source-family splits, judgments, policy and numerical budgets before comparison. On answerable cases require nDCG@10 >= 0.75 and Hit@6 >= 0.80, zero range mismatches/scope leaks and predeclared optional-profile gain/cost criteria. | Zero eligible cases are established at the 0.6.0 closeout. The 150 assistant-authored reference-v1 cases and three unreviewed historical-question replays do not meet this gate. No new production-profile recommendation is made. |
+| G4: reproducible operating costs | Retain compatible baseline/candidate builds, locks, source/model identities and every raw sample/regression. Separate retrieval, complete warm requests, cold startup, worker memory and external-service memory; publish independent reproduction and unavailable observations. | Finite Core/MCP/scale/live-model campaigns exist. Unique GPU/shared physical accounting and independent reproduction remain unestablished. Same-host archive reproducibility does not prove cross-host binary reproducibility. |
+| G5: compatibility contract | Review supported public APIs, error categories, saved formats and migration policy; demonstrate old-data restoration and independent consumers on supported compilers/platforms. A stable 1.0 contract needs operational evidence outside the authored reference set. | Pre-1.0 Cargo boundaries, version-one source/workspace formats and release consumers are documented. A reviewed 1.0 contract and external operational experience remain open. |
 
-### 0.6.0: make measured search profiles available in the live workflow
+The [independent-validation protocol](docs/INDEPENDENT-VALIDATION.md) specifies the attempts and evidence to collect. Automated agent reviews, synthetic fixtures and caller-declared human roles cannot supply independent human validation. Do not mark a gate passed because its tooling exists.
 
-- [x] Add explicitly selected `bm25`, `hybrid` and `hybrid_rerank` configurations to the reference CLI/MCP workflow. Preserve literal lexical defaults. Start the pilot comparison with hybrid without reranking, which already met the reference-v1 quality objectives with lower measured retrieval latency than the reranked profile.
-- [x] Use the same collection, immutable source revisions, candidate/output bounds and cooperative execution controls across profiles. Report model/recipe identity and the configured model-failure policy; a fallback is visible in the response.
-- [ ] Build a separately versioned reference-v2 set from at least 50 genuine pilot questions, including unsupported questions. Retain origin and independent source-review status. Separate development/evaluation source families and freeze the split, judgments and budgets before candidate execution. Do not tune on reserved results.
-- [ ] Set initial known-reference quality gates at nDCG@10 >= 0.75 and Hit@6 >= 0.80 on answerable cases, with zero source-range mismatches or scope leaks. An optional profile recommendation must also demonstrate its predeclared gain and acceptable resource cost against the lexical baseline on both splits. Retain failed targets and individual losses.
-- [x] Measure the complete warm request path, including query embedding, retrieval/reranking and final CLI/MCP response serialization. Report cold startup/model loading separately. Record retrieval and embedding-service process memory, plus available GPU/shared-memory observations; unavailable measurements remain explicit. Freeze numerical resource budgets for the selected host before comparison.
-- [x] Run default/feature/consumer/platform gates on the final implementation and document any exposed interface changes. Preserve the small default build and explicit model assets.
+## Conditional version direction
 
-The application still returns evidence, not generated answers. Candidate returns on unsupported questions do not by themselves establish answerability or an answer-error rate.
+The third version component is a patch; 0.5 to 0.6 is a minor boundary. The 0.6.x entries below are compatible work targets, not mandatory one-feature releases. Combine coherent work when appropriate. Move a public break to a new minor line and document the migration. Every release retains its applicable checks; version count is not test coverage.
 
-The [0.6.0 engineering validation](docs/validation-0.6.0/README.md) and [complete-request measurements](docs/measurements/pilot-0.6.0/README.md) record the implemented source milestone, including 86 scoped Miri tests. The next empirical task is collecting and independently reviewing the genuine pilot questions above; three local historical-question replays do not satisfy it.
+| Target | Intended work | Acceptance and boundaries | Status |
+| --- | --- | --- | --- |
+| **0.6.0** | Developer entry point, bounded pilot and explicit live profiles | Complete release checks and source/tag/registry identities; publish measured limits and keep G1–G5 external requirements explicit. | Engineering implemented; actual publication receipts govern release completion. |
+| 0.6.1 | Configuration clarity | Inventory existing configuration types/defaults and concrete onboarding failures first. Reuse validated APIs; document precedence, invalid combinations and compatibility. Add a central facade only if it reduces demonstrated integration work. | Next implementation candidate; not implemented. |
+| 0.6.2 | Diagnostics | Reproducible structured error/cost information for observed failure paths; no sensitive source leakage, hidden work or unstable error-category changes. Measure overhead. | Planned conditionally. |
+| 0.6.3 | Observability | Opt-in timing/resource/quality observations with bounded storage/cardinality and measured overhead. Distinguish request cost from retrieval and reference labels from actual user outcomes. | Planned conditionally. |
+| 0.6.4 | Resource management | Extend existing admission, queue, byte/count limits, cancellation and absolute deadlines with adversarial/recovery controls. State cooperative limits accurately; hard CPU/RAM isolation needs a separately verified mechanism. | Planned conditionally. |
+| 0.6.5 | Security hardening | Review actual import/MCP/backend trust boundaries, malformed inputs, scopes, floods and recovery. Retain audit/provenance/feature gates; security checks also apply to every earlier release. | Planned conditionally. |
+| **0.7.0** | Knowledge pipeline | Import/update/index source revisions atomically with retained old readers and failure recovery; scope from real pilot failures and reuse existing storage/snapshot APIs. | Await pilot evidence. |
+| 0.7.1 | Incremental sync | Reprocess changed content only, with deterministic revision invalidation, deletion/rename/restart recovery and compatible data. | Conditional on pipeline contract. |
+| 0.7.2 | Retrieval quality | Publish the independent comparison under G3/G4 and all individual losses. Start collection now; do not delay it until this version or retune frozen v1. | Await independent inputs. |
+| **0.8.0** | Model integration | Extend existing provider/local-model interfaces only for a demonstrated integration need; explicit assets/identities, bounded work, strict/fallback controls and no mandatory core model. | Conditional; existing interfaces already exist. |
+| **0.9.0** | SDK and ecosystem | Examples/adapters/tools used by actual external consumers, with measured onboarding, supported versions and ownership boundaries. Split crates only for demonstrated dependency/release benefit. | Await actual consumers. |
+| **1.0.0** | Stable release | G1–G5 observed, reviewed API/data guarantees and supported-platform operational experience. No fixed date or feature-count shortcut. | Evidence gate remains open. |
 
-### Later milestones and 1.0 gate
+## Start the next work here
 
-Use pilot evidence to scope live source refresh, restart/recovery, old-reader retention and longer-running operation. Reuse existing storage, snapshot and incremental APIs before adding another state-management layer. A future 1.0 requires a reviewed public compatibility contract, reproducible use outside the authored reference corpus and supported-platform operational evidence. No 1.0 date or new model-training/agent milestone is committed by this roadmap.
+1. **R0 — finish/verify 0.6.0 closeout.** Check tag, registry checksum and release receipts before doing anything again. If already complete, preserve them and move on; do not republish or move the tag.
+2. **DX1 — independent onboarding and application attempts.** Use the prepared [protocol](docs/INDEPENDENT-VALIDATION.md). Keep failure reports and assistance levels. The agent can prepare/verify artifacts, but cannot act as an independent human participant.
+3. **Q1 — genuine pilot collection and source review.** Use [PILOT.md](docs/PILOT.md); retain originals/private data outside Git. Freeze reference-v2 only after the independently reviewed minimum, source-family split and policy exist. Never substitute conversation replays.
+4. **C1 — configuration inventory before a new API.** Map existing core/retrieval/document/MCP/profile settings, defaults, bounds and ownership to concrete example tasks. Prepare a small compatible proposal tied to an observed integration problem. Test only justified behavior changes.
+5. **QA1 — independent reproduction and compatible alternatives.** Reproduce the public artifacts on another supported environment; compare a concrete workload with existing tools under a frozen policy. Retain all failures and source/compiler/model/lock differences.
+
+External human-input tasks may remain awaiting inputs while independent engineering work progresses. They are not complete and must not be fabricated. Update [WORK-PROGRAM-NEXT.json](docs/WORK-PROGRAM-NEXT.json) and the handoff after each coherent step with commands, source identities, results and the next action. Publishing a later version requires its own explicit release authorization.
+
+## Component boundaries
+
+AIRust is the project and knowledge-engine library. `airust` is the small core crate. MCP transport, import/search/check CLI workflows and optional local-model adapters are conceptual components. The current `airust-mcp` executable is shipped in the main crate. Separate `airust-cli` and `airust-model` crates are not asserted to exist. Keep default builds independent of HTTP, PDF, databases and models; do not split working modules merely to match a product diagram.
+
+## Completed engineering foundation: 0.6.0
+
+The [seven-stage engineering work program](docs/WORK-PROGRAM-0.6.0.json) covers immutable pilot capture/review/export, independent export validation, explicit live profiles, bounded trusted MCP backends, native/feature/MSRV/Miri controls, paired complete-request/scale/model measurements and retained publication evidence. The [migration guide](docs/MIGRATION-0.6.0.md) lists the 100000-passage example bound and preserved ordinary formats. The empirical real-data gate remains separate and unmet; no checklist below changes that fact.
 
 ## Completed foundation: 0.5.3
 
