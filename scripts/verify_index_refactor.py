@@ -17,11 +17,13 @@ def digest(path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Compare already-built identical consumers of registry 0.5.2 and the candidate, using two alternating paired campaigns.')
+    parser = argparse.ArgumentParser(description='Compare built identical baseline/candidate consumers using two alternating paired campaigns.')
     parser.add_argument('--binary-directory', required=True, type=Path)
     parser.add_argument('--dataset', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
     args = parser.parse_args()
+    metadata_path = args.binary_directory / 'build-metadata.json'
+    baseline_version = json.loads(metadata_path.read_text())['baseline_version'] if metadata_path.is_file() else '0.5.2'
     identity, _ = validate()
     if json.loads((args.dataset / 'manifest.json').read_text())['identity_sha256'] != identity['identity_sha256']:
         raise ValueError('dataset identity differs')
@@ -69,6 +71,8 @@ def main():
     limit = 1.1
     reproduced = [{'storage':storage, 'metric':metric} for storage in ['default','shared'] for metric in ['p95_ratio','median_rss_ratio'] if all(campaign[storage][metric] > limit for campaign in campaigns)]
     report = {'format_version':1, 'started_at':started,'finished_at':datetime.now(timezone.utc).isoformat(), 'dataset_identity':identity['identity_sha256'], 'host':host_identity(), 'rustc':subprocess.check_output(['rustc','-vV'],text=True), 'consumer_sha256':digest(ROOT/'docs/validation-reference/refactor-consumer.rs'), 'method_sha256':digest(Path(__file__)), 'binary_sha256':hashes, 'signature_sha256':signatures,'exact_signature_match':True,'campaigns':campaigns,'reproducible_regressions_above_10_percent':reproduced,'passed':not reproduced,'limits':['Same source consumer compiled separately for registry 0.5.2 and path candidate, with default and shared storage; no model inference.', 'One host, two alternating campaigns, seven process pairs per storage configuration. Construction is outside warm timing; exact-child RSS includes the full worker.', 'Each worker warms all 158 queries for each algorithm, then records seven repetitions; p95 pools individual query samples over the seven workers.', 'RSS comparison uses median exact-child process peak across seven workers; maxima and every slower query mean are retained.', 'The signature includes all 150 reference questions plus eight boundary/large-query controls under three scopes, both algorithms and four original/edited/retained/restored stages.', 'Identical signatures establish these cases, not equivalence for every input. Tiny-query ratios and a shared host are noisy.']}
+    report['baseline_version'] = baseline_version
+    report['limits'][0] = f'Same source consumer compiled separately for registry {baseline_version} and path candidate, with default and shared storage; no model inference.'
     (args.output/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
     (args.output/'artifact-manifest.json').write_text(json.dumps({path.name:{'sha256':digest(path),'bytes':path.stat().st_size} for path in sorted(args.output.glob('*')) if path.is_file()},indent=2)+'\n')
     if reproduced:

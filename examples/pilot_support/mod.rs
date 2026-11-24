@@ -1,6 +1,8 @@
 //! Explicit local case collection. Caller declarations never become verified
 //! traffic or independent judgments merely because their source spans validate.
-use crate::reference_support::{bounded_read, sha256, Result, Workspace, MAX_JSON, RECIPE};
+use crate::reference_support::{
+    bounded_read, encode_bounded, sha256, Result, Workspace, MAX_JSON, RECIPE,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
@@ -326,14 +328,14 @@ impl PilotCase {
         Ok(())
     }
     pub fn save(&self, path: &Path) -> Result<()> {
-        let payload = serde_json::to_string(self)?;
-        let bytes = serde_json::to_vec(&Envelope {
-            payload_sha256: sha256(payload.as_bytes()),
-            payload,
-        })?;
-        if bytes.len() > MAX_CASE {
-            return Err("encoded pilot case exceeds 128 KiB".into());
-        }
+        let payload = String::from_utf8(encode_bounded(self, MAX_CASE)?)?;
+        let bytes = encode_bounded(
+            &Envelope {
+                payload_sha256: sha256(payload.as_bytes()),
+                payload,
+            },
+            MAX_CASE,
+        )?;
         write_new(path, &bytes)
     }
     pub fn load(workspace: &Workspace, path: &Path) -> Result<Self> {

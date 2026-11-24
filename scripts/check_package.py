@@ -14,7 +14,7 @@ def main():
     files = result.stdout.splitlines()
     allowed_files = {
         ".cargo_vcs_info.json", "Cargo.toml", "Cargo.toml.orig", "Cargo.lock", "build.rs",
-        "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "ROADMAP.md",
+        "README.md", "STARTUP.md", "CHANGELOG.md", "CONTRIBUTING.md", "AGENTS.md", "ROADMAP.md",
         "LICENSE", "test.sh", "Dockerfile", ".dockerignore", "knowledge/train.json",
         "data/pdf/sample.pdf",
     }

@@ -1,7 +1,7 @@
 //! Explicit local-model profiles. Loading never downloads model assets.
 use crate::{
     pilot_support::write_new,
-    reference_support::{bounded_read, sha256, Result, Workspace, MAX_JSON},
+    reference_support::{bounded_read, encode_bounded, sha256, Result, Workspace, MAX_JSON},
 };
 use airust::{
     execution::WorkControl,
@@ -166,6 +166,7 @@ impl Ollama {
     fn new(model: Model) -> Result<Self> {
         let space = model.space()?;
         let client = Client::builder()
+            .no_proxy()
             .redirect(reqwest::redirect::Policy::none())
             .timeout(Duration::from_millis(model.timeout_ms))
             .build()?;
@@ -275,6 +276,9 @@ pub fn prepare(workspace: &Workspace, config_path: &Path, output: &Path) -> Resu
         .embedding
         .ok_or("a model profile is required to prepare vectors")?;
     let mut provider = Ollama::new(model)?;
+    if workspace.index.len() > MAX_JSON / std::mem::size_of::<f32>() / provider.space.dimensions() {
+        return Err("raw vector values exceed the 64 MiB preparation budget".into());
+    }
     let entries: Vec<_> = workspace.index.entries().collect();
     let mut vectors = BTreeMap::new();
     let mut deduplicated = BTreeMap::<String, Vec<f32>>::new();
@@ -303,14 +307,14 @@ pub fn prepare(workspace: &Workspace, config_path: &Path, output: &Path) -> Resu
         dimensions: provider.space.dimensions(),
         vectors,
     };
-    let payload = serde_json::to_string(&cache)?;
-    let encoded = serde_json::to_vec(&Envelope {
-        payload_sha256: sha256(payload.as_bytes()),
-        payload,
-    })?;
-    if encoded.len() > MAX_JSON {
-        return Err("vector cache exceeds 64 MiB".into());
-    }
+    let payload = String::from_utf8(encode_bounded(&cache, MAX_JSON)?)?;
+    let encoded = encode_bounded(
+        &Envelope {
+            payload_sha256: sha256(payload.as_bytes()),
+            payload,
+        },
+        MAX_JSON,
+    )?;
     write_new(output, &encoded)?;
     Ok(
         json!({"vectors":cache.vectors.len(),"unique_texts":deduplicated.len(),"workspace_sha256":cache.workspace_sha256,"embedding_recipe":cache.embedding_recipe,"bytes":encoded.len()}),
@@ -444,7 +448,11 @@ impl Profile {
                     algorithm,
                     ..Default::default()
                 }),
-                recipe: self.recipe.clone(),
+                recipe: if algorithm == SearchAlgorithm::Tfidf {
+                    "airust-pilot-tfidf-v1".into()
+                } else {
+                    self.recipe.clone()
+                },
                 fallback: None,
             })
             .query(query, options);

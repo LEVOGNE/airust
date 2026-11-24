@@ -126,3 +126,10 @@ The maintained PDF path has its own import budgets and supervised worker command
 Explicit graphs store application relationships. Provenance identifies supplied source locations. Feedback, learned ranking and reasoning operate on explicit caller inputs; no automatic telemetry or fact publication is enabled. [Graph](GRAPH.md), [feedback](FEEDBACK.md), [learned ranking](LEARNED_RANKING.md), [reasoning](REASONING.md), [training pipeline](TRAINING-PIPELINE.md).
 
 Release-specific details remain in [CHANGELOG.md](../CHANGELOG.md) and the immutable [0.5.2 cookbook](https://github.com/LEVOGNE/airust/blob/v0.5.2/docs/API-COOKBOOK.md). Existing callers upgrading from 0.4 use [the 0.5 migration](MIGRATION-0.5.0.md). For startup commands and compatibility tools, use [STARTUP.md](../STARTUP.md).
+
+
+## Capture pilot cases and select a live profile
+
+The [local pilot guide](PILOT.md) provides runnable initialization, capture, immutable review, export, independent verification and optional model configuration. Normal queries do not record cases. The format preserves explicit origin, original UTF-8 source coordinates and caller-declared review status; export never turns synthetic/replayed cases into independently reviewed traffic.
+
+Applications can implement `airust::mcp::McpSearchBackend` and attach it with `McpServer::with_search_backend`. Return an owned bounded RetrievalResponse over the supplied Engine and honor its RetrievalOptions control/scope. The server revalidates registered source integrity before publication; the application owns model/network policy. See the reference profile implementation and [MCP contract](MCP.md).

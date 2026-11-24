@@ -45,6 +45,7 @@ Compatibility paths preserve existing callers. They are not silently removed. Th
 | `local-reranking` | native-model | 1.92 | [Explicit verified local multilingual MiniLMv2 ONNX adapter.](LOCAL-RERANKING.md) |
 | `mcp` | optional | 1.89 | [Bounded read-only local stdio transport with five tools.](MCP.md) |
 | `pdf` | optional | 1.89 | [Maintained bounded PDF import and supervised CLI path.](PDF-STABILITY.md) |
+| `pilot` | optional | 1.89 | [Explicit pilot capture/export and live reference profiles.](PILOT.md) |
 | `plotting` | compatibility-marker | 1.89 | [Retained empty feature flag; no standalone plotting API is switched by this flag.](../STARTUP.md) |
 | `provenance` | optional | 1.89 | [Explicit shared source definitions and checked locations.](PROVENANCE.md) |
 | `quality` | optional | 1.89 | [Inspectable ranking metrics from supplied judgments.](QUALITY.md) |
@@ -69,4 +70,4 @@ The application owns durable storage, source acquisition and authorization. Scop
 
 The separately maintained PDF backend stays pinned at 0.3.5. Its exact source provenance, owned regressions, C ABI boundary and upstream replacement gates are in [PDF-MAINTENANCE.md](PDF-MAINTENANCE.md). Original knowledge, rejected trials and raw measurements are retained. Regenerable build output can be removed after its evidence is archived.
 
-Within 0.5.x, preserve public calls and readable versioned formats. Changes to an exposed format or incompatible call require a separately identified compatibility boundary and migration instructions. A development branch and CI results do not publish a new registry version.
+The 0.6 milestone preserves the existing public calls and readable versioned formats. Changes to an exposed format or incompatible call require a separately identified compatibility boundary and migration instructions. A development branch and CI results do not publish a new registry version.

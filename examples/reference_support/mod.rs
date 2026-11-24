@@ -22,9 +22,35 @@ pub const MAX_FILE: usize = 4 * 1024 * 1024;
 pub const MAX_TOTAL: usize = 32 * 1024 * 1024;
 pub const MAX_JSON: usize = 64 * 1024 * 1024;
 pub const MAX_REPLY: usize = 64 * 1024;
+pub const MAX_PASSAGES: usize = 100_000;
 
 pub fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
+}
+
+pub fn encode_bounded(value: &impl Serialize, maximum: usize) -> Result<Vec<u8>> {
+    struct Bounded {
+        bytes: Vec<u8>,
+        maximum: usize,
+    }
+    impl Write for Bounded {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            if bytes.len() > self.maximum.saturating_sub(self.bytes.len()) {
+                return Err(std::io::Error::other("encoded JSON byte budget exceeded"));
+            }
+            self.bytes.extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut output = Bounded {
+        bytes: Vec::new(),
+        maximum,
+    };
+    serde_json::to_writer(&mut output, value)?;
+    Ok(output.bytes)
 }
 
 pub fn bounded_read(path: &Path, limit: usize) -> Result<Vec<u8>> {
@@ -41,7 +67,11 @@ pub fn bounded_read(path: &Path, limit: usize) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
-pub fn paragraph_spans(text: &str, maximum: usize) -> Vec<(usize, usize)> {
+pub fn paragraph_spans(
+    text: &str,
+    maximum: usize,
+    remaining: usize,
+) -> Result<Vec<(usize, usize)>> {
     assert!(maximum >= 4);
     let mut result = Vec::new();
     let mut offset = 0;
@@ -62,6 +92,9 @@ pub fn paragraph_spans(text: &str, maximum: usize) -> Vec<(usize, usize)> {
             }
             let fragment = rest[..cut].trim_end();
             if !fragment.is_empty() {
+                if result.len() >= remaining {
+                    return Err("workspace passage count exceeds 100000".into());
+                }
                 result.push((start, start + fragment.len()));
             }
             let tail = &rest[cut..];
@@ -70,7 +103,7 @@ pub fn paragraph_spans(text: &str, maximum: usize) -> Vec<(usize, usize)> {
         }
         offset += part.len() + 2;
     }
-    result
+    Ok(result)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -200,7 +233,9 @@ impl Workspace {
             if snapshot.text().len() > MAX_FILE || total > MAX_TOTAL {
                 return Err("workspace source byte budget exceeded".into());
             }
-            for (start, end) in paragraph_spans(snapshot.text(), 1800) {
+            for (start, end) in
+                paragraph_spans(snapshot.text(), 1800, MAX_PASSAGES - entries.len())?
+            {
                 let passage = snapshot.passage(start, end)?;
                 let mut entry = passage.to_entry(&snapshot)?;
                 entry
@@ -306,18 +341,21 @@ impl Workspace {
                 })
             })
             .collect::<Result<Vec<_>>>()?;
-        let payload = serde_json::to_string(&StoredWorkspace {
-            schema_version: 1,
-            collection: self.collection.clone(),
-            documents,
-        })?;
-        let bytes = serde_json::to_vec(&Envelope {
-            payload_sha256: sha256(payload.as_bytes()),
-            payload,
-        })?;
-        if bytes.len() > MAX_JSON {
-            return Err("encoded workspace exceeds its byte budget".into());
-        }
+        let payload = String::from_utf8(encode_bounded(
+            &StoredWorkspace {
+                schema_version: 1,
+                collection: self.collection.clone(),
+                documents,
+            },
+            MAX_JSON,
+        )?)?;
+        let bytes = encode_bounded(
+            &Envelope {
+                payload_sha256: sha256(payload.as_bytes()),
+                payload,
+            },
+            MAX_JSON,
+        )?;
         fs::create_dir(directory)?;
         let mut temporary = tempfile::NamedTempFile::new_in(directory)?;
         temporary.write_all(&bytes)?;
@@ -541,6 +579,18 @@ mod tests {
             .replace("manuals", "changed"));
         fs::write(file, serde_json::to_vec(&value).unwrap()).unwrap();
         assert!(Workspace::load(&destination).is_err());
+    }
+
+    #[test]
+    fn encoded_json_budget_counts_escaping_during_serialization() {
+        assert!(encode_bounded(&"\u{1}\u{1}", 8).is_err());
+        assert_eq!(encode_bounded(&"é", 4).unwrap(), "\"é\"".as_bytes());
+    }
+
+    #[test]
+    fn short_paragraph_count_is_bounded_before_index_allocation() {
+        assert!(paragraph_spans("a\n\nb\n\nc", 1800, 2).is_err());
+        assert_eq!(paragraph_spans("a\n\nb", 1800, 2).unwrap().len(), 2);
     }
 
     #[test]

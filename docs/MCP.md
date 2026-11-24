@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.5.2
+# Optional MCP in AIRust
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -283,3 +283,12 @@ The bounded knowledge-file loader parses owned entries, then releases the raw JS
 ## Upgrade to 0.5.2
 
 The optional MCP executable stays in the same crate. Runtime source, arguments, result shapes, progress/cancellation and limits remain from 0.5.0, and that source remains the 0.4.25 runtime. Cargo users on 0.4 select 0.5 explicitly; a `0.5` requirement already accepts 0.5.2. Clients rediscover version-qualified schema IDs. UTF-8 source ranges remain tied to exact snapshot revisions. Register only authorized documents; entry selection/search context is not an ACL. The client chooses progress UI and narration. Read [upgrade](MIGRATION-0.5.2.md), [fuzz scope](CHANGES-0.5.2.md), [0.5.0 protocol checks and costs](CHANGES-0.5.0.md) and [security scope](MCP-SECURITY.md).
+
+
+## Application-owned search in 0.6.0
+
+`McpServer::with_search_backend` accepts an application-owned `McpSearchBackend: Send + Sync`. Its `retrieve` method receives the registered immutable Engine, requested algorithm and bounded RetrievalOptions. It runs inside the admitted blocking worker; implementations must honor the supplied cooperative control and own any model, runtime, network and failure policy. Server clones retain the backend chosen when cloned.
+
+Before publishing a custom result, the server checks result size/count, known unique IDs, exact stored excerpt spans, metadata and request scope. The normal source-binding and final response/schema checks still apply. This validates registered source integrity, not semantic relevance, model identity or backend implementation safety. Trusted application callbacks can perform external work; the default lexical server performs no network inference. Request deadlines remain cooperative, and worker admission is retained until work actually returns.
+
+The reference example provides opt-in `bm25`, `hybrid` and `hybrid_rerank` configurations through `--profile`; see [PILOT.md](PILOT.md). The installed `airust-mcp` CLI retains its existing lexical startup arguments. No new tool or schema-one field is added: recipe, fallback and reranking information describe the selected path. Version-qualified schema identifiers follow the crate version, so clients rediscover them on upgrade.

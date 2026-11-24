@@ -192,6 +192,13 @@
       "purpose": "Maintained bounded PDF import and supervised CLI path.",
       "native_assets_in_ordinary_ci": null
     },
+    "pilot": {
+      "tier": "optional",
+      "minimum_rust": "1.89",
+      "guide": "PILOT.md",
+      "purpose": "Explicit local pilot capture/export and opt-in live search profiles in the reference example.",
+      "native_assets_in_ordinary_ci": false
+    },
     "plotting": {
       "tier": "compatibility-marker",
       "minimum_rust": "1.89",
@@ -298,5 +305,5 @@
       "native_assets_in_ordinary_ci": null
     }
   },
-  "policy": "Within the 0.5 line preserve public contracts and readable versioned formats. Feature isolation plus targeted interaction checks does not enumerate every possible subset. Native-model execution requires explicit assets and is separate from ordinary CI."
+  "policy": "Preserve existing public contracts and readable versioned formats across the 0.6 milestone; additive APIs and explicit profiles. Feature isolation plus targeted interaction checks does not enumerate every possible subset. Native-model execution requires explicit assets and is separate from ordinary CI."
 }
