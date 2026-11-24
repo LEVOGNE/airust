@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.5.3"
+version = "0.6.0-dev"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -47,6 +47,7 @@ rust-stemmers = { version = "=1.2.0", optional = true }
 getrandom = { version = "=0.4.3", optional = true }
 
 [features]
+pilot = ["mcp", "hybrid", "reranking", "dep:reqwest", "reqwest/blocking"]
 default = []
 mcp = ["documents", "retrieval", "execution", "dep:tokio", "dep:rmcp", "dep:tokio-util"]
 documents = ["provenance", "dep:sha2"]

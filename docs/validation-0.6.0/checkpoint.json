@@ -1,0 +1,171 @@
+{
+  "format_version": 1,
+  "status": "paused_at_user_request",
+  "recorded_at": "2026-11-24T14:00:06.525223+00:00",
+  "milestone": "0.6.0-dev",
+  "release_ready": false,
+  "branch": "codex/pilot-0.6.0",
+  "parent_commit": "e38a384dbbc05a2bc527f75cf7f79581fb0992a8",
+  "published_baseline": "705803e34382be856c288c7c5c2eeb2507217330",
+  "resume_document": "docs/RESUME-0.6.0.md",
+  "environment": {
+    "CARGO_TARGET_DIR": "/tmp/airust-pilot-0.6.0/target",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_BUILD_JOBS": "4",
+    "CARGO_NET_OFFLINE": "true",
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: aarch64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8"
+  },
+  "checks": [
+    {
+      "command": "cargo check --features mcp --lib",
+      "status": "passed",
+      "log": "initial-check.log",
+      "note": "The initial check updated the root lockfile for the opt-in feature union."
+    },
+    {
+      "command": "cargo check --locked --features pilot,local-reranking --example reference_workspace",
+      "status": "passed",
+      "log": "profile-initial-check.log",
+      "note": "Compilation only; no native inference execution."
+    },
+    {
+      "command": "cargo test --locked --features mcp --example reference_workspace",
+      "status": "passed",
+      "tests_passed": 11,
+      "log": "pilot-unit-tests.log"
+    },
+    {
+      "command": "cargo test --locked --features mcp --example reference_workspace --lib search_backend_tests",
+      "status": "passed",
+      "tests_passed": 3,
+      "log": "new-core-tests.log",
+      "note": "The filter selected three library backend tests and zero example tests. The separate example run passed eleven tests."
+    },
+    {
+      "command": "cargo fmt --package airust -- --check",
+      "status": "passed_at_pause"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed_at_pause"
+    },
+    {
+      "command": "cargo +nightly miri --version",
+      "status": "available_only",
+      "output": "miri 0.1.0 (5f4effd579 2026-11-13)",
+      "note": "This is not an interpreter test pass."
+    }
+  ],
+  "local_evidence": {
+    "local-lab/pilot-0.6.0/initial-check.log": {
+      "bytes": 2900,
+      "sha256": "3424a5fd19aa281605fa24e963d4cb88331a85a02619b4c65c923524bf87b8d9"
+    },
+    "local-lab/pilot-0.6.0/local-data-schema.json": {
+      "bytes": 5277,
+      "sha256": "9bb4ea9bb090aca6bfa54bfc71beef73a739b4ee6752a6239ae27101b58945e4"
+    },
+    "local-lab/pilot-0.6.0/new-core-tests.log": {
+      "bytes": 916,
+      "sha256": "6f22b82952665e63de2d38d98c2aae87bbf5c726d8c235ad20e08cc3f5815134"
+    },
+    "local-lab/pilot-0.6.0/pilot-unit-tests.log": {
+      "bytes": 1343,
+      "sha256": "7bc73e09d0ff7b6d869b4f34475471611d37bed7509c2f8f89a4a9fbb6a5d4b9"
+    },
+    "local-lab/pilot-0.6.0/profile-initial-check.log": {
+      "bytes": 6070,
+      "sha256": "cae8477151718056635a4b0c86c68e264bd5c81c21bb15cfd569388f5264ad63"
+    },
+    "local-lab/pilot-0.6.0/workspace-initial-tests.log": {
+      "bytes": 4872,
+      "sha256": "32f9a906ab6b4e9256056467c70c3460850cbf772056ea6e665ab80dcdb243e7"
+    }
+  },
+  "source_files": {
+    "AGENTS.md": {
+      "bytes": 1630,
+      "sha256": "8021f919173f9c7503c41f2ac2fc882c6313cce7264c371da90858c2ce8b9ae5"
+    },
+    "Cargo.toml": {
+      "bytes": 9760,
+      "sha256": "dd96dba1552a7849965495a57e8136b57aaba0af3c3e95a8facb0604838ea7bd"
+    },
+    "Cargo.lock": {
+      "bytes": 116430,
+      "sha256": "ff984595144653a40fca599645878571d245cac3610418fec0ccd51099921d5b"
+    },
+    "fuzz/Cargo.lock": {
+      "bytes": 46932,
+      "sha256": "a5576d6a7e5e8d2337797a5d4e1b551f58269ad1057414ad2902eb71045a3a9c"
+    },
+    "src/mcp.rs": {
+      "bytes": 62081,
+      "sha256": "9986c6e24e8b7be536bcd18c2e5fa8f68f25cef128fdf7530fcadffed9944e7f"
+    },
+    "examples/reference_workspace.rs": {
+      "bytes": 7389,
+      "sha256": "f39aceac12f034b33c20b0fe31fce6e3f40b23b95e0a094a149b17cc283b3fbf"
+    },
+    "examples/reference_support/mod.rs": {
+      "bytes": 21808,
+      "sha256": "7b32d2ca6c7de00dccbf191dbaa07c9216b42a57bcb27354237881772ed2659f"
+    },
+    "examples/pilot_support/mod.rs": {
+      "bytes": 21485,
+      "sha256": "9346d0ce95fd05334dd502b7a29df04dc359d5fa9fb6e2ab2e534eefdc5df55e"
+    },
+    "examples/reference_profiles/mod.rs": {
+      "bytes": 18318,
+      "sha256": "249693619c7ac4b0e6be95817fb6012e228fb249de8044a9912180dd067b03b9"
+    },
+    "docs/RESUME-0.6.0.md": {
+      "bytes": 19130,
+      "sha256": "7aa3ae5b24bbbc554998b161f6ed6bf7b336bd6e5ba8ac565e8121a8c001c1a5"
+    }
+  },
+  "earlier_failure": {
+    "log": "local-lab/pilot-0.6.0/workspace-initial-tests.log",
+    "failure": "New workspace checkpoint returned an ExecutionError rather than the established RetrievalError type.",
+    "resolution": "Map the checkpoint error through RetrievalError; the later eleven-test example run passed."
+  },
+  "not_run": [
+    "full test.sh on this source",
+    "new pilot/profile subprocess integration tests",
+    "actual model queries for live profiles",
+    "Rust 1.89 and Rust 1.92 gates",
+    "Miri tests",
+    "baseline/candidate benchmarks",
+    "platform CI",
+    "package and publish dry run",
+    "registry consumer validation"
+  ],
+  "known_incomplete": [
+    "pilot feature has not yet been added to docs/support-matrix.json; the first test.sh gate currently rejects it",
+    "docs/PILOT.md and current-version migration/API documentation not yet written",
+    "no independent Python export validator or real stdio profile tests yet"
+  ],
+  "real_data_gate": {
+    "required_genuine_independently_reviewed_questions": 50,
+    "established_new_genuine_independently_reviewed_questions": 0,
+    "dataset_ready": false,
+    "note": "No new capture collection has been produced. Conversation replays are only a proposed explicitly labeled smoke exercise. Reference-v1 remains 150 assistant-authored cases."
+  },
+  "original_database": {
+    "path": "airust.db",
+    "bytes": 4923392,
+    "sha256": "8048756bb34ea465ed4bdbc90537102e83e9690d360bba6c9d951b3b285bfbe8",
+    "inspection": "read-only immutable SQLite schema only; no message-content extraction"
+  },
+  "background_work": {
+    "matching_build_evaluation_miri_or_ollama_serve_processes_at_pause": 0,
+    "scheduled_jobs_created": 0
+  },
+  "scope_boundaries": [
+    "No new publication, tag or master merge.",
+    "airust-pdf-backend 0.3.5 source and root knowledge/database are preserved.",
+    "Raw logs, model assets and own temporary target are retained for resumption."
+  ]
+}

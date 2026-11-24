@@ -124,6 +124,18 @@ fn checked_name(name: &str) -> Result<()> {
 }
 
 impl Workspace {
+    pub fn identity(&self) -> String {
+        let revisions: Vec<_> = self
+            .snapshots
+            .values()
+            .map(|snapshot| (snapshot.document_id(), snapshot.revision()))
+            .collect();
+        sha256(
+            &serde_json::to_vec(&(1u32, &self.collection, RECIPE, revisions))
+                .expect("string identity serialization"),
+        )
+    }
+
     pub fn from_texts(collection: &str, texts: Vec<(String, String)>) -> Result<Self> {
         checked_label(collection)?;
         if texts.is_empty() || texts.len() > 256 {
@@ -346,6 +358,20 @@ impl Workspace {
     }
 
     pub fn query(&self, query: &str, control: WorkControl) -> Result<Value> {
+        self.query_using(query, control, |query, options| {
+            Ok(Retriever::new(LexicalSource::new(&self.index)).query(query, options)?)
+        })
+    }
+
+    pub fn query_using(
+        &self,
+        query: &str,
+        control: WorkControl,
+        mut retrieve: impl FnMut(
+            &str,
+            &RetrievalOptions,
+        ) -> Result<airust::retrieval::RetrievalResponse>,
+    ) -> Result<Value> {
         let mut found_evidence = false;
         for limit in (0..=6).rev() {
             let options = RetrievalOptions::new(limit)
@@ -355,8 +381,13 @@ impl Workspace {
                 .with_relevant_excerpts(ExcerptOptions::default().with_paragraph_boundaries())
                 .with_distinct_evidence()
                 .with_control(control.clone());
-            let response =
-                Retriever::new(LexicalSource::new(&self.index)).query(query, &options)?;
+            control
+                .checkpoint()
+                .map_err(airust::retrieval::RetrievalError::from)?;
+            let response = retrieve(query, &options)?;
+            control
+                .checkpoint()
+                .map_err(airust::retrieval::RetrievalError::from)?;
             found_evidence |= !response.hits().is_empty();
             let citations = response
                 .hits()
