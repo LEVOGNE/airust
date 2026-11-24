@@ -1,6 +1,8 @@
 """Synthetic protocol/failure fixtures, never model quality measurements."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import os
+import queue
 from pathlib import Path
 import subprocess
 import sys
@@ -14,7 +16,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from mcp_client import StdioClient
 
 metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1', '--locked', '--offline'], cwd=ROOT, text=True))
-BINARY = Path(metadata['target_directory']) / 'debug/examples/reference_workspace'
+BINARY = Path(os.environ.get('AIRUST_REFERENCE_BINARY', str(Path(metadata['target_directory']) / 'debug/examples/reference_workspace')))
 DIGEST = '1' * 64
 
 
@@ -53,6 +55,7 @@ class FakeModel(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
         self.server.bodies.append(body)
         self.server.posts += 1
+        self.server.embedding_started.set()
         if self.server.mode == 'slow':
             time.sleep(.25)
         vectors = []
@@ -82,6 +85,7 @@ class ProfileWorkflowTests(unittest.TestCase):
         self.server = ThreadingHTTPServer(('127.0.0.1', 0), FakeModel)
         self.server.mode = 'normal'
         self.server.paths, self.server.bodies, self.server.posts = [], [], 0
+        self.server.embedding_started = threading.Event()
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.addCleanup(self.stop_server)
@@ -198,6 +202,26 @@ class ProfileWorkflowTests(unittest.TestCase):
             value = client.call('airust_search', {'query': 'Rust', 'algorithm': 'tfidf'})
             self.assertEqual(value['structuredContent']['data']['retrieval']['recipe'], 'airust-pilot-tfidf-v1')
         self.assertEqual(len(self.server.paths), requests)
+
+    def test_cancellation_does_not_publish_a_late_model_success(self):
+        self.server.embedding_started.clear()
+        self.server.mode = 'slow'
+        with StdioClient([BINARY, 'serve', self.workspace, '--profile', self.config]) as client:
+            client.send({'jsonrpc': '2.0', 'id': 99, 'method': 'tools/call', 'params': {
+                'name': 'airust_search', 'arguments': {'query': 'Rust', 'timeout_ms': 2000}}})
+            self.assertTrue(self.server.embedding_started.wait(timeout=2))
+            client.send({'jsonrpc': '2.0', 'method': 'notifications/cancelled', 'params': {'requestId': 99, 'reason': 'synthetic cancellation test'}})
+            time.sleep(.35)
+            while True:
+                try:
+                    value = client.messages.get_nowait()
+                except queue.Empty:
+                    break
+                if isinstance(value, dict) and value.get('id') == 99:
+                    self.assertTrue('error' in value or value.get('result', {}).get('isError'), 'cancelled inference published success')
+            self.server.mode = 'normal'
+            result = client.call('airust_search', {'query': 'Rust', 'timeout_ms': 2000})
+            self.assertFalse(result.get('isError'))
 
 
 if __name__ == '__main__':

@@ -492,6 +492,10 @@ impl Profile {
             );
         }
         let result = retriever.query(query, options);
+        drop(retriever);
+        // Model state outlives individual requests; release their cancellation
+        // and observer references as soon as inference returns.
+        provider.control = None;
         if let Some(control) = options.control() {
             control.checkpoint()?;
         }

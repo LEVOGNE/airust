@@ -4,10 +4,25 @@
   "baseline_version": "0.5.3",
   "dataset_identity": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
   "dataset_role": "Previously exposed assistant-authored reference-v1 regression corpus; no new independent quality-selection claim.",
-  "core": {"campaigns": 2, "pairs": 7, "repetitions_per_query": 7, "reproducible_p95_or_median_rss_ratio_maximum": 1.1},
-  "mcp_compatibility": {"campaigns": 2, "pairs": 5, "repetitions_per_query": 3, "reproducible_p95_or_median_rss_ratio_maximum": 1.1},
+  "core": {
+    "campaigns": 2,
+    "pairs": 7,
+    "repetitions_per_query": 7,
+    "reproducible_p95_or_median_rss_ratio_maximum": 1.1
+  },
+  "mcp_compatibility": {
+    "campaigns": 2,
+    "pairs": 5,
+    "repetitions_per_query": 3,
+    "reproducible_p95_or_median_rss_ratio_maximum": 1.1,
+    "p95_aggregation": "Median of five independent worker p95 values per build and campaign."
+  },
   "live_profiles": {
-    "profiles": ["bm25", "hybrid", "hybrid_rerank"],
+    "profiles": [
+      "bm25",
+      "hybrid",
+      "hybrid_rerank"
+    ],
     "warmups_per_query": 1,
     "repetitions_per_query": 3,
     "query_order_seed": 6002026,
@@ -21,8 +36,13 @@
     "embedding_service_observed_rss_mib_maximum": 4096,
     "span_mismatches_maximum": 0,
     "scope_leaks_maximum": 0,
-    "quality_metrics": ["known_quote_hit_at_6", "known_quote_mrr_at_6", "negative_candidate_return_rate"],
-    "quality_role": "Regression diagnostics only; six delivered excerpts do not establish nDCG@10 or answerability. Preserve all individual losses."
+    "quality_metrics": [
+      "known_quote_hit_at_6",
+      "known_quote_mrr_at_6",
+      "negative_candidate_return_rate"
+    ],
+    "quality_role": "Regression diagnostics only; six delivered excerpts do not establish nDCG@10 or answerability. Preserve all individual losses.",
+    "minimum_request_start_spacing_ms_outside_timing": 5
   },
   "memory_scope": "Exact-child worker peak RSS; separately sampled task-owned Ollama server/runner RSS and API model size/size_vram. Do not sum RSS as unique physical memory. GPU/shared physical allocations may remain unavailable.",
   "recommendation_gate": "No new production profile recommendation without at least 50 genuine independently reviewed pilot cases and a separately frozen family-split quality/resource evaluation."
