@@ -1,5 +1,7 @@
 # Reference application work-program validation
 
+This is the historical development closeout at commit `4552e916e27b41cd9db39805c2b3765ba40e2733`, before release authorization. For the published 0.5.3 source and final release gates, see [release verification](validation-0.5.3/README.md). The development receipts below retain their original identities.
+
 This completes the seven-stage development work program after the verified published AIRust 0.5.2 baseline. The current version is **0.5.3-dev**, an unreleased development branch. It changes no default Cargo feature or public library API. Published 0.5.2, its tag and archive remain unchanged. The maintained PDF backend stays unchanged at 0.3.5.
 
 ## Delivered work

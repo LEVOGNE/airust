@@ -2,7 +2,7 @@
 
 A Rust library for finding records and returning inspectable source evidence. Start with lexical search. Add document revisions, bounded excerpts, embeddings or an agent transport when your application needs them.
 
-The latest published version is **0.5.2**. This checkout develops **0.5.3-dev**, adding a complete reference workflow, a frozen evaluation and maintenance improvements. The published [0.5.2 baseline](docs/validation-0.5.2/closeout.json) remains reproducible.
+**AIRust 0.5.3** adds a complete reference workflow, a frozen evaluation and measured maintenance improvements. Read [release scope](docs/CHANGES-0.5.3.md), [upgrade instructions](docs/MIGRATION-0.5.3.md) and [release verification](docs/validation-0.5.3/README.md). The published [0.5.2 baseline](docs/validation-0.5.2/closeout.json) remains reproducible.
 
 ## Search application records
 
@@ -10,7 +10,7 @@ Use Rust 1.89 or newer. Add the published library:
 
 ```toml
 [dependencies]
-airust = { version = "=0.5.2", default-features = false }
+airust = { version = "=0.5.3", default-features = false }
 ```
 
 ```rust
@@ -52,7 +52,7 @@ Keep the snapshot together with its passages. Resolve citations against that rev
 Install the published read-only MCP executable:
 
 ```bash
-cargo install airust --version 0.5.2 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.5.3 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -60,7 +60,7 @@ Use `--document /absolute/path/snapshot.json` for checked document coordinates. 
 
 ## Try the complete reference workflow
 
-The development checkout includes an application example that imports Markdown, saves immutable snapshots, returns citations and serves the same collection over MCP:
+The source checkout includes an application example that imports Markdown, saves immutable snapshots, returns citations and serves the same collection over MCP:
 
 ```bash
 export AIRUST_DEMO_DIR="$(mktemp -d /tmp/airust-reference.XXXXXX)"

@@ -1,6 +1,6 @@
 # AIRust API cookbook
 
-Start with the operation your application needs and enable its smallest feature set. The published library is 0.5.2; this checkout develops 0.5.3-dev. Generic record APIs and saved formats remain compatible. The complete development reference is [a local Markdown search application](REFERENCE-APPLICATION.md).
+Start with the operation your application needs and enable its smallest feature set. This guide targets AIRust 0.5.3. Generic record APIs and saved formats remain compatible. The complete reference workflow is [a local Markdown search application](REFERENCE-APPLICATION.md).
 
 ## Choose an entry point
 

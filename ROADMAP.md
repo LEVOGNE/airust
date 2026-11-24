@@ -2,9 +2,9 @@
 
 ## Current application milestone
 
-The 0.5.3-dev work program turns the verified 0.5.2 baseline into a reproducible reference application: local Markdown search with exact source coordinates, bounded evidence and optional MCP. The [reference use case and frozen acceptance policy](docs/REFERENCE-APPLICATION.md) define completion. The [150-question comparison](docs/measurements/reference-v1/README.md) retains failed targets, local model costs and individual losses. [WORK-PROGRAM.json](docs/WORK-PROGRAM.json) records the seven implementation stages and their evidence.
+The 0.5.3 work program turns the verified 0.5.2 baseline into a reproducible reference application: local Markdown search with exact source coordinates, bounded evidence and optional MCP. The [reference use case and frozen acceptance policy](docs/REFERENCE-APPLICATION.md) define completion. The [150-question comparison](docs/measurements/reference-v1/README.md) retains failed targets, local model costs and individual losses. [WORK-PROGRAM.json](docs/WORK-PROGRAM.json) records the seven implementation stages and their evidence.
 
-Further quality work requires a new dataset/version, genuine user questions or independent judgments. Version-one reserved results are not a tuning set. The current milestone does not publish a new crate or imply a 1.0 compatibility promise. Keep provider-neutral defaults small; real external-application integration remains separate.
+Further quality work requires a new dataset/version, genuine user questions or independent judgments. Version-one reserved results are not a tuning set. Release 0.5.3 publishes this completed milestone under the existing 0.5.x compatibility contract. Keep provider-neutral defaults small; real external-application integration remains separate.
 
 ## Release priorities
 
@@ -20,7 +20,7 @@ The 0.1.9 baseline remains available. The 0.2.0 release adds optional provider-n
 
 | Target | Scope | Status |
 | --- | --- | --- |
-| 0.5.3-dev | Reference application, frozen evaluation and measured maintenance | Implemented and validated; unreleased. Read [the completion record](docs/REFERENCE-VALIDATION.md). |
+| 0.5.3 | Reference application, frozen evaluation and measured maintenance | Implemented and released. Read [scope](docs/CHANGES-0.5.3.md), [migration](docs/MIGRATION-0.5.3.md) and [release verification](docs/validation-0.5.3/README.md). |
 | 0.5.2 | Coverage-guided fuzzing with versioned seeds | Implemented; read [scope](docs/CHANGES-0.5.2.md) and [migration](docs/MIGRATION-0.5.2.md). |
 | 0.5.1 | Fuzz-check the unchanged 0.5.0 runtime | Implemented; read [scope](docs/CHANGES-0.5.1.md) and [migration](docs/MIGRATION-0.5.1.md). |
 | 0.5.0 | Existing Core/MCP stability and explicit upgrade | Implemented; read [validation](docs/CHANGES-0.5.0.md) and [migration](docs/MIGRATION-0.5.0.md). |

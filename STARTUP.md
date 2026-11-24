@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. Published library examples use AIRust 0.5.2. This source checkout is 0.5.3-dev and also contains the complete reference workspace and evaluation tooling. Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. Library examples use AIRust 0.5.3. This source checkout contains the complete reference workspace and evaluation tooling. Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -37,7 +37,7 @@ An MCP client launches the compiled example executable with `serve` and the abso
 For the published executable:
 
 ```bash
-cargo install airust --version 0.5.2 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.5.3 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 

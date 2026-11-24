@@ -1,14 +1,14 @@
 # Changelog
 
-## 0.5.3-dev — Reference workflow and measured maintenance work
+## 0.5.3 — Reference workflow and measured maintenance work
 
-Unreleased development after the verified 0.5.2 baseline. Add a frozen, explicitly authored 150-question reference dataset, predeclared acceptance policy and an executable Markdown-to-snapshot-to-retrieval-to-MCP workflow. Preserve the published 0.5.2 artifact and runtime behavior apart from the development version string. The example keeps its own bounded workspace format; it adds no default feature or public library API.
+Complete the reference workflow and measured maintenance work after the verified 0.5.2 baseline. Add a frozen, explicitly authored 150-question reference dataset, predeclared acceptance policy and an executable Markdown-to-snapshot-to-retrieval-to-MCP workflow. Preserve the published 0.5.2 artifact and compatible public calls, ranking behavior and saved formats. MCP schema identifiers follow the new crate version. The example keeps its own bounded workspace format; it adds no default feature or public library API.
 
 Evaluate all nine existing retrieval profiles with actual local BGE-M3 vectors and MiniLMv2 reranking, retaining every per-question loss and resource cost. The development-selected hybrid/reranking profile qualifies on the reserved split; literal BM25 remains the default and its failed reference quality target remains visible. These are explicitly authored reference judgments, not customer traffic or independent answer-accuracy evidence. See [the complete results](docs/measurements/reference-v1/README.md).
 
 Reorganize onboarding by application task. Isolate private ordered cursors and query-weight memoization while retaining published-baseline score-bit controls. Permit useful source comments for invariants and lock lifetimes. Fix a private semantic-provider feature gate so execution/embeddings builds without snapshots remain warning-free.
 
-Add an exhaustive 39-entry feature/support contract, a macOS CI job alongside Linux, an explicit MCP/hybrid Clippy check and PDF patch-retirement gates. The maintained backend remains unchanged at 0.3.5. Preserve all original knowledge, source fixtures and historical release receipts. This is an unreleased development version; publishing requires a separate release action. See [the reference application](docs/REFERENCE-APPLICATION.md), [support](docs/SUPPORT.md), [index maintenance](docs/INDEX-INTERNALS.md) and [work program](docs/WORK-PROGRAM.json).
+Add an exhaustive 39-entry feature/support contract, a macOS CI job alongside Linux, an explicit MCP/hybrid Clippy check and PDF patch-retirement gates. The maintained backend remains unchanged at 0.3.5. Preserve all original knowledge, source fixtures and historical release receipts. The 0.5.3 release keeps the existing minimum Rust versions and empty default feature set. See [upgrade instructions](docs/MIGRATION-0.5.3.md) and [release verification](docs/validation-0.5.3/README.md). See [the reference application](docs/REFERENCE-APPLICATION.md), [support](docs/SUPPORT.md), [index maintenance](docs/INDEX-INTERNALS.md) and [work program](docs/WORK-PROGRAM.json).
 
 ## 0.5.2 — Coverage-guided fuzzing with versioned seeds
 
