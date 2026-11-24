@@ -45,5 +45,18 @@
     "minimum_request_start_spacing_ms_outside_timing": 5
   },
   "memory_scope": "Exact-child worker peak RSS; separately sampled task-owned Ollama server/runner RSS and API model size/size_vram. Do not sum RSS as unique physical memory. GPU/shared physical allocations may remain unavailable.",
-  "recommendation_gate": "No new production profile recommendation without at least 50 genuine independently reviewed pilot cases and a separately frozen family-split quality/resource evaluation."
+  "recommendation_gate": "No new production profile recommendation without at least 50 genuine independently reviewed pilot cases and a separately frozen family-split quality/resource evaluation.",
+  "finite_scale": {
+    "campaigns": 2,
+    "sizes": [
+      10000,
+      100000,
+      1000000
+    ],
+    "pairs_per_size": 3,
+    "clone_entries": 500000,
+    "clone_pairs": 2,
+    "reproducible_regression_ratio_maximum": 1.1,
+    "scope": "Synthetic stress-index-v1 scale and retained-clone fixture; source must match published 0.5.3. Median worker build/RSS/selective-p95 or clone cost, each campaign; no inference or real-document capacity claim."
+  }
 }

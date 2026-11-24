@@ -13,13 +13,14 @@ parser = argparse.ArgumentParser(description='Build an identical external contro
 parser.add_argument('new_directory', type=Path)
 parser.add_argument('--offline', action='store_true')
 parser.add_argument('--baseline-version', default='0.5.2')
+parser.add_argument('--source', type=Path, help='Explicit standalone worker source; default is the historical index consumer.')
 args = parser.parse_args()
 if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', args.baseline_version):
     parser.error('baseline version must be an exact numeric release')
 base = args.new_directory.resolve()
 base.mkdir(parents=True, exist_ok=False)
 template = (root / 'docs/validation-reference/refactor-consumer.toml').read_text()
-source = root / 'docs/validation-reference/refactor-consumer.rs'
+source = args.source.resolve() if args.source else root / 'docs/validation-reference/refactor-consumer.rs'
 env = dict(os.environ, CARGO_TARGET_DIR=str(base / 'target'))
 for kind in ['baseline', 'candidate']:
     directory = base / kind

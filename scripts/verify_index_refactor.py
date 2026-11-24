@@ -24,6 +24,8 @@ def main():
     args = parser.parse_args()
     metadata_path = args.binary_directory / 'build-metadata.json'
     baseline_version = json.loads(metadata_path.read_text())['baseline_version'] if metadata_path.is_file() else '0.5.2'
+    if metadata_path.is_file() and json.loads(metadata_path.read_text())['consumer_sha256'] != digest(ROOT / 'docs/validation-reference/refactor-consumer.rs'):
+        raise ValueError('built worker source is not the frozen index signature consumer')
     identity, _ = validate()
     if json.loads((args.dataset / 'manifest.json').read_text())['identity_sha256'] != identity['identity_sha256']:
         raise ValueError('dataset identity differs')
