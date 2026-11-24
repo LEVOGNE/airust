@@ -1,0 +1,173 @@
+{
+  "format_version": 1,
+  "started_at": "2026-11-24T14:38:51.836443+00:00",
+  "commit": "cad04092f9ab17ff75d23b46733ae1b47130f9cb",
+  "rustc": "rustc 1.102.0-nightly (5f4effd57 2026-11-13)\nbinary: rustc\ncommit-hash: 5f4effd579500175af844241eb179e756190f1e7\ncommit-date: 2026-11-13\nhost: aarch64-apple-darwin\nrelease: 1.102.0-nightly\nLLVM version: 23.1.5\n",
+  "miri": "miri 0.1.0 (5f4effd579 2026-11-13)",
+  "jobs": [
+    {
+      "name": "index",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "shared-index,execution",
+        "--lib",
+        "index::",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "empty_vocabulary_releases_its_hash_allocation_after_removal",
+        "--skip",
+        "sparse_vocabulary_shrinks_without_changing_retained_readers",
+        "--skip",
+        "token_ties_keep_id_order_and_character_scores_for_long_text",
+        "--skip",
+        "token_top_k_preserves_full_comparison_scores_and_unicode_explanations"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "passed_tests": 41,
+      "elapsed_seconds": 527.056147708,
+      "log_sha256": "4e987bf0e2bb27920fc6add516fb897e0ae9ffccc7e33e0921d53a23800bdd84"
+    },
+    {
+      "name": "core",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "shared-index",
+        "--test",
+        "core",
+        "--",
+        "--test-threads=1"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "passed_tests": 25,
+      "elapsed_seconds": 715.69498075,
+      "log_sha256": "17ec04a22e75f9c9216ebe159a43949101b43d08b4c724a523641ba1cd65f05a"
+    },
+    {
+      "name": "stability-state",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "shared-index,execution",
+        "--test",
+        "stability_state",
+        "--",
+        "--test-threads=1"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "passed_tests": 1,
+      "elapsed_seconds": 38.1856083749999,
+      "log_sha256": "096c386c26d8c549fb1337d01c127ed2be8f4a95a7a9582ed21275edc01f0c7f"
+    },
+    {
+      "name": "mcp-response",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "mcp",
+        "--lib",
+        "mcp::response_tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "passed_tests": 4,
+      "elapsed_seconds": 92.30179416600004,
+      "log_sha256": "3c2bd48570473f25fe773c1bc2c3e4c8dfe57bbb82a704765427f6f698d433de"
+    },
+    {
+      "name": "mcp-backend",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "mcp",
+        "--lib",
+        "mcp::search_backend_tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+      "exit_code": 0,
+      "passed_tests": 3,
+      "elapsed_seconds": 32.95744820900018,
+      "log_sha256": "495317a893b349046cd3c4fa39e74238e65a7333e7c3958047bf45a422be985d"
+    },
+    {
+      "name": "pilot",
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "mcp",
+        "--example",
+        "reference_workspace",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "independent_python_corpus_and_rust_snapshot_passages_agree"
+      ],
+      "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+      "exit_code": 0,
+      "passed_tests": 12,
+      "elapsed_seconds": 107.55728275000001,
+      "log_sha256": "51b3e3fbf831eec825d351f953dcb009ae56d181043ee36aa20028c82f7b34ac"
+    }
+  ],
+  "exclusions": {
+    "large_index_native_only": [
+      "empty_vocabulary_releases_its_hash_allocation_after_removal",
+      "sparse_vocabulary_shrinks_without_changing_retained_readers",
+      "token_ties_keep_id_order_and_character_scores_for_long_text",
+      "token_top_k_preserves_full_comparison_scores_and_unicode_explanations"
+    ],
+    "async_mcp_native_only": [
+      "final_reply_work_keeps_admission_and_shutdown_until_cancelled_work_returns",
+      "shutdown_does_not_wait_for_other_server_clones_worker_permits"
+    ],
+    "native_inference_and_http": "Outside interpreter scope; use actual native runs and loopback integration tests.",
+    "full_reference_example": "The large independently generated corpus parity test runs natively; small workspace/pilot tests run here."
+  },
+  "limitations": [
+    "Finite test scope, not proof of absence of undefined behavior.",
+    "Pilot filesystem tests disable Miri isolation explicitly; they use temporary fixtures.",
+    "The stability-state test uses its existing cfg(miri) reduced workload."
+  ],
+  "passed": true,
+  "completed_jobs": 6,
+  "finished_at": "2026-11-24T15:04:05.780179+00:00"
+}

@@ -1,0 +1,74 @@
+{
+  "tool": "cargo-audit 0.23.0",
+  "tool_sha256": "e5bad58268a81af59e577f2da3ff3b0a25d38f4f0efac0ab43c0150197ecc5c1",
+  "results": {
+    "root": {
+      "vulnerabilities": 0,
+      "database": {
+        "advisory-count": 1566,
+        "last-commit": "1d328b6bb9f2f350bf65c1c81ab68781cb9e018a",
+        "last-updated": "2026-11-24T10:21:37+01:00"
+      },
+      "warnings": [
+        {
+          "kind": "unmaintained",
+          "package": "chrono",
+          "version": "0.4.45",
+          "advisory": "RUSTSEC-2026-0543"
+        },
+        {
+          "kind": "unmaintained",
+          "package": "paste",
+          "version": "1.0.15",
+          "advisory": "RUSTSEC-2024-0436"
+        },
+        {
+          "kind": "unmaintained",
+          "package": "ttf-parser",
+          "version": "0.25.1",
+          "advisory": "RUSTSEC-2026-0192"
+        }
+      ]
+    },
+    "backend": {
+      "vulnerabilities": 0,
+      "database": {
+        "advisory-count": 1566,
+        "last-commit": null,
+        "last-updated": null
+      },
+      "warnings": [
+        {
+          "kind": "unmaintained",
+          "package": "anymap2",
+          "version": "0.13.0",
+          "advisory": "RUSTSEC-2026-0319"
+        },
+        {
+          "kind": "unmaintained",
+          "package": "chrono",
+          "version": "0.4.45",
+          "advisory": "RUSTSEC-2026-0543"
+        },
+        {
+          "kind": "unmaintained",
+          "package": "paste",
+          "version": "1.0.15",
+          "advisory": "RUSTSEC-2024-0436"
+        },
+        {
+          "kind": "unmaintained",
+          "package": "ttf-parser",
+          "version": "0.25.1",
+          "advisory": "RUSTSEC-2026-0192"
+        }
+      ]
+    }
+  },
+  "locks": {
+    "Cargo.lock": "43cc1f886226b9c8529df35bb855efe58f92ca2ab16bfef1d8370127bacdb3a9",
+    "crates/airust-pdf-backend/Cargo.lock": "7de06509f3b5ee28a892de774acbefdc2b88d4511dd0ccbb74bd82240afa4a35"
+  },
+  "ignored_advisories": [],
+  "backend_database_note": "same fetched database; second run uses --no-fetch"
+}

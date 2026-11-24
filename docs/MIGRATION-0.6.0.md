@@ -1,0 +1,15 @@
+# Upgrade to the 0.6.0 source milestone
+
+Cargo treats `0.5` and `0.6` as separate compatibility lines. Select 0.6 explicitly when consuming that version; a 0.5 requirement does not select it. This development milestone is prepared in source. The last verified published baseline is 0.5.3; a source version bump, branch push, package or successful publish dry run does not publish a registry version.
+
+Existing Engine, SearchOptions, Retriever, WorkControl, document/snapshot formats and the five MCP tools retain their contracts. The change adds `McpSearchBackend` and `McpServer::with_search_backend` for trusted application-owned inference. No automatic model, HTTP, PDF or database dependency is added to the default library. The standalone `airust-mcp` executable keeps its lexical arguments. Clients rediscover the crate-version-qualified schema identifiers; payload `schema_version` stays one.
+
+The reference workspace example keeps its build/query/serve commands and version-one saved workspace format. It now rejects more than 100000 passages, including short-paragraph expansion, and stops workspace/case/vector JSON serialization at the encoded byte budget. Existing ordinary workspaces within these bounds remain readable; rebuild deliberately oversized workspaces in smaller collections. The general Engine is not capped at 100000 entries by this example limit.
+
+Use `--features mcp` for lexical workflow and explicit pilot capture/review/export. Use `--features pilot` for explicit HTTP embedding configurations, and additionally `local-reranking` for the verified ONNX reranker. Rust 1.89 supports provider-neutral/pilot code; native adapters require Rust 1.92. Model files, runtime, service endpoint, digest and failure policy are explicit inputs. Loading never downloads them.
+
+Select a profile with `--profile CONFIG`; default queries remain literal lexical retrieval. Old reference-v1 vector files use different passage identifiers and cannot serve as a live workspace cache. Prepare a new revision/model-bound cache using `profile-build`. Missing or incompatible setup fails before querying. Optional lexical fallback is visible and never converts a cancelled/expired request into success.
+
+New pilot case/export formats begin at schema one and are separate from the saved workspace format. Existing source knowledge and databases need no conversion. Query/serve do not record cases. Reviews create a new file and retain the original; export selects one revision per case and never overwrites an existing destination. See [PILOT.md](PILOT.md) for recovery, bounds and exact runnable commands.
+
+Do not relabel the 150 assistant-authored reference-v1 questions or local question replays as independently reviewed pilot traffic. New real-world quality promotion requires its own genuine cases, provenance review, source-family split, frozen judgments/policy and observed quality/resource results. This milestone's engineering checks and regression measurements do not supply those human inputs.

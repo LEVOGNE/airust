@@ -1,0 +1,386 @@
+{
+  "format_version": 1,
+  "started_at": "2026-11-24T15:10:58.512826+00:00",
+  "host": {
+    "os": "Darwin",
+    "release": "27.0.0",
+    "machine": "arm64",
+    "processor": "arm",
+    "logical_cpus": 18,
+    "cpu_brand": "unavailable in this process environment",
+    "physical_memory_bytes": "unavailable in this process environment",
+    "power_observation": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=23724131)\t47%; discharging; 0:33 remaining present: true"
+  },
+  "policy_sha256": "5d3688403f2b8464a41ed555edf57c432ca67798c3287382b610a7d3452d6b24",
+  "method_sha256": "688f12b4eaceff4cf44285714acff5602a10b3f530c4b50e8da5d2651280f8df",
+  "worker_sha256": "7e5c8cb26cc92f073fccf8379780755b60ef607b85a72528f8704ff91404fc34",
+  "binary_sha256": {
+    "baseline-default": "d8892bae5c41d0d5dc3835d4e4a519ee85c71af961669be190c7db310b0c0d97",
+    "baseline-shared": "ed985a714d08d07c3a3d8d466e1f74151cbe2d869a8c9a3144ac5c2b1468141e",
+    "candidate-default": "7e4e4598e74c28b3c36c59a2983b2f86a98b1f01e6299ce570b8616b6b5d532e",
+    "candidate-shared": "c58dadf7a2373f85a2b2518537a56a47f3280c155d10c917a46b66168b61318a"
+  },
+  "baseline_version": "0.5.3",
+  "campaigns": [
+    [
+      {
+        "mode": "scale",
+        "entries": 10000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 13.807125,
+            "median_peak_rss_bytes": 16252928,
+            "median_query_or_clone_ms": 0.005958000000000001
+          },
+          "candidate": {
+            "median_build_ms": 14.602125000000001,
+            "median_peak_rss_bytes": 16318464,
+            "median_query_or_clone_ms": 0.005708
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.057578967380972,
+          "median_peak_rss_bytes": 1.0040322580645162,
+          "median_query_or_clone_ms": 0.9580396106075864
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 10000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 13.284667,
+            "median_peak_rss_bytes": 15384576,
+            "median_query_or_clone_ms": 0.004542
+          },
+          "candidate": {
+            "median_build_ms": 13.432625,
+            "median_peak_rss_bytes": 15400960,
+            "median_query_or_clone_ms": 0.0047079999999999995
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0111375016024111,
+          "median_peak_rss_bytes": 1.0010649627263046,
+          "median_query_or_clone_ms": 1.0365477763099955
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 100000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 152.379875,
+            "median_peak_rss_bytes": 134414336,
+            "median_query_or_clone_ms": 0.07129100000000001
+          },
+          "candidate": {
+            "median_build_ms": 153.290791,
+            "median_peak_rss_bytes": 134397952,
+            "median_query_or_clone_ms": 0.0775
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0059779285158228,
+          "median_peak_rss_bytes": 0.999878108239883,
+          "median_query_or_clone_ms": 1.0870937425481477
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 100000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 153.571917,
+            "median_peak_rss_bytes": 125616128,
+            "median_query_or_clone_ms": 0.058375
+          },
+          "candidate": {
+            "median_build_ms": 152.497459,
+            "median_peak_rss_bytes": 125648896,
+            "median_query_or_clone_ms": 0.072166
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9930035515542857,
+          "median_peak_rss_bytes": 1.0002608582235555,
+          "median_query_or_clone_ms": 1.2362483940042825
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 1000000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 1943.286459,
+            "median_peak_rss_bytes": 1368391680,
+            "median_query_or_clone_ms": 1.518333
+          },
+          "candidate": {
+            "median_build_ms": 1801.730375,
+            "median_peak_rss_bytes": 1368391680,
+            "median_query_or_clone_ms": 1.1585
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9271563472567789,
+          "median_peak_rss_bytes": 1.0,
+          "median_query_or_clone_ms": 0.7630078513738423
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 1000000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 2010.813125,
+            "median_peak_rss_bytes": 1280491520,
+            "median_query_or_clone_ms": 1.803458
+          },
+          "candidate": {
+            "median_build_ms": 2001.1605000000002,
+            "median_peak_rss_bytes": 1280475136,
+            "median_query_or_clone_ms": 1.4945410000000001
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9951996409412736,
+          "median_peak_rss_bytes": 0.9999872049133133,
+          "median_query_or_clone_ms": 0.8287085144206298
+        }
+      },
+      {
+        "mode": "clone",
+        "entries": 500000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 991.913208,
+            "median_peak_rss_bytes": 2449129472.0,
+            "median_query_or_clone_ms": 108.310104
+          },
+          "candidate": {
+            "median_build_ms": 912.0141874999999,
+            "median_peak_rss_bytes": 2449154048.0,
+            "median_query_or_clone_ms": 109.450417
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9194495850487756,
+          "median_peak_rss_bytes": 1.0000100345858727,
+          "median_query_or_clone_ms": 1.0105282236641562
+        }
+      },
+      {
+        "mode": "clone",
+        "entries": 500000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 964.162063,
+            "median_peak_rss_bytes": 857653248.0,
+            "median_query_or_clone_ms": 8.1926665
+          },
+          "candidate": {
+            "median_build_ms": 1022.4906040000001,
+            "median_peak_rss_bytes": 857677824.0,
+            "median_query_or_clone_ms": 10.252708
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0604966148725146,
+          "median_peak_rss_bytes": 1.0000286549372457,
+          "median_query_or_clone_ms": 1.2514494517749504
+        }
+      }
+    ],
+    [
+      {
+        "mode": "scale",
+        "entries": 10000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 13.665667,
+            "median_peak_rss_bytes": 16203776,
+            "median_query_or_clone_ms": 0.00575
+          },
+          "candidate": {
+            "median_build_ms": 13.787625,
+            "median_peak_rss_bytes": 16121856,
+            "median_query_or_clone_ms": 0.00575
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0089244088854208,
+          "median_peak_rss_bytes": 0.9949443882709808,
+          "median_query_or_clone_ms": 1.0
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 10000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 14.740792,
+            "median_peak_rss_bytes": 15286272,
+            "median_query_or_clone_ms": 0.011791
+          },
+          "candidate": {
+            "median_build_ms": 14.619,
+            "median_peak_rss_bytes": 15286272,
+            "median_query_or_clone_ms": 0.009458
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9917377573742305,
+          "median_peak_rss_bytes": 1.0,
+          "median_query_or_clone_ms": 0.8021372233059113
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 100000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 177.55775,
+            "median_peak_rss_bytes": 134496256,
+            "median_query_or_clone_ms": 0.11916700000000001
+          },
+          "candidate": {
+            "median_build_ms": 188.795083,
+            "median_peak_rss_bytes": 135233536,
+            "median_query_or_clone_ms": 0.107333
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0632883273188583,
+          "median_peak_rss_bytes": 1.0054817882811549,
+          "median_query_or_clone_ms": 0.9006939840727718
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 100000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 191.08945899999998,
+            "median_peak_rss_bytes": 125763584,
+            "median_query_or_clone_ms": 0.142708
+          },
+          "candidate": {
+            "median_build_ms": 197.05766699999998,
+            "median_peak_rss_bytes": 126550016,
+            "median_query_or_clone_ms": 0.12062500000000001
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0312325338678152,
+          "median_peak_rss_bytes": 1.0062532569046378,
+          "median_query_or_clone_ms": 0.8452574487765228
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 1000000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 2204.2073339999997,
+            "median_peak_rss_bytes": 1370488832,
+            "median_query_or_clone_ms": 1.65525
+          },
+          "candidate": {
+            "median_build_ms": 2454.128834,
+            "median_peak_rss_bytes": 1372504064,
+            "median_query_or_clone_ms": 1.961291
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.1133838437722938,
+          "median_peak_rss_bytes": 1.0014704475899006,
+          "median_query_or_clone_ms": 1.1848911040628303
+        }
+      },
+      {
+        "mode": "scale",
+        "entries": 1000000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 2148.482542,
+            "median_peak_rss_bytes": 1280475136,
+            "median_query_or_clone_ms": 1.410833
+          },
+          "candidate": {
+            "median_build_ms": 2159.002708,
+            "median_peak_rss_bytes": 1282539520,
+            "median_query_or_clone_ms": 1.331875
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.004896556427313,
+          "median_peak_rss_bytes": 1.0016122015507845,
+          "median_query_or_clone_ms": 0.9440344817565225
+        }
+      },
+      {
+        "mode": "clone",
+        "entries": 500000,
+        "storage": "default",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 874.1121870000001,
+            "median_peak_rss_bytes": 2449137664.0,
+            "median_query_or_clone_ms": 103.21000000000001
+          },
+          "candidate": {
+            "median_build_ms": 900.3910625000001,
+            "median_peak_rss_bytes": 2449154048.0,
+            "median_query_or_clone_ms": 101.37364600000001
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 1.0300635043085151,
+          "median_peak_rss_bytes": 1.000006689701539,
+          "median_query_or_clone_ms": 0.9822075961631624
+        }
+      },
+      {
+        "mode": "clone",
+        "entries": 500000,
+        "storage": "shared",
+        "observations": {
+          "baseline": {
+            "median_build_ms": 1042.3279794999999,
+            "median_peak_rss_bytes": 857645056.0,
+            "median_query_or_clone_ms": 9.1756045
+          },
+          "candidate": {
+            "median_build_ms": 961.9656665,
+            "median_peak_rss_bytes": 857686016.0,
+            "median_query_or_clone_ms": 8.9315415
+          }
+        },
+        "candidate_to_baseline_ratios": {
+          "median_build_ms": 0.9229011265354794,
+          "median_peak_rss_bytes": 1.0000477586849168,
+          "median_query_or_clone_ms": 0.9734008805632369
+        }
+      }
+    ]
+  ],
+  "failures": [],
+  "limits": "Finite synthetic short-record workloads, no model/storage/document capacity or endurance claim. Exact-child RSS is whole-process memory, not isolated index heap. Every slower aggregate remains.",
+  "passed": true,
+  "finished_at": "2026-11-24T15:12:42.246698+00:00"
+}

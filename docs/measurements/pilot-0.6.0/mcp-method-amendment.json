@@ -1,0 +1,12 @@
+{
+  "recorded_at": "2026-11-24T15:14:33.924962+00:00",
+  "reason": "Initial external baseline omitted the published example dev-dependency feature unification. Candidate root example selected serde_json/float_roundtrip via jsonschema/jsonschema-value, baseline external app did not.",
+  "observed_initial_differences": 276,
+  "difference_scope": "All differences are floating-point fields within 1e-12; IDs/ranks/text/source data are identical. Exact full data signatures failed, and that campaign was stopped.",
+  "correction": "Explicitly enable serde_json/float_roundtrip in the same-source external baseline manifest to match the published/root example configuration. No runtime source, dataset, quality/resource threshold or expected evidence signature is relaxed.",
+  "initial_evidence": "mcp-campaign/ and mcp-initial-signature-differences.json retained.",
+  "corrected_campaign": "mcp-campaign-matched-features",
+  "manifest_before_sha256": "8a3f905aa3fadfe0bcf096017bc4a22083cade68b87fde23bc888885aeca9522",
+  "manifest_after_sha256": "3fe717a870ee6fb7fcd41c0c73ff666784e888a13579ecaeed03689e5d513dad",
+  "corrected_baseline_binary_sha256": "1d7e7b37b448550012cf975b82e828b961b7bb763cd8d7bb828ce23204d62b72"
+}

@@ -2,7 +2,7 @@
 
 A Rust library for finding records and returning inspectable source evidence. Start with lexical search. Add document revisions, bounded excerpts, embeddings or an agent transport when your application needs them.
 
-The **0.6.0 source milestone** adds a [bounded local pilot and explicit live search profiles](docs/PILOT.md). Engineering validation and real-data readiness are separate; a genuine independently reviewed reference-v2 dataset is still required for a new production-quality recommendation.
+The **0.6.0 source milestone** adds a [bounded local pilot and explicit live search profiles](docs/PILOT.md). Read [source scope](docs/CHANGES-0.6.0.md) and [migration](docs/MIGRATION-0.6.0.md). Engineering validation and real-data readiness are separate; a genuine independently reviewed reference-v2 dataset is still required for a new production-quality recommendation.
 
 The published baseline **AIRust 0.5.3** adds a complete reference workflow, a frozen evaluation and measured maintenance improvements. Read [release scope](docs/CHANGES-0.5.3.md), [upgrade instructions](docs/MIGRATION-0.5.3.md) and [release verification](docs/validation-0.5.3/README.md). The published [0.5.2 baseline](docs/validation-0.5.2/closeout.json) remains reproducible.
 

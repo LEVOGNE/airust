@@ -1,0 +1,4227 @@
+{
+  "format_version": 1,
+  "started_at": "2026-11-24T15:05:08.775521+00:00",
+  "finished_at": "2026-11-24T15:10:51.077613+00:00",
+  "dataset_identity": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
+  "host": {
+    "os": "Darwin",
+    "release": "27.0.0",
+    "machine": "arm64",
+    "processor": "arm",
+    "logical_cpus": 18,
+    "cpu_brand": "unavailable in this process environment",
+    "physical_memory_bytes": "unavailable in this process environment",
+    "power_observation": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=23724131)\t47%; discharging; 0:33 remaining present: true"
+  },
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: aarch64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8\n",
+  "consumer_sha256": "fa3e1f9ad94375ea1507c3d306e241b1e03322597ebc22698a8cc9d05cadb1bc",
+  "method_sha256": "d72e6306214cf64d340347acc110ee9798849fb395b1df3b13d1f02d1bd53199",
+  "binary_sha256": {
+    "baseline-default": "07a3eb7bd00abc6b1caefc4e1d7b3f66874c7c244546d142a581ebdacede4498",
+    "candidate-default": "16e684aa295e9ddf79cf2a5d13f3e5bf020a62a674fa9d0d1b0e335009ba8f06",
+    "baseline-shared": "4621da2fd0a414030e293ef77783268b817a6956513bb9d82f73d452b23cbdba",
+    "candidate-shared": "d98888fa67e23dc3f2c5eb044ce6bf7a6111882d954bab117465799b144e09cc"
+  },
+  "signature_sha256": {
+    "baseline-default": "22e4991ac819ddd5137a44f561ac19196912b0764b56b657c3418397b542b0fc",
+    "candidate-default": "22e4991ac819ddd5137a44f561ac19196912b0764b56b657c3418397b542b0fc",
+    "baseline-shared": "22e4991ac819ddd5137a44f561ac19196912b0764b56b657c3418397b542b0fc",
+    "candidate-shared": "22e4991ac819ddd5137a44f561ac19196912b0764b56b657c3418397b542b0fc"
+  },
+  "exact_signature_match": true,
+  "campaigns": [
+    {
+      "default": {
+        "observations": {
+          "baseline": {
+            "warm_p95_us": 5754.6669999999995,
+            "median_peak_rss_bytes": 64356352,
+            "max_peak_rss_bytes": 64962560,
+            "by_algorithm": {
+              "Bm25": 5605.667,
+              "Tfidf": 5843.041
+            }
+          },
+          "candidate": {
+            "warm_p95_us": 5521.416,
+            "median_peak_rss_bytes": 64192512,
+            "max_peak_rss_bytes": 64634880,
+            "by_algorithm": {
+              "Bm25": 5525.292,
+              "Tfidf": 5515.7080000000005
+            }
+          }
+        },
+        "p95_ratio": 0.9594675069817247,
+        "median_rss_ratio": 0.9974541751527495,
+        "slower_queries": [
+          {
+            "algorithm": "Bm25",
+            "query": 12,
+            "baseline_mean_us": 199.16589795918367,
+            "candidate_mean_us": 199.39279591836734,
+            "ratio": 1.0011392410121847
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 21,
+            "baseline_mean_us": 275.29932653061223,
+            "candidate_mean_us": 277.62161224489796,
+            "ratio": 1.0084354936263438
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 30,
+            "baseline_mean_us": 349.1972448979592,
+            "candidate_mean_us": 355.25769387755105,
+            "ratio": 1.0173553745573303
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 32,
+            "baseline_mean_us": 5073.982163265307,
+            "candidate_mean_us": 5116.824918367347,
+            "ratio": 1.0084436156303849
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 33,
+            "baseline_mean_us": 56.679489795918364,
+            "candidate_mean_us": 57.930285714285716,
+            "ratio": 1.022067875396744
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 34,
+            "baseline_mean_us": 5626.680265306122,
+            "candidate_mean_us": 5654.399653061225,
+            "ratio": 1.0049264195667948
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 35,
+            "baseline_mean_us": 102.41661224489796,
+            "candidate_mean_us": 105.02628571428572,
+            "ratio": 1.0254809587252067
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 37,
+            "baseline_mean_us": 30.042510204081633,
+            "candidate_mean_us": 30.113102040816326,
+            "ratio": 1.002349731638773
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 39,
+            "baseline_mean_us": 22.188836734693876,
+            "candidate_mean_us": 22.61481632653061,
+            "ratio": 1.019197923574366
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 41,
+            "baseline_mean_us": 179.64714285714285,
+            "candidate_mean_us": 185.3631224489796,
+            "ratio": 1.0318178151955477
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 51,
+            "baseline_mean_us": 3.260204081632653,
+            "candidate_mean_us": 3.9753469387755103,
+            "ratio": 1.2193552425665102
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 64,
+            "baseline_mean_us": 116.88181632653061,
+            "candidate_mean_us": 119.14375510204081,
+            "ratio": 1.0193523581905253
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 66,
+            "baseline_mean_us": 481.31971428571427,
+            "candidate_mean_us": 513.9651428571428,
+            "ratio": 1.0678248316088088
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 71,
+            "baseline_mean_us": 428.1913469387755,
+            "candidate_mean_us": 442.6650204081633,
+            "ratio": 1.0338018822025783
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 72,
+            "baseline_mean_us": 5575.928530612245,
+            "candidate_mean_us": 5595.510959183674,
+            "ratio": 1.003511958315807
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 73,
+            "baseline_mean_us": 1044.1284081632652,
+            "candidate_mean_us": 1058.681224489796,
+            "ratio": 1.0139377649461054
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 76,
+            "baseline_mean_us": 364.75342857142857,
+            "candidate_mean_us": 378.8860612244898,
+            "ratio": 1.038745715724763
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 78,
+            "baseline_mean_us": 623.3519795918368,
+            "candidate_mean_us": 633.9676734693877,
+            "ratio": 1.0170300155050473
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 86,
+            "baseline_mean_us": 35.573081632653064,
+            "candidate_mean_us": 36.98291836734694,
+            "ratio": 1.0396321226609664
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 91,
+            "baseline_mean_us": 398.3384489795918,
+            "candidate_mean_us": 412.3809387755102,
+            "ratio": 1.0352526597216274
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 92,
+            "baseline_mean_us": 4732.941224489796,
+            "candidate_mean_us": 4745.516142857143,
+            "ratio": 1.0026568929912505
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 93,
+            "baseline_mean_us": 70.51873469387755,
+            "candidate_mean_us": 72.14716326530612,
+            "ratio": 1.02309214109552
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 95,
+            "baseline_mean_us": 450.90816326530614,
+            "candidate_mean_us": 480.27379591836734,
+            "ratio": 1.0651255289777999
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 96,
+            "baseline_mean_us": 4721.401448979592,
+            "candidate_mean_us": 4747.392816326531,
+            "ratio": 1.0055050110921104
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 97,
+            "baseline_mean_us": 14.915,
+            "candidate_mean_us": 15.240510204081632,
+            "ratio": 1.0218243515978298
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 98,
+            "baseline_mean_us": 343.2005918367347,
+            "candidate_mean_us": 343.4804081632653,
+            "ratio": 1.0008153142307625
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 102,
+            "baseline_mean_us": 499.6921836734694,
+            "candidate_mean_us": 505.64124489795915,
+            "ratio": 1.011905451833878
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 104,
+            "baseline_mean_us": 335.409,
+            "candidate_mean_us": 344.2601836734694,
+            "ratio": 1.0263892253143756
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 105,
+            "baseline_mean_us": 1913.9897142857144,
+            "candidate_mean_us": 1924.6531224489795,
+            "ratio": 1.005571298572649
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 106,
+            "baseline_mean_us": 266.7781224489796,
+            "candidate_mean_us": 275.47797959183674,
+            "ratio": 1.0326108342880362
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 108,
+            "baseline_mean_us": 626.2364897959184,
+            "candidate_mean_us": 635.9208571428571,
+            "ratio": 1.0154643932519722
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 109,
+            "baseline_mean_us": 5096.216040816326,
+            "candidate_mean_us": 5150.433755102041,
+            "ratio": 1.0106388178702546
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 111,
+            "baseline_mean_us": 4087.7729387755103,
+            "candidate_mean_us": 4106.846979591836,
+            "ratio": 1.004666120428411
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 112,
+            "baseline_mean_us": 186.37842857142857,
+            "candidate_mean_us": 194.03918367346938,
+            "ratio": 1.0411032283122017
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 113,
+            "baseline_mean_us": 3149.3851632653063,
+            "candidate_mean_us": 3220.7203469387755,
+            "ratio": 1.0226505111237358
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 116,
+            "baseline_mean_us": 138.7185306122449,
+            "candidate_mean_us": 146.64877551020408,
+            "ratio": 1.0571678842254053
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 117,
+            "baseline_mean_us": 4384.407408163265,
+            "candidate_mean_us": 4462.673428571428,
+            "ratio": 1.0178509917354945
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 118,
+            "baseline_mean_us": 1288.5765918367347,
+            "candidate_mean_us": 1288.7729795918367,
+            "ratio": 1.0001524067380598
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 120,
+            "baseline_mean_us": 3813.4558163265306,
+            "candidate_mean_us": 3825.975306122449,
+            "ratio": 1.003282977540298
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 123,
+            "baseline_mean_us": 451.0068367346939,
+            "candidate_mean_us": 469.94130612244896,
+            "ratio": 1.0419826659942482
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 125,
+            "baseline_mean_us": 355.8512244897959,
+            "candidate_mean_us": 358.35714285714283,
+            "ratio": 1.0070420394673076
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 126,
+            "baseline_mean_us": 3834.5365510204083,
+            "candidate_mean_us": 3862.627632653061,
+            "ratio": 1.0073258088060675
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 127,
+            "baseline_mean_us": 455.1675714285714,
+            "candidate_mean_us": 473.4387142857143,
+            "ratio": 1.0401415742334141
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 128,
+            "baseline_mean_us": 291.5977755102041,
+            "candidate_mean_us": 297.56289795918366,
+            "ratio": 1.020456680228587
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 130,
+            "baseline_mean_us": 323.6972857142857,
+            "candidate_mean_us": 331.68538775510206,
+            "ratio": 1.0246776923791294
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 134,
+            "baseline_mean_us": 93.37075510204082,
+            "candidate_mean_us": 101.4796530612245,
+            "ratio": 1.0868462287824685
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 135,
+            "baseline_mean_us": 3571.048551020408,
+            "candidate_mean_us": 3662.8664897959184,
+            "ratio": 1.0257117587351967
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 137,
+            "baseline_mean_us": 4644.789959183673,
+            "candidate_mean_us": 4814.404775510204,
+            "ratio": 1.0365172198995067
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 138,
+            "baseline_mean_us": 415.0985714285714,
+            "candidate_mean_us": 424.74738775510207,
+            "ratio": 1.0232446387211693
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 140,
+            "baseline_mean_us": 158.5671224489796,
+            "candidate_mean_us": 163.7874081632653,
+            "ratio": 1.0329216147311078
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 145,
+            "baseline_mean_us": 3051.711714285714,
+            "candidate_mean_us": 3122.518836734694,
+            "ratio": 1.0232024283675016
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 146,
+            "baseline_mean_us": 29.256836734693877,
+            "candidate_mean_us": 29.29512244897959,
+            "ratio": 1.0013086074421815
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 149,
+            "baseline_mean_us": 3947.5900408163266,
+            "candidate_mean_us": 3956.330857142857,
+            "ratio": 1.0022142158218443
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 152,
+            "baseline_mean_us": 41.12744897959184,
+            "candidate_mean_us": 53.6590612244898,
+            "ratio": 1.3047019096933623
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 154,
+            "baseline_mean_us": 76.44218367346939,
+            "candidate_mean_us": 81.39967346938775,
+            "ratio": 1.0648528019175223
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 155,
+            "baseline_mean_us": 0.5748367346938775,
+            "candidate_mean_us": 0.7049387755102041,
+            "ratio": 1.2263286825007989
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 157,
+            "baseline_mean_us": 2321.374142857143,
+            "candidate_mean_us": 2338.4796734693878,
+            "ratio": 1.007368709031622
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 16,
+            "baseline_mean_us": 51.73804081632653,
+            "candidate_mean_us": 61.118204081632655,
+            "ratio": 1.1813010913692368
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 152,
+            "baseline_mean_us": 45.63183673469388,
+            "candidate_mean_us": 55.483816326530615,
+            "ratio": 1.2159014472530816
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 155,
+            "baseline_mean_us": 0.5629591836734694,
+            "candidate_mean_us": 0.6845102040816327,
+            "ratio": 1.2159144462570237
+          }
+        ]
+      },
+      "shared": {
+        "observations": {
+          "baseline": {
+            "warm_p95_us": 5762.167,
+            "median_peak_rss_bytes": 63488000,
+            "max_peak_rss_bytes": 64159744,
+            "by_algorithm": {
+              "Bm25": 5640.916,
+              "Tfidf": 5837.7919999999995
+            }
+          },
+          "candidate": {
+            "warm_p95_us": 5644.708,
+            "median_peak_rss_bytes": 63700992,
+            "max_peak_rss_bytes": 64110592,
+            "by_algorithm": {
+              "Bm25": 5576.9169999999995,
+              "Tfidf": 5753.666
+            }
+          }
+        },
+        "p95_ratio": 0.979615481467302,
+        "median_rss_ratio": 1.0033548387096773,
+        "slower_queries": [
+          {
+            "algorithm": "Bm25",
+            "query": 0,
+            "baseline_mean_us": 134.11483673469388,
+            "candidate_mean_us": 138.0807755102041,
+            "ratio": 1.0295712157735064
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 1,
+            "baseline_mean_us": 4187.14618367347,
+            "candidate_mean_us": 4305.753387755102,
+            "ratio": 1.0283265018413033
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 2,
+            "baseline_mean_us": 378.58167346938774,
+            "candidate_mean_us": 408.4378775510204,
+            "ratio": 1.0788633105454504
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 3,
+            "baseline_mean_us": 4839.8086530612245,
+            "candidate_mean_us": 4892.963367346939,
+            "ratio": 1.010982813184586
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 4,
+            "baseline_mean_us": 12.887755102040817,
+            "candidate_mean_us": 14.922571428571429,
+            "ratio": 1.1578875692794932
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 6,
+            "baseline_mean_us": 104.48726530612245,
+            "candidate_mean_us": 114.83173469387755,
+            "ratio": 1.0990022023970893
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 8,
+            "baseline_mean_us": 155.47875510204082,
+            "candidate_mean_us": 170.66244897959183,
+            "ratio": 1.097657675915825
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 10,
+            "baseline_mean_us": 29.938816326530613,
+            "candidate_mean_us": 33.070632653061224,
+            "ratio": 1.104607219349394
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 14,
+            "baseline_mean_us": 144.7934693877551,
+            "candidate_mean_us": 149.36904081632653,
+            "ratio": 1.0316006754166385
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 15,
+            "baseline_mean_us": 4275.156469387755,
+            "candidate_mean_us": 4357.781551020408,
+            "ratio": 1.019326797094864
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 16,
+            "baseline_mean_us": 43.57230612244898,
+            "candidate_mean_us": 50.67269387755102,
+            "ratio": 1.1629564369429561
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 17,
+            "baseline_mean_us": 174.49832653061225,
+            "candidate_mean_us": 190.02126530612244,
+            "ratio": 1.0889575223106052
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 18,
+            "baseline_mean_us": 5549.477897959184,
+            "candidate_mean_us": 5637.365795918367,
+            "ratio": 1.0158371471290126
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 19,
+            "baseline_mean_us": 687.9752244897959,
+            "candidate_mean_us": 693.3724693877551,
+            "ratio": 1.007845115210307
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 21,
+            "baseline_mean_us": 281.8181020408163,
+            "candidate_mean_us": 286.2721224489796,
+            "ratio": 1.015804593019075
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 24,
+            "baseline_mean_us": 67.67004081632653,
+            "candidate_mean_us": 74.82904081632653,
+            "ratio": 1.105792754277056
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 26,
+            "baseline_mean_us": 396.23297959183674,
+            "candidate_mean_us": 428.66997959183675,
+            "ratio": 1.0818634532476668
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 28,
+            "baseline_mean_us": 501.15810204081635,
+            "candidate_mean_us": 517.4872448979592,
+            "ratio": 1.032582817259957
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 30,
+            "baseline_mean_us": 328.77542857142856,
+            "candidate_mean_us": 344.2458163265306,
+            "ratio": 1.0470545740669333
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 31,
+            "baseline_mean_us": 77.2763469387755,
+            "candidate_mean_us": 84.32738775510204,
+            "ratio": 1.0912444893637756
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 33,
+            "baseline_mean_us": 53.90479591836735,
+            "candidate_mean_us": 55.87924489795918,
+            "ratio": 1.036628447357113
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 35,
+            "baseline_mean_us": 98.18457142857143,
+            "candidate_mean_us": 102.97873469387756,
+            "ratio": 1.0488280714123588
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 39,
+            "baseline_mean_us": 20.36648979591837,
+            "candidate_mean_us": 22.2015306122449,
+            "ratio": 1.0901009862138487
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 40,
+            "baseline_mean_us": 3823.7670612244897,
+            "candidate_mean_us": 3849.0025306122448,
+            "ratio": 1.0065996356429918
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 41,
+            "baseline_mean_us": 168.61573469387756,
+            "candidate_mean_us": 180.78144897959183,
+            "ratio": 1.0721505279907666
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 42,
+            "baseline_mean_us": 5513.384367346939,
+            "candidate_mean_us": 5513.810489795918,
+            "ratio": 1.0000772887251437
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 43,
+            "baseline_mean_us": 131.98042857142858,
+            "candidate_mean_us": 141.0527551020408,
+            "ratio": 1.0687399384045964
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 46,
+            "baseline_mean_us": 3462.008591836735,
+            "candidate_mean_us": 3519.8001836734693,
+            "ratio": 1.0166930815749575
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 47,
+            "baseline_mean_us": 27.16418367346939,
+            "candidate_mean_us": 29.027122448979593,
+            "ratio": 1.068580701629171
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 49,
+            "baseline_mean_us": 312.1352448979592,
+            "candidate_mean_us": 337.9812448979592,
+            "ratio": 1.082803850005626
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 50,
+            "baseline_mean_us": 4175.458346938775,
+            "candidate_mean_us": 4190.9540816326535,
+            "ratio": 1.0037111457967816
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 51,
+            "baseline_mean_us": 2.7678367346938777,
+            "candidate_mean_us": 2.9856326530612245,
+            "ratio": 1.078688137792721
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 53,
+            "baseline_mean_us": 77.45161224489796,
+            "candidate_mean_us": 82.82391836734693,
+            "ratio": 1.06936338659371
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 55,
+            "baseline_mean_us": 30.121551020408162,
+            "candidate_mean_us": 33.07316326530612,
+            "ratio": 1.09799004848383
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 57,
+            "baseline_mean_us": 289.94467346938774,
+            "candidate_mean_us": 320.5688163265306,
+            "ratio": 1.1056206430375282
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 58,
+            "baseline_mean_us": 4331.0177959183675,
+            "candidate_mean_us": 4343.953102040817,
+            "ratio": 1.0029866665832312
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 59,
+            "baseline_mean_us": 35.63006122448979,
+            "candidate_mean_us": 37.7780612244898,
+            "ratio": 1.0602861720182397
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 61,
+            "baseline_mean_us": 10.253387755102041,
+            "candidate_mean_us": 11.65557142857143,
+            "ratio": 1.1367532084965446
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 62,
+            "baseline_mean_us": 309.6063469387755,
+            "candidate_mean_us": 355.5339183673469,
+            "ratio": 1.1483418278813695
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 64,
+            "baseline_mean_us": 112.0985918367347,
+            "candidate_mean_us": 121.03230612244897,
+            "ratio": 1.0796951517350524
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 66,
+            "baseline_mean_us": 436.8062244897959,
+            "candidate_mean_us": 477.15383673469387,
+            "ratio": 1.0923695908684115
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 68,
+            "baseline_mean_us": 4116.153040816326,
+            "candidate_mean_us": 4184.968448979592,
+            "ratio": 1.016718379389902
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 69,
+            "baseline_mean_us": 509.438,
+            "candidate_mean_us": 536.4923469387755,
+            "ratio": 1.053106260111683
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 70,
+            "baseline_mean_us": 4852.9141224489795,
+            "candidate_mean_us": 4878.848530612245,
+            "ratio": 1.005344089656006
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 72,
+            "baseline_mean_us": 5514.196530612245,
+            "candidate_mean_us": 5531.568836734694,
+            "ratio": 1.003150469161918
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 73,
+            "baseline_mean_us": 1033.546857142857,
+            "candidate_mean_us": 1041.4583265306123,
+            "ratio": 1.0076546789660081
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 74,
+            "baseline_mean_us": 5509.512795918367,
+            "candidate_mean_us": 5527.664224489796,
+            "ratio": 1.0032945614691875
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 76,
+            "baseline_mean_us": 335.8622653061224,
+            "candidate_mean_us": 378.32051020408164,
+            "ratio": 1.1264156449944163
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 78,
+            "baseline_mean_us": 594.9439387755102,
+            "candidate_mean_us": 619.7184897959183,
+            "ratio": 1.0416418243900394
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 80,
+            "baseline_mean_us": 5.966795918367347,
+            "candidate_mean_us": 6.542571428571429,
+            "ratio": 1.0964965985231194
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 82,
+            "baseline_mean_us": 35.19134693877551,
+            "candidate_mean_us": 38.83334693877551,
+            "ratio": 1.103491349914404
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 84,
+            "baseline_mean_us": 191.79338775510203,
+            "candidate_mean_us": 204.79248979591836,
+            "ratio": 1.0677765912212505
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 86,
+            "baseline_mean_us": 33.329795918367346,
+            "candidate_mean_us": 40.49487755102041,
+            "ratio": 1.2149752626809376
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 88,
+            "baseline_mean_us": 43.15057142857143,
+            "candidate_mean_us": 45.83,
+            "ratio": 1.062094857210962
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 91,
+            "baseline_mean_us": 385.02889795918367,
+            "candidate_mean_us": 403.9072244897959,
+            "ratio": 1.049030934121245
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 93,
+            "baseline_mean_us": 68.35804081632654,
+            "candidate_mean_us": 72.99828571428571,
+            "ratio": 1.067881478792337
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 95,
+            "baseline_mean_us": 448.51691836734693,
+            "candidate_mean_us": 485.9948367346939,
+            "ratio": 1.0835596536776604
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 97,
+            "baseline_mean_us": 14.55191836734694,
+            "candidate_mean_us": 15.874163265306123,
+            "ratio": 1.090863957904421
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 98,
+            "baseline_mean_us": 331.8384489795918,
+            "candidate_mean_us": 349.3885918367347,
+            "ratio": 1.0528876111587124
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 100,
+            "baseline_mean_us": 134.9064693877551,
+            "candidate_mean_us": 144.71691836734695,
+            "ratio": 1.072720374524028
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 102,
+            "baseline_mean_us": 489.8308163265306,
+            "candidate_mean_us": 522.5815918367347,
+            "ratio": 1.0668614027917176
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 104,
+            "baseline_mean_us": 320.8767142857143,
+            "candidate_mean_us": 336.35967346938776,
+            "ratio": 1.0482520497573007
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 106,
+            "baseline_mean_us": 267.1665918367347,
+            "candidate_mean_us": 272.77640816326533,
+            "ratio": 1.0209974469036862
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 108,
+            "baseline_mean_us": 588.4387346938776,
+            "candidate_mean_us": 619.9184081632653,
+            "ratio": 1.0534969430347993
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 110,
+            "baseline_mean_us": 593.2609795918368,
+            "candidate_mean_us": 604.7645714285715,
+            "ratio": 1.0193904406870804
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 112,
+            "baseline_mean_us": 197.2296530612245,
+            "candidate_mean_us": 198.48820408163266,
+            "ratio": 1.0063811450300402
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 114,
+            "baseline_mean_us": 41.882673469387754,
+            "candidate_mean_us": 45.04604081632653,
+            "ratio": 1.075529260309777
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 115,
+            "baseline_mean_us": 2248.989693877551,
+            "candidate_mean_us": 2255.367367346939,
+            "ratio": 1.0028357948845874
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 116,
+            "baseline_mean_us": 130.69893877551021,
+            "candidate_mean_us": 139.426,
+            "ratio": 1.0667722424240909
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 121,
+            "baseline_mean_us": 37.20742857142857,
+            "candidate_mean_us": 39.934551020408165,
+            "ratio": 1.0732951067484877
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 123,
+            "baseline_mean_us": 442.5892857142857,
+            "candidate_mean_us": 447.76448979591834,
+            "ratio": 1.0116930170898295
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 125,
+            "baseline_mean_us": 340.6785510204082,
+            "candidate_mean_us": 344.501693877551,
+            "ratio": 1.0112221413578626
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 127,
+            "baseline_mean_us": 433.2125306122449,
+            "candidate_mean_us": 467.86222448979595,
+            "ratio": 1.0799831293628137
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 128,
+            "baseline_mean_us": 274.54679591836737,
+            "candidate_mean_us": 294.7516530612245,
+            "ratio": 1.0735934909576026
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 130,
+            "baseline_mean_us": 309.53908163265305,
+            "candidate_mean_us": 324.7627346938776,
+            "ratio": 1.0491816832334317
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 131,
+            "baseline_mean_us": 4564.052816326531,
+            "candidate_mean_us": 4584.337571428571,
+            "ratio": 1.0044444610784253
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 132,
+            "baseline_mean_us": 419.024693877551,
+            "candidate_mean_us": 429.19385714285715,
+            "ratio": 1.0242686491127844
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 133,
+            "baseline_mean_us": 5473.005081632653,
+            "candidate_mean_us": 5547.078979591836,
+            "ratio": 1.013534410594241
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 134,
+            "baseline_mean_us": 85.49828571428571,
+            "candidate_mean_us": 96.42595918367347,
+            "ratio": 1.127811609064366
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 135,
+            "baseline_mean_us": 3561.7576530612246,
+            "candidate_mean_us": 3654.5144285714287,
+            "ratio": 1.026042416285814
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 136,
+            "baseline_mean_us": 406.78657142857145,
+            "candidate_mean_us": 432.6555714285714,
+            "ratio": 1.0635935446668066
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 137,
+            "baseline_mean_us": 4629.05093877551,
+            "candidate_mean_us": 4640.180224489796,
+            "ratio": 1.0024042262358923
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 138,
+            "baseline_mean_us": 395.94989795918366,
+            "candidate_mean_us": 413.1157551020408,
+            "ratio": 1.0433536092099882
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 140,
+            "baseline_mean_us": 155.62926530612245,
+            "candidate_mean_us": 163.7091836734694,
+            "ratio": 1.0519177312278238
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 143,
+            "baseline_mean_us": 3524.949857142857,
+            "candidate_mean_us": 3564.390224489796,
+            "ratio": 1.0111889158556449
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 144,
+            "baseline_mean_us": 106.08926530612244,
+            "candidate_mean_us": 113.92263265306123,
+            "ratio": 1.073837511498788
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 146,
+            "baseline_mean_us": 26.466897959183672,
+            "candidate_mean_us": 29.314714285714285,
+            "ratio": 1.1075991727826364
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 148,
+            "baseline_mean_us": 354.91755102040815,
+            "candidate_mean_us": 369.87510204081633,
+            "ratio": 1.042143734445942
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 150,
+            "baseline_mean_us": 274.3723673469388,
+            "candidate_mean_us": 278.41332653061227,
+            "ratio": 1.0147280107787375
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 151,
+            "baseline_mean_us": 145.5468163265306,
+            "candidate_mean_us": 150.8698775510204,
+            "ratio": 1.0365728454860026
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 152,
+            "baseline_mean_us": 40.397122448979594,
+            "candidate_mean_us": 45.66079591836735,
+            "ratio": 1.130298227950162
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 153,
+            "baseline_mean_us": 3160.285551020408,
+            "candidate_mean_us": 3205.9701836734694,
+            "ratio": 1.0144558559394452
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 154,
+            "baseline_mean_us": 69.50338775510204,
+            "candidate_mean_us": 75.87171428571429,
+            "ratio": 1.0916261312765256
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 155,
+            "baseline_mean_us": 0.6029387755102041,
+            "candidate_mean_us": 0.6564897959183673,
+            "ratio": 1.0888166802057946
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 157,
+            "baseline_mean_us": 2276.6888367346937,
+            "candidate_mean_us": 2317.8443265306123,
+            "ratio": 1.0180769058695545
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 1,
+            "baseline_mean_us": 4297.84275510204,
+            "candidate_mean_us": 4353.198224489796,
+            "ratio": 1.012879826587895
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 2,
+            "baseline_mean_us": 409.91322448979594,
+            "candidate_mean_us": 432.6054489795918,
+            "ratio": 1.0553586055147162
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 4,
+            "baseline_mean_us": 15.08669387755102,
+            "candidate_mean_us": 15.737081632653062,
+            "ratio": 1.043110025323031
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 6,
+            "baseline_mean_us": 119.44814285714286,
+            "candidate_mean_us": 123.05614285714286,
+            "ratio": 1.0302055763588982
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 8,
+            "baseline_mean_us": 170.81808163265305,
+            "candidate_mean_us": 171.8835306122449,
+            "ratio": 1.0062373313727004
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 12,
+            "baseline_mean_us": 212.64185714285713,
+            "candidate_mean_us": 213.4998775510204,
+            "ratio": 1.0040350494474228
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 21,
+            "baseline_mean_us": 295.5280816326531,
+            "candidate_mean_us": 306.4601020408163,
+            "ratio": 1.0369914775874054
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 24,
+            "baseline_mean_us": 75.25934693877551,
+            "candidate_mean_us": 80.33255102040816,
+            "ratio": 1.067409621369154
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 31,
+            "baseline_mean_us": 89.81542857142857,
+            "candidate_mean_us": 91.46595918367348,
+            "ratio": 1.0183769162881884
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 33,
+            "baseline_mean_us": 59.31895918367347,
+            "candidate_mean_us": 61.119020408163266,
+            "ratio": 1.0303454620455517
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 37,
+            "baseline_mean_us": 31.946367346938775,
+            "candidate_mean_us": 32.54587755102041,
+            "ratio": 1.018766146321769
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 39,
+            "baseline_mean_us": 24.426081632653062,
+            "candidate_mean_us": 24.549326530612245,
+            "ratio": 1.0050456270396815
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 41,
+            "baseline_mean_us": 185.6334693877551,
+            "candidate_mean_us": 198.61814285714286,
+            "ratio": 1.0699479113988066
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 43,
+            "baseline_mean_us": 146.0901224489796,
+            "candidate_mean_us": 148.63695918367347,
+            "ratio": 1.0174333260319042
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 45,
+            "baseline_mean_us": 484.3010612244898,
+            "candidate_mean_us": 502.51695918367346,
+            "ratio": 1.0376127566458915
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 53,
+            "baseline_mean_us": 85.35883673469388,
+            "candidate_mean_us": 88.56214285714286,
+            "ratio": 1.0375275278458311
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 55,
+            "baseline_mean_us": 34.03148979591837,
+            "candidate_mean_us": 35.447326530612244,
+            "ratio": 1.0416037247615204
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 57,
+            "baseline_mean_us": 358.96008163265304,
+            "candidate_mean_us": 383.4864081632653,
+            "ratio": 1.068326055696944
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 59,
+            "baseline_mean_us": 38.01444897959183,
+            "candidate_mean_us": 42.72708163265306,
+            "ratio": 1.1239695110559467
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 61,
+            "baseline_mean_us": 11.909918367346938,
+            "candidate_mean_us": 12.326530612244898,
+            "ratio": 1.0349802771142558
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 62,
+            "baseline_mean_us": 340.3707755102041,
+            "candidate_mean_us": 358.66244897959183,
+            "ratio": 1.0537404348007526
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 64,
+            "baseline_mean_us": 122.8664693877551,
+            "candidate_mean_us": 129.51097959183673,
+            "ratio": 1.054079117249737
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 66,
+            "baseline_mean_us": 533.0169999999999,
+            "candidate_mean_us": 561.1284081632652,
+            "ratio": 1.0527401718205336
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 67,
+            "baseline_mean_us": 5511.323959183674,
+            "candidate_mean_us": 5514.885285714286,
+            "ratio": 1.0006461834863976
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 68,
+            "baseline_mean_us": 4286.659857142857,
+            "candidate_mean_us": 4369.772061224489,
+            "ratio": 1.0193885698542522
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 69,
+            "baseline_mean_us": 578.5332040816327,
+            "candidate_mean_us": 581.5298163265306,
+            "ratio": 1.0051796720114878
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 70,
+            "baseline_mean_us": 4934.355346938775,
+            "candidate_mean_us": 4968.814653061225,
+            "ratio": 1.0069835477381717
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 73,
+            "baseline_mean_us": 1100.8868775510205,
+            "candidate_mean_us": 1105.3945510204082,
+            "ratio": 1.0040945837045632
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 76,
+            "baseline_mean_us": 391.26195918367347,
+            "candidate_mean_us": 397.3885714285714,
+            "ratio": 1.0156585942003677
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 78,
+            "baseline_mean_us": 719.5595102040817,
+            "candidate_mean_us": 751.3545918367347,
+            "ratio": 1.0441868687464575
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 80,
+            "baseline_mean_us": 6.415795918367347,
+            "candidate_mean_us": 6.713489795918368,
+            "ratio": 1.046400147594903
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 82,
+            "baseline_mean_us": 39.392857142857146,
+            "candidate_mean_us": 40.582510204081636,
+            "ratio": 1.0301997150628157
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 84,
+            "baseline_mean_us": 208.8656530612245,
+            "candidate_mean_us": 220.8410612244898,
+            "ratio": 1.0573354593622675
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 86,
+            "baseline_mean_us": 37.41318367346939,
+            "candidate_mean_us": 39.77044897959183,
+            "ratio": 1.0630062741170578
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 87,
+            "baseline_mean_us": 4750.212551020408,
+            "candidate_mean_us": 4776.496632653061,
+            "ratio": 1.0055332432707684
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 88,
+            "baseline_mean_us": 49.53057142857143,
+            "candidate_mean_us": 52.682,
+            "ratio": 1.0636259279982927
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 93,
+            "baseline_mean_us": 75.20918367346938,
+            "candidate_mean_us": 77.79510204081633,
+            "ratio": 1.0343830133640868
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 97,
+            "baseline_mean_us": 15.739775510204081,
+            "candidate_mean_us": 17.009408163265306,
+            "ratio": 1.0806639619629976
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 100,
+            "baseline_mean_us": 152.778,
+            "candidate_mean_us": 158.11144897959184,
+            "ratio": 1.0349097970885328
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 104,
+            "baseline_mean_us": 381.9124081632653,
+            "candidate_mean_us": 395.60967346938776,
+            "ratio": 1.0358649392199557
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 108,
+            "baseline_mean_us": 714.3800408163265,
+            "candidate_mean_us": 730.5740612244898,
+            "ratio": 1.022668635016256
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 112,
+            "baseline_mean_us": 210.19216326530614,
+            "candidate_mean_us": 222.92857142857144,
+            "ratio": 1.0605941152391554
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 121,
+            "baseline_mean_us": 41.0059387755102,
+            "candidate_mean_us": 41.59940816326531,
+            "ratio": 1.0144727667620073
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 123,
+            "baseline_mean_us": 479.9295306122449,
+            "candidate_mean_us": 490.8478163265306,
+            "ratio": 1.022749768492798
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 125,
+            "baseline_mean_us": 395.13955102040813,
+            "candidate_mean_us": 401.16497959183675,
+            "ratio": 1.015248862220622
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 130,
+            "baseline_mean_us": 336.2704693877551,
+            "candidate_mean_us": 341.20232653061225,
+            "ratio": 1.0146663403177703
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 132,
+            "baseline_mean_us": 476.25173469387755,
+            "candidate_mean_us": 498.1300408163265,
+            "ratio": 1.04593853319298
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 134,
+            "baseline_mean_us": 97.78820408163266,
+            "candidate_mean_us": 102.733,
+            "ratio": 1.0505663844101225
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 136,
+            "baseline_mean_us": 465.2822857142857,
+            "candidate_mean_us": 482.6114081632653,
+            "ratio": 1.0372443202353525
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 138,
+            "baseline_mean_us": 424.24575510204085,
+            "candidate_mean_us": 432.1403469387755,
+            "ratio": 1.0186085346566067
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 140,
+            "baseline_mean_us": 168.94897959183675,
+            "candidate_mean_us": 173.51873469387755,
+            "ratio": 1.0270481367397475
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 144,
+            "baseline_mean_us": 119.05373469387756,
+            "candidate_mean_us": 119.5178775510204,
+            "ratio": 1.0038985997233627
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 146,
+            "baseline_mean_us": 29.505102040816325,
+            "candidate_mean_us": 31.34942857142857,
+            "ratio": 1.0625087324917863
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 151,
+            "baseline_mean_us": 154.65389795918367,
+            "candidate_mean_us": 157.84679591836735,
+            "ratio": 1.0206454412162722
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 152,
+            "baseline_mean_us": 44.95420408163265,
+            "candidate_mean_us": 50.65822448979592,
+            "ratio": 1.1268851384356688
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 153,
+            "baseline_mean_us": 3279.530612244898,
+            "candidate_mean_us": 3305.0969591836733,
+            "ratio": 1.0077957335855678
+          }
+        ]
+      }
+    },
+    {
+      "default": {
+        "observations": {
+          "baseline": {
+            "warm_p95_us": 5115.583,
+            "median_peak_rss_bytes": 64389120,
+            "max_peak_rss_bytes": 64864256,
+            "by_algorithm": {
+              "Bm25": 5256.542,
+              "Tfidf": 5013.5
+            }
+          },
+          "candidate": {
+            "warm_p95_us": 5690.792,
+            "median_peak_rss_bytes": 64258048,
+            "max_peak_rss_bytes": 64487424,
+            "by_algorithm": {
+              "Bm25": 5352.625,
+              "Tfidf": 5992.4169999999995
+            }
+          }
+        },
+        "p95_ratio": 1.1124425114400451,
+        "median_rss_ratio": 0.9979643765903308,
+        "slower_queries": [
+          {
+            "algorithm": "Bm25",
+            "query": 0,
+            "baseline_mean_us": 116.58679591836734,
+            "candidate_mean_us": 120.13438775510204,
+            "ratio": 1.0304287617546217
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 2,
+            "baseline_mean_us": 361.54004081632655,
+            "candidate_mean_us": 376.265306122449,
+            "ratio": 1.0407292793154364
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 6,
+            "baseline_mean_us": 102.15557142857143,
+            "candidate_mean_us": 105.9855306122449,
+            "ratio": 1.0374914371298039
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 8,
+            "baseline_mean_us": 147.84189795918368,
+            "candidate_mean_us": 153.10289795918368,
+            "ratio": 1.035585311556623
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 12,
+            "baseline_mean_us": 172.3630612244898,
+            "candidate_mean_us": 184.0050612244898,
+            "ratio": 1.06754347432271
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 13,
+            "baseline_mean_us": 4707.4107959183675,
+            "candidate_mean_us": 4748.714285714285,
+            "ratio": 1.0087741417918594
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 14,
+            "baseline_mean_us": 129.67777551020407,
+            "candidate_mean_us": 141.61485714285715,
+            "ratio": 1.0920518692249912
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 15,
+            "baseline_mean_us": 4058.127612244898,
+            "candidate_mean_us": 4116.52206122449,
+            "ratio": 1.0143895053480807
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 16,
+            "baseline_mean_us": 40.58767346938775,
+            "candidate_mean_us": 45.30787755102041,
+            "ratio": 1.1162964929535257
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 17,
+            "baseline_mean_us": 161.07402040816328,
+            "candidate_mean_us": 177.26530612244898,
+            "ratio": 1.1005207771759642
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 18,
+            "baseline_mean_us": 5259.088469387755,
+            "candidate_mean_us": 5401.114755102041,
+            "ratio": 1.027005874980236
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 19,
+            "baseline_mean_us": 651.2133469387755,
+            "candidate_mean_us": 675.0629387755102,
+            "ratio": 1.0366233154600515
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 20,
+            "baseline_mean_us": 4872.7295918367345,
+            "candidate_mean_us": 4949.638571428572,
+            "ratio": 1.0157835517326228
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 21,
+            "baseline_mean_us": 247.9600612244898,
+            "candidate_mean_us": 281.64891836734694,
+            "ratio": 1.1358640459132532
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 22,
+            "baseline_mean_us": 4220.560489795918,
+            "candidate_mean_us": 4337.789102040816,
+            "ratio": 1.0277756029153764
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 23,
+            "baseline_mean_us": 4137.459142857143,
+            "candidate_mean_us": 4349.139367346939,
+            "ratio": 1.0511618887778598
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 24,
+            "baseline_mean_us": 61.54,
+            "candidate_mean_us": 77.07063265306122,
+            "ratio": 1.2523664714504588
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 25,
+            "baseline_mean_us": 4439.621653061225,
+            "candidate_mean_us": 4611.860448979592,
+            "ratio": 1.038795827522736
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 26,
+            "baseline_mean_us": 349.7023469387755,
+            "candidate_mean_us": 375.72704081632656,
+            "ratio": 1.074419557390352
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 27,
+            "baseline_mean_us": 3886.6820408163267,
+            "candidate_mean_us": 3941.4592857142857,
+            "ratio": 1.0140935750140379
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 28,
+            "baseline_mean_us": 450.09616326530613,
+            "candidate_mean_us": 484.4446326530612,
+            "ratio": 1.07631362404551
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 29,
+            "baseline_mean_us": 3001.7253469387756,
+            "candidate_mean_us": 3023.6497142857143,
+            "ratio": 1.007303921849245
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 30,
+            "baseline_mean_us": 293.87757142857146,
+            "candidate_mean_us": 305.73218367346936,
+            "ratio": 1.0403386083098187
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 31,
+            "baseline_mean_us": 69.11402040816327,
+            "candidate_mean_us": 74.70832653061224,
+            "ratio": 1.0809431442334125
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 32,
+            "baseline_mean_us": 4736.678612244898,
+            "candidate_mean_us": 4860.024714285714,
+            "ratio": 1.0260406314504749
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 33,
+            "baseline_mean_us": 49.338408163265306,
+            "candidate_mean_us": 53.05275510204082,
+            "ratio": 1.075283072094349
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 34,
+            "baseline_mean_us": 5358.775510204082,
+            "candidate_mean_us": 5453.453142857143,
+            "ratio": 1.0176677736308934
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 35,
+            "baseline_mean_us": 90.10812244897959,
+            "candidate_mean_us": 99.3894693877551,
+            "ratio": 1.1030023341572868
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 36,
+            "baseline_mean_us": 3926.0075510204083,
+            "candidate_mean_us": 3988.2908775510205,
+            "ratio": 1.0158642910695432
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 37,
+            "baseline_mean_us": 25.908183673469388,
+            "candidate_mean_us": 28.853755102040818,
+            "ratio": 1.1136927028808958
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 38,
+            "baseline_mean_us": 3574.9114897959184,
+            "candidate_mean_us": 3611.6786326530614,
+            "ratio": 1.0102847701158726
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 39,
+            "baseline_mean_us": 18.85034693877551,
+            "candidate_mean_us": 20.051020408163264,
+            "ratio": 1.0636950329501866
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 40,
+            "baseline_mean_us": 3596.7066530612246,
+            "candidate_mean_us": 3611.802714285714,
+            "ratio": 1.0041971900075979
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 41,
+            "baseline_mean_us": 157.76957142857142,
+            "candidate_mean_us": 166.3138775510204,
+            "ratio": 1.0541568696997907
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 42,
+            "baseline_mean_us": 5261.62506122449,
+            "candidate_mean_us": 5288.986510204081,
+            "ratio": 1.0052001898009097
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 43,
+            "baseline_mean_us": 121.94308163265306,
+            "candidate_mean_us": 133.64630612244898,
+            "ratio": 1.0959728451430417
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 44,
+            "baseline_mean_us": 4610.197265306122,
+            "candidate_mean_us": 4712.244918367347,
+            "ratio": 1.0221352031569628
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 45,
+            "baseline_mean_us": 374.8179795918367,
+            "candidate_mean_us": 390.16926530612244,
+            "ratio": 1.040956641757161
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 46,
+            "baseline_mean_us": 3384.8078163265304,
+            "candidate_mean_us": 3399.8469591836733,
+            "ratio": 1.0044431305034816
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 47,
+            "baseline_mean_us": 25.548551020408162,
+            "candidate_mean_us": 27.39712244897959,
+            "ratio": 1.0723552356098314
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 48,
+            "baseline_mean_us": 4261.674346938776,
+            "candidate_mean_us": 4475.781387755102,
+            "ratio": 1.0502401223993387
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 49,
+            "baseline_mean_us": 272.46420408163266,
+            "candidate_mean_us": 301.09361224489794,
+            "ratio": 1.1050758511921355
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 50,
+            "baseline_mean_us": 3946.6802857142857,
+            "candidate_mean_us": 4143.950734693877,
+            "ratio": 1.0499838939813917
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 51,
+            "baseline_mean_us": 2.7441020408163266,
+            "candidate_mean_us": 3.027204081632653,
+            "ratio": 1.1031674611969269
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 53,
+            "baseline_mean_us": 71.29922448979592,
+            "candidate_mean_us": 74.2916530612245,
+            "ratio": 1.0419700016773232
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 54,
+            "baseline_mean_us": 4168.424244897959,
+            "candidate_mean_us": 4267.0034897959185,
+            "ratio": 1.0236490431650802
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 55,
+            "baseline_mean_us": 27.812938775510204,
+            "candidate_mean_us": 29.732102040816326,
+            "ratio": 1.0690025344245888
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 56,
+            "baseline_mean_us": 4494.357959183673,
+            "candidate_mean_us": 4610.9617755102045,
+            "ratio": 1.02594448804156
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 57,
+            "baseline_mean_us": 267.4591224489796,
+            "candidate_mean_us": 286.1097142857143,
+            "ratio": 1.069732494692876
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 58,
+            "baseline_mean_us": 4108.923408163265,
+            "candidate_mean_us": 4179.342653061224,
+            "ratio": 1.017138125465677
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 59,
+            "baseline_mean_us": 32.04244897959184,
+            "candidate_mean_us": 33.98642857142857,
+            "ratio": 1.0606688831142361
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 60,
+            "baseline_mean_us": 5275.918408163266,
+            "candidate_mean_us": 5331.124142857143,
+            "ratio": 1.010463720327528
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 62,
+            "baseline_mean_us": 294.39367346938775,
+            "candidate_mean_us": 307.43367346938777,
+            "ratio": 1.0442944301293078
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 63,
+            "baseline_mean_us": 5326.591857142857,
+            "candidate_mean_us": 5439.560387755102,
+            "ratio": 1.0212084074849392
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 64,
+            "baseline_mean_us": 101.6641224489796,
+            "candidate_mean_us": 109.50085714285714,
+            "ratio": 1.0770845653815626
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 66,
+            "baseline_mean_us": 421.2925102040816,
+            "candidate_mean_us": 443.5136326530612,
+            "ratio": 1.05274511630462
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 67,
+            "baseline_mean_us": 5057.966877551021,
+            "candidate_mean_us": 5170.921775510204,
+            "ratio": 1.0223320754551626
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 69,
+            "baseline_mean_us": 474.79077551020407,
+            "candidate_mean_us": 506.59773469387756,
+            "ratio": 1.066991527266919
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 70,
+            "baseline_mean_us": 4569.142,
+            "candidate_mean_us": 4619.727897959184,
+            "ratio": 1.01107120285585
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 71,
+            "baseline_mean_us": 397.41157142857145,
+            "candidate_mean_us": 404.32320408163264,
+            "ratio": 1.0173916240742966
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 72,
+            "baseline_mean_us": 5357.096979591836,
+            "candidate_mean_us": 5363.638551020408,
+            "ratio": 1.0012211037906338
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 73,
+            "baseline_mean_us": 961.3801224489796,
+            "candidate_mean_us": 1018.2924693877551,
+            "ratio": 1.0591985892050684
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 74,
+            "baseline_mean_us": 5303.385163265306,
+            "candidate_mean_us": 5406.789102040816,
+            "ratio": 1.0194977237353517
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 75,
+            "baseline_mean_us": 3590.8707959183675,
+            "candidate_mean_us": 3651.886,
+            "ratio": 1.0169917570275673
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 76,
+            "baseline_mean_us": 320.6224081632653,
+            "candidate_mean_us": 347.1496530612245,
+            "ratio": 1.0827367152842642
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 77,
+            "baseline_mean_us": 3130.0127346938775,
+            "candidate_mean_us": 3234.137775510204,
+            "ratio": 1.0332666508548598
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 78,
+            "baseline_mean_us": 560.9456326530612,
+            "candidate_mean_us": 604.1521020408163,
+            "ratio": 1.077024344023154
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 79,
+            "baseline_mean_us": 2420.1598367346937,
+            "candidate_mean_us": 2521.13606122449,
+            "ratio": 1.0417229568713255
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 80,
+            "baseline_mean_us": 6.124183673469388,
+            "candidate_mean_us": 6.772102040816327,
+            "ratio": 1.1057966909375676
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 81,
+            "baseline_mean_us": 4489.495714285715,
+            "candidate_mean_us": 4683.214326530612,
+            "ratio": 1.0431493033011434
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 82,
+            "baseline_mean_us": 31.946367346938775,
+            "candidate_mean_us": 39.158142857142856,
+            "ratio": 1.2257463401670656
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 83,
+            "baseline_mean_us": 2487.9821224489797,
+            "candidate_mean_us": 2659.9898163265307,
+            "ratio": 1.0691354219652671
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 84,
+            "baseline_mean_us": 169.87430612244898,
+            "candidate_mean_us": 191.2448163265306,
+            "ratio": 1.1258018984264595
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 85,
+            "baseline_mean_us": 4973.622448979591,
+            "candidate_mean_us": 5111.966877551021,
+            "ratio": 1.0278156273401517
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 86,
+            "baseline_mean_us": 31.200530612244897,
+            "candidate_mean_us": 34.42340816326531,
+            "ratio": 1.1032956006765977
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 87,
+            "baseline_mean_us": 4449.4854897959185,
+            "candidate_mean_us": 4522.954163265306,
+            "ratio": 1.0165117233527055
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 88,
+            "baseline_mean_us": 38.91920408163266,
+            "candidate_mean_us": 43.18708163265306,
+            "ratio": 1.1096599391413189
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 89,
+            "baseline_mean_us": 3227.852918367347,
+            "candidate_mean_us": 3319.069795918367,
+            "ratio": 1.0282593042055825
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 90,
+            "baseline_mean_us": 3951.9864693877553,
+            "candidate_mean_us": 4036.481326530612,
+            "ratio": 1.0213803508178374
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 91,
+            "baseline_mean_us": 362.14116326530615,
+            "candidate_mean_us": 379.8758775510204,
+            "ratio": 1.0489718266926804
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 92,
+            "baseline_mean_us": 4429.942979591837,
+            "candidate_mean_us": 4537.585183673469,
+            "ratio": 1.0242987786925308
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 93,
+            "baseline_mean_us": 61.910816326530615,
+            "candidate_mean_us": 66.54677551020409,
+            "ratio": 1.0748812478779548
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 94,
+            "baseline_mean_us": 3130.0390612244896,
+            "candidate_mean_us": 3300.6037959183673,
+            "ratio": 1.0544928454110576
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 95,
+            "baseline_mean_us": 404.0748571428571,
+            "candidate_mean_us": 424.9854897959184,
+            "ratio": 1.051749403070799
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 96,
+            "baseline_mean_us": 4432.321489795919,
+            "candidate_mean_us": 4514.643734693877,
+            "ratio": 1.0185731664743816
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 97,
+            "baseline_mean_us": 12.880938775510204,
+            "candidate_mean_us": 14.003408163265306,
+            "ratio": 1.0871418929410013
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 98,
+            "baseline_mean_us": 307.6684285714286,
+            "candidate_mean_us": 325.9234897959184,
+            "ratio": 1.059333553687169
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 99,
+            "baseline_mean_us": 4236.480489795918,
+            "candidate_mean_us": 4287.756795918367,
+            "ratio": 1.0121035152282547
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 100,
+            "baseline_mean_us": 123.88344897959183,
+            "candidate_mean_us": 131.3971224489796,
+            "ratio": 1.0606511485696974
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 101,
+            "baseline_mean_us": 4293.335918367347,
+            "candidate_mean_us": 4459.948102040817,
+            "ratio": 1.0388071622722752
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 102,
+            "baseline_mean_us": 444.21855102040814,
+            "candidate_mean_us": 493.2108979591837,
+            "ratio": 1.1102888360385579
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 103,
+            "baseline_mean_us": 4409.8130204081635,
+            "candidate_mean_us": 4489.760224489796,
+            "ratio": 1.018129386373446
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 104,
+            "baseline_mean_us": 268.4005102040816,
+            "candidate_mean_us": 311.01189795918367,
+            "ratio": 1.158760457357931
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 105,
+            "baseline_mean_us": 1776.8953469387754,
+            "candidate_mean_us": 1842.6054285714285,
+            "ratio": 1.036980276720212
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 106,
+            "baseline_mean_us": 233.67683673469386,
+            "candidate_mean_us": 259.7083265306122,
+            "ratio": 1.1113995300504402
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 107,
+            "baseline_mean_us": 4701.636979591836,
+            "candidate_mean_us": 5007.594387755102,
+            "ratio": 1.065074655804206
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 108,
+            "baseline_mean_us": 538.2330204081633,
+            "candidate_mean_us": 608.5774081632653,
+            "ratio": 1.130695043016419
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 109,
+            "baseline_mean_us": 4832.994081632653,
+            "candidate_mean_us": 4991.479612244898,
+            "ratio": 1.0327924114814364
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 110,
+            "baseline_mean_us": 519.6768979591836,
+            "candidate_mean_us": 586.7389795918367,
+            "ratio": 1.1290457241720995
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 111,
+            "baseline_mean_us": 3831.080775510204,
+            "candidate_mean_us": 3866.1548163265306,
+            "ratio": 1.0091551295500043
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 112,
+            "baseline_mean_us": 170.75930612244898,
+            "candidate_mean_us": 176.44808163265307,
+            "ratio": 1.0333145855378725
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 113,
+            "baseline_mean_us": 2944.777224489796,
+            "candidate_mean_us": 3037.323163265306,
+            "ratio": 1.031427144303435
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 114,
+            "baseline_mean_us": 38.33167346938775,
+            "candidate_mean_us": 43.081591836734695,
+            "ratio": 1.1239162796046538
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 115,
+            "baseline_mean_us": 2085.7312653061226,
+            "candidate_mean_us": 2143.2670204081633,
+            "ratio": 1.0275854114377463
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 118,
+            "baseline_mean_us": 1187.432918367347,
+            "candidate_mean_us": 1289.2526326530613,
+            "ratio": 1.0857477611667619
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 119,
+            "baseline_mean_us": 4556.136836734694,
+            "candidate_mean_us": 4652.780571428571,
+            "ratio": 1.0212117717612583
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 120,
+            "baseline_mean_us": 3642.561224489796,
+            "candidate_mean_us": 3683.4294489795916,
+            "ratio": 1.011219639690619
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 121,
+            "baseline_mean_us": 33.18375510204081,
+            "candidate_mean_us": 38.937163265306125,
+            "ratio": 1.1733802622871778
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 122,
+            "baseline_mean_us": 3535.118224489796,
+            "candidate_mean_us": 3720.471081632653,
+            "ratio": 1.0524318694234358
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 123,
+            "baseline_mean_us": 391.11304081632653,
+            "candidate_mean_us": 439.1113673469388,
+            "ratio": 1.1227223884696627
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 124,
+            "baseline_mean_us": 4635.976163265306,
+            "candidate_mean_us": 4866.682816326531,
+            "ratio": 1.0497644174466005
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 125,
+            "baseline_mean_us": 297.07063265306124,
+            "candidate_mean_us": 345.75587755102043,
+            "ratio": 1.1638844084424091
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 126,
+            "baseline_mean_us": 3590.0781836734695,
+            "candidate_mean_us": 3746.7023469387755,
+            "ratio": 1.0436269505153348
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 127,
+            "baseline_mean_us": 385.6139387755102,
+            "candidate_mean_us": 444.08579591836735,
+            "ratio": 1.1516331523920802
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 128,
+            "baseline_mean_us": 242.59097959183674,
+            "candidate_mean_us": 281.864,
+            "ratio": 1.1618898628227674
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 129,
+            "baseline_mean_us": 4603.78224489796,
+            "candidate_mean_us": 4748.699816326531,
+            "ratio": 1.031477937860587
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 130,
+            "baseline_mean_us": 272.7492040816327,
+            "candidate_mean_us": 311.56636734693876,
+            "ratio": 1.142318154129932
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 131,
+            "baseline_mean_us": 4285.344448979592,
+            "candidate_mean_us": 4413.380183673469,
+            "ratio": 1.0298775830550482
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 132,
+            "baseline_mean_us": 374.42,
+            "candidate_mean_us": 412.9472857142857,
+            "ratio": 1.1028985783726448
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 133,
+            "baseline_mean_us": 5248.161571428572,
+            "candidate_mean_us": 5290.907428571429,
+            "ratio": 1.0081449201898753
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 134,
+            "baseline_mean_us": 78.22369387755101,
+            "candidate_mean_us": 90.43359183673469,
+            "ratio": 1.1560895088679484
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 135,
+            "baseline_mean_us": 3364.847020408163,
+            "candidate_mean_us": 3504.949020408163,
+            "ratio": 1.0416369597637771
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 136,
+            "baseline_mean_us": 369.07232653061226,
+            "candidate_mean_us": 391.98881632653064,
+            "ratio": 1.0620921379051638
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 137,
+            "baseline_mean_us": 4349.864775510204,
+            "candidate_mean_us": 4556.136918367347,
+            "ratio": 1.0474203575289185
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 138,
+            "baseline_mean_us": 352.9957959183673,
+            "candidate_mean_us": 379.8146530612245,
+            "ratio": 1.0759750043852057
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 139,
+            "baseline_mean_us": 4078.9243469387757,
+            "candidate_mean_us": 4227.005142857143,
+            "ratio": 1.036303883897602
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 140,
+            "baseline_mean_us": 136.43791836734695,
+            "candidate_mean_us": 159.756,
+            "ratio": 1.1709061667876755
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 141,
+            "baseline_mean_us": 4653.812938775511,
+            "candidate_mean_us": 4831.971081632653,
+            "ratio": 1.038282188218768
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 142,
+            "baseline_mean_us": 284.9583469387755,
+            "candidate_mean_us": 311.3758775510204,
+            "ratio": 1.0927066390440594
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 143,
+            "baseline_mean_us": 3356.3554897959184,
+            "candidate_mean_us": 3452.971918367347,
+            "ratio": 1.0287861130518399
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 144,
+            "baseline_mean_us": 94.30528571428572,
+            "candidate_mean_us": 105.56889795918367,
+            "ratio": 1.1194377617286801
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 145,
+            "baseline_mean_us": 2841.6641020408165,
+            "candidate_mean_us": 3006.794204081633,
+            "ratio": 1.0581103522834467
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 146,
+            "baseline_mean_us": 25.02381632653061,
+            "candidate_mean_us": 27.071448979591835,
+            "ratio": 1.0818273530440796
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 148,
+            "baseline_mean_us": 336.09261224489796,
+            "candidate_mean_us": 353.70661224489794,
+            "ratio": 1.0524081736945927
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 149,
+            "baseline_mean_us": 3749.0578571428573,
+            "candidate_mean_us": 3754.7014897959184,
+            "ratio": 1.0015053469079729
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 150,
+            "baseline_mean_us": 252.52548979591836,
+            "candidate_mean_us": 264.0441632653061,
+            "ratio": 1.0456139040803236
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 152,
+            "baseline_mean_us": 43.45230612244898,
+            "candidate_mean_us": 57.36736734693878,
+            "ratio": 1.3202375769257686
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 154,
+            "baseline_mean_us": 66.32136734693877,
+            "candidate_mean_us": 75.48722448979592,
+            "ratio": 1.1382036817019912
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 155,
+            "baseline_mean_us": 0.5016734693877551,
+            "candidate_mean_us": 0.7585306122448979,
+            "ratio": 1.5120006508827595
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 0,
+            "baseline_mean_us": 110.3460612244898,
+            "candidate_mean_us": 141.78324489795918,
+            "ratio": 1.2848962919438789
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 1,
+            "baseline_mean_us": 3926.020510204082,
+            "candidate_mean_us": 4398.102102040816,
+            "ratio": 1.1202443009683092
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 2,
+            "baseline_mean_us": 339.2380612244898,
+            "candidate_mean_us": 422.57830612244896,
+            "ratio": 1.2456689104905863
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 3,
+            "baseline_mean_us": 4565.575755102041,
+            "candidate_mean_us": 5047.880265306122,
+            "ratio": 1.1056393620596712
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 4,
+            "baseline_mean_us": 11.767857142857142,
+            "candidate_mean_us": 14.789938775510205,
+            "ratio": 1.2568081508779536
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 5,
+            "baseline_mean_us": 3587.4456734693877,
+            "candidate_mean_us": 4120.020367346939,
+            "ratio": 1.1484551244402545
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 6,
+            "baseline_mean_us": 90.24922448979592,
+            "candidate_mean_us": 114.82661224489796,
+            "ratio": 1.2723279661852485
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 7,
+            "baseline_mean_us": 4758.417612244898,
+            "candidate_mean_us": 5357.958306122449,
+            "ratio": 1.125995812627867
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 8,
+            "baseline_mean_us": 136.60716326530613,
+            "candidate_mean_us": 164.4311020408163,
+            "ratio": 1.203678475640937
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 9,
+            "baseline_mean_us": 2914.470306122449,
+            "candidate_mean_us": 3322.2424081632653,
+            "ratio": 1.1399129375873915
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 10,
+            "baseline_mean_us": 26.30434693877551,
+            "candidate_mean_us": 33.37075510204082,
+            "ratio": 1.2686403194009217
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 11,
+            "baseline_mean_us": 4698.653040816326,
+            "candidate_mean_us": 5349.440367346939,
+            "ratio": 1.1385050823879406
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 12,
+            "baseline_mean_us": 160.994,
+            "candidate_mean_us": 198.96604081632654,
+            "ratio": 1.235859975007308
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 13,
+            "baseline_mean_us": 4516.380959183673,
+            "candidate_mean_us": 5215.63012244898,
+            "ratio": 1.1548251065587023
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 14,
+            "baseline_mean_us": 121.02469387755102,
+            "candidate_mean_us": 156.9574693877551,
+            "ratio": 1.2969044941072914
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 15,
+            "baseline_mean_us": 3884.1530612244896,
+            "candidate_mean_us": 4446.330795918368,
+            "ratio": 1.1447362464435553
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 16,
+            "baseline_mean_us": 37.81034693877551,
+            "candidate_mean_us": 47.21934693877551,
+            "ratio": 1.2488472273273648
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 17,
+            "baseline_mean_us": 156.23808163265306,
+            "candidate_mean_us": 182.26779591836734,
+            "ratio": 1.1666028794882117
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 18,
+            "baseline_mean_us": 5060.1274489795915,
+            "candidate_mean_us": 5796.554428571429,
+            "ratio": 1.1455352630970477
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 19,
+            "baseline_mean_us": 596.5748571428571,
+            "candidate_mean_us": 738.4898163265306,
+            "ratio": 1.237882903519164
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 20,
+            "baseline_mean_us": 4678.905530612245,
+            "candidate_mean_us": 5340.255918367347,
+            "ratio": 1.1413472410221035
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 21,
+            "baseline_mean_us": 233.19397959183672,
+            "candidate_mean_us": 295.21263265306123,
+            "ratio": 1.2659530626381383
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 22,
+            "baseline_mean_us": 4115.4022448979595,
+            "candidate_mean_us": 4608.209163265306,
+            "ratio": 1.119746962518257
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 23,
+            "baseline_mean_us": 3988.193816326531,
+            "candidate_mean_us": 4591.912530612245,
+            "ratio": 1.1513764731829887
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 24,
+            "baseline_mean_us": 57.070510204081636,
+            "candidate_mean_us": 73.99832653061225,
+            "ratio": 1.2966123180955889
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 25,
+            "baseline_mean_us": 4240.724632653061,
+            "candidate_mean_us": 4861.6504897959185,
+            "ratio": 1.1464197539170085
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 26,
+            "baseline_mean_us": 348.0399591836735,
+            "candidate_mean_us": 425.0894081632653,
+            "ratio": 1.2213810424536051
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 27,
+            "baseline_mean_us": 3770.704081632653,
+            "candidate_mean_us": 4203.526306122449,
+            "ratio": 1.1147855188632014
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 28,
+            "baseline_mean_us": 457.9719183673469,
+            "candidate_mean_us": 562.2474489795918,
+            "ratio": 1.227689791513819
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 29,
+            "baseline_mean_us": 2890.8187346938776,
+            "candidate_mean_us": 3302.4788367346937,
+            "ratio": 1.1424025993398748
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 30,
+            "baseline_mean_us": 301.748306122449,
+            "candidate_mean_us": 385.1580816326531,
+            "ratio": 1.276421685947614
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 31,
+            "baseline_mean_us": 65.96169387755101,
+            "candidate_mean_us": 81.10208163265305,
+            "ratio": 1.2295330344791953
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 32,
+            "baseline_mean_us": 4700.090142857143,
+            "candidate_mean_us": 5302.238102040817,
+            "ratio": 1.1281141299170132
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 33,
+            "baseline_mean_us": 46.570673469387756,
+            "candidate_mean_us": 56.94128571428571,
+            "ratio": 1.2226854686075102
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 34,
+            "baseline_mean_us": 5203.463428571428,
+            "candidate_mean_us": 5828.944734693878,
+            "ratio": 1.120204804878233
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 35,
+            "baseline_mean_us": 89.61736734693878,
+            "candidate_mean_us": 107.71677551020409,
+            "ratio": 1.2019631763249243
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 36,
+            "baseline_mean_us": 3834.7806530612243,
+            "candidate_mean_us": 4320.869918367347,
+            "ratio": 1.126758036321605
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 37,
+            "baseline_mean_us": 24.477040816326532,
+            "candidate_mean_us": 29.693,
+            "ratio": 1.2130959874934861
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 38,
+            "baseline_mean_us": 3457.165836734694,
+            "candidate_mean_us": 3879.3494489795917,
+            "ratio": 1.1221184149626018
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 39,
+            "baseline_mean_us": 18.094326530612246,
+            "candidate_mean_us": 21.397204081632655,
+            "ratio": 1.1825366390637724
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 40,
+            "baseline_mean_us": 3597.1147959183672,
+            "candidate_mean_us": 3931.471163265306,
+            "ratio": 1.0929512640870767
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 41,
+            "baseline_mean_us": 147.96248979591837,
+            "candidate_mean_us": 198.085,
+            "ratio": 1.3387514651396755
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 42,
+            "baseline_mean_us": 5090.9081836734695,
+            "candidate_mean_us": 5661.8104081632655,
+            "ratio": 1.1121415283663292
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 43,
+            "baseline_mean_us": 121.00167346938775,
+            "candidate_mean_us": 142.21514285714287,
+            "ratio": 1.1753155041539316
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 44,
+            "baseline_mean_us": 4482.496693877551,
+            "candidate_mean_us": 5073.080836734694,
+            "ratio": 1.1317533917345208
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 45,
+            "baseline_mean_us": 371.9524081632653,
+            "candidate_mean_us": 466.5603673469388,
+            "ratio": 1.2543550118437359
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 46,
+            "baseline_mean_us": 3240.633387755102,
+            "candidate_mean_us": 3659.4158163265306,
+            "ratio": 1.1292285730788985
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 47,
+            "baseline_mean_us": 23.44477551020408,
+            "candidate_mean_us": 28.19561224489796,
+            "ratio": 1.2026394636462236
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 48,
+            "baseline_mean_us": 4204.975265306122,
+            "candidate_mean_us": 4870.411591836734,
+            "ratio": 1.1582497599976176
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 49,
+            "baseline_mean_us": 291.93879591836736,
+            "candidate_mean_us": 381.6359591836735,
+            "ratio": 1.307246465763966
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 50,
+            "baseline_mean_us": 3857.941306122449,
+            "candidate_mean_us": 4466.3622448979595,
+            "ratio": 1.1577061159043458
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 51,
+            "baseline_mean_us": 2.494081632653061,
+            "candidate_mean_us": 3.025612244897959,
+            "ratio": 1.2131167662220768
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 52,
+            "baseline_mean_us": 2492.502632653061,
+            "candidate_mean_us": 2909.8035918367345,
+            "ratio": 1.1674224747917283
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 53,
+            "baseline_mean_us": 68.22436734693878,
+            "candidate_mean_us": 82.60377551020409,
+            "ratio": 1.2107664566553216
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 54,
+            "baseline_mean_us": 4046.1394285714287,
+            "candidate_mean_us": 4455.6513469387755,
+            "ratio": 1.1012105305802409
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 55,
+            "baseline_mean_us": 25.640285714285714,
+            "candidate_mean_us": 31.890285714285714,
+            "ratio": 1.2437570341315565
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 56,
+            "baseline_mean_us": 4380.521346938775,
+            "candidate_mean_us": 5055.22881632653,
+            "ratio": 1.154024467854553
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 57,
+            "baseline_mean_us": 280.1047142857143,
+            "candidate_mean_us": 358.651306122449,
+            "ratio": 1.2804186714137737
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 58,
+            "baseline_mean_us": 3947.643734693878,
+            "candidate_mean_us": 4528.224428571429,
+            "ratio": 1.1470701848738567
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 59,
+            "baseline_mean_us": 29.16657142857143,
+            "candidate_mean_us": 37.14967346938776,
+            "ratio": 1.2737072494230885
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 60,
+            "baseline_mean_us": 5096.996653061225,
+            "candidate_mean_us": 5688.290857142857,
+            "ratio": 1.116008356357563
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 61,
+            "baseline_mean_us": 8.934632653061225,
+            "candidate_mean_us": 10.766081632653062,
+            "ratio": 1.2049831314513348
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 62,
+            "baseline_mean_us": 279.11891836734696,
+            "candidate_mean_us": 316.73214285714283,
+            "ratio": 1.1347569871286665
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 63,
+            "baseline_mean_us": 5144.201551020408,
+            "candidate_mean_us": 5781.83593877551,
+            "ratio": 1.1239520616428063
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 64,
+            "baseline_mean_us": 97.58418367346938,
+            "candidate_mean_us": 115.36908163265306,
+            "ratio": 1.1822518495281418
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 65,
+            "baseline_mean_us": 3714.659857142857,
+            "candidate_mean_us": 4168.820673469388,
+            "ratio": 1.1222617504138992
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 66,
+            "baseline_mean_us": 417.5322857142857,
+            "candidate_mean_us": 514.8851632653061,
+            "ratio": 1.233162514329822
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 67,
+            "baseline_mean_us": 4970.1063469387755,
+            "candidate_mean_us": 5602.323979591837,
+            "ratio": 1.1272040452499497
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 68,
+            "baseline_mean_us": 3924.7508367346936,
+            "candidate_mean_us": 4398.753387755102,
+            "ratio": 1.120772647930631
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 69,
+            "baseline_mean_us": 459.757612244898,
+            "candidate_mean_us": 551.9438979591837,
+            "ratio": 1.2005106239876264
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 70,
+            "baseline_mean_us": 4494.831571428572,
+            "candidate_mean_us": 4988.405632653061,
+            "ratio": 1.1098092449919361
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 71,
+            "baseline_mean_us": 397.1198775510204,
+            "candidate_mean_us": 483.8351224489796,
+            "ratio": 1.2183603737811344
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 72,
+            "baseline_mean_us": 5143.21687755102,
+            "candidate_mean_us": 5725.353,
+            "ratio": 1.1131852177943093
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 73,
+            "baseline_mean_us": 914.7559795918368,
+            "candidate_mean_us": 1110.083306122449,
+            "ratio": 1.2135294339565477
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 74,
+            "baseline_mean_us": 5126.763693877551,
+            "candidate_mean_us": 5850.139489795918,
+            "ratio": 1.141097939969855
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 75,
+            "baseline_mean_us": 3503.379306122449,
+            "candidate_mean_us": 3968.2908163265306,
+            "ratio": 1.1327037324767002
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 76,
+            "baseline_mean_us": 304.24393877551023,
+            "candidate_mean_us": 373.22365306122447,
+            "ratio": 1.2267250238849021
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 77,
+            "baseline_mean_us": 2954.98893877551,
+            "candidate_mean_us": 3466.2287755102043,
+            "ratio": 1.1730090525978558
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 78,
+            "baseline_mean_us": 563.4685306122449,
+            "candidate_mean_us": 723.9880612244898,
+            "ratio": 1.2848775430951398
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 79,
+            "baseline_mean_us": 2348.7014897959184,
+            "candidate_mean_us": 2766.531469387755,
+            "ratio": 1.1778982903562352
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 80,
+            "baseline_mean_us": 5.489795918367347,
+            "candidate_mean_us": 6.713448979591837,
+            "ratio": 1.2228959107806692
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 81,
+            "baseline_mean_us": 4425.652285714285,
+            "candidate_mean_us": 5068.658959183674,
+            "ratio": 1.1452908253874738
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 82,
+            "baseline_mean_us": 31.408979591836736,
+            "candidate_mean_us": 39.232122448979595,
+            "ratio": 1.2490734483834078
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 83,
+            "baseline_mean_us": 2480.4362653061226,
+            "candidate_mean_us": 2889.052775510204,
+            "ratio": 1.1647357426269738
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 84,
+            "baseline_mean_us": 169.16924489795917,
+            "candidate_mean_us": 217.35875510204082,
+            "ratio": 1.2848597582447623
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 85,
+            "baseline_mean_us": 4871.984693877551,
+            "candidate_mean_us": 5597.185387755102,
+            "ratio": 1.1488511847725804
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 86,
+            "baseline_mean_us": 30.605489795918366,
+            "candidate_mean_us": 37.489816326530615,
+            "ratio": 1.2249376362383968
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 87,
+            "baseline_mean_us": 4309.363040816326,
+            "candidate_mean_us": 5006.153979591837,
+            "ratio": 1.1616923271898478
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 88,
+            "baseline_mean_us": 39.899632653061225,
+            "candidate_mean_us": 49.161530612244896,
+            "ratio": 1.2321299055487185
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 89,
+            "baseline_mean_us": 3115.9642653061223,
+            "candidate_mean_us": 3574.0475918367347,
+            "ratio": 1.1470117393934904
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 90,
+            "baseline_mean_us": 3808.7167551020407,
+            "candidate_mean_us": 4363.36312244898,
+            "ratio": 1.1456255224555494
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 91,
+            "baseline_mean_us": 374.23208163265303,
+            "candidate_mean_us": 453.04248979591836,
+            "ratio": 1.2105923356956494
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 92,
+            "baseline_mean_us": 4317.007632653062,
+            "candidate_mean_us": 4886.485571428571,
+            "ratio": 1.1319149714881396
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 93,
+            "baseline_mean_us": 59.15734693877551,
+            "candidate_mean_us": 73.87924489795918,
+            "ratio": 1.2488600101424427
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 94,
+            "baseline_mean_us": 3084.5417959183674,
+            "candidate_mean_us": 3585.068836734694,
+            "ratio": 1.1622694954170019
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 95,
+            "baseline_mean_us": 419.9091020408163,
+            "candidate_mean_us": 556.0417346938775,
+            "ratio": 1.3241954794298045
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 96,
+            "baseline_mean_us": 4361.810510204082,
+            "candidate_mean_us": 4969.812020408163,
+            "ratio": 1.1393920044856864
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 97,
+            "baseline_mean_us": 11.761040816326531,
+            "candidate_mean_us": 15.267122448979592,
+            "ratio": 1.2981098091068575
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 98,
+            "baseline_mean_us": 307.03832653061227,
+            "candidate_mean_us": 390.8477755102041,
+            "ratio": 1.2729608708026745
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 99,
+            "baseline_mean_us": 4199.967734693878,
+            "candidate_mean_us": 4818.684551020408,
+            "ratio": 1.1473146593997887
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 100,
+            "baseline_mean_us": 116.34002040816327,
+            "candidate_mean_us": 217.72869387755102,
+            "ratio": 1.8714857803331928
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 101,
+            "baseline_mean_us": 4197.867489795918,
+            "candidate_mean_us": 4739.969408163265,
+            "ratio": 1.129137453644041
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 102,
+            "baseline_mean_us": 456.68279591836733,
+            "candidate_mean_us": 582.8172448979592,
+            "ratio": 1.27619706743264
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 103,
+            "baseline_mean_us": 4293.025306122449,
+            "candidate_mean_us": 4910.022,
+            "ratio": 1.1437207213751168
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 104,
+            "baseline_mean_us": 271.4226326530612,
+            "candidate_mean_us": 409.7541020408163,
+            "ratio": 1.509653406702357
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 105,
+            "baseline_mean_us": 1682.5800612244898,
+            "candidate_mean_us": 2028.6667346938775,
+            "ratio": 1.2056880866741786
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 106,
+            "baseline_mean_us": 241.6028775510204,
+            "candidate_mean_us": 314.2771836734694,
+            "ratio": 1.3008006645413484
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 107,
+            "baseline_mean_us": 4544.868959183674,
+            "candidate_mean_us": 5319.817306122449,
+            "ratio": 1.1705106030335288
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 108,
+            "baseline_mean_us": 533.0799591836735,
+            "candidate_mean_us": 710.9438163265306,
+            "ratio": 1.3336532429679537
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 109,
+            "baseline_mean_us": 4722.859775510204,
+            "candidate_mean_us": 5420.68618367347,
+            "ratio": 1.1477550554817988
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 110,
+            "baseline_mean_us": 514.4702040816327,
+            "candidate_mean_us": 684.3580204081633,
+            "ratio": 1.330218961134577
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 111,
+            "baseline_mean_us": 3716.9881224489795,
+            "candidate_mean_us": 4191.598551020408,
+            "ratio": 1.127686829480296
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 112,
+            "baseline_mean_us": 153.94379591836736,
+            "candidate_mean_us": 194.1047142857143,
+            "ratio": 1.2608803955220338
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 113,
+            "baseline_mean_us": 2854.5603673469386,
+            "candidate_mean_us": 3331.023775510204,
+            "ratio": 1.166913060803859
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 114,
+            "baseline_mean_us": 36.81887755102041,
+            "candidate_mean_us": 46.22702040816326,
+            "ratio": 1.2555249774821589
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 115,
+            "baseline_mean_us": 1978.1249591836736,
+            "candidate_mean_us": 2370.6156530612243,
+            "ratio": 1.1984155207462337
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 116,
+            "baseline_mean_us": 114.30518367346939,
+            "candidate_mean_us": 149.63938775510204,
+            "ratio": 1.309121624637517
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 117,
+            "baseline_mean_us": 4148.992408163265,
+            "candidate_mean_us": 4818.4668163265305,
+            "ratio": 1.1613583112001011
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 118,
+            "baseline_mean_us": 1127.9541428571429,
+            "candidate_mean_us": 1414.881,
+            "ratio": 1.2543781225148591
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 119,
+            "baseline_mean_us": 4458.640244897959,
+            "candidate_mean_us": 5139.7993877551025,
+            "ratio": 1.1527728422665626
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 120,
+            "baseline_mean_us": 3550.94906122449,
+            "candidate_mean_us": 4155.468510204082,
+            "ratio": 1.1702416561197115
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 121,
+            "baseline_mean_us": 32.4880612244898,
+            "candidate_mean_us": 40.7414693877551,
+            "ratio": 1.2540443428198114
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 122,
+            "baseline_mean_us": 3537.536693877551,
+            "candidate_mean_us": 4138.685428571429,
+            "ratio": 1.16993427537707
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 123,
+            "baseline_mean_us": 390.848612244898,
+            "candidate_mean_us": 475.06636734693876,
+            "ratio": 1.2154741054812077
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 124,
+            "baseline_mean_us": 4624.455795918368,
+            "candidate_mean_us": 5210.883448979592,
+            "ratio": 1.1268100894334023
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 125,
+            "baseline_mean_us": 316.20995918367345,
+            "candidate_mean_us": 385.7644285714286,
+            "ratio": 1.2199629308555515
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 126,
+            "baseline_mean_us": 3489.0212040816327,
+            "candidate_mean_us": 4115.324836734694,
+            "ratio": 1.179506972305121
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 127,
+            "baseline_mean_us": 402.61651020408164,
+            "candidate_mean_us": 515.1368367346939,
+            "ratio": 1.2794727083436719
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 128,
+            "baseline_mean_us": 245.16336734693877,
+            "candidate_mean_us": 317.6615306122449,
+            "ratio": 1.2957136869584256
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 129,
+            "baseline_mean_us": 4466.492306122449,
+            "candidate_mean_us": 4991.514530612245,
+            "ratio": 1.117546877618063
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 130,
+            "baseline_mean_us": 262.61304081632653,
+            "candidate_mean_us": 332.1479387755102,
+            "ratio": 1.264780826355904
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 131,
+            "baseline_mean_us": 4195.071448979592,
+            "candidate_mean_us": 4829.2873673469385,
+            "ratio": 1.1511811958582048
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 132,
+            "baseline_mean_us": 379.376693877551,
+            "candidate_mean_us": 478.5246734693878,
+            "ratio": 1.2613444135918326
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 133,
+            "baseline_mean_us": 5058.688877551021,
+            "candidate_mean_us": 5756.132775510204,
+            "ratio": 1.1378704867686635
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 134,
+            "baseline_mean_us": 78.84855102040817,
+            "candidate_mean_us": 97.55269387755102,
+            "ratio": 1.237216063137314
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 135,
+            "baseline_mean_us": 3305.390367346939,
+            "candidate_mean_us": 3834.4897755102043,
+            "ratio": 1.1600716857500692
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 136,
+            "baseline_mean_us": 366.81626530612243,
+            "candidate_mean_us": 466.3384693877551,
+            "ratio": 1.2713134980494323
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 137,
+            "baseline_mean_us": 4239.405653061224,
+            "candidate_mean_us": 4946.855408163266,
+            "ratio": 1.1668747491977325
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 138,
+            "baseline_mean_us": 342.2626530612245,
+            "candidate_mean_us": 426.6810612244898,
+            "ratio": 1.246648027204313
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 139,
+            "baseline_mean_us": 4017.4524285714288,
+            "candidate_mean_us": 4701.36393877551,
+            "ratio": 1.1702351234678525
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 140,
+            "baseline_mean_us": 132.98381632653062,
+            "candidate_mean_us": 170.45579591836736,
+            "ratio": 1.2817784947592978
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 141,
+            "baseline_mean_us": 4519.673469387755,
+            "candidate_mean_us": 5252.447081632653,
+            "ratio": 1.162129768269335
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 142,
+            "baseline_mean_us": 275.03061224489795,
+            "candidate_mean_us": 361.1607551020408,
+            "ratio": 1.3131656587392868
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 143,
+            "baseline_mean_us": 3283.6454897959184,
+            "candidate_mean_us": 3802.027244897959,
+            "ratio": 1.1578677590845103
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 144,
+            "baseline_mean_us": 90.75338775510204,
+            "candidate_mean_us": 110.96255102040816,
+            "ratio": 1.222682191433344
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 145,
+            "baseline_mean_us": 2742.568081632653,
+            "candidate_mean_us": 3301.3443469387757,
+            "ratio": 1.2037419851300402
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 146,
+            "baseline_mean_us": 22.43455102040816,
+            "candidate_mean_us": 30.920020408163264,
+            "ratio": 1.3782321910537045
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 147,
+            "baseline_mean_us": 3623.137714285714,
+            "candidate_mean_us": 4269.493204081633,
+            "ratio": 1.1783966111051745
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 148,
+            "baseline_mean_us": 319.97279591836735,
+            "candidate_mean_us": 406.3614285714286,
+            "ratio": 1.2699874294160338
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 149,
+            "baseline_mean_us": 3546.3462040816325,
+            "candidate_mean_us": 4129.649693877551,
+            "ratio": 1.1644801314447446
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 150,
+            "baseline_mean_us": 233.3928775510204,
+            "candidate_mean_us": 290.5416734693878,
+            "ratio": 1.2448609251405902
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 151,
+            "baseline_mean_us": 125.54589795918368,
+            "candidate_mean_us": 151.98636734693878,
+            "ratio": 1.2106040087136194
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 152,
+            "baseline_mean_us": 43.829959183673466,
+            "candidate_mean_us": 62.864,
+            "ratio": 1.4342701013378232
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 153,
+            "baseline_mean_us": 3080.4124081632654,
+            "candidate_mean_us": 3436.6896326530614,
+            "ratio": 1.1156589369480663
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 154,
+            "baseline_mean_us": 64.11573469387756,
+            "candidate_mean_us": 84.2984693877551,
+            "ratio": 1.3147859849105779
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 155,
+            "baseline_mean_us": 0.5051632653061224,
+            "candidate_mean_us": 0.7185510204081633,
+            "ratio": 1.4224134448349697
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 157,
+            "baseline_mean_us": 2106.300244897959,
+            "candidate_mean_us": 2494.152244897959,
+            "ratio": 1.1841389901271124
+          }
+        ]
+      },
+      "shared": {
+        "observations": {
+          "baseline": {
+            "warm_p95_us": 5376.166,
+            "median_peak_rss_bytes": 63602688,
+            "max_peak_rss_bytes": 64307200,
+            "by_algorithm": {
+              "Bm25": 5348.3330000000005,
+              "Tfidf": 5402.625
+            }
+          },
+          "candidate": {
+            "warm_p95_us": 5315.541,
+            "median_peak_rss_bytes": 63602688,
+            "max_peak_rss_bytes": 64028672,
+            "by_algorithm": {
+              "Bm25": 5192.167,
+              "Tfidf": 5446.583
+            }
+          }
+        },
+        "p95_ratio": 0.9887233764731223,
+        "median_rss_ratio": 1.0,
+        "slower_queries": [
+          {
+            "algorithm": "Bm25",
+            "query": 1,
+            "baseline_mean_us": 4104.065612244898,
+            "candidate_mean_us": 4106.255081632653,
+            "ratio": 1.0005334879104326
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 4,
+            "baseline_mean_us": 14.09430612244898,
+            "candidate_mean_us": 14.267102040816326,
+            "ratio": 1.0122599805102943
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 6,
+            "baseline_mean_us": 103.03404081632654,
+            "candidate_mean_us": 104.87502040816327,
+            "ratio": 1.0178676831195872
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 14,
+            "baseline_mean_us": 139.45832653061225,
+            "candidate_mean_us": 143.10202040816327,
+            "ratio": 1.0261274745524154
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 16,
+            "baseline_mean_us": 43.8545306122449,
+            "candidate_mean_us": 45.99410204081633,
+            "ratio": 1.048787922221519
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 17,
+            "baseline_mean_us": 172.74742857142857,
+            "candidate_mean_us": 179.66155102040815,
+            "ratio": 1.0400244594443888
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 18,
+            "baseline_mean_us": 5344.173530612245,
+            "candidate_mean_us": 5355.554448979592,
+            "ratio": 1.002129593715877
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 19,
+            "baseline_mean_us": 650.2415306122449,
+            "candidate_mean_us": 661.068,
+            "ratio": 1.0166499198806347
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 20,
+            "baseline_mean_us": 4968.222734693878,
+            "candidate_mean_us": 4977.654693877551,
+            "ratio": 1.0018984573935883
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 21,
+            "baseline_mean_us": 257.0017551020408,
+            "candidate_mean_us": 260.8657346938775,
+            "ratio": 1.015034837370284
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 24,
+            "baseline_mean_us": 64.98891836734694,
+            "candidate_mean_us": 67.4405918367347,
+            "ratio": 1.037724484896483
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 31,
+            "baseline_mean_us": 75.69644897959184,
+            "candidate_mean_us": 76.90563265306122,
+            "ratio": 1.0159741135782392
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 35,
+            "baseline_mean_us": 95.937,
+            "candidate_mean_us": 96.62757142857143,
+            "ratio": 1.0071981761840731
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 55,
+            "baseline_mean_us": 29.761020408163265,
+            "candidate_mean_us": 32.93622448979592,
+            "ratio": 1.1066900273608131
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 76,
+            "baseline_mean_us": 343.80779591836733,
+            "candidate_mean_us": 370.97955102040817,
+            "ratio": 1.079031817848867
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 93,
+            "baseline_mean_us": 65.03308163265307,
+            "candidate_mean_us": 66.30193877551021,
+            "ratio": 1.0195109490585796
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 103,
+            "baseline_mean_us": 4604.665755102041,
+            "candidate_mean_us": 4927.69306122449,
+            "ratio": 1.070152172449114
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 110,
+            "baseline_mean_us": 558.0213469387755,
+            "candidate_mean_us": 562.4089795918368,
+            "ratio": 1.0078628401532148
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 114,
+            "baseline_mean_us": 42.148714285714284,
+            "candidate_mean_us": 54.1429387755102,
+            "ratio": 1.284569166416096
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 116,
+            "baseline_mean_us": 127.51016326530612,
+            "candidate_mean_us": 130.2167755102041,
+            "ratio": 1.021226639317106
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 123,
+            "baseline_mean_us": 428.6955510204082,
+            "candidate_mean_us": 434.0500204081633,
+            "ratio": 1.012490144521001
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 134,
+            "baseline_mean_us": 87.98467346938776,
+            "candidate_mean_us": 89.64971428571428,
+            "ratio": 1.0189242143054136
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 142,
+            "baseline_mean_us": 305.40987755102043,
+            "candidate_mean_us": 312.22108163265307,
+            "ratio": 1.0223018460838575
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 152,
+            "baseline_mean_us": 39.915775510204085,
+            "candidate_mean_us": 43.81118367346939,
+            "ratio": 1.0975906922381973
+          },
+          {
+            "algorithm": "Bm25",
+            "query": 153,
+            "baseline_mean_us": 3126.63,
+            "candidate_mean_us": 3161.185387755102,
+            "ratio": 1.0110519593796201
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 0,
+            "baseline_mean_us": 131.97104081632654,
+            "candidate_mean_us": 137.12671428571429,
+            "ratio": 1.039066703100139
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 1,
+            "baseline_mean_us": 4055.0050408163265,
+            "candidate_mean_us": 4216.839346938776,
+            "ratio": 1.039909766940726
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 2,
+            "baseline_mean_us": 385.3707755102041,
+            "candidate_mean_us": 404.319693877551,
+            "ratio": 1.0491706158627618
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 3,
+            "baseline_mean_us": 4735.98381632653,
+            "candidate_mean_us": 4759.77806122449,
+            "ratio": 1.0050241398241127
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 4,
+            "baseline_mean_us": 13.199836734693877,
+            "candidate_mean_us": 14.361428571428572,
+            "ratio": 1.0880004700119978
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 6,
+            "baseline_mean_us": 113.49491836734694,
+            "candidate_mean_us": 114.9201224489796,
+            "ratio": 1.0125574263776262
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 8,
+            "baseline_mean_us": 160.81544897959185,
+            "candidate_mean_us": 166.28402040816326,
+            "ratio": 1.034005261703839
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 10,
+            "baseline_mean_us": 32.09263265306122,
+            "candidate_mean_us": 32.36828571428571,
+            "ratio": 1.0085892941287942
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 15,
+            "baseline_mean_us": 4246.843612244898,
+            "candidate_mean_us": 4412.055387755102,
+            "ratio": 1.0389022508466874
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 16,
+            "baseline_mean_us": 46.37751020408163,
+            "candidate_mean_us": 50.11234693877551,
+            "ratio": 1.0805312039878583
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 17,
+            "baseline_mean_us": 188.55936734693879,
+            "candidate_mean_us": 194.51014285714285,
+            "ratio": 1.0315591614138955
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 18,
+            "baseline_mean_us": 5459.993163265306,
+            "candidate_mean_us": 5558.348693877551,
+            "ratio": 1.0180138560015017
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 19,
+            "baseline_mean_us": 678.6776734693877,
+            "candidate_mean_us": 697.3043877551021,
+            "ratio": 1.0274455975404273
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 20,
+            "baseline_mean_us": 4990.318857142857,
+            "candidate_mean_us": 5052.511918367347,
+            "ratio": 1.012462742963903
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 21,
+            "baseline_mean_us": 271.3893673469388,
+            "candidate_mean_us": 280.91073469387754,
+            "ratio": 1.0350837891698492
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 29,
+            "baseline_mean_us": 3075.7577142857144,
+            "candidate_mean_us": 3106.518755102041,
+            "ratio": 1.0100011261203876
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 30,
+            "baseline_mean_us": 377.5655306122449,
+            "candidate_mean_us": 380.89787755102043,
+            "ratio": 1.0088258770162941
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 31,
+            "baseline_mean_us": 79.50597959183673,
+            "candidate_mean_us": 82.78469387755102,
+            "ratio": 1.0412385873684766
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 33,
+            "baseline_mean_us": 55.53573469387755,
+            "candidate_mean_us": 57.9540612244898,
+            "ratio": 1.0435454134881348
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 35,
+            "baseline_mean_us": 102.69891836734693,
+            "candidate_mean_us": 105.87842857142857,
+            "ratio": 1.030959529609735
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 36,
+            "baseline_mean_us": 4073.2177346938774,
+            "candidate_mean_us": 4108.921714285714,
+            "ratio": 1.0087655465328371
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 37,
+            "baseline_mean_us": 29.1615306122449,
+            "candidate_mean_us": 32.22369387755102,
+            "ratio": 1.105006945829528
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 43,
+            "baseline_mean_us": 139.0629387755102,
+            "candidate_mean_us": 144.66667346938775,
+            "ratio": 1.040296392002212
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 59,
+            "baseline_mean_us": 34.99067346938776,
+            "candidate_mean_us": 35.79587755102041,
+            "ratio": 1.02301196295456
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 64,
+            "baseline_mean_us": 108.89108163265306,
+            "candidate_mean_us": 111.86571428571429,
+            "ratio": 1.027317504872403
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 66,
+            "baseline_mean_us": 509.7101632653061,
+            "candidate_mean_us": 529.6998367346939,
+            "ratio": 1.0392177258960855
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 67,
+            "baseline_mean_us": 5272.000836734694,
+            "candidate_mean_us": 5291.743979591837,
+            "ratio": 1.0037449051069143
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 68,
+            "baseline_mean_us": 4067.5093469387757,
+            "candidate_mean_us": 4074.0288571428573,
+            "ratio": 1.0016028261149512
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 74,
+            "baseline_mean_us": 5540.027183673469,
+            "candidate_mean_us": 5551.181979591836,
+            "ratio": 1.0020134911884981
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 95,
+            "baseline_mean_us": 545.9209387755102,
+            "candidate_mean_us": 563.9183469387755,
+            "ratio": 1.032967059669177
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 102,
+            "baseline_mean_us": 582.4898367346939,
+            "candidate_mean_us": 586.1394081632653,
+            "ratio": 1.0062654679934506
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 108,
+            "baseline_mean_us": 663.8886326530612,
+            "candidate_mean_us": 683.8461020408163,
+            "ratio": 1.0300614717682395
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 110,
+            "baseline_mean_us": 674.5203673469388,
+            "candidate_mean_us": 699.8562448979592,
+            "ratio": 1.0375613232416878
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 114,
+            "baseline_mean_us": 44.93785714285714,
+            "candidate_mean_us": 45.02126530612245,
+            "ratio": 1.0018560778944166
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 119,
+            "baseline_mean_us": 4683.257653061224,
+            "candidate_mean_us": 4693.555306122449,
+            "ratio": 1.0021988226623606
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 120,
+            "baseline_mean_us": 3765.1104285714287,
+            "candidate_mean_us": 3812.6931836734693,
+            "ratio": 1.0126378112952439
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 121,
+            "baseline_mean_us": 38.04336734693877,
+            "candidate_mean_us": 39.591795918367346,
+            "ratio": 1.0407016696841682
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 123,
+            "baseline_mean_us": 456.0025510204082,
+            "candidate_mean_us": 459.61651020408164,
+            "ratio": 1.00792530475013
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 127,
+            "baseline_mean_us": 486.74997959183673,
+            "candidate_mean_us": 492.80279591836734,
+            "ratio": 1.0124351650340204
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 128,
+            "baseline_mean_us": 307.52891836734693,
+            "candidate_mean_us": 308.25938775510207,
+            "ratio": 1.002375286823864
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 130,
+            "baseline_mean_us": 304.5357755102041,
+            "candidate_mean_us": 305.7278367346939,
+            "ratio": 1.0039143552920595
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 134,
+            "baseline_mean_us": 91.1854693877551,
+            "candidate_mean_us": 92.64542857142857,
+            "ratio": 1.0160108753453378
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 137,
+            "baseline_mean_us": 4512.0085714285715,
+            "candidate_mean_us": 4523.318081632653,
+            "ratio": 1.0025065356204546
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 139,
+            "baseline_mean_us": 4250.719428571429,
+            "candidate_mean_us": 4265.860591836735,
+            "ratio": 1.0035620236808702
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 140,
+            "baseline_mean_us": 157.23810204081633,
+            "candidate_mean_us": 162.7032448979592,
+            "ratio": 1.0347571153951236
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 152,
+            "baseline_mean_us": 43.41757142857143,
+            "candidate_mean_us": 48.107122448979595,
+            "ratio": 1.1080104406144227
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 153,
+            "baseline_mean_us": 3178.357163265306,
+            "candidate_mean_us": 3209.6232653061224,
+            "ratio": 1.0098371896029126
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 154,
+            "baseline_mean_us": 71.51875510204081,
+            "candidate_mean_us": 74.04426530612245,
+            "ratio": 1.035312558230052
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 155,
+            "baseline_mean_us": 0.6385306122448979,
+            "candidate_mean_us": 0.6607755102040817,
+            "ratio": 1.0348376374328816
+          },
+          {
+            "algorithm": "Tfidf",
+            "query": 156,
+            "baseline_mean_us": 0.22104081632653064,
+            "candidate_mean_us": 0.2509387755102041,
+            "ratio": 1.135259902132767
+          }
+        ]
+      }
+    }
+  ],
+  "reproducible_regressions_above_10_percent": [],
+  "passed": true,
+  "limits": [
+    "Same source consumer compiled separately for registry 0.5.3 and path candidate, with default and shared storage; no model inference.",
+    "One host, two alternating campaigns, seven process pairs per storage configuration. Construction is outside warm timing; exact-child RSS includes the full worker.",
+    "Each worker warms all 158 queries for each algorithm, then records seven repetitions; p95 pools individual query samples over the seven workers.",
+    "RSS comparison uses median exact-child process peak across seven workers; maxima and every slower query mean are retained.",
+    "The signature includes all 150 reference questions plus eight boundary/large-query controls under three scopes, both algorithms and four original/edited/retained/restored stages.",
+    "Identical signatures establish these cases, not equivalence for every input. Tiny-query ratios and a shared host are noisy."
+  ],
+  "baseline_version": "0.5.3"
+}

@@ -1,0 +1,97 @@
+{
+  "format_version": 1,
+  "milestone": "0.6.0",
+  "scope": "Engineering milestone integrating planned 0.5.4 pilot work; empirical real-data promotion remains separate.",
+  "engineering_status": "engineering_checks_passed_closeout_in_progress",
+  "published": false,
+  "baseline_commit": "705803e34382be856c288c7c5c2eeb2507217330",
+  "stages": [
+    {
+      "id": 1,
+      "name": "Bounded local pilot and immutable capture/review/export",
+      "status": "complete",
+      "evidence": [
+        "PILOT.md",
+        "tests/pilot_workflow_test.py",
+        "examples/pilot_support/mod.rs"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Independent export validation and separately versioned evaluation-input freeze",
+      "status": "complete",
+      "evidence": [
+        "scripts/pilot_dataset.py",
+        "tests/pilot_workflow_test.py"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Explicit live profiles and bounded trusted MCP backend",
+      "status": "complete",
+      "evidence": [
+        "src/mcp.rs",
+        "examples/reference_profiles/mod.rs",
+        "tests/pilot_profiles_test.py"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Native stability, feature/MSRV and scoped interpreter checks",
+      "status": "complete",
+      "observed": {
+        "default_checks": 253,
+        "all_feature_checks_including_39_doctests": 914,
+        "isolated_features": 40,
+        "example_tests": 13,
+        "python_pilot_tests": 6,
+        "python_profile_tests": 7,
+        "scoped_miri_tests": 86,
+        "backend_regressions": 14
+      }
+    },
+    {
+      "id": 5,
+      "name": "Paired baseline performance and complete live inference measurements",
+      "status": "complete",
+      "completed": [
+        "exact Core signatures and two paired campaigns",
+        "two matched-feature complete-MCP campaigns",
+        "two finite 10k/100k/1m and retained-500k-clone campaigns",
+        "actual BGE-M3/MiniLMv2 complete-request campaign; all three resource gates pass"
+      ],
+      "pending": []
+    },
+    {
+      "id": 6,
+      "name": "Dependency decisions, package consumer and platform gates",
+      "status": "complete",
+      "evidence": [
+        "DEPENDENCY-DECISIONS-0.6.0.md"
+      ],
+      "observed": {
+        "known_vulnerabilities_in_audited_root_and_backend_locks": 0,
+        "maintenance_notices_suppressed": 0,
+        "rust_1.89_packaged_consumer": "passed",
+        "package_and_publish_dry_run": "passed",
+        "ci_857758a_five_jobs": "passed"
+      }
+    },
+    {
+      "id": 7,
+      "name": "Archive evidence and finalize source milestone documentation",
+      "status": "in_progress"
+    }
+  ],
+  "external_quality_gate": {
+    "status": "awaiting_genuine_independently_reviewed_inputs",
+    "minimum_questions": 50,
+    "established_eligible_questions": 0,
+    "local_unreviewed_user_question_replays": 3,
+    "reference_v1_origin": "150 assistant-authored cases; unchanged frozen regression corpus",
+    "evaluation_ready": false,
+    "new_production_profile_recommendation": null
+  },
+  "policy": "Never mark the external human-data/quality gate complete from tooling, synthetic fixtures, conversation replays or assistant reviews.",
+  "evidence_paths_relative_to": "repository root unless explicitly a guide filename"
+}

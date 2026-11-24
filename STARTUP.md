@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. Library examples use AIRust 0.5.3. This source checkout contains the complete reference workspace and evaluation tooling. Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. This checkout prepares the AIRust 0.6.0 source milestone with a bounded local pilot and explicit live profiles. Registry installation examples below use the last verified published baseline, 0.5.3; the source version is not a publication receipt. Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -156,3 +156,8 @@ docker run --rm -e AIRUST_API_TOKEN -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:707
 The image builds the web feature and requires the token for its container listener. These mappings expose it only on the host's loopback interface. Container data needs an explicit persistent volume to survive container removal. Existing host databases, backups and logs are excluded from the build context.
 
 For the full interface, read [the cookbook](docs/API-COOKBOOK.md). Platform and feature commitments are in [SUPPORT.md](docs/SUPPORT.md); historical changes remain in [CHANGELOG.md](CHANGELOG.md).
+
+
+## Collect pilot questions and run live profiles
+
+Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the source build for 0.6.0 profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.

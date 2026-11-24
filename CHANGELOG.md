@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 — source milestone
+
+Bounded local pilot initialization/capture/review/export, independently verified provenance, explicit live CLI/MCP search profiles and an application-owned MCP backend hook. Defaults and saved workspace schema remain compatible; import/serialization/vector-allocation limits are strengthened. Genuine independently reviewed pilot-data readiness remains a separate unmet gate. See [scope and evidence](docs/CHANGES-0.6.0.md) and [migration](docs/MIGRATION-0.6.0.md).
+
+
 ## 0.5.3 — Reference workflow and measured maintenance work
 
 Complete the reference workflow and measured maintenance work after the verified 0.5.2 baseline. Add a frozen, explicitly authored 150-question reference dataset, predeclared acceptance policy and an executable Markdown-to-snapshot-to-retrieval-to-MCP workflow. Preserve the published 0.5.2 artifact and compatible public calls, ranking behavior and saved formats. MCP schema identifiers follow the new crate version. The example keeps its own bounded workspace format; it adds no default feature or public library API.
