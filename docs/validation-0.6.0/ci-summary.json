@@ -1,0 +1,72 @@
+{
+  "runtime_ci": {
+    "commit": "857758ae572f482597f31f4504f18d0b21ddf0fc",
+    "url": "https://github.com/LEVOGNE/airust/actions/runs/45418692340",
+    "all_five_jobs_passed": true
+  },
+  "latest_code_ci": {
+    "commit": "66dba7c5180b1b88c06bd6aafc7cd27b15121093",
+    "url": "https://github.com/LEVOGNE/airust/actions/runs/45424914983",
+    "overall_conclusion": "failure",
+    "jobs": [
+      {
+        "name": "macos-checks",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "executed_steps": 0
+      },
+      {
+        "name": "local-embedding-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "executed_steps": 9
+      },
+      {
+        "name": "minimum-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "executed_steps": 9
+      },
+      {
+        "name": "pdf-backend",
+        "status": "completed",
+        "conclusion": "success",
+        "executed_steps": 13
+      },
+      {
+        "name": "checks",
+        "status": "completed",
+        "conclusion": "success",
+        "executed_steps": 10
+      }
+    ]
+  },
+  "macos_attempts": [
+    {
+      "attempt": 1,
+      "conclusion": "cancelled",
+      "executed_steps": 0
+    },
+    {
+      "attempt": 2,
+      "conclusion": "cancelled",
+      "executed_steps": 0
+    }
+  ],
+  "rust_test_feature_files_unchanged_since_successful_runtime_ci": true,
+  "latest_local_macos_full_script": {
+    "exit_code": 0,
+    "source_commit": "197ab1028d80101b92615765b930f1200dca680b",
+    "source_note": "Only milestone documentation/evidence changed since code commit 66dba7c. Full script run after measurement-client/reporting changes.",
+    "log_sha256": "74078052d07c77d64de99070d0c45b83e29c682d145306a641065e1a7b96be40",
+    "local_macos_full_script_passed": true,
+    "default_checks": 253,
+    "all_feature_checks_including_39_doctests": 914,
+    "isolated_features": 40,
+    "pilot_python_tests": 6,
+    "profile_python_tests": 7,
+    "hosted_macos_status": "Cancelled before any steps twice; not counted as pass.",
+    "prior_full_runtime_ci": "857758a: all five jobs pass."
+  },
+  "policy": "A cancelled job with no steps is unavailable evidence, never a pass."
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "milestone": "0.6.0",
   "scope": "Engineering milestone integrating planned 0.5.4 pilot work; empirical real-data promotion remains separate.",
-  "engineering_status": "engineering_checks_passed_closeout_in_progress",
+  "engineering_status": "implemented_and_locally_verified",
   "published": false,
   "baseline_commit": "705803e34382be856c288c7c5c2eeb2507217330",
   "stages": [
@@ -74,13 +74,19 @@
         "maintenance_notices_suppressed": 0,
         "rust_1.89_packaged_consumer": "passed",
         "package_and_publish_dry_run": "passed",
-        "ci_857758a_five_jobs": "passed"
+        "ci_857758a_five_jobs": "passed",
+        "final_local_macos_full_script": "passed",
+        "latest_code_ci": "Linux, both compiler jobs and backend passed; hosted macOS cancelled before steps twice, not passed"
       }
     },
     {
       "id": 7,
       "name": "Archive evidence and finalize source milestone documentation",
-      "status": "in_progress"
+      "status": "complete",
+      "evidence": [
+        "docs/validation-0.6.0/README.md",
+        "docs/measurements/pilot-0.6.0/README.md"
+      ]
     }
   ],
   "external_quality_gate": {

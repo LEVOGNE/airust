@@ -2,7 +2,7 @@
   "format_version": 1,
   "recorded_at": "2026-11-24T15:31:04.803097+00:00",
   "version": "0.6.0",
-  "status": "engineering_checks_passed_closeout_in_progress",
+  "status": "engineering_implemented_and_locally_verified",
   "published": false,
   "baseline": "705803e34382be856c288c7c5c2eeb2507217330",
   "runtime_ci_commit": "857758ae572f482597f31f4504f18d0b21ddf0fc",
@@ -36,7 +36,14 @@
     "live_model_resource_profiles": true,
     "registry_publish_dry_run": true,
     "ci_857758a_five_jobs": true,
-    "latest_code_ci": "four passed; macOS empty-step cancellation, targeted retry requested"
+    "latest_code_ci": {
+      "linux_checks": "passed",
+      "rust_1_89": "passed",
+      "rust_1_92": "passed",
+      "backend": "passed",
+      "hosted_macos": "cancelled before test execution twice; unavailable, not passed"
+    },
+    "immutable_packaged_all_features_all_targets_rust_1_92": true
   },
   "quality_readiness": {
     "evaluation_ready": false,
@@ -138,5 +145,24 @@
     "native_inference_and_http": "Outside interpreter scope; use actual native runs and loopback integration tests.",
     "full_reference_example": "The large independently generated corpus parity test runs natively; small workspace/pilot tests run here."
   },
-  "runtime_test_and_feature_files_match_successful_ci_857758a": true
+  "runtime_test_and_feature_files_match_successful_ci_857758a": true,
+  "package_check_race_correction": "A concurrent publish dry run refreshed the verifier extraction; immutable archive re-extraction passed all-feature and consumer checks without source changes. Both attempts retained.",
+  "latest_local_full_macos_recheck": {
+    "exit_code": 0,
+    "source_commit": "197ab1028d80101b92615765b930f1200dca680b",
+    "source_note": "Only milestone documentation/evidence changed since code commit 66dba7c. Full script run after measurement-client/reporting changes.",
+    "log_sha256": "74078052d07c77d64de99070d0c45b83e29c682d145306a641065e1a7b96be40",
+    "local_macos_full_script_passed": true,
+    "default_checks": 253,
+    "all_feature_checks_including_39_doctests": 914,
+    "isolated_features": 40,
+    "pilot_python_tests": 6,
+    "profile_python_tests": 7,
+    "hosted_macos_status": "Cancelled before any steps twice; not counted as pass.",
+    "prior_full_runtime_ci": "857758a: all five jobs pass."
+  },
+  "remaining_external_items": [
+    "At least 50 genuine independently reviewed pilot cases and frozen real-data quality evaluation.",
+    "Latest-code hosted macOS rerun unavailable after two zero-step cancellations; full prior runtime CI and final local macOS matrix pass."
+  ]
 }
