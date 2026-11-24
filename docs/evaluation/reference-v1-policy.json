@@ -1,0 +1,67 @@
+{
+  "format_version": 1,
+  "policy_id": "airust-reference-v1-policy-1",
+  "baseline_commit": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+  "questions": {
+    "total": 150,
+    "development": 90,
+    "evaluation": 60,
+    "unanswerable_fraction": 0.2,
+    "languages": [
+      "de",
+      "en"
+    ]
+  },
+  "retrieval": {
+    "candidate_limit": 100,
+    "quality_cutoff": 10,
+    "delivered_hits": 6,
+    "excerpt_bytes": 2000,
+    "total_text_bytes": 12000,
+    "json_bytes": 65536
+  },
+  "corpus": {
+    "passage_max_bytes": 1800,
+    "recipe": "markdown-blank-paragraph-utf8-v1",
+    "collection": "airust-reference",
+    "guard_collection": "out-of-scope-fixture"
+  },
+  "quality": {
+    "answerable_reference_ndcg_at_10_minimum": 0.75,
+    "answerable_reference_hit_at_6_minimum": 0.8,
+    "recommended_profile_ndcg_gain_minimum": 0.03,
+    "recommended_profile_hit_at_6_loss_maximum": 0.02,
+    "unjudged_policy": "non_relevant",
+    "select_using": "development",
+    "evaluate_once_after_selection": true
+  },
+  "resources": {
+    "lexical_warm_p95_ms": 25.0,
+    "lexical_peak_rss_mib": 512,
+    "reference_build_ms": 5000.0,
+    "hybrid_retrieval_warm_p95_ms_excluding_embedding": 250.0,
+    "reranking_warm_p95_ms": 1000.0,
+    "model_worker_peak_rss_mib": 4096,
+    "paired_refactor_regression_ratio_maximum": 1.1
+  },
+  "measurement": {
+    "warmups": 1,
+    "repetitions": 7,
+    "paired_refactor_campaigns": 2,
+    "query_order_seed": 522026,
+    "rrf_k": 60,
+    "hybrid_weights": [
+      0.5,
+      0.5
+    ],
+    "rerank_candidates": 20
+  },
+  "invariants": {
+    "span_mismatches": 0,
+    "scope_leaks": 0,
+    "stale_revision_acceptances": 0,
+    "unsupported_generated_answers": 0
+  },
+  "origin_policy": "Question origin is explicit. Assistant-authored cases must never be reported as historical traffic or independent human labels.",
+  "answerability_policy": "This retrieval application generates no answer. Nonempty candidates leave answerability unassessed; no-hit output reports no evidence. Negative candidate-return rate is diagnostic, not answer error rate."
+}

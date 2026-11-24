@@ -1,0 +1,60 @@
+{
+  "format_version": 1,
+  "dataset": "airust-reference-v1",
+  "identity_sha256": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
+  "source_commit": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+  "inputs": {
+    "source_manifest_sha256": "18b48cc243fb6253675290918321f6279bccf9205630879baa105db344e07988",
+    "cases_sha256": "28a8cdac12581f1b4d572b6b65b17e54ce8c2e10613b370eaf33efcf2d216fa3",
+    "policy_sha256": "926d6f8a2e63f9e917c4a957ed35a40851aaf3930fc8ef1393d6cad4dd320eca"
+  },
+  "documents": 41,
+  "source_bytes": 383617,
+  "corpus_entries": 1143,
+  "scope_guard_entries": 16,
+  "question_origins": {
+    "assistant_authored": 150,
+    "historical_user_traffic": 0
+  },
+  "splits": {
+    "development": {
+      "questions": 90,
+      "answerable": 72,
+      "unanswerable": 18,
+      "languages": {
+        "de": 45,
+        "en": 45
+      },
+      "families": 12
+    },
+    "evaluation": {
+      "questions": 60,
+      "answerable": 48,
+      "unanswerable": 12,
+      "languages": {
+        "de": 30,
+        "en": 30
+      },
+      "families": 8
+    }
+  },
+  "judgment_rows": 120,
+  "artifacts": {
+    "documents.json": {
+      "sha256": "81dec2b0ae06a7d6fad6fff0b62eef0a840c31cfbc93339ec81472c2a1a16eef",
+      "bytes": 391877
+    },
+    "corpus.jsonl": {
+      "sha256": "f20c705477526b724b285036cec94e116c55bfd93c165ff7d3d97c9a6748de65",
+      "bytes": 539327
+    },
+    "cases.jsonl": {
+      "sha256": "5a8a00a0dc23d37ca3c4c7c11dad0489326d2d6f01dec3499752ed48061d72ea",
+      "bytes": 111490
+    },
+    "qrels.jsonl": {
+      "sha256": "04cb2e55ca871575927fde00331b22913ec356ca52fb90571d4619c1724e1505",
+      "bytes": 10867
+    }
+  }
+}

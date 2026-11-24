@@ -1,0 +1,56 @@
+{
+  "format_version": 1,
+  "baseline": "6031fe5f5fda4727e13d89497aa238797cf6474f",
+  "closeout_commit": "5af96d1e19c6280d755ed196fe1266f1377a0592",
+  "steps": [
+    {
+      "id": 1,
+      "priority": "P0",
+      "title": "Verify the published release baseline",
+      "status": "complete",
+      "evidence": "validation-0.5.2/closeout.json"
+    },
+    {
+      "id": 2,
+      "priority": "P0",
+      "title": "Freeze the reference use case, acceptance policy and dataset",
+      "status": "complete",
+      "evidence": [
+        "REFERENCE-APPLICATION.md",
+        "evaluation/reference-v1-policy.json",
+        "../tests/fixtures/reference-v1/fixture-manifest.json"
+      ],
+      "validation": "Five dataset integrity tests passed; frozen before any candidate execution."
+    },
+    {
+      "id": 3,
+      "priority": "P1",
+      "title": "Implement the complete document, retrieval and MCP workflow",
+      "status": "in_progress"
+    },
+    {
+      "id": 4,
+      "priority": "P1",
+      "title": "Compare existing retrieval profiles on the frozen dataset",
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "priority": "P1",
+      "title": "Organize onboarding by user task",
+      "status": "pending"
+    },
+    {
+      "id": 6,
+      "priority": "P2",
+      "title": "Isolate index internals with unchanged behavior",
+      "status": "pending"
+    },
+    {
+      "id": 7,
+      "priority": "P2",
+      "title": "Define platform, feature and PDF maintenance support",
+      "status": "pending"
+    }
+  ]
+}
