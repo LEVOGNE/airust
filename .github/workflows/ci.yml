@@ -1,9 +1,8 @@
-name: Rust
+name: macOS validation diagnostics
 on:
   push:
-    branches-ignore:
+    branches:
       - codex/macos-log-diagnostic-0.6.0
-  pull_request:
 
 permissions:
   contents: read
@@ -12,38 +11,12 @@ env:
   CARGO_PROFILE_DEV_DEBUG: "0"
   CARGO_PROFILE_TEST_DEBUG: "0"
   CARGO_INCREMENTAL: "0"
+  CARGO_BUILD_JOBS: "2"
 
 jobs:
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - id: toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git/db
-            target
-          key: rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
-          restore-keys: |
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
-      - run: ./test.sh
-      - run: cargo package --locked
-      - run: cargo clean -p airust
-  macos-checks:
-    # Retain unavailable macOS 26 attempts; use an explicit supported image.
-    # Bound compiler parallelism and the job while preserving the full matrix.
+  capture-native-log:
     runs-on: macos-15
-    timeout-minutes: 45
-    env:
-      CARGO_BUILD_JOBS: "2"
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -65,77 +38,23 @@ jobs:
           restore-keys: |
             rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
             rust-${{ runner.os }}-${{ runner.arch }}-${{ steps.toolchain.outputs.cachekey }}-
-      - run: sysctl -n hw.memsize hw.ncpu
-      - run: df -h .
-      - run: rustc -vV
-      - run: python3 --version
-      - run: ./test.sh
-      - run: cargo package --locked
-      - run: cargo clean -p airust
-
-  minimum-rust:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Record host context
+        run: |
+          rustc -vV
+          python3 --version
+          sysctl -n hw.memsize hw.ncpu
+          df -h .
+      - name: Capture bounded full native matrix
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          set -o pipefail
+          bash -x ./test.sh 2>&1 | tee ci-macos-native.log
+      - name: Preserve diagnostic log after success or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          persist-credentials: false
-      - id: toolchain
-        uses: dtolnay/rust-toolchain@1.89.0
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git/db
-            target
-          key: rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
-          restore-keys: |
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
-      - run: cargo check --all-targets --features web,bots,async,colors,plotting,embeddings,hybrid,graph,context-assembly,provenance,cache,hnsw,versioning,quality,reranking,advanced-search,storage,sqlite-storage,retrieval,snapshots,execution,shared-index,adaptive,feedback,learned-ranking,reasoning,quality-gates,evidence-freshness,rank-explanations,training-pipeline,disk-index,documents,mcp,pilot --locked
-      - run: cargo clean -p airust
-  local-embedding-rust:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - id: toolchain
-        uses: dtolnay/rust-toolchain@1.92.0
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git/db
-            target
-          key: rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
-          restore-keys: |
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
-            rust-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-
-      - run: cargo check --all-features --all-targets --locked
-      - run: cargo clean -p airust
-
-  pdf-backend:
-    runs-on: ubuntu-latest
-    env:
-      CARGO_TARGET_DIR: ${{ github.workspace }}/target/pdf-backend
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            ~/.cargo/registry
-            target/pdf-backend
-          key: pdf-backend-${{ runner.os }}-${{ hashFiles('crates/airust-pdf-backend/Cargo.lock') }}-${{ github.sha }}
-          restore-keys: |
-            pdf-backend-${{ runner.os }}-${{ hashFiles('crates/airust-pdf-backend/Cargo.lock') }}-
-      - run: cargo test --manifest-path crates/airust-pdf-backend/Cargo.toml --test regressions --locked
-      - run: cargo check --manifest-path crates/airust-pdf-backend/Cargo.toml --features c-api --lib --locked
-      - run: python3 scripts/check_pdf_backend.py
-      - run: cargo package --manifest-path crates/airust-pdf-backend/Cargo.toml --locked
-      - uses: dtolnay/rust-toolchain@1.89.0
-      - run: cargo +1.89.0 check --manifest-path crates/airust-pdf-backend/Cargo.toml --lib --locked
+          name: macos-native-${{ github.run_id }}
+          path: ci-macos-native.log
+          if-no-files-found: error
+          retention-days: 7
