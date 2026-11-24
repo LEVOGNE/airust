@@ -1,0 +1,331 @@
+{
+  "dataset_identity": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
+  "selected_using": "development",
+  "selected_profile": "hybrid_rerank",
+  "development_summaries": {
+    "bm25": {
+      "profile": "bm25",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.6077324958694391,
+      "reference_hit_at_6": 0.7222222222222222,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 0.237291,
+      "warm_p95_ms": 0.6767080000000001,
+      "peak_rss_bytes": 18808832,
+      "build_ms": 14.902208,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.3295541789412567,
+          "reference_hit_at_6": 0.5
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8859108127976215,
+          "reference_hit_at_6": 0.9444444444444444
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 18808832,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 18808832,
+        "elapsed_seconds": 0.6407669170293957,
+        "exit_code": 0
+      }
+    },
+    "prepared": {
+      "profile": "prepared",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.6193784753422673,
+      "reference_hit_at_6": 0.6944444444444444,
+      "negative_candidate_return_rate": 0.8888888888888888,
+      "warm_p50_ms": 0.130333,
+      "warm_p95_ms": 0.376417,
+      "peak_rss_bytes": 18432000,
+      "build_ms": 8.018542,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.3492092002877059,
+          "reference_hit_at_6": 0.4444444444444444
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8895477503968287,
+          "reference_hit_at_6": 0.9444444444444444
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 18432000,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 18432000,
+        "elapsed_seconds": 0.1802162081003189,
+        "exit_code": 0
+      }
+    },
+    "coverage": {
+      "profile": "coverage",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.6128596645106912,
+      "reference_hit_at_6": 0.6944444444444444,
+      "negative_candidate_return_rate": 0.8888888888888888,
+      "warm_p50_ms": 0.137875,
+      "warm_p95_ms": 0.403875,
+      "peak_rss_bytes": 18284544,
+      "build_ms": 7.900083,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.35006046751344255,
+          "reference_hit_at_6": 0.4444444444444444
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8756588615079397,
+          "reference_hit_at_6": 0.9444444444444444
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 18284544,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 18284544,
+        "elapsed_seconds": 0.18023549998179078,
+        "exit_code": 0
+      }
+    },
+    "german": {
+      "profile": "german",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.6075759122048896,
+      "reference_hit_at_6": 0.7638888888888888,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 0.579458,
+      "warm_p95_ms": 1.104958,
+      "peak_rss_bytes": 22528000,
+      "build_ms": 29.229374999999997,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.32234640262934294,
+          "reference_hit_at_6": 0.5555555555555556
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8928054217804361,
+          "reference_hit_at_6": 0.9722222222222222
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 22528000,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 22528000,
+        "elapsed_seconds": 0.6003395840525627,
+        "exit_code": 0
+      }
+    },
+    "sqlite": {
+      "profile": "sqlite",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.61285847151428,
+      "reference_hit_at_6": 0.7222222222222222,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 0.810291,
+      "warm_p95_ms": 1.1795,
+      "peak_rss_bytes": 16465920,
+      "build_ms": 19.881833,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.3259172413420496,
+          "reference_hit_at_6": 0.5
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8997997016865104,
+          "reference_hit_at_6": 0.9444444444444444
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 16465920,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 16465920,
+        "elapsed_seconds": 0.6603382499888539,
+        "exit_code": 0
+      }
+    },
+    "hybrid": {
+      "profile": "hybrid",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.7674534316851711,
+      "reference_hit_at_6": 0.8472222222222222,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 2.195791,
+      "warm_p95_ms": 2.679208,
+      "peak_rss_bytes": 29032448,
+      "build_ms": 56.096209,
+      "resource_budget_passed": true,
+      "quality_objective_passed": true,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.6281769085020715,
+          "reference_hit_at_6": 0.7222222222222222
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.9067299548682707,
+          "reference_hit_at_6": 0.9722222222222222
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 29032448,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 29032448,
+        "elapsed_seconds": 1.971612208057195,
+        "exit_code": 0
+      }
+    },
+    "sqlite_hybrid": {
+      "profile": "sqlite_hybrid",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.7758093591795594,
+      "reference_hit_at_6": 0.8472222222222222,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 1.9164169999999998,
+      "warm_p95_ms": 2.288041,
+      "peak_rss_bytes": 22167552,
+      "build_ms": 64.931084,
+      "resource_budget_passed": true,
+      "quality_objective_passed": true,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.6281769085020715,
+          "reference_hit_at_6": 0.7222222222222222
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.9234418098570474,
+          "reference_hit_at_6": 0.9722222222222222
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 22167552,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 22167552,
+        "elapsed_seconds": 1.857250208966434,
+        "exit_code": 0
+      }
+    },
+    "bm25_rerank": {
+      "profile": "bm25_rerank",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.7261885905753993,
+      "reference_hit_at_6": 0.7777777777777778,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 448.327084,
+      "warm_p95_ms": 830.9632919999999,
+      "peak_rss_bytes": 2446835712,
+      "build_ms": 2004.609833,
+      "resource_budget_passed": true,
+      "quality_objective_passed": false,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.5562144170634953,
+          "reference_hit_at_6": 0.6111111111111112
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.8961627640873032,
+          "reference_hit_at_6": 0.9444444444444444
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 2446835712,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 2446835712,
+        "elapsed_seconds": 393.6573583330028,
+        "exit_code": 0
+      }
+    },
+    "hybrid_rerank": {
+      "profile": "hybrid_rerank",
+      "split": "development",
+      "answerable_cases": 72,
+      "negative_cases": 18,
+      "reference_ndcg_at_10": 0.8710590983264186,
+      "reference_hit_at_6": 0.9444444444444444,
+      "negative_candidate_return_rate": 1.0,
+      "warm_p50_ms": 425.70025,
+      "warm_p95_ms": 898.182583,
+      "peak_rss_bytes": 2650374144,
+      "build_ms": 2153.411791,
+      "resource_budget_passed": true,
+      "quality_objective_passed": true,
+      "by_language": {
+        "de": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.828429606077438,
+          "reference_hit_at_6": 0.9166666666666666
+        },
+        "en": {
+          "answerable_cases": 36,
+          "reference_ndcg_at_10": 0.9136885905753993,
+          "reference_hit_at_6": 0.9722222222222222
+        }
+      },
+      "scope_leaks": 0,
+      "span_mismatches": 0,
+      "process_measurement": {
+        "peak_rss_native": 2650374144,
+        "peak_rss_native_unit": "bytes",
+        "peak_rss_bytes": 2650374144,
+        "elapsed_seconds": 414.71066729095764,
+        "exit_code": 0
+      }
+    }
+  }
+}
