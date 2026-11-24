@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.5.1"
+version = "0.5.2"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -90,6 +90,7 @@ web = ["cli", "pdf", "dep:chrono", "dep:axum", "dep:tokio", "dep:rusqlite", "dep
 [dev-dependencies]
 tempfile = "3"
 jsonschema = { version = "=0.62.0", default-features = false }
+sha2 = "0.10"
 
 [lib]
 name = "airust"

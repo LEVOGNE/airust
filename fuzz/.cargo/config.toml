@@ -1,0 +1,15 @@
+target-applies-to-host = false
+
+[unstable]
+target-applies-to-host = true
+
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-Cpasses=sancov-module",
+    "-Cllvm-args=-sanitizer-coverage-level=4",
+    "-Cllvm-args=-sanitizer-coverage-inline-8bit-counters",
+    "-Cllvm-args=-sanitizer-coverage-pc-table",
+    "-Cllvm-args=-sanitizer-coverage-trace-compares",
+    "-Cdebuginfo=1",
+    "-Clink-arg=-Wl,-undefined,dynamic_lookup",
+]

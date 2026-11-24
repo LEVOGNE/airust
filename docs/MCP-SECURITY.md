@@ -88,4 +88,4 @@ Version 0.4.25 releases the owned raw knowledge JSON after successful parsing an
 
 Version 0.5.0 keeps MCP runtime source unchanged from 0.4.25. Native hostile-input, size, slow-reader, cancellation, deadline and shutdown controls remain; 38 finite Miri cases have their stated reduced scope. Large synthetic index trials are not network penetration tests, hard OS quotas or an independent security audit. Source registration and application permissions remain the caller’s responsibility. Read [scope and limits](CHANGES-0.5.0.md) and [migration](MIGRATION-0.5.0.md).
 
-Version 0.5.1 keeps that MCP runtime. The 0.5.1 fuzzer did not drive the MCP server; existing protocol tests remain the MCP evidence. It is still not a penetration test or an independent security audit. Read [fuzz limits](CHANGES-0.5.1.md).
+Version 0.5.2 keeps that MCP runtime. The 0.5.2 fuzzer did not drive the MCP server; existing protocol tests remain the MCP evidence. It is still not a penetration test or an independent security audit. Read [fuzz limits](CHANGES-0.5.2.md).

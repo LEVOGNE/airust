@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 — Coverage-guided fuzzing with versioned seeds
+
+Keep runtime source unchanged from 0.5.1, and therefore from 0.5.0, apart from the version string. Run nightly libFuzzer for 420 seconds on lexical search, rebuilds, retrieval, text spans, document JSON and damaged caches, and for 420 seconds on bounded PDF import. Minimize the inputs and replay them from `tests/fixtures/fuzz-seeds/v0.5.2/` with stable `cargo test`. No panic, timeout or score mismatch was found. `sha2` 0.10 is a dev-dependency for the seed manifest, not a new runtime dependency. No new algorithm, default feature, public API, schema shape, saved format or DenkMaps integration. The 0.5.0 measurements were not repeated. Read [scope and limits](docs/CHANGES-0.5.2.md) and [migration](docs/MIGRATION-0.5.2.md).
+
 ## 0.5.1 — Fuzz-check the unchanged 0.5.0 runtime
 
 Keep runtime source unchanged from 0.5.0. Run a 10,000-seed differential fuzzer for lexical search, rebuilds, equivalent queries, retrieval and text spans, document JSON and rehashed caches, plus 160 bounded PDF import cases. No panic or score/contract mismatch was found. No new algorithm, dependency, default feature, public API, schema shape, saved format or DenkMaps integration. The 0.5.0 measurements were not repeated. Read [scope and limits](docs/CHANGES-0.5.1.md) and [migration](docs/MIGRATION-0.5.1.md).

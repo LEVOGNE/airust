@@ -1,4 +1,4 @@
-# AIRust 0.5.1
+# AIRust 0.5.2
 
 **A Modular Knowledge Intelligence Engine**
 
@@ -8,12 +8,13 @@ Earlier local comparisons with the same Qwen model found no general AIRust hybri
 
 Release priorities are **stability, performance, reliability and clear API/MCP contracts**. New capabilities stay optional and must justify their measured cost.
 
-Version 0.5.1 is a verification patch on the 0.5 line. Runtime behavior matches 0.5.0. A fixed-seed differential fuzzer checked search scores against an independent BM25 and TF-IDF formula, equivalent queries, index rebuilds, retrieval and text spans, document JSON, rehashed caches and bounded PDF import. It found no panic and no score or contract mismatch. No new API, dependency, default feature or DenkMaps integration is included. Start with [upgrade](docs/MIGRATION-0.5.1.md), [API cookbook](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [what the fuzzer covered](docs/CHANGES-0.5.1.md).
+Version 0.5.2 is a verification patch on the 0.5 line. Runtime behavior matches 0.5.0. A coverage-guided libFuzzer campaign checked lexical search against an independent BM25 and TF-IDF formula, rebuilds, retrieval and text spans, document JSON, damaged caches and bounded PDF import, then kept the minimized inputs as versioned seeds. It found no panic, timeout or score mismatch. No new API, runtime dependency, default feature or DenkMaps integration is included. `sha2` is a dev-dependency for the seed manifest only. Start with [upgrade](docs/MIGRATION-0.5.2.md), [API cookbook](docs/API-COOKBOOK.md), [MCP](docs/MCP.md) and [what the fuzzer covered](docs/CHANGES-0.5.2.md).
 
 Version 0.5.0 remains the stability release for the existing knowledge core and optional MCP. It keeps the runtime fixes through 0.4.25, checks repeated changes against independent records, and tests large synthetic indexes and retained copies. Cargo users on 0.4 still select the 0.5 line explicitly. Your application still owns its data and permissions.
 
 | Release | What it adds | Why it helps |
 | --- | --- | --- |
+| [0.5.2](docs/CHANGES-0.5.2.md) | Coverage-guided fuzzing with versioned seeds. | Replay the minimized lexical and PDF inputs without changing calls. |
 | [0.5.1](docs/CHANGES-0.5.1.md) | Fuzz-check the unchanged 0.5.0 runtime. | Confirm scores, rebuilds and bounded PDF import without changing calls. |
 | [0.5.0](docs/CHANGES-0.5.0.md) | Verify Core/MCP stability and large-index behavior. | Keep contracts explicit and check state over repeated changes. |
 | [0.4.25](docs/CHANGES-0.4.25.md) | Release temporary raw JSON before indexing. | Avoid keeping the large input buffer during MCP startup. |
@@ -23,11 +24,11 @@ Version 0.5.0 remains the stability release for the existing knowledge core and 
 
 Read the [complete history](CHANGELOG.md) and [completed route](docs/ROADMAP-TO-0.5.0.md).
 
-Local 0.5.1 validation repeats `test.sh` on Rust 1.98 and passes **253 default tests, 909 all-feature checks including 39 doctests, and 39 isolated feature entries**, including strict Clippy and docs. The 0.5.0 validation passed the same counts. Its Rust 1.89/1.92 runs, patch-level API comparison, independent consumer and 38 finite Tree Borrows Miri cases were not repeated. The 0.5.0 state test still checks 250 native mutation steps; its Miri form uses eight steps and a reduced matrix without native threads/I/O. Existing protocol, bounds, cancellation, deadline and shutdown tests remain in `test.sh`. Read [0.5.0 scope](docs/CHANGES-0.5.0.md) and [0.5.1 fuzz scope](docs/CHANGES-0.5.1.md).
+`./test.sh` on Rust 1.98.0 (macOS ARM64) passed: rustfmt, 253 default tests, 911 all-feature checks including 39 doctests (one ignored child, `persistence::tests::crash_writer_child`), strict Clippy and documentation, the unchanged isolated feature and example commands, and the package-boundary check (3,859 files). Nightly 1.102.0-nightly (2026-11-13) Tree Borrows Miri with `-Zmiri-no-extra-rounding-error` passed 71 tests: 41 `index::` tests (`shared-index,execution`; four large index tests were not part of this finite set and still pass natively), 25 `tests/core.rs` tests (`shared-index`), 1 miri-reduced `stability_state` test, and 4 synchronous MCP `response_tests` (two async admission tests were not run under Miri). Rust 1.89, Rust 1.92, the 0.5.0 patch-level API comparison and the independent consumer were not repeated. The 0.5.0 state test still checks 250 native mutation steps; its Miri form uses eight steps and a reduced matrix without native threads/I/O. Existing protocol, bounds, cancellation, deadline and shutdown tests remain in `test.sh`. This is not a proof that no bug exists. Read [0.5.0 scope](docs/CHANGES-0.5.0.md) and [0.5.2 fuzz scope](docs/CHANGES-0.5.2.md).
 
 **Measured 0.5.0 result:** all 30 finite scale/clone processes pass across exact 0.4.21, 0.4.25 and 0.5.0. The million-entry case checks search, 100 updates, 20 deletes and four readers; the 500,000-entry case preserves three retained clones when one changes. Independent mutation/cache tests and all retained RPC/startup/heap/source controls pass. Read [every timing, memory observation and limit](docs/CHANGES-0.5.0.md).
 
-**0.5.1 limits:** runtime source is unchanged from 0.5.0, so the 0.5.0 timings above were not measured again. The fuzzer is fixed-seed differential testing on one macOS ARM64 host, not a coverage-guided campaign or a proof that no defect remains. MCP framing, embeddings, disk, graph, hybrid, reranking and ONNX were outside that harness and stay covered by the existing feature tests. A cache whose payload and checksum are both replaced is still trusted when its structure matches. Read [the exact fuzz scope](docs/CHANGES-0.5.1.md).
+**0.5.2 limits:** runtime source is unchanged from 0.5.0, so the 0.5.0 timings above were not measured again. The campaign is coverage-guided libFuzzer on one macOS ARM64 host, with versioned seeds replayed by `cargo test`. It is not a proof that no defect remains. Saved inputs did not grow past the largest starter seed. MCP framing, embeddings, disk, graph, hybrid, reranking and ONNX were outside that harness and stay covered by the existing feature tests. A cache whose payload and checksum are both replaced is still trusted when its structure matches. Read [the exact fuzz scope](docs/CHANGES-0.5.2.md).
 
 **0.5.0 limits:** Core/MCP runtime source is unchanged from 0.4.25. Small-MCP repeated median changes still range from -1.63% to +2.31% and -0.79% to +1.56%; ordinary canonical TF-IDF changes are +1.75% / +0.67%. All slower outcomes remain. Shared-host variation is not a new algorithmic speedup. Synthetic records do not prove real-document capacity or uptime. Finite tests, exposed questions and one host establish no zero-bug, semantic-quality, OS-quota or independent security-audit guarantee.
 
@@ -65,7 +66,7 @@ The default `search()`, matching, and `relate()` methods compare words and chara
 Install the executable from the same crate:
 
 ```bash
-cargo install airust --version 0.5.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.5.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -91,7 +92,7 @@ For the current lexical library, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-airust = { version = "=0.5.1", default-features = false }
+airust = { version = "=0.5.2", default-features = false }
 ```
 
 For local source development, use the checkout path instead:
@@ -362,7 +363,7 @@ The default dashboard address is `http://127.0.0.1:7070`. The console uses port 
 
 ## Package contents
 
-Raw benchmark JSON archives stay in the [tagged 0.5.0 GitHub tree](https://github.com/LEVOGNE/airust/tree/v0.5.0/docs/measurements) and local lab. Version 0.5.1 adds no new measurement JSON. Those archives are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
+Raw benchmark JSON archives stay in the [tagged 0.5.0 GitHub tree](https://github.com/LEVOGNE/airust/tree/v0.5.0/docs/measurements) and local lab. Version 0.5.2 adds no new measurement JSON. Those archives are excluded from the crates.io source package. API guides, Markdown reports, method source, examples and required test fixtures remain included. Open measurement links in the tagged repository when reading an older report from an unpacked crate.
 
 ## Project layout
 

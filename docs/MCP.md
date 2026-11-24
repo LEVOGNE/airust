@@ -1,4 +1,4 @@
-# Optional MCP in AIRust 0.5.1
+# Optional MCP in AIRust 0.5.2
 
 AIRust can expose a fixed, read-only knowledge collection to an MCP client. Search, compare entries, suggest connections and retrieve an exact passage from an identified document revision. The engine, public Rust API and server executable are all in the **same `airust` crate**. No DenkMaps adapter is included. Version 0.4.2 introduced response schemas, and 0.4.4 reduced temporary allocations. Version 0.4.5 adds opt-in Rust evidence-selection/citation APIs; the bundled MCP request/response defaults remain unchanged. Applications holding a RetrievalResponse can use the [citation checker](CITATIONS.md); this transport does not silently inspect an external model's later answer.
 
@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.5.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.5.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -280,6 +280,6 @@ This worker boundary covers tool-result preparation, not startup loading, SDK JS
 
 The bounded knowledge-file loader parses owned entries, then releases the raw JSON string before building the index and schemas. Entry IDs, text and metadata stay owned by the loaded collection; the original file is not altered. This is not a streaming parser, persisted search index or hard memory quota. Startup remains synchronous and outside per-request cancellation/time/progress. Configure file/entry/text limits before loading. [Separate native peak/live RSS, startup time, DHAT heap and query controls](CHANGES-0.4.25.md) retain both favorable and slower outcomes.
 
-## Upgrade to 0.5.1
+## Upgrade to 0.5.2
 
-The optional MCP executable stays in the same crate. Runtime source, arguments, result shapes, progress/cancellation and limits remain from 0.5.0, and that source remains the 0.4.25 runtime. Cargo users on 0.4 select 0.5 explicitly; a `0.5` requirement already accepts 0.5.1. Clients rediscover version-qualified schema IDs. UTF-8 source ranges remain tied to exact snapshot revisions. Register only authorized documents; entry selection/search context is not an ACL. The client chooses progress UI and narration. Read [upgrade](MIGRATION-0.5.1.md), [fuzz scope](CHANGES-0.5.1.md), [0.5.0 protocol checks and costs](CHANGES-0.5.0.md) and [security scope](MCP-SECURITY.md).
+The optional MCP executable stays in the same crate. Runtime source, arguments, result shapes, progress/cancellation and limits remain from 0.5.0, and that source remains the 0.4.25 runtime. Cargo users on 0.4 select 0.5 explicitly; a `0.5` requirement already accepts 0.5.2. Clients rediscover version-qualified schema IDs. UTF-8 source ranges remain tied to exact snapshot revisions. Register only authorized documents; entry selection/search context is not an ACL. The client chooses progress UI and narration. Read [upgrade](MIGRATION-0.5.2.md), [fuzz scope](CHANGES-0.5.2.md), [0.5.0 protocol checks and costs](CHANGES-0.5.0.md) and [security scope](MCP-SECURITY.md).
