@@ -13,6 +13,7 @@ import time
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('new_output', type=Path)
+    parser.add_argument('--toolchain', default='nightly', help='Installed toolchain, optionally a dated nightly for reproduction.')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.new_output.resolve()
@@ -32,9 +33,11 @@ def main():
     ]
     report = {'format_version': 1, 'started_at': datetime.now(timezone.utc).isoformat(),
               'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
-              'rustc': subprocess.check_output(['rustc', '+nightly', '-vV'], text=True),
-              'miri': subprocess.check_output(['cargo', '+nightly', 'miri', '--version'], text=True).strip(),
-              'jobs': [], 'exclusions': {'large_index_native_only': large,
+              'toolchain': args.toolchain,
+              'method_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              'rustc': subprocess.check_output(['rustc', '+' + args.toolchain, '-vV'], text=True),
+              'miri': subprocess.check_output(['cargo', '+' + args.toolchain, 'miri', '--version'], text=True).strip(),
+              'expected_jobs': len(cases), 'jobs': [], 'exclusions': {'large_index_native_only': large,
                                        'async_mcp_native_only': ['final_reply_work_keeps_admission_and_shutdown_until_cancelled_work_returns',
                                                                  'shutdown_does_not_wait_for_other_server_clones_worker_permits'],
                                        'native_inference_and_http': 'Outside interpreter scope; use actual native runs and loopback integration tests.',
@@ -44,7 +47,7 @@ def main():
                               'The stability-state test uses its existing cfg(miri) reduced workload.']}
     for name, options, skips, filesystem in cases:
         flags = '-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error' + (' -Zmiri-disable-isolation' if filesystem else '')
-        command = ['cargo', '+nightly', 'miri', 'test', '--locked', *options, '--', '--test-threads=1']
+        command = ['cargo', '+' + args.toolchain, 'miri', 'test', '--locked', *options, '--', '--test-threads=1']
         for skip in skips:
             command += ['--skip', skip]
         env = dict(os.environ, MIRIFLAGS=flags)
@@ -62,8 +65,9 @@ def main():
                  'passed_tests': sum(map(int, counts)), 'elapsed_seconds': time.monotonic() - started,
                  'log_sha256': hashlib.sha256(raw).hexdigest()}
         report['jobs'].append(entry)
-        report['passed'] = all(job['exit_code'] == 0 and job['passed_tests'] > 0 for job in report['jobs'])
         report['completed_jobs'] = len(report['jobs'])
+        report['scope_completed'] = len(report['jobs']) == len(cases)
+        report['passed'] = report['scope_completed'] and all(job['exit_code'] == 0 and job['passed_tests'] > 0 for job in report['jobs'])
         report['finished_at'] = datetime.now(timezone.utc).isoformat()
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
         print(json.dumps(entry), flush=True)

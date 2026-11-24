@@ -42,6 +42,8 @@ def model_memory(pid, url):
             break
         selected |= children
     processes = [{'pid': child, 'parent': parent, 'rss_bytes': rss * 1024} for child, parent, rss in rows if child in selected]
+    if not any(process['pid'] == pid for process in processes):
+        raise ValueError('task-owned embedding service process is unavailable for memory observation')
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     with opener.open(url.rstrip('/') + '/api/ps', timeout=5) as response:
         raw = response.read(2 * 1024 * 1024 + 1)
