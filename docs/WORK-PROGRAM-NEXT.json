@@ -34,7 +34,7 @@
       "id": "ML1",
       "priority": "P0",
       "name": "Predictable repeated native model load/use/drop",
-      "status": "engineering_complete_memory_validated_latency_limit_documented_final_closeout_receipt_governs",
+      "status": "locally_complete_with_documented_latency_failure_remote_ci_not_started_push_requires_explicit_approval",
       "authorization": "Explicit user instruction 2026-11-25: find/fix retained native memory, measure before/after, thoroughly test/document and finish without questions. No new-version publication instruction.",
       "baseline": "Published0.6.1 adapter; 30-cycle failure and three negative allocation ablations retained.",
       "candidate": "Explicit bounded worker process, existing scorer/model recipe reused; ordinary in-process adapter stays compatible.",
@@ -200,7 +200,7 @@
       "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
     }
   ],
-  "next_action": "Read ML1 final-closeout.json. If incomplete finish only recorded clean-source/package/CI/commit work; if complete preserve ML1 and immutable 0.6.1. Q1/DX1 still require actual independent human inputs (0/50); conditional D1 work must begin from observed diagnostics/cost failures. No later publication is authorized.",
+  "next_action": "ML1 local implementation, clean package and separate actual-worker applications are complete. Automatic review rejected uploading codex/stabilize-native-model-lifecycle to https://github.com/LEVOGNE/airust.git; no source push or candidate hosted CI occurred. Do not bypass/retry without new explicit approval for that branch push. Preserve final-closeout.json and all limits; Q1/DX1 still need genuine independent human inputs. No new publication/master merge is authorized.",
   "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization.",
   "active_work_receipt": "local-lab/native-lifecycle-2026-11-25/PROGRESS.json",
   "current_release_receipt": "https://github.com/LEVOGNE/airust/releases/tag/v0.6.1"

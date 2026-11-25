@@ -4,6 +4,8 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 ## Current engineering candidate: ML1, unreleased 0.6.2
 
+**Local implementation and clean-package/application closeout are complete at `a5725fcc0614982b016216679b7891546d0384c2`. The one remaining external step is blocked:** automatic approval review rejected the push of `codex/stabilize-native-model-lifecycle` to `https://github.com/LEVOGNE/airust.git` before execution. The candidate has not been uploaded or checked by hosted CI. Do not retry or use another transfer path without new explicit user approval for this concrete branch push. Read the final local receipt for the latest documentation-only commit/archive binding.
+
 The user explicitly requested point 1 on 2026-11-25, then asked to finish everything without questions: reproduce/fix repeated local-model memory growth, measure before/after, test and document. Branch **codex/stabilize-native-model-lifecycle**. A new-version master merge/tag/GitHub Release/crates.io publication is not part of this instruction. The published release remains 0.6.1.
 
 Start with **local-lab/native-lifecycle-2026-11-25/PROGRESS.json** and **final-closeout.json**, then [0.6.2 validation](validation-0.6.2/README.md), [API/ownership](LOCAL-MODEL-PROCESSES.md) and [all measurements](measurements/native-lifecycle-0.6.2/README.md). If the final receipt is complete, preserve the implementation/evidence and continue at actual external Q1/DX1 inputs or a separately scoped observed D1 problem. If incomplete, finish only the recorded clean-source package/CI/commit closing steps; do not restart unchanged campaigns or invent a release. Check current Git/remote receipts before repeating work.

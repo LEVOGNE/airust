@@ -780,5 +780,103 @@
     "E5 inference and Windows/Intel native runs unestablished.",
     "No hard OS RAM/CPU quota or security sandbox; cooperative cancellation and trusted-worker contracts remain.",
     "Fresh protocol fuzz does not replace historical lexical/training/PDF campaigns or prove absence of bugs."
-  ]
+  ],
+  "implementation_commit": "a5725fcc0614982b016216679b7891546d0384c2",
+  "clean_source_package": {
+    "source_commit": "a5725fcc0614982b016216679b7891546d0384c2",
+    "sha256": "0c516d93e03cdc13ed3a6881727bcaa9385a449067bdec7f8a3121cd8da9952c",
+    "bytes": 6866544,
+    "files": 4075,
+    "clean_vcs": {
+      "git": {
+        "sha1": "a5725fcc0614982b016216679b7891546d0384c2"
+      },
+      "path_in_vcs": ""
+    },
+    "all_packaged_src_and_numeric_artifacts_exact": true
+  },
+  "clean_source_application_controls": {
+    "started_at": "2026-11-25T16:30:14.677095+00:00",
+    "scope": "Clean-source engineering candidate archive, not a publication. Separate Cargo applications consume exact extracted crate bytes. No independent human onboarding is implied.",
+    "archive_sha256": "0c516d93e03cdc13ed3a6881727bcaa9385a449067bdec7f8a3121cd8da9952c",
+    "source_commit": "a5725fcc0614982b016216679b7891546d0384c2",
+    "clean_vcs": {
+      "git": {
+        "sha1": "a5725fcc0614982b016216679b7891546d0384c2"
+      },
+      "path_in_vcs": ""
+    },
+    "all_packaged_src_and_numeric_artifacts_exact": true,
+    "package_files": 4075,
+    "default_features": [],
+    "normalized_backend": "=0.3.5",
+    "completed_at": "2026-11-25T16:30:52.299371+00:00",
+    "all_passed": true,
+    "core_model_free": true,
+    "real_native_cycles": 8,
+    "native_result_positions": 160,
+    "all_workers_reaped_and_private_copies_removed": true,
+    "worker_sha256": "d53bc60d1d96a2bbebfd4c61a44bf8125fc811882e2ff14b97527b251ef74694",
+    "consumer_sha256": "5407925115ac51f3b8ba6ba1cf5926b5f463b3f248e8cdee37b418e2a7767d48"
+  },
+  "clean_source_application_jobs": [
+    {
+      "name": "core-lock",
+      "exit_code": 0,
+      "seconds": 0.09896729199681431,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "ae6d237735765f04013ab57f446b791aa98ea7ab00748321ef74c77a75fbbca1"
+    },
+    {
+      "name": "core-run",
+      "exit_code": 0,
+      "seconds": 2.0375918750069104,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "f7351e8f92b0a079025be37e165bc59c22a3db60a4dd1ab8ded428088520bf83"
+    },
+    {
+      "name": "core-tree",
+      "exit_code": 0,
+      "seconds": 0.07323720799467992,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "a16c4c51eda25924be4ad68a016ef91040b0c1e1adff88a7451bdb246cf4e2f0"
+    },
+    {
+      "name": "standalone-worker-build",
+      "exit_code": 0,
+      "seconds": 0.2027256659930572,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "a70da5408e7a6da7efe97b23011504833b16a7875bda14543f2504b5b8c7d97a"
+    },
+    {
+      "name": "native-lock",
+      "exit_code": 0,
+      "seconds": 0.152125167005579,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "5e1c8919af38fe8e19ca067ce4fabf4d1970e5bc29d93bf27efcb4667215dfc2"
+    },
+    {
+      "name": "native-build",
+      "exit_code": 0,
+      "seconds": 6.171207542007323,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "205a940515a31696dd5bf49578a8bae053c243b0d79e3621c5d451a4e055efc6"
+    },
+    {
+      "name": "native-real-worker",
+      "exit_code": 0,
+      "seconds": 28.873707500009914,
+      "native_functional_only_not_timed_benchmark": true,
+      "log_sha256": "7374202f239c674da21e03a3cad155b0fc67f2ecd3b6c4717babb35ae4b4aa22"
+    }
+  ],
+  "candidate_hosted_ci": {
+    "status": "not_started",
+    "push": "rejected_before_execution_by_automatic_approval_review",
+    "remote": "https://github.com/LEVOGNE/airust.git",
+    "branch": "codex/stabilize-native-model-lifecycle",
+    "reason": "Explicit authorization to transfer this commit to this concrete remote branch was not established by the approval review. No candidate source was pushed. Do not bypass/retry without new explicit approval.",
+    "source_checked_by_hosted_ci": false
+  },
+  "later_closeout_documentation": "Subsequent commit records these receipts/blocker only; all runtime/test/manifest inputs remain unchanged."
 }
