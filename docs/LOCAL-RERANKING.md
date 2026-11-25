@@ -20,7 +20,7 @@ Supply the platform-specific ONNX Runtime shared library separately. Native eval
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.0", default-features = false, features = ["local-reranking"] }
+airust = { version = "=0.6.1", default-features = false, features = ["local-reranking"] }
 ```
 
 ```rust,no_run
@@ -57,7 +57,7 @@ The local scorer uses internal batches of at most sixteen; the outer reranking p
 
 `RerankOptions::with_batch_size` and `with_candidates` already expose those pipeline choices. For CPU workloads with mixed paragraph lengths, benchmark smaller outer batches with an unchanged candidate prefix: each native batch is padded to its longest tokenized pair. Changing the batch can change floating-point logits slightly even with the same model/text. Compare all scores, rankings, known-reference losses, complete request cost and peak memory; additional threads are an explicit CPU tradeoff. Do not infer an energy or general quality improvement from lower wall time.
 
-The unpublished 0.6.1 reference profile makes these existing controls available as bounded `reranker.batch_size` and `reranker.candidates`, with configuration-only preflight. Existing profiles keep their old defaults. Read [configuration](CONFIGURATION.md), [migration](MIGRATION-0.6.1.md) and [the actual local-model investigation](measurements/profile-practical-0.6.0/README.md). Its small conversation probes and exposed authored regression corpus do not establish independent customer quality.
+The 0.6.1 reference profile makes these existing controls available as bounded `reranker.batch_size` and `reranker.candidates`, with configuration-only preflight. Existing profiles keep their old defaults. Read [configuration](CONFIGURATION.md), [migration](MIGRATION-0.6.1.md) and [the actual local-model investigation](measurements/profile-practical-0.6.0/README.md). Its small conversation probes and exposed authored regression corpus do not establish independent customer quality.
 
 E5 and the reranker share one process-wide AIRust ONNX environment. Simultaneous local providers now work without the previous second-environment initialization error. Supply the same canonical runtime-library path for every AIRust local provider. A different path returns an error rather than silently loading another runtime. The shared environment remains alive for the process lifetime. If another library already owns an independently initialized ORT environment, supply your own `Reranker`/`EmbeddingProvider` around that setup; these convenience constructors do not adopt an arbitrary external environment.
 
@@ -74,7 +74,7 @@ Omit the final E5 directory to evaluate BM25 reranking only; `local-embeddings,h
 
 The model is [Apache-2.0 licensed](https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1); FastEmbed is [Apache-2.0 licensed](https://github.com/Anush008/fastembed-rs). Weights are external assets. Review their upstream licenses and the [ONNX Runtime distribution](https://github.com/microsoft/onnxruntime/releases) when distributing an application.
 
-## Optional verified file loading in the unpublished 0.6.1 source
+## Optional verified file loading in 0.6.1
 
 The existing constructor remains memory-backed. `multilingual_minilm_v2_from_snapshot(model_directory,runtime_library,threads,snapshot_directory)` streams the exact pinned model into an exclusively created private temporary file, verifies it, then asks ONNX Runtime to load that copy. This avoids retaining a large Rust model buffer during native initialization without re-opening a potentially changed original after hashing. Normal/error paths clean up the copy after native state; forced termination can leave it behind. The application owns the directory and provides 470883696 bytes plus filesystem overhead of extra disk space.
 

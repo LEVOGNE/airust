@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. AIRust 0.6.0 includes a bounded local pilot and explicit live profiles. Registry installation examples select 0.6.0. See [release validation and open limits](docs/validation-0.6.0/README.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. AIRust 0.6.1 retains the bounded local pilot/live profiles and adds explicit reranking settings, offline preflight and measured resource controls. Registry examples select 0.6.1. See [release validation and open limits](docs/validation-0.6.1/RELEASE.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -37,7 +37,7 @@ An MCP client launches the compiled example executable with `serve` and the abso
 For the published executable:
 
 ```bash
-cargo install airust --version 0.6.0 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.1 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -160,14 +160,14 @@ For the full interface, read [the cookbook](docs/API-COOKBOOK.md). Platform and 
 
 ## Collect pilot questions and run live profiles
 
-Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the source build for 0.6.0 profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
+Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the 0.6.1 source build for profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
 
-The unpublished 0.6.1 checkout adds `profile-check CONFIG` for configuration-only checks before workspace/cache/model loading, plus explicit native `batch_size` and `candidates` fields. Build with `--features pilot`; native execution additionally needs `local-reranking` and supplied assets. See [configuration ownership](docs/CONFIGURATION.md) and [0.6.1 migration](docs/MIGRATION-0.6.1.md) for defaults, budgets and the distinction between preflight validity and service readiness.
+AIRust 0.6.1 adds `profile-check CONFIG` for configuration-only checks before workspace/cache/model loading, plus explicit native `batch_size` and `candidates` fields. Build with `--features pilot`; native execution additionally needs `local-reranking` and supplied assets. See [configuration ownership](docs/CONFIGURATION.md) and [0.6.1 migration](docs/MIGRATION-0.6.1.md) for defaults, budgets and the distinction between preflight validity and service readiness.
 
 
 ## Run a small model-free host from the source candidate
 
-The unpublished 0.6.1 example selects tighter existing MCP limits for a small collection:
+The 0.6.1 example selects tighter existing MCP limits for a small collection:
 
 ```bash
 cargo build --locked --release --no-default-features --features mcp --example bounded_mcp

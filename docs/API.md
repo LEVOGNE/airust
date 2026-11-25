@@ -117,7 +117,7 @@ The compatibility layer remains available for `input`/`output` training examples
 
 ## Training persistence
 
-`KnowledgeBase::load_bounded(path,max_bytes)` adds a regular-file/byte-limited reader in the unpublished 0.6.1 candidate. The old `load()` retains trusted-file unbounded behavior. Read-only clones/from-embedded share private examples and copy on the first shared mutation, preserving independent values and the save format. See [resource ownership](RESOURCE-LIMITS.md) for first-write costs and the file-byte/heap distinction.
+`KnowledgeBase::load_bounded(path,max_bytes)` adds a regular-file/byte-limited reader in AIRust 0.6.1. The old `load()` retains trusted-file unbounded behavior. Read-only clones/from-embedded share private examples and copy on the first shared mutation, preserving independent values and the save format. See [resource ownership](RESOURCE-LIMITS.md) for first-write costs and the file-byte/heap distinction.
 
 `KnowledgeBase::load()` and `save()` validate that weights are finite and nonnegative. Invalid data produces an error. `save()` rejects symlink and non-file destinations. It validates and serializes before replacing an existing file, writes through an exclusively created private temporary file, synchronizes content, and preserves existing file permissions.
 

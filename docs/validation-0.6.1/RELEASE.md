@@ -1,0 +1,33 @@
+# AIRust 0.6.1 release verification
+
+The user explicitly authorized merging the validated candidate into master and publishing **0.6.1** with an annotated tag, GitHub Release and crates.io package on 2026-11-25. The previously published 0.6.0 and separately versioned PDF backend 0.3.5 remain immutable.
+
+## Authoritative publication receipts
+
+The [GitHub release](https://github.com/LEVOGNE/airust/releases/tag/v0.6.1) carries the exact crate, checksums, [release manifest](https://github.com/LEVOGNE/airust/releases/download/v0.6.1/release-manifest.json), sanitized engineering evidence and validation records. The separately checksummed public-verification receipt records anonymous downloads after publication. The [registry version](https://crates.io/crates/airust/0.6.1) must identify the same crate checksum and packaged Git commit as the annotated tag.
+
+The local continuation record is `local-lab/release-0.6.1-2026-11-25/PROGRESS.json`; `final-closeout.json` exists only after actual publication/registry/asset/compiler/consumer/CI checks complete. If a public receipt is absent or identities disagree, inspect the recorded stage rather than repeating publication or declaring it passed. Published versions/tags are not moved to repair a later documentation issue.
+
+## Engineering provenance and release gates
+
+The original implementation is commit b875707dea03fa16a24eb7e0a489de9741d32f1b, followed by tested documentation closure 2ef04aa7c005b5a6f315d5ebe649358a96fcd199. [The candidate closeout](closeout.json) and [validation](README.md) retain their actual dates, source hashes and initial failures. Release preparation changes only current documentation/version examples and continuation metadata; Rust source, manifests/locks, knowledge, frozen datasets, model manifest, MCP schemas, benchmark methods and algorithms remain unchanged. README is included as Rustdoc, while STARTUP text is returned by the optional web help route; those deliberate release-text changes are recorded separately from retrieval/model execution.
+
+The release performs a fresh complete native/feature/Clippy/rustdoc/example/Python/package matrix, compiler/backend controls, current both-lock advisory audit, clean packaging/dry-run, independent immutable extracted consumers and exact-source master/tag CI. Actual counts/conclusions and archive identities are attached to the release manifest; default and all-feature test totals overlap.
+
+The **121 finite Miri cases in eleven groups**, selected **90/90/60-minute lexical/PDF/training fuzz scopes**, and quiet paired benchmarks are **existing observed candidate runs reused after verifying unchanged executable/data/method inputs**. They are not relabelled fresh release runs. The release provenance records every allowed documentation difference and original receipt/log/binary identity. Native successful durability checks are rerun with the applicable native controls.
+
+The published package is downloaded anonymously and compared byte-for-byte with the prepared `.crate`, including its clean VCS metadata. Actual registry consumers use Rust 1.89 and 1.92 without local path patches; the separately installed registry MCP binary performs real initialization/schema/search/status/EOF checks. Versioned docs.rs availability and all public release assets receive their own checks. Original user data, supplied models/runtime and retained evidence survive build cleanup.
+
+## Measured behavior and limits
+
+[Primary measurements](../measurements/profile-practical-0.6.0/README.md) and the separate [final-source cohort](../measurements/configuration-0.6.1-final/README.md) retain every declared sample and regression. On the recorded 64-GiB M5 Max, complete warm MCP p95 was 895.581 / 900.440 ms for published 0.6.0 versus 229.610 / 228.034 ms for the candidate's explicit 8-thread/batch1/verified-snapshot policy. Models, twenty candidates and max 512 tokens stayed fixed; eight rather than two threads is an explicit CPU tradeoff. No top-six/source/known-quote loss occurred in those authored controls; small logit changes remain visible. This is not a universal speed/energy/quality claim.
+
+Read-only training snapshots avoid repeated copies (about 466→21MB in the declared 24-reader workload). First shared writes copy the collection; all independent writers still need copies. Bounded returned JSON diagnostics reduced the measured 128-error retention peaks from about 281 MB to 9–11 MB, while parsing may still allocate transiently. The dense model-free 2048-entry stress case peaked near 212 MB. These byte/corpus bounds are not whole-process RAM quotas or certification of an actual 1-GiB laptop.
+
+**Two default macOS allocator repeated-load RSS-growth controls remain failed.** The explicit child-only `MallocSpaceEfficient=1` experiment passed lifecycle growth and its separate 10% p95-overhead gate, with all 159 slower query means retained. It is not a library default. Active native models still exceed 1 GiB, and external embedding/answer services require separate memory/cost accounting. Normal model snapshot cleanup was observed; abrupt termination can leave a private 470883696-byte copy.
+
+Miri excludes native ONNX/Metal/HTTP/Tokio/PDF and the declared large/async/directory-sync paths. Two initial unsupported Miri durability attempts stay failed, with successful native durability evidence. PDF fuzzing is coverage-only, without ASAN; lexical/training have ASAN, with leak detection disabled and incomplete C/std/native instrumentation. The first partial PDF attempt exited on libFuzzer corpus `opendir(EINTR)`; a separate full 90-minute recovery passed. No partial duration is stitched or failure erased. Actual E5 inference remains unavailable; E5 byte/regular-file rejection and compiler controls do not establish successful inference.
+
+**Zero of the minimum fifty genuine independently reviewed questions are established.** The 150 frozen authored reference cases, generated resource probes and four exposed conversation inputs do not satisfy that gate. The local LLM study retains an invalid quotation and a confident incomplete historical-roadmap answer. Independent onboarding, clean-machine/external-client usage, quality/alternatives comparison and cross-host reproduction remain open. Native/benchmark success is not independent human review or an absence-of-bugs proof. Windows/Intel execution is not established by the observed Ubuntu/macOS ARM64 jobs.
+
+Continue from [SESSION-HANDOFF.md](../SESSION-HANDOFF.md), [the work program](../WORK-PROGRAM-NEXT.json) and [the roadmap](../../ROADMAP.md). Later versions require their own evidence and publication authorization; do not restart completed unchanged campaigns merely because a new session begins.

@@ -17,6 +17,19 @@
   "baseline_release_receipt": "https://github.com/LEVOGNE/airust/releases/tag/v0.6.0",
   "tasks": [
     {
+      "id": "R061",
+      "priority": "P0",
+      "name": "Publish and verify AIRust 0.6.1",
+      "status": "verify_authoritative_release_receipt",
+      "authorization": "Explicit user request2026-11-25: merge master, annotated tag, GitHub Release and crates.io, all closing checks; no further questions.",
+      "acceptance": "Actual master/tag/source/package/registry identities, complete applicable checks, real registry consumers/installed CLI and anonymous asset verification agree. If final receipt is complete preserve immutable release; otherwise resume only recorded pending stage.",
+      "evidence": [
+        "docs/validation-0.6.1/RELEASE.md",
+        "local-lab/release-0.6.1-2026-11-25/final-closeout.json",
+        "v0.6.1 release-manifest.json/public verification receipts"
+      ]
+    },
+    {
       "id": "R0",
       "priority": "P0",
       "name": "Verify or finish 0.6.0 publication closeout",
@@ -84,7 +97,7 @@
       "priority": "P1",
       "name": "Inventory existing configuration before adding a facade",
       "target": "0.6.1 conditional",
-      "status": "complete_validated_unpublished",
+      "status": "implementation_and_candidate_validation_complete",
       "can_progress_without_external_cases": true,
       "acceptance": "Map validated configuration/defaults/bounds/ownership and feature interactions; demonstrate an integration problem and propose the smallest compatible improvement, with affected tests and documentation.",
       "current_evidence": "Configuration ownership, bounded reranking settings/preflight, COW training, bounded input/diagnostics, optional verified model snapshots and a model-free host are implemented. Native: 266 default, 928 all-feature including 39 doctests, 40 isolated features; finite Miri: 121 cases / 11 groups with explicit exclusions. Rust 1.89/1.92, five API views, backend and dated both-lock advisory gates pass. Selected full fuzz scopes and separate final-source performance/resource gates pass; original failures and every regression remain retained. Original data/models/runtime match; owned service stopped. Post-commit package/consumer/CI gates remain.",
@@ -99,7 +112,8 @@
         "docs/validation-0.6.1/closeout.json"
       ],
       "tested_engineering_commit": "b875707dea03fa16a24eb7e0a489de9741d32f1b",
-      "source_ci_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470"
+      "source_ci_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470",
+      "release_task": "R061"
     },
     {
       "id": "QA1",
@@ -167,7 +181,8 @@
       "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
     }
   ],
-  "next_action": "Verify final-closeout.json against the current clean documentation HEAD/archive and actual five-job CI. If complete, do not restart C1 campaigns. Independent onboarding, at least 50 genuine reviewed cases and reproduction remain open; D1 diagnostics begins with existing controls and observed failures, without a duplicate facade. Later publication requires explicit authorization; preserve published 0.6.0 master/tag/registry and all historical evidence.",
+  "next_action": "Read the0.6.1 release final-closeout/public manifest and current Git/tag/registry identities. If incomplete, finish only recorded R061 closing stages. If complete, preserve immutable release and proceed to conditional D1 diagnostics inventory and actual independent validation. Do not rerun unchanged C1 campaigns or publish later versions without authorization.",
   "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization.",
-  "active_work_receipt": "local-lab/overnight-0.6.1-2026-11-24/PROGRESS.json"
+  "active_work_receipt": "local-lab/release-0.6.1-2026-11-25/PROGRESS.json",
+  "current_release_receipt": "https://github.com/LEVOGNE/airust/releases/tag/v0.6.1"
 }

@@ -1,4 +1,8 @@
-# AIRust 0.6.1 candidate validation
+# AIRust 0.6.1 validation and release provenance
+
+Current publication/source/tag/registry checks are described in [RELEASE.md](RELEASE.md) and the [versioned release manifest](https://github.com/LEVOGNE/airust/releases/download/v0.6.1/release-manifest.json). The candidate observations below remain historical records at their original commits; they are not relabelled as fresh release runs. The release repeats the native/package/consumer/advisory controls and verifies unchanged executable inputs before reusing Miri/fuzz/benchmark evidence.
+
+## Historical candidate validation
 
 **The engineering candidate is validated and unpublished.** Tested source is [b875707dea03](https://github.com/LEVOGNE/airust/commit/b875707dea03fa16a24eb7e0a489de9741d32f1b); its clean package, extracted consumers and all five exact-source hosted jobs passed. [The machine-readable closeout](closeout.json) binds observed results and limitations. A subsequent documentation-only closure keeps implementation/method/runtime bytes unchanged; the retained local final-closeout receipt binds that final HEAD/archive/CI. No 0.6.1 release, master merge or tag is implied.
 

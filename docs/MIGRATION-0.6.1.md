@@ -1,6 +1,6 @@
-# Migrate from 0.6.0 to the 0.6.1 candidate
+# Migrate from 0.6.0 to 0.6.1
 
-0.6.1 is currently an unpublished source candidate. Registry installation examples continue to select published 0.6.0. Use this checkout for the additional profile controls until a separately verified release exists.
+Select `airust = { version = "=0.6.1", default-features = false }` and enable only the features your application needs. [Release verification](validation-0.6.1/RELEASE.md) records source/tag/registry identities and open limits.
 
 Default features stay empty. Rust 1.89 supports core/provider-neutral/pilot code; supplied native ONNX adapters require Rust 1.92. Public library APIs, source/document/workspace/pilot formats, tokenization/model identities and five MCP tools remain compatible. MCP schema identifiers include the package version, so clients rediscover the 0.6.1-qualified identifiers as for other patch versions.
 

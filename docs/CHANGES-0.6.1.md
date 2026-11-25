@@ -1,6 +1,6 @@
 # AIRust 0.6.1 — Bounded configuration and lower measured memory costs
 
-This is an **unreleased development candidate**. Published 0.6.0 and its tag/package/evidence are unchanged. Publication of 0.6.1 needs its own release instruction.
+AIRust **0.6.1** is a compatible configuration/resource release. The original 0.6.0 tag/package/evidence remains unchanged. [Release receipts and verification](validation-0.6.1/RELEASE.md) distinguish publication from the earlier candidate checks.
 
 The work follows an actual local-model pilot before adding configuration. Four real conversation inputs were evaluated over 18 current project documents with BM25, hybrid, hybrid/rerank and Qwen3.8:27b. Complete raw answers, exact source ranges, a generated quote mismatch and a confident historical-roadmap answer are retained. This is exposed local evidence, not independent customer traffic or judgments. The separately frozen 150 authored questions remain regression controls.
 

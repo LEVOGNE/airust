@@ -7,7 +7,7 @@ Enable `mcp` explicitly. It enables `documents`, `provenance`, `retrieval`, `exe
 ## Install and start
 
 ```bash
-cargo install airust --version 0.6.0 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.1 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -295,6 +295,6 @@ The reference example provides opt-in `bm25`, `hybrid` and `hybrid_rerank` confi
 
 ## Small model-free host and runtime capacity
 
-The unpublished 0.6.1 source includes `bounded_mcp`, an explicitly limited application host built with only `mcp`. [RESOURCE-LIMITS.md](RESOURCE-LIMITS.md) documents its 2048-record/2-MiB dataset policy, file/query/output/admission bounds and reproducible synthetic resource probes. Existing `McpLimits::default()` is unchanged.
+The 0.6.1 source includes `bounded_mcp`, an explicitly limited application host built with only `mcp`. [RESOURCE-LIMITS.md](RESOURCE-LIMITS.md) documents its 2048-record/2-MiB dataset policy, file/query/output/admission bounds and reproducible synthetic resource probes. Existing `McpLimits::default()` is unchanged.
 
 Callers own Tokio runtime capacity as well as dataset permissions. On macOS/Windows, standard input/output may use blocking tasks; a pending stdin read can occupy a blocking slot indefinitely. Do not set the runtime blocking pool to just the CPU-worker limit: reserve input/output/progress capacity too. The example uses three blocking slots for input, output and one admitted CPU worker. This corrects a development starvation case caught by its real stdio test; library admission limits do not bound unrelated application tasks or replace an OS quota.
