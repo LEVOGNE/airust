@@ -1,0 +1,1738 @@
+--- /dev/null
++++ b/src/bin/airust-model-worker.rs
+@@ -0,0 +1,11 @@
++#![forbid(unsafe_code)]
++
++fn main() -> Result<(), Box<dyn std::error::Error>> {
++    use airust::reranking::process::{run_worker, WORKER_ARGUMENT};
++    let args: Vec<_> = std::env::args_os().skip(1).collect();
++    if args.len() != 1 || args[0] != WORKER_ARGUMENT {
++        return Err("internal trusted local-model worker; use ProcessReranker to launch it".into());
++    }
++    run_worker()?;
++    Ok(())
++}
+--- /dev/null
++++ b/src/reranking/process/mod.rs
+@@ -0,0 +1,369 @@
++//! Explicit process ownership for native reranking heaps. See
++//! `docs/LOCAL-MODEL-PROCESSES.md` for deployment, bounds and exclusions.
++
++mod protocol;
++#[cfg(all(test, unix, not(miri)))]
++mod tests;
++mod transport;
++
++use super::{local::FastEmbedReranker, RerankError, Reranker};
++use protocol::{Init, Reply, Request};
++use std::{
++    io::BufReader,
++    path::{Path, PathBuf},
++    time::Duration,
++};
++
++/// Reserved startup role understood by the bundled worker and reference pilot.
++pub const WORKER_ARGUMENT: &str = "--airust-reranker-worker";
++
++/// Application-owned executable and per-native-call time bounds. The trusted
++/// worker must implement this package's protocol and must not spawn descendants
++/// retaining its stdio pipes. This is resource isolation, not a security sandbox.
++#[derive(Debug, Clone)]
++pub struct ProcessOptions {
++    executable: PathBuf,
++    startup_timeout: Duration,
++    request_timeout: Duration,
++}
++
++impl ProcessOptions {
++    pub fn new(executable: impl Into<PathBuf>) -> Self {
++        Self {
++            executable: executable.into(),
++            startup_timeout: Duration::from_secs(60),
++            request_timeout: Duration::from_secs(30),
++        }
++    }
++
++    pub fn with_timeouts(
++        mut self,
++        startup: Duration,
++        request: Duration,
++    ) -> Result<Self, RerankError> {
++        if [startup, request]
++            .iter()
++            .any(|t| t.is_zero() || *t > Duration::from_secs(120))
++        {
++            return Err(RerankError::Configuration(
++                "worker timeouts must be positive and at most 120 seconds",
++            ));
++        }
++        self.startup_timeout = startup;
++        self.request_timeout = request;
++        Ok(self)
++    }
++}
++
++/// One private native-model process and one bounded I/O thread. Dropping the
++/// scorer closes its input, waits for normal exit, then kills/reaps if necessary.
++/// Parent-owned snapshot directories survive until the worker has stopped.
++pub struct ProcessReranker {
++    transport: transport::Transport,
++    _snapshot: Option<tempfile::TempDir>,
++    recipe: String,
++    next_id: u64,
++    timeout: Duration,
++}
++
++impl ProcessReranker {
++    pub fn multilingual_minilm_v2(
++        options: ProcessOptions,
++        model_directory: impl AsRef<Path>,
++        runtime_library: impl AsRef<Path>,
++        threads: usize,
++    ) -> Result<Self, RerankError> {
++        Self::load(
++            options,
++            model_directory.as_ref(),
++            runtime_library.as_ref(),
++            threads,
++            None,
++        )
++    }
++
++    pub fn multilingual_minilm_v2_from_snapshot(
++        options: ProcessOptions,
++        model_directory: impl AsRef<Path>,
++        runtime_library: impl AsRef<Path>,
++        threads: usize,
++        snapshot_directory: impl AsRef<Path>,
++    ) -> Result<Self, RerankError> {
++        Self::load(
++            options,
++            model_directory.as_ref(),
++            runtime_library.as_ref(),
++            threads,
++            Some(snapshot_directory.as_ref()),
++        )
++    }
++
++    fn load(
++        options: ProcessOptions,
++        model_directory: &Path,
++        runtime_library: &Path,
++        threads: usize,
++        snapshots: Option<&Path>,
++    ) -> Result<Self, RerankError> {
++        if threads == 0 || threads > 64 {
++            return Err(RerankError::Configuration(
++                "worker thread count must be 1..64",
++            ));
++        }
++        for path in [
++            model_directory,
++            runtime_library,
++            options.executable.as_path(),
++        ] {
++            if path.as_os_str().len() > 32 * 1024 {
++                return Err(RerankError::Configuration("worker path exceeds 32 KiB"));
++            }
++        }
++        let model_directory = model_directory.canonicalize().map_err(provider)?;
++        let runtime_library = runtime_library.canonicalize().map_err(provider)?;
++        let snapshot_parent = snapshots
++            .map(Path::canonicalize)
++            .transpose()
++            .map_err(provider)?;
++        let snapshot = snapshot_parent
++            .as_deref()
++            .map(|parent| {
++                tempfile::Builder::new()
++                    .prefix("airust-model-")
++                    .tempdir_in(parent)
++            })
++            .transpose()
++            .map_err(provider)?;
++        let init = Init {
++            version: crate::VERSION.into(),
++            model_directory,
++            runtime_library,
++            threads,
++            snapshot_directory: snapshot.as_ref().map(|d| d.path().to_path_buf()),
++        };
++        let frame = serde_json::to_vec(&init).map_err(|_| {
++            RerankError::Configuration("worker configuration must have UTF-8 paths")
++        })?;
++        if frame.len() >= protocol::REQUEST_BYTES {
++            return Err(RerankError::Budget("worker configuration"));
++        }
++        let mut transport = transport::Transport::spawn(&options, frame)?;
++        let reply = transport.receive(options.startup_timeout)?;
++        let reply = serde_json::from_slice::<Reply>(&reply)
++            .map_err(|_| RerankError::Output("invalid worker startup reply"))?;
++        let recipe = match reply {
++            Reply::Ready {
++                version,
++                pid,
++                recipe,
++            } if version == crate::VERSION
++                && pid == transport.id()
++                && !recipe.is_empty()
++                && recipe.len() <= 1024 =>
++            {
++                recipe
++            }
++            Reply::Failure {
++                id: 0,
++                output_error,
++                message,
++            } => return Err(remote_error(output_error, message)),
++            _ => return Err(RerankError::Output("worker startup identity mismatch")),
++        };
++        Ok(Self {
++            transport,
++            _snapshot: snapshot,
++            recipe,
++            next_id: 1,
++            timeout: options.request_timeout,
++        })
++    }
++
++    pub fn worker_id(&self) -> u32 {
++        self.transport.id()
++    }
++}
++
++impl Reranker for ProcessReranker {
++    fn recipe(&self) -> &str {
++        &self.recipe
++    }
++
++    fn score(&mut self, query: &str, documents: &[&str]) -> Result<Vec<f64>, RerankError> {
++        validate_text(query, documents)?;
++        if documents.is_empty() {
++            return Ok(Vec::new());
++        }
++        let id = self.next_id;
++        self.next_id = id
++            .checked_add(1)
++            .ok_or(RerankError::Configuration("worker request ID exhausted"))?;
++        // Validate bytes before cloning/serialization; JSON escaping has a
++        // bounded sixfold expansion inside the separate wire-frame limit.
++        let request = Request {
++            id,
++            query: query.into(),
++            documents: documents.iter().map(|s| (*s).into()).collect(),
++        };
++        let frame = serde_json::to_vec(&request)
++            .map_err(|_| RerankError::Output("worker request serialization failed"))?;
++        if frame.len() >= protocol::REQUEST_BYTES {
++            return Err(RerankError::Budget("worker frame"));
++        }
++        let frame = self.transport.request(frame, self.timeout)?;
++        let reply = serde_json::from_slice::<Reply>(&frame)
++            .map_err(|_| RerankError::Output("invalid worker score reply"));
++        let result = match reply {
++            Ok(Reply::Scores {
++                id: returned,
++                scores,
++            }) if returned == id => {
++                let scores: Vec<f64> = scores.into_iter().map(f64::from_bits).collect();
++                if scores.len() != documents.len() {
++                    Err(RerankError::ScoreCount {
++                        expected: documents.len(),
++                        actual: scores.len(),
++                    })
++                } else if let Some(i) = scores.iter().position(|s| !s.is_finite()) {
++                    Err(RerankError::NonFiniteScore(i + 1))
++                } else {
++                    Ok(scores)
++                }
++            }
++            Ok(Reply::Failure {
++                id: returned,
++                output_error,
++                message,
++            }) if returned == id => Err(remote_error(output_error, message)),
++            _ => Err(RerankError::Output(
++                "worker response identity or shape mismatch",
++            )),
++        };
++        if result.is_err() {
++            self.transport.abort();
++        }
++        result
++    }
++}
++
++fn validate_text(query: &str, documents: &[&str]) -> Result<(), RerankError> {
++    if query.len() > 16 * 1024
++        || documents.len() > protocol::DOCUMENTS
++        || documents.iter().any(|d| d.len() > 64 * 1024)
++    {
++        return Err(RerankError::Budget("worker input"));
++    }
++    let total = documents
++        .iter()
++        .try_fold(query.len(), |sum, d| sum.checked_add(d.len()))
++        .ok_or(RerankError::Budget("worker input"))?;
++    if total > protocol::TEXT_BYTES {
++        return Err(RerankError::Budget("worker input"));
++    }
++    if query.trim().is_empty() {
++        return Err(RerankError::EmptyQuery);
++    }
++    if documents.iter().any(|d| d.trim().is_empty()) {
++        return Err(RerankError::Output("empty document passed to local scorer"));
++    }
++    Ok(())
++}
++
++fn remote_error(output: bool, message: String) -> RerankError {
++    if output {
++        RerankError::Output("malformed native worker output")
++    } else {
++        RerankError::Provider(protocol::bounded_message(message))
++    }
++}
++
++fn provider(error: std::io::Error) -> RerankError {
++    RerankError::Provider(protocol::bounded_message(error))
++}
++
++/// Run the trusted worker role on stdin/stdout. The application must dispatch
++/// `WORKER_ARGUMENT` before starting a server or loading any other model.
++pub fn run_worker() -> Result<(), RerankError> {
++    let mut input = BufReader::new(std::io::stdin().lock());
++    let mut output = std::io::stdout().lock();
++    let frame = protocol::read_frame(&mut input, protocol::REQUEST_BYTES)
++        .map_err(provider)?
++        .ok_or(RerankError::Output("worker initialization missing"))?;
++    let init: Init = serde_json::from_slice(&frame)
++        .map_err(|_| RerankError::Configuration("invalid worker initialization"))?;
++    if init.version != crate::VERSION || init.threads == 0 || init.threads > 64 {
++        return Err(RerankError::Configuration(
++            "worker initialization version or threads mismatch",
++        ));
++    }
++    let model = match init.snapshot_directory {
++        Some(directory) => FastEmbedReranker::multilingual_minilm_v2_from_snapshot(
++            init.model_directory,
++            init.runtime_library,
++            init.threads,
++            directory,
++        ),
++        None => FastEmbedReranker::multilingual_minilm_v2(
++            init.model_directory,
++            init.runtime_library,
++            init.threads,
++        ),
++    };
++    let mut model = match model {
++        Ok(model) => model,
++        Err(error) => {
++            reply(&mut output, &failure(0, error))?;
++            return Ok(());
++        }
++    };
++    reply(
++        &mut output,
++        &Reply::Ready {
++            version: crate::VERSION.into(),
++            pid: std::process::id(),
++            recipe: model.recipe().into(),
++        },
++    )?;
++    let mut expected = 1u64;
++    while let Some(frame) =
++        protocol::read_frame(&mut input, protocol::REQUEST_BYTES).map_err(provider)?
++    {
++        let request: Request = serde_json::from_slice(&frame)
++            .map_err(|_| RerankError::Output("invalid worker request"))?;
++        if request.id != expected {
++            return Err(RerankError::Output("worker request sequence mismatch"));
++        }
++        expected = expected
++            .checked_add(1)
++            .ok_or(RerankError::Output("worker request sequence exhausted"))?;
++        let documents: Vec<_> = request.documents.iter().map(String::as_str).collect();
++        let result = validate_text(&request.query, &documents)
++            .and_then(|()| model.score(&request.query, &documents));
++        let response = match result {
++            Ok(scores) => Reply::Scores {
++                id: request.id,
++                scores: scores.into_iter().map(f64::to_bits).collect(),
++            },
++            Err(e) => failure(request.id, e),
++        };
++        reply(&mut output, &response)?;
++    }
++    Ok(())
++}
++
++fn failure(id: u64, error: RerankError) -> Reply {
++    Reply::Failure {
++        id,
++        output_error: !matches!(error, RerankError::Provider(_)),
++        message: protocol::bounded_message(error),
++    }
++}
++
++fn reply(writer: &mut impl std::io::Write, value: &Reply) -> Result<(), RerankError> {
++    let frame = serde_json::to_vec(value)
++        .map_err(|_| RerankError::Output("worker output serialization failed"))?;
++    if frame.len() >= protocol::RESPONSE_BYTES {
++        return Err(RerankError::Budget("worker response"));
++    }
++    protocol::write_frame(writer, &frame).map_err(provider)
++}
+--- /dev/null
++++ b/src/reranking/process/protocol.rs
+@@ -0,0 +1,111 @@
++use serde::{Deserialize, Serialize};
++use std::io::{self, BufRead, Read, Write};
++
++pub(super) const REQUEST_BYTES: usize = 16 * 1024 * 1024;
++pub(super) const RESPONSE_BYTES: usize = 64 * 1024;
++pub(super) const TEXT_BYTES: usize = 2 * 1024 * 1024;
++pub(super) const DOCUMENTS: usize = 128;
++
++#[derive(Serialize, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub(super) struct Init {
++    pub version: String,
++    pub model_directory: std::path::PathBuf,
++    pub runtime_library: std::path::PathBuf,
++    pub threads: usize,
++    pub snapshot_directory: Option<std::path::PathBuf>,
++}
++
++#[derive(Serialize, Deserialize)]
++#[serde(deny_unknown_fields)]
++pub(super) struct Request {
++    pub id: u64,
++    pub query: String,
++    pub documents: Vec<String>,
++}
++
++#[derive(Serialize, Deserialize)]
++#[serde(tag = "kind", deny_unknown_fields)]
++pub(super) enum Reply {
++    Ready {
++        version: String,
++        pid: u32,
++        recipe: String,
++    },
++    Scores {
++        id: u64,
++        scores: Vec<u64>,
++    },
++    Failure {
++        id: u64,
++        output_error: bool,
++        message: String,
++    },
++}
++
++pub(super) fn read_frame<R: BufRead>(
++    reader: &mut R,
++    maximum: usize,
++) -> io::Result<Option<Vec<u8>>> {
++    let mut frame = Vec::new();
++    let count = (&mut *reader)
++        .take(maximum as u64 + 1)
++        .read_until(b'\n', &mut frame)?;
++    if count == 0 {
++        return Ok(None);
++    }
++    if count > maximum || frame.last() != Some(&b'\n') {
++        return Err(io::Error::new(
++            io::ErrorKind::InvalidData,
++            "invalid or oversized worker frame",
++        ));
++    }
++    Ok(Some(frame))
++}
++
++pub(super) fn write_frame<W: Write>(writer: &mut W, frame: &[u8]) -> io::Result<()> {
++    writer.write_all(frame)?;
++    writer.write_all(b"\n")?;
++    writer.flush()
++}
++
++pub(super) fn bounded_message(message: impl std::fmt::Display) -> String {
++    let mut message = message.to_string();
++    if message.len() > 2048 {
++        let mut end = 2048;
++        while !message.is_char_boundary(end) {
++            end -= 1;
++        }
++        message.truncate(end);
++    }
++    message
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn framing_bounds_partial_and_oversized_streams_without_consuming_the_next_frame() {
++        let mut input = &b"one\ntwo\n"[..];
++        assert_eq!(read_frame(&mut input, 4).unwrap().unwrap(), b"one\n");
++        assert_eq!(read_frame(&mut input, 4).unwrap().unwrap(), b"two\n");
++        assert!(read_frame(&mut input, 4).unwrap().is_none());
++        assert!(read_frame(&mut &b"four\n"[..], 4).is_err());
++        assert!(read_frame(&mut &b"one"[..], 4).is_err());
++        assert!(read_frame(&mut &b"\n"[..], 0).is_err());
++    }
++
++    #[test]
++    fn diagnostics_and_protocol_shape_are_bounded_and_strict() {
++        let message = bounded_message("界".repeat(2000));
++        assert!(message.len() <= 2048 && message.is_char_boundary(message.len()));
++        assert!(serde_json::from_str::<Request>(
++            r#"{"id":1,"query":"q","documents":[],"extra":true}"#
++        )
++        .is_err());
++        let mut output = Vec::new();
++        write_frame(&mut output, br#"{"id":1}"#).unwrap();
++        assert_eq!(output.last(), Some(&b'\n'));
++    }
++}
+--- /dev/null
++++ b/src/reranking/process/tests.rs
+@@ -0,0 +1,180 @@
++use super::*;
++use std::{
++    fs,
++    os::unix::fs::PermissionsExt,
++    process::{Command, Stdio},
++    time::Instant,
++};
++
++fn fixture(mode: &str) -> (tempfile::TempDir, PathBuf, PathBuf) {
++    let root = tempfile::tempdir().unwrap();
++    let worker = root.path().join("worker");
++    let runtime = root.path().join("runtime");
++    fs::write(&runtime, b"mock runtime, never loaded").unwrap();
++    let script = format!(
++        r#"#!/usr/bin/env python3
++import json,os,sys,time,struct
++mode={mode:?}
++init=json.loads(sys.stdin.readline())
++if init.get('snapshot_directory'):
++    open(os.path.join(init['snapshot_directory'],'owned-copy'),'wb').write(b'fixture')
++def send(value):
++    print(json.dumps(value),flush=True)
++send({{'kind':'Ready','version':{version:?} if mode!='version' else 'wrong','pid':os.getpid(),'recipe':'fixture:v1'}})
++for line in sys.stdin:
++    request=json.loads(line)
++    if mode=='timeout':time.sleep(20)
++    if mode=='crash':os._exit(7)
++    if mode=='oversize':print('x'*70000,flush=True);continue
++    if mode=='malformed':print('{{',flush=True);continue
++    if mode=='provider':send({{'kind':'Failure','id':request['id'],'output_error':False,'message':'x'*9000}});continue
++    bits=struct.unpack('<Q',struct.pack('<d',-0.0))[0]
++    if mode=='nonfinite':bits=0x7ff8000000000000
++    scores=[bits for _ in request['documents']]
++    if mode=='count':scores=[]
++    send({{'kind':'Scores','id':request['id']+(1 if mode=='id' else 0),'scores':scores}})
++if mode=='hang_exit':time.sleep(20)
++open(os.path.join(init['model_directory'],'closed'),'w').write('yes')
++"#,
++        version = crate::VERSION
++    );
++    fs::write(&worker, script).unwrap();
++    fs::set_permissions(&worker, fs::Permissions::from_mode(0o700)).unwrap();
++    (root, worker, runtime)
++}
++
++fn gone(pid: u32) -> bool {
++    !Command::new("/bin/kill")
++        .args(["-0", &pid.to_string()])
++        .stdout(Stdio::null())
++        .stderr(Stdio::null())
++        .status()
++        .unwrap()
++        .success()
++}
++
++#[test]
++fn graceful_drop_reaps_worker_preserves_originals_and_removes_only_private_snapshots() {
++    let (root, worker, runtime) = fixture("good");
++    let original = root.path().join("original");
++    fs::write(&original, b"retain original").unwrap();
++    let copies = root.path().join("copies");
++    fs::create_dir(&copies).unwrap();
++    let mut model = ProcessReranker::multilingual_minilm_v2_from_snapshot(
++        ProcessOptions::new(worker),
++        root.path(),
++        &runtime,
++        2,
++        &copies,
++    )
++    .unwrap();
++    let pid = model.worker_id();
++    assert_eq!(fs::read_dir(&copies).unwrap().count(), 1);
++    assert!(matches!(
++        model.score(&"q".repeat(16385), &["d"]),
++        Err(RerankError::Budget(_))
++    ));
++    let scores = model.score("q", &["a", "b"]).unwrap();
++    assert_eq!(
++        scores.iter().map(|f| f.to_bits()).collect::<Vec<_>>(),
++        vec![(-0.0f64).to_bits(); 2]
++    );
++    drop(model);
++    assert!(gone(pid));
++    assert!(root.path().join("closed").is_file());
++    assert_eq!(fs::read_dir(&copies).unwrap().count(), 0);
++    assert_eq!(fs::read(original).unwrap(), b"retain original");
++    assert!(runtime.is_file());
++}
++
++#[test]
++fn malformed_mismatched_and_nonfinite_worker_outputs_fail_closed_and_stop_the_worker() {
++    for mode in [
++        "oversize",
++        "malformed",
++        "id",
++        "count",
++        "nonfinite",
++        "provider",
++        "crash",
++    ] {
++        let (root, worker, runtime) = fixture(mode);
++        let mut model = ProcessReranker::multilingual_minilm_v2(
++            ProcessOptions::new(worker),
++            root.path(),
++            runtime,
++            2,
++        )
++        .unwrap();
++        let pid = model.worker_id();
++        let error = model.score("q", &["d"]).unwrap_err();
++        match mode {
++            "count" => assert!(matches!(
++                error,
++                RerankError::ScoreCount {
++                    expected: 1,
++                    actual: 0
++                }
++            )),
++            "nonfinite" => assert_eq!(error, RerankError::NonFiniteScore(1)),
++            "provider" => {
++                assert!(matches!(error, RerankError::Provider(ref message) if message.len()<=2048))
++            }
++            _ => assert!(matches!(
++                error,
++                RerankError::Output(_) | RerankError::Provider(_)
++            )),
++        }
++        assert!(gone(pid), "{mode}");
++        assert!(model.score("q", &["d"]).is_err());
++    }
++}
++
++#[test]
++fn timeout_and_noncooperative_exit_are_reaped_without_affecting_the_parent() {
++    for mode in ["timeout", "hang_exit"] {
++        let (root, worker, runtime) = fixture(mode);
++        let options = ProcessOptions::new(worker)
++            .with_timeouts(Duration::from_secs(5), Duration::from_millis(100))
++            .unwrap();
++        let mut model =
++            ProcessReranker::multilingual_minilm_v2(options, root.path(), runtime, 2).unwrap();
++        let pid = model.worker_id();
++        let start = Instant::now();
++        if mode == "timeout" {
++            assert!(matches!(
++                model.score("q", &["d"]),
++                Err(RerankError::Provider(_))
++            ));
++        }
++        drop(model);
++        assert!(start.elapsed() < Duration::from_secs(5));
++        assert!(gone(pid));
++    }
++}
++
++#[test]
++fn startup_identity_and_invalid_configuration_do_not_publish_a_model() {
++    let (root, worker, runtime) = fixture("version");
++    assert!(matches!(
++        ProcessReranker::multilingual_minilm_v2(
++            ProcessOptions::new(worker),
++            root.path(),
++            runtime,
++            2
++        ),
++        Err(RerankError::Output(_))
++    ));
++    assert!(ProcessOptions::new("unused")
++        .with_timeouts(Duration::ZERO, Duration::from_secs(1))
++        .is_err());
++    assert!(matches!(
++        ProcessReranker::multilingual_minilm_v2(
++            ProcessOptions::new("unused"),
++            "missing",
++            "missing",
++            65
++        ),
++        Err(RerankError::Configuration(_))
++    ));
++}
+--- /dev/null
++++ b/src/reranking/process/transport.rs
+@@ -0,0 +1,174 @@
++use super::protocol::{read_frame, write_frame, RESPONSE_BYTES};
++use super::{ProcessOptions, WORKER_ARGUMENT};
++use crate::reranking::RerankError;
++use std::{
++    io::BufReader,
++    process::{Child, Command, Stdio},
++    sync::mpsc::{self, Receiver, SyncSender},
++    thread::{self, JoinHandle},
++    time::{Duration, Instant},
++};
++
++#[derive(Clone, Copy)]
++enum IoFailure {
++    Connection,
++    Frame,
++}
++
++pub(super) struct Transport {
++    child: Child,
++    requests: Option<SyncSender<Vec<u8>>>,
++    replies: Receiver<Result<Vec<u8>, IoFailure>>,
++    io: Option<JoinHandle<()>>,
++}
++
++impl Transport {
++    pub fn spawn(options: &ProcessOptions, init: Vec<u8>) -> Result<Self, RerankError> {
++        let executable = options.executable.canonicalize().map_err(provider)?;
++        if !executable.is_file() {
++            return Err(RerankError::Configuration(
++                "worker executable must be a regular file",
++            ));
++        }
++        let mut child = Command::new(executable)
++            .arg(WORKER_ARGUMENT)
++            .stdin(Stdio::piped())
++            .stdout(Stdio::piped())
++            .stderr(Stdio::null())
++            .spawn()
++            .map_err(provider)?;
++        let mut input = child.stdin.take().expect("piped stdin");
++        let mut output = BufReader::new(child.stdout.take().expect("piped stdout"));
++        let (send, commands) = mpsc::sync_channel::<Vec<u8>>(1);
++        let (responses, receive) = mpsc::sync_channel(1);
++        let io = thread::Builder::new()
++            .name("airust-model-io".into())
++            .spawn(move || {
++                let exchange = |input: &mut std::process::ChildStdin,
++                                output: &mut BufReader<std::process::ChildStdout>,
++                                frame: &[u8]| {
++                    write_frame(input, frame).map_err(|_| IoFailure::Connection)?;
++                    read_frame(output, RESPONSE_BYTES)
++                        .map_err(|e| {
++                            if e.kind() == std::io::ErrorKind::InvalidData {
++                                IoFailure::Frame
++                            } else {
++                                IoFailure::Connection
++                            }
++                        })?
++                        .ok_or(IoFailure::Connection)
++                };
++                let first = exchange(&mut input, &mut output, &init);
++                let failed = first.is_err();
++                if responses.send(first).is_err() || failed {
++                    return;
++                }
++                while let Ok(frame) = commands.recv() {
++                    let reply = exchange(&mut input, &mut output, &frame);
++                    let failed = reply.is_err();
++                    if responses.send(reply).is_err() || failed {
++                        return;
++                    }
++                }
++                // Closing stdin signals normal teardown to the trusted worker.
++            });
++        let io = match io {
++            Ok(io) => io,
++            Err(error) => {
++                let _ = child.kill();
++                let _ = child.wait();
++                return Err(provider(error));
++            }
++        };
++        Ok(Self {
++            child,
++            requests: Some(send),
++            replies: receive,
++            io: Some(io),
++        })
++    }
++
++    pub fn id(&self) -> u32 {
++        self.child.id()
++    }
++
++    pub fn receive(&mut self, timeout: Duration) -> Result<Vec<u8>, RerankError> {
++        match self.replies.recv_timeout(timeout) {
++            Ok(Ok(frame)) => Ok(frame),
++            Ok(Err(IoFailure::Frame)) => {
++                self.abort();
++                Err(RerankError::Output("invalid worker response frame"))
++            }
++            Ok(Err(IoFailure::Connection)) => {
++                self.abort();
++                Err(RerankError::Provider(
++                    "local model worker connection closed".into(),
++                ))
++            }
++            Err(mpsc::RecvTimeoutError::Timeout) => {
++                self.abort();
++                Err(RerankError::Provider(
++                    "local model worker timed out and was stopped".into(),
++                ))
++            }
++            Err(mpsc::RecvTimeoutError::Disconnected) => {
++                self.abort();
++                Err(RerankError::Provider(
++                    "local model worker disconnected".into(),
++                ))
++            }
++        }
++    }
++
++    pub fn request(&mut self, frame: Vec<u8>, timeout: Duration) -> Result<Vec<u8>, RerankError> {
++        let Some(sender) = &self.requests else {
++            return Err(RerankError::Provider(
++                "local model worker is stopped".into(),
++            ));
++        };
++        if sender.send(frame).is_err() {
++            self.abort();
++            return Err(RerankError::Provider(
++                "local model worker is stopped".into(),
++            ));
++        }
++        self.receive(timeout)
++    }
++
++    pub fn abort(&mut self) {
++        self.requests.take();
++        let _ = self.child.kill();
++        let _ = self.child.wait();
++        if let Some(io) = self.io.take() {
++            let _ = io.join();
++        }
++    }
++}
++
++impl Drop for Transport {
++    fn drop(&mut self) {
++        if self.io.is_none() {
++            return;
++        }
++        self.requests.take();
++        // No request is in flight after a successful synchronous call. Error and
++        // timeout paths kill first, releasing the worker's pipe endpoints.
++        if let Some(io) = self.io.take() {
++            let _ = io.join();
++        }
++        let until = Instant::now() + Duration::from_secs(1);
++        loop {
++            match self.child.try_wait() {
++                Ok(Some(_)) => return,
++                Ok(None) if Instant::now() < until => thread::sleep(Duration::from_millis(5)),
++                _ => break,
++            }
++        }
++        let _ = self.child.kill();
++        let _ = self.child.wait();
++    }
++}
++
++fn provider(error: std::io::Error) -> RerankError {
++    RerankError::Provider(super::protocol::bounded_message(error))
++}
+--- a/src/reranking.rs
++++ b/src/reranking.rs
+@@ -7,6 +7,9 @@
+ 
+ #[cfg(feature = "local-reranking")]
+ pub mod local;
++
++#[cfg(feature = "local-reranking")]
++pub mod process;
+ 
+ #[derive(Debug, Error, PartialEq, Eq)]
+ #[non_exhaustive]
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,6 +1,6 @@
+ [package]
+ name = "airust"
+-version = "0.6.1"
++version = "0.6.2"
+ default-run = "airust"
+ authors = ["LEVOGNE"]
+ edition = "2021"
+@@ -399,3 +399,12 @@
+ [[example]]
+ name = "retained_errors"
+ required-features = ["mcp"]
++
++[[bin]]
++name = "airust-model-worker"
++path = "src/bin/airust-model-worker.rs"
++required-features = ["local-reranking"]
++
++[[example]]
++name = "native_model_lifecycle"
++required-features = ["local-reranking", "execution"]
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -44,7 +44,7 @@
+ 
+ [[package]]
+ name = "airust"
+-version = "0.6.1"
++version = "0.6.2"
+ dependencies = [
+  "airust-pdf-backend",
+  "axum",
+--- /dev/null
++++ b/examples/native_model_lifecycle.rs
+@@ -0,0 +1,245 @@
++#![forbid(unsafe_code)]
++use airust::{
++    execution::{CancellationToken, ExecutionError, ProgressEvent, WorkControl, WorkPhase},
++    reranking::{
++        local::FastEmbedReranker, rerank, RerankError, RerankFailurePolicy, RerankOptions, Reranker,
++    },
++    KnowledgeEntry,
++};
++use serde::Deserialize;
++use std::{
++    error::Error,
++    io::{self, Write},
++    time::{Duration, Instant},
++};
++#[derive(Deserialize)]
++struct Prefix {
++    id: String,
++    query: String,
++    candidates: Vec<KnowledgeEntry>,
++}
++struct Counted<'a> {
++    native: &'a mut dyn Reranker,
++    calls: usize,
++}
++impl Reranker for Counted<'_> {
++    fn recipe(&self) -> &str {
++        self.native.recipe()
++    }
++    fn score(&mut self, q: &str, d: &[&str]) -> Result<Vec<f64>, RerankError> {
++        self.calls += 1;
++        self.native.score(q, d)
++    }
++}
++fn event(
++    stage: &str,
++    cycle: usize,
++    mode: &str,
++    extra: serde_json::Value,
++) -> Result<(), Box<dyn Error>> {
++    println!(
++        "{}",
++        serde_json::json!({"pid":std::process::id(),"stage":stage,"cycle":cycle,"mode":mode,"extra":extra})
++    );
++    io::stdout().flush()?;
++    let mut line = String::new();
++    io::stdin().read_line(&mut line)?;
++    if line.trim() != "continue" {
++        return Err("controller handshake failed".into());
++    }
++    Ok(())
++}
++fn main() -> Result<(), Box<dyn Error>> {
++    let args: Vec<_> = std::env::args().skip(1).collect();
++    if args.first().map(String::as_str) == Some(airust::reranking::process::WORKER_ARGUMENT) {
++        airust::reranking::process::run_worker()?;
++        return Ok(());
++    }
++    if args.len() != 7 {
++        return Err(
++            "expected PREFIXES MODEL_DIR RUNTIME CYCLES BACKEND MODE SNAPSHOT_PARENT".into(),
++        );
++    }
++    if !["in_process", "process"].contains(&args[4].as_str()) {
++        return Err("backend must be in_process or process".into());
++    }
++    let cycles: usize = args[3].parse()?;
++    assert!((8..=100).contains(&cycles));
++    use std::io::Read;
++    let file = std::fs::File::open(&args[0])?;
++    let metadata = file.metadata()?;
++    if !metadata.is_file() || metadata.len() > 1024 * 1024 {
++        return Err("prefixes must be a regular file of at most 1 MiB".into());
++    }
++    let mut bytes = Vec::new();
++    file.take(1024 * 1024 + 1).read_to_end(&mut bytes)?;
++    if bytes.len() as u64 != metadata.len() {
++        return Err("prefix file changed or exceeded its bound".into());
++    }
++    let prefixes: Vec<Prefix> = serde_json::from_slice(&bytes)?;
++    assert_eq!(prefixes.len(), 4);
++    assert!(prefixes.iter().all(|c| c.candidates.len() == 20));
++    let snapshots = tempfile::tempdir_in(&args[6])?;
++    event(
++        "initial",
++        0,
++        "none",
++        serde_json::json!({"snapshot_files":0}),
++    )?;
++    for cycle in 0..cycles {
++        let snapshot = match args[5].as_str() {
++            "snapshot" => true,
++            "memory" => false,
++            "mixed" => cycle % 2 == 1,
++            _ => panic!("mode"),
++        };
++        let mode = if snapshot { "snapshot" } else { "memory" };
++        let case = &prefixes[cycle % prefixes.len()];
++        let loading = Instant::now();
++        let mut model: Box<dyn Reranker> = if args[4] == "process" {
++            use airust::reranking::process::{ProcessOptions, ProcessReranker};
++            let options = ProcessOptions::new(std::env::current_exe()?);
++            if snapshot {
++                Box::new(ProcessReranker::multilingual_minilm_v2_from_snapshot(
++                    options,
++                    &args[1],
++                    &args[2],
++                    2,
++                    snapshots.path(),
++                )?)
++            } else {
++                Box::new(ProcessReranker::multilingual_minilm_v2(
++                    options, &args[1], &args[2], 2,
++                )?)
++            }
++        } else {
++            if snapshot {
++                Box::new(FastEmbedReranker::multilingual_minilm_v2_from_snapshot(
++                    &args[1],
++                    &args[2],
++                    2,
++                    snapshots.path(),
++                )?)
++            } else {
++                Box::new(FastEmbedReranker::multilingual_minilm_v2(
++                    &args[1], &args[2], 2,
++                )?)
++            }
++        };
++        let load_ms = loading.elapsed().as_secs_f64() * 1000.0;
++        assert_eq!(
++            std::fs::read_dir(snapshots.path())?.count(),
++            usize::from(snapshot)
++        );
++        event(
++            "loaded",
++            cycle,
++            mode,
++            serde_json::json!({"recipe":model.recipe(),"load_ms":load_ms,"snapshot_files":usize::from(snapshot)}),
++        )?;
++        let options = RerankOptions::new(20)
++            .with_candidates(20)?
++            .with_batch_size(1)?;
++        let first_start = Instant::now();
++        let before = rerank(&case.query, &case.candidates, model.as_mut(), &options)?;
++        let first_ms = first_start.elapsed().as_secs_f64() * 1000.0;
++        let signature: Vec<_> = before
++            .results()
++            .iter()
++            .map(|r| (r.entry().id.clone(), r.score.unwrap().to_bits()))
++            .collect();
++        let cancel = CancellationToken::new();
++        let observed = cancel.clone();
++        let control = WorkControl::new(cancel).with_observer(move |e: &ProgressEvent| {
++            if e.phase() == WorkPhase::Reranking && e.completed() >= 1 {
++                observed.cancel();
++            }
++        });
++        let mut counted = Counted {
++            native: model.as_mut(),
++            calls: 0,
++        };
++        let cancelled = rerank(
++            &case.query,
++            &case.candidates,
++            &mut counted,
++            &options
++                .clone()
++                .with_control(control)
++                .with_failure_policy(RerankFailurePolicy::KeepOriginalOrder),
++        );
++        assert!(matches!(
++            cancelled,
++            Err(RerankError::Execution(ExecutionError::Cancelled))
++        ));
++        assert_eq!(counted.calls, 1);
++        let deadline = WorkControl::new(CancellationToken::new()).with_deadline(Instant::now());
++        let expired = rerank(
++            &case.query,
++            &case.candidates,
++            &mut counted,
++            &options.clone().with_control(deadline),
++        );
++        assert!(matches!(
++            expired,
++            Err(RerankError::Execution(ExecutionError::DeadlineExceeded))
++        ));
++        assert_eq!(counted.calls, 1);
++        let recovery_start = Instant::now();
++        let after = rerank(&case.query, &case.candidates, &mut counted, &options)?;
++        let recovery_ms = recovery_start.elapsed().as_secs_f64() * 1000.0;
++        let recovered: Vec<_> = after
++            .results()
++            .iter()
++            .map(|r| (r.entry().id.clone(), r.score.unwrap().to_bits()))
++            .collect();
++        assert_eq!(signature, recovered);
++        event(
++            "recovered",
++            cycle,
++            mode,
++            serde_json::json!({"case_id":case.id,"cancelled_after_native_batches":1,"expired_deadline_extra_calls":0,"recovery_scores_bits_equal":true,"signature":signature,"first_ms":first_ms,"recovery_ms":recovery_ms,"snapshot_files":usize::from(snapshot)}),
++        )?;
++        drop(counted);
++        drop(model);
++        std::thread::sleep(Duration::from_millis(100));
++        assert_eq!(std::fs::read_dir(snapshots.path())?.count(), 0);
++        event(
++            "dropped",
++            cycle,
++            mode,
++            serde_json::json!({"snapshot_files":0}),
++        )?;
++    }
++    // A full verified-copy constructor failure must clean its copy too.
++    let invalid_runtime = snapshots.path().join("invalid-runtime");
++    std::fs::write(&invalid_runtime, b"invalid native runtime")?;
++    let error = if args[4] == "process" {
++        airust::reranking::process::ProcessReranker::multilingual_minilm_v2_from_snapshot(
++            airust::reranking::process::ProcessOptions::new(std::env::current_exe()?),
++            &args[1],
++            &invalid_runtime,
++            2,
++            snapshots.path(),
++        )
++        .map(|_| ())
++    } else {
++        FastEmbedReranker::multilingual_minilm_v2_from_snapshot(
++            &args[1],
++            &invalid_runtime,
++            2,
++            snapshots.path(),
++        )
++        .map(|_| ())
++    };
++    assert!(matches!(error, Err(RerankError::Provider(_))));
++    std::fs::remove_file(&invalid_runtime)?;
++    assert_eq!(std::fs::read_dir(snapshots.path())?.count(), 0);
++    event(
++        "complete",
++        cycles,
++        "none",
++        serde_json::json!({"all_native_cancel_recoveries":true,"cycles":cycles,"failed_runtime_snapshot_cleanup":true}),
++    )?;
++    Ok(())
++}
+--- /dev/null
++++ b/scripts/benchmark_model_lifecycle.py
+@@ -0,0 +1,148 @@
++"""Finite same-host native lifecycle measurement; keeps every failure and sample."""
++from pathlib import Path
++from datetime import datetime, timezone
++import argparse
++import hashlib
++import json
++import os
++import selectors
++import signal
++import subprocess
++import sys
++import time
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++
++def sha(path):
++    with path.open('rb') as stream:
++        return hashlib.file_digest(stream, 'sha256').hexdigest()
++
++
++def put(path, value):
++    path.write_text(json.dumps(value, indent=2, allow_nan=False) + '\n')
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('binary', type=Path)
++    parser.add_argument('output', type=Path)
++    parser.add_argument('--model-directory', required=True, type=Path)
++    parser.add_argument('--runtime', required=True, type=Path)
++    parser.add_argument('--cycles', type=int, default=30)
++    parser.add_argument('--diagnostics', action='store_true')
++    parser.add_argument('--backend', choices=['in_process','process'], default='in_process')
++    parser.add_argument('--mode', choices=['mixed','memory','snapshot'], default='mixed')
++    parser.add_argument('--prefixes', type=Path, default=ROOT/'tests/fixtures/native-lifecycle-v1.json')
++    args = parser.parse_args()
++    if not 8 <= args.cycles <= 100 or sys.platform not in {'darwin','linux'}:
++        parser.error('cycles must be 8..100; RSS controller supports macOS/Linux')
++    out = args.output.resolve()
++    out.mkdir(parents=True, exist_ok=False)
++    binary = args.binary.resolve(strict=True)
++    private_tmp = out/'tmp'
++    private_tmp.mkdir(mode=0o700)
++    command = [str(binary), str(args.prefixes.resolve(strict=True)),
++               str(args.model_directory.resolve(strict=True)),
++               str(args.runtime.resolve(strict=True)),
++               str(args.cycles), args.backend, args.mode, str(private_tmp)]
++    policy = {'warmup_cycles':2,'post_warm_postdrop_rss_range_budget_bytes':64*1024*1024,'peak_child_rss_safety_cap_bytes':4*1024*1024*1024,'threads':2,'candidates':20,'outer_batch':1,'resource_origin':'Synthetic resource fixture by default; caller-supplied text may be private. No independent quality or actual 1 GiB-device claim.','rss_scope':'Sampled parent plus direct-child RSS sums can double-count shared pages; not unique physical/system/GPU accounting.'}
++    env = dict(os.environ)
++    for key in ['MallocSpaceEfficient', 'MallocNanoZone']:
++        env.pop(key, None)
++    record = {'started_at': datetime.now(timezone.utc).isoformat(), 'command': command,
++              'binary_sha256': sha(binary), 'probe_sha256': sha(ROOT / 'examples/native_model_lifecycle.rs'),
++              'policy': policy, 'cycles': args.cycles, 'malloc_space_efficient_override': False,
++              'source_hashes': {str(p.relative_to(ROOT)): sha(p) for p in [*sorted((ROOT/'src').rglob('*.rs')),ROOT/'Cargo.toml',ROOT/'Cargo.lock',ROOT/'examples/native_model_lifecycle.rs',Path(__file__)]},
++              'native_outside_miri': True, 'diagnostics': args.diagnostics, 'backend':args.backend, 'mode':args.mode,
++              'prefixes_sha256':sha(args.prefixes), 'raw_queries_published':False}
++    put(out / 'policy.json', record)
++    rows = []
++    sampled_peak = 0
++    status = None
++    start = time.monotonic()
++    with (out / 'stderr.log').open('xb') as errors:
++        process = subprocess.Popen(command, cwd=ROOT, env=env, stdin=subprocess.PIPE,
++                                   stdout=subprocess.PIPE, stderr=errors, start_new_session=True)
++        ready = selectors.DefaultSelector()
++        ready.register(process.stdout, selectors.EVENT_READ)
++        last_event = time.monotonic()
++        try:
++            while True:
++                if time.monotonic() - last_event > 60 or time.monotonic() - start > 1800:
++                    raise TimeoutError('Native lifecycle event/total time bound exceeded')
++                rss = subprocess.run(['ps', '-o', 'rss=', '-p', str(process.pid)], capture_output=True, timeout=5)
++                if rss.returncode == 0 and rss.stdout.strip():
++                    resident = int(rss.stdout.strip()) * 1024
++                    children = subprocess.run(['pgrep','-P',str(process.pid)],capture_output=True,text=True,timeout=5)
++                    assert children.returncode in [0,1]
++                    child_ids=[int(x) for x in children.stdout.splitlines()]
++                    assert len(child_ids)<=1, 'Unexpected model-process multiplicity'
++                    child_rss=0
++                    for child_pid in child_ids:
++                        sample=subprocess.run(['ps','-o','rss=','-p',str(child_pid)],capture_output=True,text=True,timeout=5)
++                        if sample.returncode==0 and sample.stdout.strip(): child_rss+=int(sample.stdout.strip())*1024
++                    sampled_peak = max(sampled_peak, resident+child_rss)
++                    if resident+child_rss > policy['peak_child_rss_safety_cap_bytes']:
++                        raise RuntimeError('Native child exceeded frozen 4 GiB RSS safety cap')
++                if not ready.select(timeout=0.15):
++                    continue
++                line = process.stdout.readline(65537)
++                if not line:
++                    break
++                assert len(line) <= 65536
++                row = json.loads(line)
++                assert row['pid'] == process.pid
++                row['rss_bytes'] = int(subprocess.check_output(['ps', '-o', 'rss=', '-p', str(process.pid)], text=True, timeout=5).strip()) * 1024
++                row['last_sampled_child_rss_bytes']=child_rss
++                if row['stage']=='dropped':
++                    child_state=subprocess.run(['pgrep','-P',str(process.pid)],capture_output=True,text=True,timeout=5)
++                    assert child_state.returncode==1, 'Model worker was not reaped before drop completed'
++                row['controller_elapsed_seconds'] = time.monotonic() - start
++                if args.diagnostics and row['stage'] in ['initial', 'complete']:
++                    for tool in ['/usr/bin/vmmap', '/usr/bin/leaks']:
++                        command = [tool, '-summary' if tool.endswith('vmmap') else '-q', str(process.pid)]
++                        run = subprocess.run(command, capture_output=True, timeout=45)
++                        prefix = out / (Path(tool).name + '-' + row['stage'])
++                        prefix.with_suffix('.stdout').write_bytes(run.stdout)
++                        prefix.with_suffix('.stderr').write_bytes(run.stderr)
++                        row[Path(tool).name + '_exit_code'] = run.returncode
++                rows.append(row)
++                put(out / 'events.json', rows)
++                print(json.dumps({'stage': row['stage'], 'cycle': row['cycle'], 'rss_bytes': row['rss_bytes']}), flush=True)
++                process.stdin.write(b'continue\n')
++                process.stdin.flush()
++                last_event = time.monotonic()
++            _, raw_status, usage = os.wait4(process.pid, 0)
++            process.returncode = os.waitstatus_to_exitcode(raw_status)
++            status = process.returncode
++            record['wait4_reported_maxrss_bytes'] = usage.ru_maxrss if sys.platform == 'darwin' else usage.ru_maxrss * 1024
++        except Exception as error:
++            record['harness_failure'] = repr(error)
++            raise
++        finally:
++            ready.close()
++            if process.returncode is None:
++                os.killpg(process.pid, signal.SIGKILL)
++                process.wait()
++            process.stdin.close()
++            process.stdout.close()
++            record.update(exit_code=status, sampled_sum_peak_rss_bytes=sampled_peak,
++                          completed_at=datetime.now(timezone.utc).isoformat(), seconds=time.monotonic() - start)
++            put(out / 'partial-result.json', record)
++    dropped = [row for row in rows if row['stage'] == 'dropped']
++    assert status == 0 and rows[-1]['stage'] == 'complete' and len(dropped) == args.cycles
++    steady = [row['rss_bytes'] for row in dropped[policy['warmup_cycles']:]]
++    growth = max(steady) - min(steady)
++    record.update(functional_controls_passed=True, no_model_workers_after_drop=True, after_drop_rss_bytes=[r['rss_bytes'] for r in dropped],
++                  post_warm_range_bytes=growth, rss_growth_budget_passed=growth <= policy['post_warm_postdrop_rss_range_budget_bytes'])
++    put(out / 'report.json', record)
++    print(json.dumps({'name': args.output.name, 'functional_passed': True, 'growth_budget_passed': record['rss_growth_budget_passed'],
++                      'growth_bytes': growth, 'peak_rss_bytes': record['sampled_sum_peak_rss_bytes']}), flush=True)
++    if not record['rss_growth_budget_passed']:
++        raise SystemExit('Observed memory-growth gate failed; preserve actual results')
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/docs/LOCAL-MODEL-PROCESSES.md
+@@ -0,0 +1,81 @@
++# Local model process ownership
++
++This is the **unreleased 0.6.2 development API**. Build from this checkout; the immutable published 0.6.1 package does not contain it.
++
++`ProcessReranker` implements the existing `Reranker` interface using one application-owned worker process. The worker reuses the validated `FastEmbedReranker`, pinned MiniLM weights, CPU execution, tokenization, 512-token recipe and score checks. This moves native allocation lifetimes outside the application process. It does not add a search algorithm, model framework, database or mandatory default dependency.
++
++## Why a process boundary
++
++Repeated 0.6.1 model construction/drop failed its post-warm RSS-growth control. The new thirty-cycle reproduction and three allocation-policy ablations are retained with the [measurement record](measurements/native-lifecycle-0.6.2/README.md). Native memory can be freed logically while the system allocator keeps fragmented or cached resident regions. Destroying Rust values does not itself require that allocator to return all pages to the operating system. Zero unreachable allocations reported by a restricted diagnostic tool is not an absence-of-leaks proof.
++
++The ordinary in-process constructor remains compatible and still has that resource boundary. Reusing one instance can avoid reload work, but does not turn a failed repeated-load test into a pass. For applications that must unload/reload models predictably, the explicit process mode ends the native heap lifetime by ending and reaping its process. The library does not set a global allocator environment variable or call unsafe allocator hooks.
++
++## Application integration
++
++Build the matching trusted worker from this checkout:
++
++```bash
++cargo build --release --locked --no-default-features \
++  --features local-reranking --bin airust-model-worker
++```
++
++```rust,no_run
++use airust::reranking::{Reranker, process::{ProcessOptions, ProcessReranker}};
++# fn main() -> Result<(), Box<dyn std::error::Error>> {
++let options = ProcessOptions::new("/absolute/path/to/airust-model-worker");
++let mut scorer = ProcessReranker::multilingual_minilm_v2_from_snapshot(
++    options, "/owned/model-directory", "/owned/runtime-library", 2, "/owned/private-snapshot-parent",
++)?;
++let scores = scorer.score("Rust ownership", &["Rust owns its values."])?;
++assert_eq!(scores.len(), 1);
++drop(scorer);
++# Ok(()) }
++```
++
++Verified file-snapshot loading is required and takes an application-owned snapshot parent directory. The parent creates a private subdirectory and retains its guard until the worker has exited. The worker streams/checks the existing model into a private file using the existing snapshot API. Normal native drop removes the copy; parent cleanup also removes its private subtree after a worker crash/timeout. Original models, workspaces and databases are not deleted. Abrupt termination of the entire application can leave private files; this is not background cleanup of arbitrary directories.
++
++The bundled worker and library must have the same package version. The startup handshake verifies version, PID and a bounded nonempty recipe. The internal protocol is not a stable third-party interoperability API. Supply a trusted executable implementing this role; it must not spawn descendants that inherit the pipes. Native runtime/model provenance and file directories remain application responsibilities. This is resource isolation, **not a security sandbox**.
++
++The reference pilot can use its own executable as the worker. With `--features pilot,local-reranking`, add `"isolated": true` and an explicit `model_snapshot_directory` to the existing `reranker` profile object. Missing snapshot configuration is rejected before worker/model work. Missing/false preserves the existing in-process behavior. `profile-check` remains offline: it reports configuration and never starts a worker or verifies assets. Model/runtime paths are startup configuration, not MCP tool arguments.
++
++The rejected memory-backed worker prototype passed its RSS-growth control but exceeded the declared warm p95 cost budget by about 23% in the primary cohort. It is retained as a negative result and was removed from the new public API. The supported worker constructor always loads the verified private file snapshot. Disk space of at least 470883696 bytes plus filesystem overhead is required per active worker.
++
++## Bounds and failure behavior
++
++| Resource | Bound |
++| --- | ---: |
++| Native workers / I/O threads per scorer | 1 / 1 |
++| Pending command / response slots | 1 / 1 |
++| Input query / individual document | 16 KiB / 64 KiB |
++| Documents / total input text per scoring call | 128 / 2 MiB |
++| Request frame / response frame, including newline | 16 MiB / 64 KiB |
++| Returned native-provider diagnostic | 2048 UTF-8 bytes |
++| Worker CPU-thread setting | 1 through 64 |
++| Default initialization / scoring timeout | 60 / 30 seconds |
++| Configurable timeout | positive, at most 120 seconds |
++| Normal-exit grace before kill/reap | 1 second |
++
++Byte/count checks happen before cloning and serialization. JSON escaping is covered by the separate frame bound. Scores cross the pipe as integer IEEE-754 bit patterns and are reconstructed/checked before publication; their precision does not depend on decimal JSON float parsing. Responses must match the outstanding request ID and score count. Invalid identity, shape or non-finite values fail closed. Explicit input rejection does not perform native work. Initialization errors return no scorer.
++
++`ProcessOptions::with_timeouts` configures initialization and one native scoring call. A timed-out, crashed or malformed worker is stopped; subsequent calls on that scorer fail. Recreate it explicitly. There is no retry storm, hidden process cache or automatic model reload on a search request. A reference server still constructs one configured scorer and reuses it for requests.
++
++Dropping a healthy scorer closes its request channel and stdin, permits normal teardown, and waits for the child. If the child does not exit during the grace period it is killed and reaped before the parent-owned snapshot guard is released. Timeout/error paths kill before joining blocked pipe work. Caller-owned binaries must obey the no-descendants/pipes contract; OS-level uninterruptible I/O and process termination are outside a hard wall-clock guarantee.
++
++Existing `WorkControl` cancellation/deadline checks still occur between native batches. This interface does not forward an arbitrary cancellation token into an executing ONNX call. The worker call timeout bounds a separate failure path; it is not a promise that every shorter MCP deadline preempts native work immediately. Input bounds do not impose a whole-process RAM/CPU quota. Multiple scorer instances mean multiple workers and need application admission limits.
++
++## Validation and remaining scope
++
++Run the real-asset lifecycle example with the public controller:
++
++```bash
++cargo build --release --locked --features local-reranking,execution \
++  --example native_model_lifecycle
++python3 -B scripts/benchmark_model_lifecycle.py \
++  "${CARGO_TARGET_DIR:-target}/release/examples/native_model_lifecycle" /tmp/new-lifecycle-results \
++  --model-directory /owned/model-directory --runtime /owned/runtime-library \
++  --backend process --mode snapshot --cycles 30
++```
++
++The controller refuses an existing result directory, uses a frozen synthetic resource fixture by default, records all events and watches its own process tree. It separates parent RSS after drop from sampled parent-plus-child RSS while active; summing RSS can double-count shared pages. It checks native cancellation after one actual batch, an expired deadline with no added work, bit-exact recovery, zero surviving children after drop, private-copy cleanup and failed initialization. Original replay controls remain private and are not independent human validation.
++
++The [measurement record](measurements/native-lifecycle-0.6.2/README.md) governs actual counts, pass/failure status, startup/inference costs and every regression. Active native-model memory remains separate from unloaded parent memory; this does not certify an actual 1-GiB laptop. Actual E5 inference assets were unavailable, and this process adapter currently implements the pinned MiniLM reranker only. Windows/Intel native execution is not established by macOS ARM64 measurements. Native ONNX and OS subprocess execution remain outside the finite Miri protocol/asset scope. Protocol fuzzing does not execute arbitrary native models. No independent question-quality or customer-adoption gate is closed here.
+--- /dev/null
++++ b/tests/fixtures/native-lifecycle-v1.json
+@@ -0,0 +1,346 @@
++[
++  {
++    "id": "synthetic-lifecycle-short",
++    "query": "How does Rust ownership protect memory?",
++    "candidates": [
++      {
++        "id": "lifecycle-short-00",
++        "text": "Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-01",
++        "text": "Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-02",
++        "text": "Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-03",
++        "text": "Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-04",
++        "text": "Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-05",
++        "text": "Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-06",
++        "text": "Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-07",
++        "text": "Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-08",
++        "text": "Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-09",
++        "text": "Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-10",
++        "text": "Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-11",
++        "text": "Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-12",
++        "text": "Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-13",
++        "text": "Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-14",
++        "text": "Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-15",
++        "text": "Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-16",
++        "text": "Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-17",
++        "text": "Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-18",
++        "text": "Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-short-19",
++        "text": "Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. "
++      }
++    ]
++  },
++  {
++    "id": "synthetic-lifecycle-unicode",
++    "query": "Wie bleiben Quellen über Speichergrenzen hinweg korrekt? 東京 café",
++    "candidates": [
++      {
++        "id": "lifecycle-unicode-00",
++        "text": "Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-01",
++        "text": "Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-02",
++        "text": "Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-03",
++        "text": "Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-04",
++        "text": "Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-05",
++        "text": "Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-06",
++        "text": "Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-07",
++        "text": "Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-08",
++        "text": "Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-09",
++        "text": "Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-10",
++        "text": "Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-11",
++        "text": "Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-12",
++        "text": "Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-13",
++        "text": "Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-14",
++        "text": "Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-15",
++        "text": "Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-16",
++        "text": "Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-17",
++        "text": "Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-18",
++        "text": "Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      },
++      {
++        "id": "lifecycle-unicode-19",
++        "text": "Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café.  Quellprüfung — Speicher, Größe, 東京 und café. "
++      }
++    ]
++  },
++  {
++    "id": "synthetic-lifecycle-mixed",
++    "query": "Document updates and safe cancellation",
++    "candidates": [
++      {
++        "id": "lifecycle-mixed-00",
++        "text": "Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-01",
++        "text": "Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-02",
++        "text": "Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-03",
++        "text": "Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-04",
++        "text": "Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-05",
++        "text": "Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-06",
++        "text": "Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-07",
++        "text": "Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-08",
++        "text": "Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-09",
++        "text": "Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-10",
++        "text": "Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-11",
++        "text": "Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-12",
++        "text": "Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-13",
++        "text": "Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-14",
++        "text": "Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-15",
++        "text": "Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-16",
++        "text": "Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-17",
++        "text": "Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-18",
++        "text": "Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-mixed-19",
++        "text": "Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. "
++      }
++    ]
++  },
++  {
++    "id": "synthetic-lifecycle-long",
++    "query": "Explain memory ownership and allocation across repeated local model loads.",
++    "candidates": [
++      {
++        "id": "lifecycle-long-00",
++        "text": "Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 0. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-01",
++        "text": "Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 1. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-02",
++        "text": "Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 2. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-03",
++        "text": "Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 3. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-04",
++        "text": "Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 4. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-05",
++        "text": "Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 5. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-06",
++        "text": "Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 6. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-07",
++        "text": "Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 7. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-08",
++        "text": "Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 8. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-09",
++        "text": "Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 9. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-10",
++        "text": "Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 10. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-11",
++        "text": "Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 11. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-12",
++        "text": "Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 12. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-13",
++        "text": "Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 13. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-14",
++        "text": "Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 14. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-15",
++        "text": "Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 15. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-16",
++        "text": "Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 16. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-17",
++        "text": "Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 17. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-18",
++        "text": "Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 18. Rust ownership and bounded model loading preserve source identity. "
++      },
++      {
++        "id": "lifecycle-long-19",
++        "text": "Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. Synthetic resource-control passage 19. Rust ownership and bounded model loading preserve source identity. "
++      }
++    ]
++  }
++]

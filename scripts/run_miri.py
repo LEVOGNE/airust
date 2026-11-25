@@ -26,6 +26,8 @@ def main():
     cases = [
         ('input', ['--no-default-features', '--lib', 'input::'], [], True),
         ('model-assets', ['--no-default-features', '--lib', 'model_assets::'], [], True),
+        ('model-worker', ['--no-default-features', '--features', 'local-reranking', '--lib',
+                          'reranking::process::'], [], False),
         ('training-knowledge', ['--no-default-features', '--lib', 'knowledge::'], ['test_save_load_roundtrip'], True),
         ('training-properties', ['--no-default-features', '--test', 'knowledge_snapshots'], [], True),
         ('index', ['--no-default-features', '--features', 'shared-index,execution', '--lib', 'index::'], large, False),
@@ -63,6 +65,7 @@ def main():
                                        'async_mcp_native_only': ['final_reply_work_keeps_admission_and_shutdown_until_cancelled_work_returns',
                                                                  'shutdown_does_not_wait_for_other_server_clones_worker_permits'],
                                        'native_inference_and_http': 'Outside interpreter scope; use actual native runs and loopback integration tests.',
+                                       'model_worker_processes': 'Only pure protocol/input/timeout validation runs under Miri; actual OS subprocesses and ONNX FFI run natively.',
                                        'full_reference_example': 'The large independently generated corpus parity test runs natively; small workspace/pilot tests run here.'},
               'limitations': ['Finite test scope, not proof of absence of undefined behavior.',
                               'Pilot filesystem tests disable Miri isolation explicitly; they use temporary fixtures.',

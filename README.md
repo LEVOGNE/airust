@@ -8,6 +8,8 @@ The bounded local pilot and explicit live search profiles introduced in 0.6.0 re
 
 The published **0.5.3 baseline** provides the reference workflow, frozen evaluation and measured maintenance improvements used for comparison. Its [release verification](docs/validation-0.5.3/README.md) remains reproducible. The published [0.5.2 baseline](docs/validation-0.5.2/closeout.json) remains reproducible.
 
+Development toward **0.6.2** adds an opt-in [native-model process owner](docs/LOCAL-MODEL-PROCESSES.md) for predictable repeated MiniLM unload/reload. It requires a matching trusted worker and a verified private file snapshot. See the [before/after evidence and latency regressions](docs/measurements/native-lifecycle-0.6.2/README.md); this API is not in the published 0.6.1 crate.
+
 ## Search application records
 
 Use Rust 1.89 or newer. Add the published library:

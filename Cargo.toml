@@ -1,6 +1,6 @@
 [package]
 name = "airust"
-version = "0.6.1"
+version = "0.6.2"
 default-run = "airust"
 authors = ["LEVOGNE"]
 edition = "2021"
@@ -399,3 +399,12 @@ required-features = ["mcp"]
 [[example]]
 name = "retained_errors"
 required-features = ["mcp"]
+
+[[bin]]
+name = "airust-model-worker"
+path = "src/bin/airust-model-worker.rs"
+required-features = ["local-reranking"]
+
+[[example]]
+name = "native_model_lifecycle"
+required-features = ["local-reranking", "execution"]

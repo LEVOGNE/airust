@@ -176,3 +176,9 @@ cargo build --locked --release --no-default-features --features mcp --example bo
 ```
 
 It accepts the existing `KnowledgeEntry` JSON array, at most 2048 records/2 MiB of ID, text and metadata and 4 MiB of encoded input. It admits one CPU task and uses no model/service. These are application budgets, not a whole-process or 1-GiB-device guarantee. [Resource ownership and reproducible measurements](docs/RESOURCE-LIMITS.md) explain the full transport limits, runtime capacity, snapshot first-write cost and optional native disk/memory tradeoff. For training JSON, use the new `KnowledgeBase::load_bounded(path,max_bytes)` when a caller must enforce an input byte cap; the old trusted `load()` API remains available.
+
+## Development checkout: repeated local model ownership
+
+The unreleased 0.6.2 checkout includes `airust-model-worker` behind `local-reranking`. Build the matching binary and configure `ProcessReranker::multilingual_minilm_v2_from_snapshot` as described in [local model processes](docs/LOCAL-MODEL-PROCESSES.md). Build the native reference pilot with `--features pilot,local-reranking`. It can dispatch its own worker role; set `reranker.isolated` to `true` and supply an explicit existing application-owned `model_snapshot_directory`. `profile-check` validates the configuration without starting a worker or reading assets. Existing published examples above continue to select 0.6.1.
+
+Allow disk space for a 470883696-byte verified model copy per active worker. Unloaded-parent RSS, active worker RSS and startup/first/warm request costs have different scopes; read the [measurement record](docs/measurements/native-lifecycle-0.6.2/README.md), including failed latency controls. This does not certify an actual 1-GiB machine. No model/runtime download is part of normal tests.

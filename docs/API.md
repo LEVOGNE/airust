@@ -167,6 +167,8 @@ Enable `reranking` for `rerank`, `Reranker`, `Rerankable`, `RerankOptions`, `Rer
 
 Enable `local-reranking` separately for `FastEmbedReranker::multilingual_minilm_v2`, with explicit pinned local assets, a trusted dynamic runtime and a positive thread count. It uses 512-token pairs and raw logits, not relevance probabilities. The [local guide](LOCAL-RERANKING.md) documents downloads, resource cost and shared runtime behavior. Neither feature changes existing search results automatically.
 
+In the **unreleased 0.6.2 checkout**, `reranking::process::{ProcessOptions, ProcessReranker}` adds explicit process ownership under `local-reranking`. `multilingual_minilm_v2_from_snapshot` takes the trusted matching worker, existing model/runtime paths, CPU thread count and an application-owned snapshot parent. It implements `Reranker`, including bit-exact score transport, bounded input and fail-closed teardown. `ProcessOptions::with_timeouts` validates initialization/per-call bounds. `run_worker`/`WORKER_ARGUMENT` support a trusted application-owned executable; the wire format is internal. See [ownership, resource bounds and failure categories](LOCAL-MODEL-PROCESSES.md).
+
 ## Optional advanced text search
 
 Enable `advanced-search` for `TextIndex`, `TextAnalyzer`, `AnalyzerConfig`, `WordTokenizer`, `Stemming`, `TextSearchOptions`, `TermOperator`, `Token`, `TextSpan`, `PhraseEvidence`, `TextSearchResult` and `TextSearchError`. The [text-search guide](TEXT-SEARCH.md) defines analysis recipes, required quoted phrases, original UTF-8 evidence, word-form limits and update atomicity. Legacy Engine methods remain unchanged.

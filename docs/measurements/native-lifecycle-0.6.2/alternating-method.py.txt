@@ -1,0 +1,103 @@
+"""Predeclared alternating matched lifecycle control; no simultaneous inference."""
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib,json,math,os,selectors,signal,subprocess,time
+ROOT=Path(__file__).resolve().parents[2]
+LAB=Path(__file__).resolve().parent
+OUT=LAB/'interleaved-final'
+OUT.mkdir(exist_ok=False)
+BIN=LAB/'binaries/interleaved-lifecycle'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def put(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n')
+inputs=[*sorted((ROOT/'src').rglob('*.rs')),ROOT/'Cargo.toml',ROOT/'Cargo.lock',ROOT/'examples/native_model_lifecycle.rs',ROOT/'tests/fixtures/native-lifecycle-v1.json',Path(__file__)]
+source=OUT/'source';source.mkdir()
+for p in inputs:
+ q=source/p.relative_to(ROOT);q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes())
+policy={'frozen_at':datetime.now(timezone.utc).isoformat(),'binary_sha256':sha(BIN),'source_inputs_sha256':{str(p.relative_to(ROOT)):sha(p) for p in inputs},'cycles_per_backend':30,'order':'baseline then candidate for even cycle, candidate then baseline for odd cycle; hold inactive controller at initial/dropped handshake; no simultaneous loading/inference','baseline':'unchanged in-process memory constructor','candidate':'final process verified-snapshot constructor','fixture':'synthetic-resource-only, four cases, 20 candidates, two CPU threads, outer batch one','warmup_cycles':2,'post_warm_growth_budget_bytes':64*1024*1024,'max_recovery_p95_ratio':1.10,'percentile':'nearest rank ceil(n*p)-1, all30 samples; do not exclude slow cycles','extra_diagnostic_scope':'Two parent controllers remain resident during timing, unlike the earlier serial cohorts. This can alter memory pressure; results do not erase the failed serial confirmation.','event_timeout_seconds':60,'total_timeout_seconds':1800,'sampled_two_trees_rss_cap_bytes':4*1024**3,'rss_scope':'sampled RSS sums can double-count shared pages; no whole-system/unique physical/GPU accounting','native_outside_miri':True}
+put(OUT/'policy.json',policy)
+records=[];samples=[];procs=[];streams=[];start=time.monotonic();last_sample=0;peak=0
+model=ROOT/'local-lab/reference-workflow/models/mmarco-minilm-v2'
+runtime=ROOT/'local-lab/pdf-stability/python-deps-0315/onnxruntime/capi/libonnxruntime.1.32.0.dylib'
+fixture=ROOT/'tests/fixtures/native-lifecycle-v1.json'
+rows=[[],[]]
+def rss(pid):
+ r=subprocess.run(['ps','-o','rss=','-p',str(pid)],capture_output=True,text=True,timeout=5)
+ return int(r.stdout.strip())*1024 if r.returncode==0 and r.stdout.strip() else 0
+def sample(force=False):
+ global last_sample,peak
+ now=time.monotonic()
+ if not force and now-last_sample<.15:return samples[-1] if samples else None
+ row={'elapsed_seconds':now-start,'trees':[]}
+ for p in procs:
+  children=subprocess.run(['pgrep','-P',str(p.pid)],capture_output=True,text=True,timeout=5)
+  assert children.returncode in [0,1]
+  ids=[int(s) for s in children.stdout.split()];assert len(ids)<=1
+  row['trees'].append({'parent_pid':p.pid,'parent_rss_bytes':rss(p.pid),'children':[{'pid':pid,'rss_bytes':rss(pid)} for pid in ids]})
+ total=sum(t['parent_rss_bytes']+sum(c['rss_bytes'] for c in t['children']) for t in row['trees'])
+ assert total<=policy['sampled_two_trees_rss_cap_bytes'],('RSS cap',total)
+ peak=max(peak,total);samples.append(row);last_sample=now
+ return row
+buffers=[b'',b'']
+def read_event(i):
+ event_start=time.monotonic();p=procs[i]
+ with selectors.DefaultSelector() as ready:
+  ready.register(p.stdout,selectors.EVENT_READ)
+  while b'\n' not in buffers[i]:
+   assert time.monotonic()-event_start<60 and time.monotonic()-start<1800,'time limit'
+   sample()
+   if not ready.select(timeout=.1):continue
+   chunk=os.read(p.stdout.fileno(),4096)
+   assert chunk,'unexpected EOF'
+   buffers[i]+=chunk;assert len(buffers[i])<=65536,'frame bound'
+  line,buffers[i]=buffers[i].split(b'\n',1)
+ event=json.loads(line);assert event['pid']==p.pid
+ event['controller_elapsed_seconds']=time.monotonic()-start
+ observation=sample(True)['trees'][i]
+ event['rss_bytes']=observation['parent_rss_bytes'];event['sampled_children']=observation['children']
+ if event['stage']=='dropped':assert not observation['children'],'unreaped child'
+ rows[i].append(event);put(OUT/(['baseline','candidate'][i]+'-events.json'),rows[i])
+ print(json.dumps({'backend':['baseline','candidate'][i],'cycle':event['cycle'],'stage':event['stage'],'rss_bytes':event['rss_bytes']}),flush=True)
+ return event
+def advance(i):
+ procs[i].stdin.write(b'continue\n');procs[i].stdin.flush();return read_event(i)
+try:
+ env=dict(os.environ)
+ for k in ['MallocSpaceEfficient','MallocNanoZone']:env.pop(k,None)
+ for backend,mode in [('in_process','memory'),('process','snapshot')]:
+  tmp=OUT/(backend+'-tmp');tmp.mkdir(mode=0o700)
+  errors=(OUT/(backend+'-stderr.log')).open('xb');streams.append(errors)
+  p=subprocess.Popen([str(BIN),str(fixture),str(model),str(runtime),'30',backend,mode,str(tmp)],cwd=ROOT,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=errors,start_new_session=True)
+  procs.append(p)
+ for i in range(2):assert read_event(i)['stage']=='initial'
+ for cycle in range(30):
+  for i in ([0,1] if cycle%2==0 else [1,0]):
+   for stage in ['loaded','recovered','dropped']:
+    event=advance(i);assert event['stage']==stage and event['cycle']==cycle
+ for i in range(2):
+  assert advance(i)['stage']=='complete'
+  procs[i].stdin.write(b'continue\n');procs[i].stdin.flush()
+  assert procs[i].wait(timeout=5)==0
+  assert not list((OUT/(['in_process','process'][i]+'-tmp')).iterdir())
+ def p95(v):return sorted(v)[math.ceil(len(v)*.95)-1]
+ controls=[]
+ for i in range(2):
+  drops=[r['rss_bytes'] for r in rows[i] if r['stage']=='dropped'];steady=drops[2:]
+  controls.append({'name':['baseline','candidate'][i],'exit_code':procs[i].returncode,'after_drop_rss_bytes':drops,'post_warm_range_bytes':max(steady)-min(steady),'growth_budget_passed':max(steady)-min(steady)<=64*1024**2,'all_children_reaped_and_private_files_removed':True})
+ base=[r for r in rows[0] if r['stage']=='recovered'];candidate=[r for r in rows[1] if r['stage']=='recovered']
+ bits=all(b['cycle']==c['cycle'] and b['extra']['case_id']==c['extra']['case_id'] and b['extra']['signature']==c['extra']['signature'] for b,c in zip(base,candidate));assert bits and len(base)==len(candidate)==30
+ comparisons={}
+ for key in ['first_ms','recovery_ms']:
+  bv=[r['extra'][key] for r in base];cv=[r['extra'][key] for r in candidate]
+  comparisons[key]={'baseline_p95_ms':p95(bv),'candidate_p95_ms':p95(cv),'p95_ratio':p95(cv)/p95(bv),'all_slower_cycles':[{'cycle':b['cycle'],'case_id':b['extra']['case_id'],'baseline_ms':b['extra'][key],'candidate_ms':c['extra'][key]} for b,c in zip(base,candidate) if c['extra'][key]>b['extra'][key]]}
+ bv=[r['extra']['load_ms'] for r in rows[0] if r['stage']=='loaded'];cv=[r['extra']['load_ms'] for r in rows[1] if r['stage']=='loaded']
+ comparisons['load_ms']={'baseline_p95_ms':p95(bv),'candidate_p95_ms':p95(cv),'p95_ratio':p95(cv)/p95(bv)}
+ report={'completed_at':datetime.now(timezone.utc).isoformat(),'seconds':time.monotonic()-start,'controls':controls,'all_600_id_order_score_bits_equal':bits,'comparisons':comparisons,'recovery_cost_gate_passed':comparisons['recovery_ms']['p95_ratio']<=1.1,'earlier_failed_serial_confirmation_remains_failed':True,'sampled_two_trees_peak_rss_bytes':peak}
+ put(OUT/'report.json',report);print(json.dumps(report),flush=True)
+finally:
+ for p in procs:
+  if p.poll() is None:
+   os.killpg(p.pid,signal.SIGKILL);p.wait()
+  p.stdin.close();p.stdout.close()
+ for s in streams:s.close()
+ put(OUT/'rss-samples.json',samples)
+ put(OUT/'exit-receipt.json',{'completed_at':datetime.now(timezone.utc).isoformat(),'returncodes':[p.returncode for p in procs],'report_exists':(OUT/'report.json').is_file(),'seconds':time.monotonic()-start})

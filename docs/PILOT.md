@@ -157,3 +157,7 @@ This requires the 0.6.1 source candidate built with `pilot`. It reads only the a
 ## Validate changes
 
 `./test.sh` includes the Rust format/source-binding tests, real CLI/stdio pilot workflow, independent Python export checks and a synthetic loopback model protocol/failure suite. Ordinary tests download no model/runtime and claim no model quality. Miri and actual model-backed benchmarks have separate recorded scopes in the 0.6.0 validation evidence.
+
+## Native process option (unreleased 0.6.2)
+
+A native reranking profile can opt into the pilot executable's trusted worker role with `"isolated": true` inside `reranker`. Also provide `"model_snapshot_directory": "/owned/existing/private-parent"`; missing snapshot configuration is rejected before asset or worker work. Relative paths resolve beside the profile as before. Build with `--features pilot,local-reranking` for native scoring; offline preflight alone requires only `pilot`. Existing profiles default to in-process loading, and offline `profile-check` never loads models. See [process ownership and measured costs](LOCAL-MODEL-PROCESSES.md). No independently reviewed questions are created by this option.

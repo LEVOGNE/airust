@@ -102,6 +102,8 @@ pub struct NativeReranker {
     pub candidates: Option<usize>,
     #[serde(default)]
     pub model_snapshot_directory: Option<PathBuf>,
+    #[serde(default)]
+    pub isolated: bool,
 }
 fn default_rerank_batch_size() -> usize {
     16
@@ -149,6 +151,9 @@ impl Config {
             }
             if r.threads == 0 || r.threads > 64 {
                 return Err("reranker threads must be 1..64".into());
+            }
+            if r.isolated && r.model_snapshot_directory.is_none() {
+                return Err("isolated reranking requires model_snapshot_directory".into());
             }
             if r.batch_size > 16 || r.candidates.is_some_and(|n| n > 100) {
                 return Err(
@@ -566,6 +571,21 @@ fn native(paths: &NativeReranker) -> Result<Box<dyn Reranker + Send>> {
     #[cfg(feature = "local-reranking")]
     {
         use airust::reranking::local::FastEmbedReranker;
+        if paths.isolated {
+            use airust::reranking::process::{ProcessOptions, ProcessReranker};
+            let options = ProcessOptions::new(std::env::current_exe()?);
+            let model = match &paths.model_snapshot_directory {
+                Some(directory) => ProcessReranker::multilingual_minilm_v2_from_snapshot(
+                    options,
+                    &paths.directory,
+                    &paths.runtime,
+                    paths.threads,
+                    directory,
+                )?,
+                None => return Err("isolated reranking requires model_snapshot_directory".into()),
+            };
+            return Ok(Box::new(model));
+        }
         let model = match &paths.model_snapshot_directory {
             Some(directory) => FastEmbedReranker::multilingual_minilm_v2_from_snapshot(
                 &paths.directory,
@@ -615,6 +635,7 @@ mod configuration_tests {
         assert_eq!(native.batch_size, 16);
         assert_eq!(native.candidates, None);
         assert_eq!(native.model_snapshot_directory, None);
+        assert!(!native.isolated);
         for limit in [0, 6, 20, 25, 100] {
             let options = native.options(limit).unwrap();
             assert_eq!(options.limit(), limit);
@@ -652,6 +673,7 @@ mod configuration_tests {
             ("candidates", json!(-1)),
             ("batch_szie", json!(1)),
             ("model_snapshot_directory", json!(true)),
+            ("isolated", json!("yes")),
         ] {
             let mut value = profile();
             value["reranker"][name] = invalid;
@@ -670,6 +692,7 @@ mod configuration_tests {
         let path = dir.path().join("profile.json");
         let mut value = profile();
         value["reranker"]["model_snapshot_directory"] = json!("not-created-snapshots");
+        value["reranker"]["isolated"] = json!(true);
         std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
         let config = Config::read(&path).unwrap();
         assert_eq!(
@@ -677,6 +700,7 @@ mod configuration_tests {
             dir.path().join("missing-vectors.json")
         );
         let native = config.reranker.unwrap();
+        assert!(native.isolated);
         assert_eq!(native.directory, dir.path().join("missing-model"));
         assert_eq!(native.runtime, dir.path().join("missing-runtime"));
         assert_eq!(
@@ -685,6 +709,19 @@ mod configuration_tests {
         );
         assert!(!dir.path().join("not-created-snapshots").exists());
         assert!(!native.directory.exists() && !native.runtime.exists());
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn isolated_profile_requires_an_explicit_snapshot_parent_without_asset_work() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("profile.json");
+        let mut value = profile();
+        value["reranker"]["isolated"] = json!(true);
+        let original = serde_json::to_vec(&value).unwrap();
+        std::fs::write(&path, &original).unwrap();
+        assert!(Config::read(&path).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), original);
         assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
     }
 

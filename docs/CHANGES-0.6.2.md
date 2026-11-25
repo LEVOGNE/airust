@@ -1,0 +1,13 @@
+# AIRust 0.6.2 development: predictable native process lifetime
+
+This is an unreleased engineering candidate for the user's first post-0.6.1 priority: repeated local-model loading and unloading. It does not publish a new version or close independent retrieval-quality/onboarding gates.
+
+Repeated direct MiniLM construction/drop reproduced large resident-memory retention. Three native allocation-policy experiments did not resolve it. The adopted explicit process adapter ends and reaps the native process, using the existing pinned scorer and verified file-snapshot API. It adds no search algorithm, tensor framework, database, production dependency or default feature. Small protocol, transport and owner modules keep framing, OS lifetime and scorer policy separate. Owned library code continues to forbid unsafe code.
+
+The new `ProcessReranker` implements the existing `Reranker` interface. The parent owns a bounded request/response path, one I/O thread and one child, plus a private snapshot guard. UTF-8 input budgets precede cloning; frames and formatted diagnostics are bounded. Version/PID/request identity, score counts and finite score values are checked. IEEE-754 bits cross JSON as integers, preserving scores. Initialization failures publish no scorer. Crash, malformed output and timeout paths stop the worker before joining blocked pipe work. Healthy drop closes input and reaps before private file cleanup. There is no automatic retry or hidden reload loop.
+
+The matching helper is optional behind `local-reranking`. The reference pilot can dispatch the same worker role from its own executable using explicit `reranker.isolated` plus `model_snapshot_directory`. Existing profiles and direct constructors retain their behavior. See [API/ownership](LOCAL-MODEL-PROCESSES.md) and [migration](MIGRATION-0.6.2.md).
+
+[The measurement record](measurements/native-lifecycle-0.6.2/README.md) is authoritative for raw samples, source/model/runtime identities, repeated-load comparisons, rejected prototypes, all slower requests and failed latency controls. Stable unloaded-parent RSS is separate from active model RAM, copied-model disk space, load time and first/warm request cost. This does not certify a 1-GiB laptop or an unconditional low-overhead guarantee. E5 assets and Windows/Intel native runs remain unavailable. Native FFI/subprocess work is outside Miri; pure protocol/validation and actual native controls have separate scopes.
+
+[The validation closeout](validation-0.6.2/README.md) records observed checks and remaining limits. No synthetic resource case or conversation replay counts toward the 50 independently reviewed questions; that gate remains 0/50.

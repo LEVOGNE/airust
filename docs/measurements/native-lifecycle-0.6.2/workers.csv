@@ -1,0 +1,14 @@
+name,origin,backend,mode,cycles,warmup_cycles,post_warm_range_bytes,growth_budget_passed,after_drop_final_rss_bytes,sampled_tree_peak_rss_bytes,wait4_reported_maxrss_bytes,native_exit_code,functional_controls_passed,no_children_after_drop,controller_seconds
+baseline-30,private-replay,in_process,mixed,30,2,575750144,false,2475622400,2475655168,2475671552,0,true,not-applicable-in-process,92.67334520899749
+device-initializers-12,private-replay,in_process,mixed,12,2,374210560,false,2118991872,2493235200,2493251584,0,true,not-applicable-in-process,40.19669200001226
+cpu-no-arena-12,private-replay,in_process,mixed,12,2,433586176,false,2495053824,2519105536,2519121920,0,true,not-applicable-in-process,40.80807366699446
+combined-allocation-12,private-replay,in_process,mixed,12,2,430325760,false,2459172864,2467201024,2467217408,0,true,not-applicable-in-process,37.59370608298923
+process-smoke-8,synthetic-resource,process-prototype,mixed,8,2,163840,true,4145152,1665204224,1673560064,0,true,true,26.521596499995212
+baseline-memory,synthetic-resource,in_process,memory,30,2,223657984,false,2184085504,2308882432,2308898816,0,true,true,85.84090949999518
+isolated-memory,synthetic-resource,process-rejected,memory,30,2,442368,true,4341760,1698086912,1707606016,0,true,true,98.92372375000559
+isolated-snapshot,synthetic-resource,process,snapshot,30,2,344064,true,4341760,1375272960,1396736000,0,true,true,94.09827412500454
+baseline-snapshot,synthetic-resource,in_process,snapshot,30,2,712769536,false,1979121664,1993195520,1993211904,0,true,true,94.30301712499931
+final-isolated-snapshot,synthetic-resource,process,snapshot,30,2,425984,true,4390912,1347338240,1399275520,0,true,true,106.25318854101351
+final-baseline-memory,synthetic-resource,in_process,memory,30,2,506101760,false,2272854016,2345861120,2345861120,0,true,true,92.46768883299956
+alternating-baseline,synthetic-resource,in_process,memory,30,2,206290944,false,2288844800,2288861184,not-measured,0,true,true,189.0057354580058
+alternating-candidate,synthetic-resource,process,snapshot,30,2,393216,true,4358144,1315045376,not-measured,0,true,true,189.0057354580058

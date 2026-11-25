@@ -14,3 +14,10 @@ docs/measurements/configuration-0.6.1-final/*.csv -text whitespace=cr-at-eol
 # Keep canonical plotter output, including SVG path whitespace, byte-identical.
 docs/measurements/profile-practical-0.6.0/*.svg -text whitespace=-blank-at-eol
 docs/measurements/profile-practical-0.6.0/*.png binary
+
+docs/measurements/native-lifecycle-0.6.2/*.csv -text whitespace=cr-at-eol
+docs/measurements/native-lifecycle-0.6.2/*.svg -text whitespace=-blank-at-eol
+docs/measurements/native-lifecycle-0.6.2/*.png binary
+
+# Preserve standard blank context lines in retained experimental patches.
+docs/measurements/native-lifecycle-0.6.2/*.patch whitespace=-blank-at-eol

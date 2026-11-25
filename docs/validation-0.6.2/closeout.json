@@ -1,0 +1,784 @@
+{
+  "format_version": 1,
+  "assembled_at": "2026-11-25T16:26:17.504656+00:00",
+  "version": "0.6.2",
+  "publication": "unreleased engineering candidate; no new master merge/tag/registry/release authorized",
+  "baseline_commit": "c353bde26c69a72854fdc4783d1e2f130181b09d",
+  "branch": "codex/stabilize-native-model-lifecycle",
+  "final_source_closeout_receipt": "local-lab/native-lifecycle-2026-11-25/final-closeout.json",
+  "native_script": {
+    "passed": true,
+    "seconds": 469.7327355000016,
+    "default_passed": 266,
+    "all_feature_passed_before_last_test": 940,
+    "default_all_feature_overlap": true,
+    "strict_clippy_rustdoc_python_cli_workflow_and_40_feature_checks": true,
+    "log_sha256": "87a3aab71f3770d2b428c9a27010ba9d45ece293cbe86be98501927260861afe"
+  },
+  "final_native": {
+    "all_feature_passed": 941,
+    "doctests_included": 40,
+    "latest_worker_subset_passed": 12,
+    "scope": "Final all-feature invocation plus latest twelve-worker-test subset after its large escaped-frame assertion extension; counts overlap.",
+    "all_feature_log_sha256": "d975e6598c89dfcc73c33fab8f9e52c55445bf6c35af07a97e8800de70c8712b",
+    "latest_worker_log_sha256": "bc0c1ec9a2bdffd68164a1161e5b001c29800aa5045fcea8e7f25e9fe069a4de",
+    "clippy_and_format_passed": true
+  },
+  "compiler_backend_jobs": [
+    {
+      "name": "rust189",
+      "exit_code": 0,
+      "seconds": 35.766943541995715,
+      "passed_test_results": [],
+      "log_sha256": "52269658317e33182900f30a1da8fda96c04cb05054220166df0b94c70d210f9"
+    },
+    {
+      "name": "rust192",
+      "exit_code": 0,
+      "seconds": 43.00730479101185,
+      "passed_test_results": [],
+      "log_sha256": "0d20253548b570cab666175483801ec2d4172ceac2aba2d64a7e0c797b80c7d9"
+    },
+    {
+      "name": "backend-regressions",
+      "exit_code": 0,
+      "seconds": 45.99994929200329,
+      "passed_test_results": [
+        14
+      ],
+      "log_sha256": "6d9bcf54214d39c483b69625f1cfe6e65629bd3a1cb3cd8c6ce3b777e430d905"
+    },
+    {
+      "name": "backend-c-api",
+      "exit_code": 0,
+      "seconds": 16.32488541600469,
+      "passed_test_results": [],
+      "log_sha256": "19ee6b4f96a0889e017b35cea9f7e80f448e31a12d456857c0f2da48d08bf7a9"
+    },
+    {
+      "name": "backend-provenance",
+      "exit_code": 0,
+      "seconds": 0.42935925000347197,
+      "passed_test_results": [],
+      "log_sha256": "41382b9bcf2a892d739426f19896523ff3347a041279dacf7ce3c401281668e5"
+    },
+    {
+      "name": "backend-rust189",
+      "exit_code": 0,
+      "seconds": 19.852480166999158,
+      "passed_test_results": [],
+      "log_sha256": "2238f6385fc06dae97b74c04ea0dcfff1c434513c0a73a5c902c58d4116fd491"
+    }
+  ],
+  "api_compatibility": {
+    "baseline_commit": "c353bde26c69a72854fdc4783d1e2f130181b09d",
+    "passed": true,
+    "tool_sha256": "30493e32d77a4a9f90ea6695cf67765a4c9106c46a7db4603f2026043d469bb8",
+    "jobs": [
+      {
+        "scope": "default",
+        "exit_code": 0,
+        "seconds": 2.6626240000041435,
+        "log_sha256": "71a0760d0b92c8560df69e0e47c2c2f8f8b62483f2d87931841239fea5fc08fa"
+      },
+      {
+        "scope": "mcp",
+        "exit_code": 0,
+        "seconds": 4.339457708992995,
+        "log_sha256": "dde7c563f74175481d8d6b01be69a2d6a5800880a6a4df4026b6f27e36d10128"
+      },
+      {
+        "scope": "local-embeddings",
+        "exit_code": 0,
+        "seconds": 3.042233500003931,
+        "log_sha256": "c728b363ace8ff7f1706879bb7fe7eb5310472b9b5100f7e147da1ef93afb015"
+      },
+      {
+        "scope": "local-reranking",
+        "exit_code": 0,
+        "seconds": 3.0073538330034353,
+        "log_sha256": "17daba3ae1566f4e97cb2f3bd03bdd187760d4bb8877e11fe0dc7d6f40d33f32"
+      },
+      {
+        "scope": "all",
+        "exit_code": 0,
+        "seconds": 17.09984299998905,
+        "log_sha256": "88511cab09142ff688591af8f5f47fa1ec4f7d3e1f612891b9a6ba8ef1d507b3"
+      }
+    ]
+  },
+  "miri": {
+    "completed_at": "2026-11-25T16:20:24.413257+00:00",
+    "passed": true,
+    "tests": 128,
+    "groups": 12,
+    "jobs": [
+      {
+        "name": "input",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--lib",
+          "input::",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 6,
+        "elapsed_seconds": 46.0078586669988,
+        "log_sha256": "9e8c3474f1c39f14f2d79b5254e7292f5172a09f94879b338dbe988e24df3bad",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "model-assets",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--lib",
+          "model_assets::",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 2,
+        "elapsed_seconds": 2.7376278750016354,
+        "log_sha256": "dc8df6979a4f7c06dbc1bcec3bc201d3c018a5b3cfa3bc51984414fd17229160",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "model-worker",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "local-reranking",
+          "--lib",
+          "reranking::process::",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 6,
+        "elapsed_seconds": 38.467444709007395,
+        "log_sha256": "b47a29485bd2784b0490f2a1d2ecb7e72e50dbd244de763ba4c8a4ce47be03b4",
+        "receipt": "miri-worker-corrected/report.json"
+      },
+      {
+        "name": "training-knowledge",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--lib",
+          "knowledge::",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "test_save_load_roundtrip"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 18,
+        "elapsed_seconds": 2.8478222920093685,
+        "log_sha256": "45e14989fabfea3c76bd7291144a44cedc764883b2333300340e82c40b222e5c",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "training-properties",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--test",
+          "knowledge_snapshots",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 2,
+        "elapsed_seconds": 10.085038583012647,
+        "log_sha256": "405491fe8aa9f1692a4c12c559532e62d7235d8c376268bde6dadd8f447ef1f3",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "index",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "shared-index,execution",
+          "--lib",
+          "index::",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "empty_vocabulary_releases_its_hash_allocation_after_removal",
+          "--skip",
+          "sparse_vocabulary_shrinks_without_changing_retained_readers",
+          "--skip",
+          "token_ties_keep_id_order_and_character_scores_for_long_text",
+          "--skip",
+          "token_top_k_preserves_full_comparison_scores_and_unicode_explanations"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 41,
+        "elapsed_seconds": 610.4161752079963,
+        "log_sha256": "7e0cfe0dd477970127589ae0086245cfcd3abf47843e13a71c59b412a025d22d",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "core",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "shared-index",
+          "--test",
+          "core",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 25,
+        "elapsed_seconds": 822.0310420830065,
+        "log_sha256": "54f0d7f23bc0de3c774c03151c6e68fbd547ad8fc06412ac577df28b3f257521",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "stability-state",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "shared-index,execution",
+          "--test",
+          "stability_state",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 1,
+        "elapsed_seconds": 49.05045245800284,
+        "log_sha256": "553e1933d3aecc91a690a7b8fa5b35423c59b74c07ad92e802e5160601440207",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "mcp-response",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "mcp",
+          "--lib",
+          "mcp::response_tests",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 4,
+        "elapsed_seconds": 123.76056354200409,
+        "log_sha256": "d366ae765000f4e9f373e863bb942d37c90b8025457b07d610d6b777d629eb8f",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "mcp-backend",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "mcp",
+          "--lib",
+          "mcp::search_backend_tests",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error",
+        "exit_code": 0,
+        "passed_tests": 3,
+        "elapsed_seconds": 37.55585966700164,
+        "log_sha256": "e67375c8cec33030e41edc8b7c72599abdfdfea26b5dfd4fd8341bd6fd98635f",
+        "receipt": "miri/report.json"
+      },
+      {
+        "name": "pilot",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "mcp",
+          "--example",
+          "reference_workspace",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "independent_python_corpus_and_rust_snapshot_passages_agree"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 12,
+        "elapsed_seconds": 101.63930500000424,
+        "log_sha256": "79c241a6ecff3deb756d74ca526d8a6c64bdd728874d34846f64d7c26d82cdca",
+        "receipt": "miri-final-examples/report.json"
+      },
+      {
+        "name": "profile-config",
+        "command": [
+          "cargo",
+          "+nightly",
+          "miri",
+          "test",
+          "--locked",
+          "--no-default-features",
+          "--features",
+          "pilot",
+          "--example",
+          "reference_workspace",
+          "reference_profiles::configuration_tests::",
+          "--",
+          "--test-threads=1"
+        ],
+        "MIRIFLAGS": "-Zmiri-tree-borrows -Zmiri-no-extra-rounding-error -Zmiri-disable-isolation",
+        "exit_code": 0,
+        "passed_tests": 8,
+        "elapsed_seconds": 8.339073750001262,
+        "log_sha256": "5bc29440f859e03a62144d0181b8449345f1f7d0a72b01ed6ca8f302313e0712",
+        "receipt": "miri-final-examples/report.json"
+      }
+    ],
+    "rustc": "rustc 1.102.0-nightly (5f4effd57 2026-11-13)\nbinary: rustc\ncommit-hash: 5f4effd579500175af844241eb179e756190f1e7\ncommit-date: 2026-11-13\nhost: aarch64-apple-darwin\nrelease: 1.102.0-nightly\nLLVM version: 23.1.5\n",
+    "miri": "miri 0.1.0 (5f4effd579 2026-11-13)",
+    "original_full_invocation_passed": false,
+    "original_failure": "New worker test compile error (&[&String;N] coercion), corrected to as_str; original log remains failed. Six worker tests rerun, final two example groups rerun with final feature boundary.",
+    "exclusions": {
+      "large_index_native_only": [
+        "empty_vocabulary_releases_its_hash_allocation_after_removal",
+        "sparse_vocabulary_shrinks_without_changing_retained_readers",
+        "token_ties_keep_id_order_and_character_scores_for_long_text",
+        "token_top_k_preserves_full_comparison_scores_and_unicode_explanations"
+      ],
+      "training_directory_fsync_native_only": [
+        "test_save_load_roundtrip",
+        "successful save paths in bounded_load and training property fixtures"
+      ],
+      "async_mcp_native_only": [
+        "final_reply_work_keeps_admission_and_shutdown_until_cancelled_work_returns",
+        "shutdown_does_not_wait_for_other_server_clones_worker_permits"
+      ],
+      "native_inference_and_http": "Outside interpreter scope; use actual native runs and loopback integration tests.",
+      "model_worker_processes": "Only pure protocol/input/timeout validation runs under Miri; actual OS subprocesses and ONNX FFI run natively.",
+      "full_reference_example": "The large independently generated corpus parity test runs natively; small workspace/pilot tests run here."
+    },
+    "limitations": [
+      "Finite test scope, not proof of absence of undefined behavior.",
+      "Pilot filesystem tests disable Miri isolation explicitly; they use temporary fixtures.",
+      "The stability-state and training property tests use their declared cfg(miri) reduced workloads.",
+      "macOS directory F_FULLFSYNC is unavailable in Miri; production persistence is unchanged and native publication controls remain mandatory.",
+      "Native model-asset tests cross a 64KiB chunk boundary; the Miri checksum fixture is reduced to 71 bytes, without FFI.",
+      "Pure model-worker mutation loop is reduced to8 iterations under Miri versus2048 natively. Actual OS workers/ONNX are native-only.",
+      "Native-only worker tests are cfg(not(miri)); current additional crash/recreation and12MiB escaped-frame assertions run natively."
+    ],
+    "scope": "Aggregate of12 observed successful groups with explicit replacement receipts, not a relabeled successful original full invocation."
+  },
+  "protocol_fuzz": {
+    "started_at": "2026-11-25T15:46:40.411516+00:00",
+    "completed_at": "2026-11-25T15:56:51.381814+00:00",
+    "exit_code": 0,
+    "status": "complete",
+    "wall_seconds": 610.9656352500024,
+    "stats": {
+      "number_of_executed_units": 45952362,
+      "average_exec_per_sec": 76459,
+      "new_units_added": 20556,
+      "slowest_unit_time_sec": 0,
+      "peak_rss_mb": 724
+    },
+    "inline_8bit_counters": 13047,
+    "log_sha256": "22a53276da93892d907640044d024b8b337666f3d64af9c30ec55e51194d58d3",
+    "binary_sha256": "58f15e8ee00d9ac79f406623cba3be7e9317babb53cae39b83d18b7882f7b52f",
+    "final_corpus_files": 2039,
+    "final_corpus_bytes": 525249,
+    "artifacts_sha256": {},
+    "source_unchanged": true,
+    "passed": true
+  },
+  "protocol_fuzz_limits": {
+    "seconds": 600,
+    "input_maximum": 65536,
+    "fuzz_selected_frame_maximum": 4080,
+    "workers": 1,
+    "rss_limit_mib": 1024,
+    "detect_leaks": false,
+    "scope": "Production protocol source via path; no actual model, process or caller-file execution; std/C/system/native instrumentation incomplete."
+  },
+  "audits": {
+    "database_commit": "b9b8a3c2cb1f2a3c76ab17a551193568c9f8b7a4",
+    "database_time": "2026-11-25T12:10:30+01:00",
+    "limitations": "Fresh official RustSec database clone. No advisory IDs ignored. --no-yanked excludes registry yank-status checking; warning/maintenance entries remain visible. Not a vulnerability-free or native-runtime-security proof.",
+    "jobs": [
+      {
+        "name": "main",
+        "file": "Cargo.lock",
+        "lock_sha256": "390e81a7f567eab44ba09008c6a3d650ace55f579de6018ffc21fc1c07340cc2",
+        "exit_code": 0,
+        "seconds": 0.17889904200274032,
+        "vulnerabilities": 0,
+        "warnings": {
+          "unmaintained": 3
+        },
+        "output_sha256": "364b0cd1322c2835187ec7820c41fdec791dc8d845d5144f36748f3fae85051a"
+      },
+      {
+        "name": "backend",
+        "file": "crates/airust-pdf-backend/Cargo.lock",
+        "lock_sha256": "7de06509f3b5ee28a892de774acbefdc2b88d4511dd0ccbb74bd82240afa4a35",
+        "exit_code": 0,
+        "seconds": 0.06280574999982491,
+        "vulnerabilities": 0,
+        "warnings": {
+          "unmaintained": 4
+        },
+        "output_sha256": "f56d6b1c0ddccc2326640975edc7b67570ee49b35cb64788b3f23ce67c2942a5"
+      },
+      {
+        "name": "fuzz",
+        "file": "fuzz/Cargo.lock",
+        "lock_sha256": "7e4977561ae737854db05bd0436259c3957c57004116034890120d364a74a3bd",
+        "exit_code": 0,
+        "seconds": 0.0649308749998454,
+        "vulnerabilities": 0,
+        "warnings": {
+          "unmaintained": 2
+        },
+        "output_sha256": "8cf3ce4e83947c70d1a0660b9cc6f39b7ffc79e927c8e27ad34ce1be4679243b"
+      }
+    ]
+  },
+  "preview_applications": {
+    "started_at": "2026-11-25T16:09:23.953524+00:00",
+    "scope": "Dirty-tree engineering preview, not a release-source archive or publication. Separate Cargo applications consume extracted crate bytes. No independent human onboarding is implied.",
+    "archive_sha256": "2c4b3e96fdc8aafc2443d5eda7b92b605b7f70abe01c6f7d52d8ba00f1a4d422",
+    "package_files": 4065,
+    "default_features": [],
+    "normalized_backend": "=0.3.5",
+    "completed_at": "2026-11-25T16:11:18.231190+00:00",
+    "all_passed": true,
+    "core_model_free": true,
+    "real_native_cycles": 8,
+    "native_result_positions": 160,
+    "all_workers_reaped_and_private_copies_removed": true,
+    "worker_sha256": "d53bc60d1d96a2bbebfd4c61a44bf8125fc811882e2ff14b97527b251ef74694",
+    "consumer_sha256": "8aa5f385ef80bdf82a28b66f8d6e0320c793a72dd31f69f1c867c2b6bb840ecf"
+  },
+  "preview_application_jobs": [
+    {
+      "name": "core-lock",
+      "exit_code": 0,
+      "seconds": 0.2100552920019254,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "ae6d237735765f04013ab57f446b791aa98ea7ab00748321ef74c77a75fbbca1"
+    },
+    {
+      "name": "core-run",
+      "exit_code": 0,
+      "seconds": 7.4406684580026194,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "2d39072ce2ca406f6a5a846e2bb9238266662ad06b5ddd365fea3ad87da1cf5b"
+    },
+    {
+      "name": "core-tree",
+      "exit_code": 0,
+      "seconds": 0.05648204201133922,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "caa8072755f2ee6bd2f3912fa9f6e8c8cf4b967b0e760e5bc34890b9667aaf40"
+    },
+    {
+      "name": "standalone-worker-build",
+      "exit_code": 0,
+      "seconds": 40.0736758330022,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "8a9f377c2cec75f1be64c4cc7a19c0c67d9b68f51187acd6eccb111b1eec0825"
+    },
+    {
+      "name": "native-lock",
+      "exit_code": 0,
+      "seconds": 0.12004733299545478,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "5e1c8919af38fe8e19ca067ce4fabf4d1970e5bc29d93bf27efcb4667215dfc2"
+    },
+    {
+      "name": "native-build",
+      "exit_code": 0,
+      "seconds": 40.58463658299297,
+      "native_functional_only_not_timed_benchmark": false,
+      "log_sha256": "2add902f0eca00ecbe845224359b00ab5c2c50bbe24f4b695e692d42b0eb87cb"
+    },
+    {
+      "name": "native-real-worker",
+      "exit_code": 0,
+      "seconds": 25.77694366700598,
+      "native_functional_only_not_timed_benchmark": true,
+      "log_sha256": "7374202f239c674da21e03a3cad155b0fc67f2ecd3b6c4717babb35ae4b4aa22"
+    }
+  ],
+  "preservation": {
+    "verified_at": "2026-11-25T16:16:22.636583+00:00",
+    "models": [
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 1157671200,
+        "sha256": "daec91ffb5dd0c27411bd71f29932917c49cf529a641d0168496c3a501e3062c",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 1068,
+        "sha256": "a406579cd136771c705c521db86ca7d60a6f3de7c9b5460e6193a2df27861bde",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 931146016,
+        "sha256": "ac3714bfdddeca31351f2752bf1a63f266f4df87c0b68c895e44945ca704448e",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 16810714464,
+        "sha256": "f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 11345,
+        "sha256": "4c6a8e842ef0d8504549facfb03f1273a8d0022991519bc1888522cc1a5517d1",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "existing Ollama content-addressed layer",
+        "bytes": 114,
+        "sha256": "906ee87bde6cff7bf3c3b1550f55cbbec261e027187fbb9f511f908ffc418334",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "pinned existing MiniLM asset",
+        "bytes": 470883696,
+        "sha256": "3e9a03ed1e966f7c5288dd4230e3d6a9bf5e3a170a06f1f4241c5bca12c6487c",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "pinned existing MiniLM asset",
+        "bytes": 891,
+        "sha256": "cc2cfe51aa3fd759d21d21acf5dfd6994aa67a3c9210636d22e143699d336c77",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "pinned existing MiniLM asset",
+        "bytes": 17082660,
+        "sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "pinned existing MiniLM asset",
+        "bytes": 239,
+        "sha256": "378eb3bf733eb16e65792d7e3fda5b8a4631387ca04d2015199c4d4f22ae554d",
+        "mtime_unchanged": true
+      },
+      {
+        "kind": "pinned existing MiniLM asset",
+        "bytes": 435,
+        "sha256": "e7fbfbfa6347b4e414c1cee50d142e2c2f9a895dad68b068ae83a8b564c3837e",
+        "mtime_unchanged": true
+      }
+    ],
+    "models_bytes": 19387512128,
+    "runtime_sha256": "fa585fabbea65b823b9a8f7e27d46aee3989d1be7e36b528203d3a1fd613aae7",
+    "original_database_sha256": "8048756bb34ea465ed4bdbc90537102e83e9690d360bba6c9d951b3b285bfbe8",
+    "backend_knowledge_frozen_fixtures_unchanged": true,
+    "legacy_native_implementation_unchanged": true,
+    "owned_library_forbids_unsafe": true,
+    "no_model_or_native_runtime_downloaded": true,
+    "no_model_services_started_or_user_processes_signalled_by_this_task": true,
+    "all_passed": true
+  },
+  "measurement_reuse": {
+    "verified_at": "2026-11-25T16:20:24.424142+00:00",
+    "all_production_library_and_manifest_inputs_unchanged": true,
+    "changes": [
+      {
+        "path": "src/reranking/process/mod.rs",
+        "old_sha256": "90553201b3a09c33c433b32adfce0692891a36be35170d7c6e6d2fcc1d67000a",
+        "current_sha256": "84fcfd7606af814ecbce248312f106e6bb7d607487a14d175ca59fb6ae0696a1",
+        "scope": "Only cfg(test) validation body; production owner/worker code byte-identical"
+      },
+      {
+        "path": "src/reranking/process/tests.rs",
+        "old_sha256": "adb8a44650ca832386c2bbd8cc652c3f0d0be0613495270a9bd1e623bb83ed08",
+        "current_sha256": "c3b704e83a063bae5b854f5a896d12b6abe5b27d1aa706128e37739220405300",
+        "scope": "Native-only cfg(test,unix,not(miri)) test source; actual production code unchanged"
+      },
+      {
+        "path": "examples/native_model_lifecycle.rs",
+        "old_sha256": "df3e4c42057cfeb0afd254ef6232de3afdee62226c1fbd706d4136f54d2a3c41",
+        "current_sha256": "5909564271a385abfb60da1beb31fef11b38064ec0dd5919ac9371acec4e4816",
+        "scope": "Benchmark control input capped, no-op explicit drop removed, factory else-if flattened; original timed binary and source remain retained, no old timing assigned to rebuilt example"
+      }
+    ],
+    "source_scope": "Comparison with frozen alternating run; docs compiled solely as doc attributes are reported separately. Earlier primary/serial cohorts remain tied to their own frozen source/binaries.",
+    "current_src_sha256": {
+      "src/adaptive.rs": "f6025d62b15304888b8ea77c4ac99a7ec549a3bb831fbf3e4f3e0d004ed2b9bc",
+      "src/agent.rs": "7345a5fecc6015ba37cf75f8d2425fc339f8dec45326310bc6a4c26541d04720",
+      "src/ann.rs": "e8832fa4fd238a8ee21a04371363bd79fcc33c6a39ea688de3e954cc4e245f0a",
+      "src/bin/airust-mcp.rs": "c8b5bb433027b2974354702dcaf4682fe12def407e3724967527eb7f4d270dd3",
+      "src/bin/airust-model-worker.rs": "2179a70134b389e593756f3e2c660cc55aca461f5f7b6750a2c8b8c65dd56760",
+      "src/bin/airust.rs": "54395ab3299df918ba950772609430f7ce4620473184010bded96b825a45bfb8",
+      "src/bin/merge_kb.rs": "151d727cc6938235b013d23ed986d94eb53b9ca83608995f92a820dfda436402",
+      "src/bin/pdf2kb/worker.rs": "1f93bb9a2955f2e6bb2583e370c38159e0d6b6fca6eb87590734152aa9669f9f",
+      "src/bin/pdf2kb.rs": "7a0b28a69df687a86ef0485b025047fbc9e0d255ce68a367d3cd78beedacdc33",
+      "src/cache.rs": "b40c9d2c299dd115a6ef44fcf08f472ca26072c4f50eb513f9008b1194a69240",
+      "src/context.rs": "a1c9460983778aece4b7aff4a75388b7b6613804767f4000de11093519caf29c",
+      "src/context_agent.rs": "e6b4e8db64efa2dc84bda4d7c961942cc41ef2cc0341337d54d927afc226bc4a",
+      "src/context_engine.rs": "d6421bdf919c34f8f6135f5527bead22b050861beeb8ade40125016580b433d9",
+      "src/disk_index.rs": "ab068c99aafa6ff72b84a666dd4ffbd3989e4d4b98acf0d9a8a7aab22983459d",
+      "src/documents.rs": "49b8bf49d5a3afffb6b6183e1641a397922f70951b99200bd00d37b5dcf49ed7",
+      "src/evidence_freshness.rs": "85faf3c1373a022277ee7601ef36516100b4ce6d33a8b0e8db170d1981e152d8",
+      "src/execution.rs": "5165c7b47c548f1c2594fca8c86b9fb8d9ef5e702dbcd54a3a0b85fdc625596e",
+      "src/feedback.rs": "4da5f960e81434d195cbd825977ffe5d05d6c1479e37265499d548acf2211759",
+      "src/graph.rs": "d1fa9662528858c385eff3680b5977c6c39324a51e5d5eda8238d440fa387254",
+      "src/hybrid.rs": "3bb8f45680554668f9517e1cb5513f10037b10a98c8db7dd0d16b5913eab93ca",
+      "src/index/cursors.rs": "3140ddb1faab2582f391d7dbc16e170deb83d82c6a2542ddd94eb57ec5cd6b08",
+      "src/index/query_weights.rs": "c0fe0ef03b26535b963781b9297336b3114527a3a36090395ef3de31e4b050c2",
+      "src/index.rs": "28e7450cc54104a45fe11d180ab0dd0ebf0a5ccfeb007298975ce079598fb87a",
+      "src/input.rs": "54cc6f91098a41c6d4b12b462479de71cc21cfd39ecb53c7e965d23e7152ef32",
+      "src/knowledge.rs": "07a60bd998e90ea216be5089b7cd24f92433ac6597cf704da1b5d77b79ef46e9",
+      "src/learned_ranking.rs": "a121c181c1c9607238980089675c3e41f400c9cfe31430bc69206617d462c305",
+      "src/lib.rs": "98f842707548d99e0259ee74def5f5fb670bbabe95725d6fe8b5e177dc3c15a7",
+      "src/local_runtime.rs": "1c31f3a1a046bd849c55f5e50f16e941f617e696f630ccc471b4bf9559ef4d6f",
+      "src/match_agent.rs": "443b47d34e5c09086c5522b241a6f1cc4a87fda95b5658ae0b79712b6a2a82bd",
+      "src/matching.rs": "e1e79175ac548e50a0c6fcb9a5a4a9ca207a829d41d0ac46779ed11949d9b12a",
+      "src/mcp/progress.rs": "f543c1e1cafe86a2b1e21729c59e8cd83d124901a250770fb4c56520b3d2f7f1",
+      "src/mcp/schema.rs": "bd107cf0c6f5f8f7024aaf08939323418be95263bd9e5f67d81b49520c903406",
+      "src/mcp/transport.rs": "30c79ef0de05bc4219837f3647289e328ff3278ba1ec47c1cdf3c22c90d244eb",
+      "src/mcp.rs": "166eacc39d64fedc25481c0e16ca59366a79ec1a6f672b5e965b501716a1f67d",
+      "src/model_assets.rs": "760956ee209c059807bc7b68c5ca3fa69a53516759abf7724c87567f599c40e8",
+      "src/pdf_loader.rs": "5d8b1ba10bdf76f672ebb2e5ea3e28760a665ba3826754628295ce511bd2332a",
+      "src/pdf_page_tree.rs": "fcde0675dbacc3c9f54b394e524dae7d5f6c03626eac5283c51b0dec4af13723",
+      "src/persistence.rs": "a5bfea8ddd773900cec0a6677139d1f286303971a8fac270091766093243b203",
+      "src/provenance.rs": "03be78f161270c6eb718a7e4614d574a30d36528f877adb6a1331115ea21e95f",
+      "src/quality.rs": "ed20df2264d84b853a66fb4d4439d048b6652731b38cdabf7c2509b0763e73f9",
+      "src/quality_gates.rs": "fa979805d4efa41a997dbeb99dce413bd500a65db01774b9f67c3d53b9c40b40",
+      "src/rank_explanations.rs": "52b633f3101b1d9594f03a225286efe7a9e12e69c3964c972479dc8d900aebd1",
+      "src/ranking.rs": "1d9badb0d575177a32e08a7bf4939351704187dbf4307965a7b60c4472d64f59",
+      "src/reasoning.rs": "6e2894a12cbb142323a1da46999ecb60d926c70f76cd8e2fa6fd2ad5cd1a00b3",
+      "src/reranking/local.rs": "52d5645e4f388c8e83659776a431d42c7547deba096c6b04a20c58c58b8d6ad5",
+      "src/reranking/process/mod.rs": "84fcfd7606af814ecbce248312f106e6bb7d607487a14d175ca59fb6ae0696a1",
+      "src/reranking/process/protocol.rs": "986aba733b0504e4e440a2bc701d5348a6d06fcf109826e86a7f4f993ce01e84",
+      "src/reranking/process/tests.rs": "c3b704e83a063bae5b854f5a896d12b6abe5b27d1aa706128e37739220405300",
+      "src/reranking/process/transport.rs": "b1182d93e517314d293a5d68b99ad233069473bd356093bea34336c8a158be7c",
+      "src/reranking.rs": "41fce3ac75f4ef9ac5f3be14debb5a285f4dc25116a842c4aecb423893857e19",
+      "src/retrieval/assessment.rs": "c2e8c9b2b1ca3c392a69c25fdaef08976e7e309837a8d89c2d13009d2c21ece5",
+      "src/retrieval/citations.rs": "2b4106082611a4c7e1407a5f12c8d2731cd2064b588738f736da51f15f210ae0",
+      "src/retrieval/coverage.rs": "d069d764fc2e85e73eb71bcf584287960c1e67a1284bf27a8b139e16d1f9d518",
+      "src/retrieval/excerpts.rs": "f7f5e3ec7193538742eaed121241e30e23795f4cd4533b5407f03b9603c72618",
+      "src/retrieval/query.rs": "144361973ca76bbd7123f2243a2ab855bb99d414e13b2a49409ebd40fe556a0f",
+      "src/retrieval.rs": "1041f808562ab6db1a093ce64d5cf3bd0bb6cbce7bce258ac01ccfc0d9c6164b",
+      "src/search.rs": "ba2d6bc435b283acdedc5d840d661984f22adbfb84cd8c67fd9a0a7bbec8d3e3",
+      "src/semantic/local.rs": "e505662b180c4df581a0b2c9ac60682240125e1bd50eaf8ce1b393683fbac25b",
+      "src/semantic.rs": "d2c0661910c4452714a2fe82c9ed571ece3f984ddacceb0545d3b5707026a758",
+      "src/snapshots.rs": "26c627a7e485c0ee97a99345cf6dc796edd2d6e29025f5be6f4d40166103543d",
+      "src/storage/sqlite.rs": "75ee70b10cb28b840270fa57e79979a94e348970f87d3e56e19520a5778b4bc4",
+      "src/storage.rs": "7fc8281809145016ee34a1d3a65e37dbada4fae64f040a06ee69ff65f778cdb9",
+      "src/text.rs": "b7614cdd739d3acde714ced7977874414d16ae222d2b9854d9d70a54ccd62896",
+      "src/text_search.rs": "46bf3db14a11e6c6cc361d8d1bed149e1f5a254fcfcf781e8e26891bd95abc4d",
+      "src/tfidf_agent.rs": "2a7787f4694e5f09e30ef9cc6ba394f041af0e250f9face44d8a0773825223d9",
+      "src/training_pipeline.rs": "a9d238fe95e56f8cdc4c309aa059fcd7549d558e69cda7f35a3e98427d5e78c8",
+      "src/versioning.rs": "256cd931c66ac964c83e9672be7777e3719889ff59952b67f89eec2adeff5b0e",
+      "src/web/bots/crawler.rs": "893e71feaea824f63a59891e3f9a3652087ae27ab822e9e2cd8e55a2fca219a4",
+      "src/web/bots/db.rs": "20c06cb19326399e488127a05ef352d9ab0b433f95d66eb7006af20bf9ac7eda",
+      "src/web/bots/mod.rs": "033bca8672a172e5cf328729d262900d1cbbf0494ff8c0905fa98f5d2e88d4cf",
+      "src/web/bots/models.rs": "3ac7ab52ab99d7433da7cf9a23f45175a0899fc39925cd4effad3d738b948f10",
+      "src/web/bots/processor.rs": "b62e783fa25c646cae3da31ca6a61a657e71e81eb938fe417dcbf681e2a81b2b",
+      "src/web/bots/routes.rs": "7b5fcdca22379bc5487ce57795c2ee7d0c4afb3c82c2959e97520a7224096de6",
+      "src/web/bots/scheduler.rs": "30397c512da9c797fe70c907dc3f077e7420a67a76d231692d89996aab17c0ae",
+      "src/web/bots/vectordb.rs": "e096628fe48844ab342d6509f20d676cbf8bdc87ad4cb6515fa628a35704a3a1",
+      "src/web/console.rs": "18cb51b84facae20325c05130ad156433e864889ee0daa429a392243130aad55",
+      "src/web/db.rs": "8baa5111f559fcb755d50cb0e855460113bb9393227b6d43cf162efece4a4ea5",
+      "src/web/mod.rs": "c115723476ffaa85f087e9bdce699648702ce68e00ff539196c4aa45f22b4c13",
+      "src/web/routes.rs": "ed40aef092b1ca24421e0ff47a046f117a25e3168cc44809fbab60b5bac4b7b7",
+      "src/web/security.rs": "ff0cf34749e77cd6b38fff37db04723ae098c96c7af998b5ee1a117557f42ce6",
+      "src/web/state.rs": "513c9a4ded16b26dfb698779806457165efccb1974dbcee2dc76d1f8c034d89c",
+      "src/web/vectordb.rs": "dcf91f3057916256c21e81695e38332c0d63c3c5632794064b062bdc768fa51d"
+    },
+    "native_legacy_loader_unchanged": true,
+    "model_fixture_runtime_unchanged": true,
+    "new_native_consumer_scope": "Eight real standalone-worker cycles consume extracted package under Rust1.92, compare160 outputs to baseline, reap all workers and clean private copies. Functional controls only; not timed performance samples."
+  },
+  "performance_gate_status": {
+    "selected_30_cycle_memory_gates": [
+      true,
+      true,
+      true
+    ],
+    "repeated_maximum_10_percent_warm_overhead_established": false,
+    "failed_serial_ratio": 1.2133098077300377,
+    "alternating_diagnostic_ratio": 0.9858778040500996,
+    "negative_results_not_erased": true
+  },
+  "independently_reviewed_cases": 0,
+  "limits": [
+    "Active pinned model exceeds1GiB; actual1GiBdevice untested.",
+    "Legacy direct constructors retain native/system allocator RSS.",
+    "E5 inference and Windows/Intel native runs unestablished.",
+    "No hard OS RAM/CPU quota or security sandbox; cooperative cancellation and trusted-worker contracts remain.",
+    "Fresh protocol fuzz does not replace historical lexical/training/PDF campaigns or prove absence of bugs."
+  ]
+}

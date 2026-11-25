@@ -138,3 +138,7 @@ Applications can implement `airust::mcp::McpSearchBackend` and attach it with `M
 
 
 The source also includes `bounded_mcp`, a model-free stdio example with tighter existing `McpLimits` and one admitted CPU worker. Optional native reranking may use an explicitly writable `model_snapshot_directory`; absence preserves memory-backed loading. This disk/memory tradeoff does not make a large native model suitable for a 1-GiB device. Follow [resource contracts](RESOURCE-LIMITS.md) and [actual measurements](measurements/profile-practical-0.6.0/README.md), including first requests, startup and all regressions.
+
+## Repeated MiniLM unload/reload (unreleased 0.6.2)
+
+Reuse the existing `Reranker` and `rerank` calls with `ProcessReranker::multilingual_minilm_v2_from_snapshot`. Build an application-owned matching worker, supply explicit trusted assets and a private snapshot parent, then drop the scorer to close, stop and reap its native process. See the executable Rust example and full failure/timeout contract in [local model processes](LOCAL-MODEL-PROCESSES.md). The ordinary direct constructor remains compatible and retains its measured allocator limitation. Process isolation adds startup/IPC/disk costs and does not bound the active model to 1 GiB.

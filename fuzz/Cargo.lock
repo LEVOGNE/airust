@@ -30,7 +30,7 @@ dependencies = [
 
 [[package]]
 name = "airust"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "airust-pdf-backend",
  "once_cell",
@@ -52,6 +52,7 @@ version = "0.0.0"
 dependencies = [
  "airust",
  "libfuzzer-sys",
+ "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",

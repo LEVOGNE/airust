@@ -20,13 +20,32 @@
       "id": "R061",
       "priority": "P0",
       "name": "Publish and verify AIRust 0.6.1",
-      "status": "verify_authoritative_release_receipt",
-      "authorization": "Explicit user request2026-11-25: merge master, annotated tag, GitHub Release and crates.io, all closing checks; no further questions.",
+      "status": "published_verified_with_unavailable_duplicate_tag_macos_documented",
+      "authorization": "Explicit user request 2026-11-25: merge master, annotated tag, GitHub Release and crates.io, all closing checks; no further questions.",
       "acceptance": "Actual master/tag/source/package/registry identities, complete applicable checks, real registry consumers/installed CLI and anonymous asset verification agree. If final receipt is complete preserve immutable release; otherwise resume only recorded pending stage.",
       "evidence": [
         "docs/validation-0.6.1/RELEASE.md",
         "local-lab/release-0.6.1-2026-11-25/final-closeout.json",
-        "v0.6.1 release-manifest.json/public verification receipts"
+        "v0.6.1 release-manifest.json/public verification receipts",
+        "local-lab/release-0.6.1-2026-11-25/source-ci-coverage.json"
+      ]
+    },
+    {
+      "id": "ML1",
+      "priority": "P0",
+      "name": "Predictable repeated native model load/use/drop",
+      "status": "engineering_complete_memory_validated_latency_limit_documented_final_closeout_receipt_governs",
+      "authorization": "Explicit user instruction 2026-11-25: find/fix retained native memory, measure before/after, thoroughly test/document and finish without questions. No new-version publication instruction.",
+      "baseline": "Published0.6.1 adapter; 30-cycle failure and three negative allocation ablations retained.",
+      "candidate": "Explicit bounded worker process, existing scorer/model recipe reused; ordinary in-process adapter stays compatible.",
+      "acceptance": "Three selected thirty-cycle verified-file-worker memory controls passed; all workers reaped, original bytes retained, score bits preserved. A serial warm-p95 cost gate FAILED at 1.213; subsequent alternating 0.986 does not erase it. Native/feature/compiler/backend/API, aggregate 128-test Miri, 600-second ASAN protocol fuzz and extracted actual-worker application controls passed. Complete only clean-source package/CI/commit work identified by final-closeout.json; no automatic release.",
+      "evidence": [
+        "docs/CHANGES-0.6.2.md",
+        "docs/LOCAL-MODEL-PROCESSES.md",
+        "docs/measurements/native-lifecycle-0.6.2/README.md",
+        "docs/validation-0.6.2/README.md",
+        "local-lab/native-lifecycle-2026-11-25/PROGRESS.json",
+        "local-lab/native-lifecycle-2026-11-25/final-closeout.json"
       ]
     },
     {
@@ -181,8 +200,8 @@
       "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
     }
   ],
-  "next_action": "Read the0.6.1 release final-closeout/public manifest and current Git/tag/registry identities. If incomplete, finish only recorded R061 closing stages. If complete, preserve immutable release and proceed to conditional D1 diagnostics inventory and actual independent validation. Do not rerun unchanged C1 campaigns or publish later versions without authorization.",
+  "next_action": "Read ML1 final-closeout.json. If incomplete finish only recorded clean-source/package/CI/commit work; if complete preserve ML1 and immutable 0.6.1. Q1/DX1 still require actual independent human inputs (0/50); conditional D1 work must begin from observed diagnostics/cost failures. No later publication is authorized.",
   "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization.",
-  "active_work_receipt": "local-lab/release-0.6.1-2026-11-25/PROGRESS.json",
+  "active_work_receipt": "local-lab/native-lifecycle-2026-11-25/PROGRESS.json",
   "current_release_receipt": "https://github.com/LEVOGNE/airust/releases/tag/v0.6.1"
 }

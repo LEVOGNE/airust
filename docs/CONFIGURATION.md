@@ -70,3 +70,9 @@ Compare compatible baseline/candidate builds, identical source/model identities 
 ## Resource policies in 0.6.1
 
 [RESOURCE-LIMITS.md](RESOURCE-LIMITS.md) defines training snapshot ownership, bounded file input, E5 asset caps, optional verified MiniLM snapshots and the model-free `bounded_mcp` application example. These reuse existing APIs and private helpers. `reranker.model_snapshot_directory` is optional; null/missing preserves the ordinary memory-backed native loader. Preflight resolves it without creating files or testing disk readiness. Normal cleanup and original assets are separate from crash-left temporary files. Neither these bounds nor `McpLimits` are an OS RAM quota or a certification of old 1-GiB devices.
+
+## Explicit process ownership in the 0.6.2 development checkout
+
+For repeated MiniLM unload/reload, use the opt-in [process adapter](LOCAL-MODEL-PROCESSES.md) with a matching trusted worker and a verified private file snapshot. The parent retains bounded transport state and reaps its child before removing private copies. The reference pilot requires `reranker.isolated: true` and an explicit `model_snapshot_directory`; omitted/false keeps the old direct behavior. A malformed output, crash or timeout stops that scorer; recovery requires explicit recreation. There is no automatic retry/reload, global allocator setting or hard RAM quota.
+
+[Native measurements](measurements/native-lifecycle-0.6.2/README.md) retain failed direct-load growth, rejected allocation-policy experiments and every startup/request regression. Stable unloaded-parent memory does not establish low active-model memory, uniform latency overhead, independent answer quality or actual 1-GiB-device support. Cancellation remains cooperative between native batches; per-call worker timeouts are a separate bound.

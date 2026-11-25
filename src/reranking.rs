@@ -8,6 +8,9 @@ use thiserror::Error;
 #[cfg(feature = "local-reranking")]
 pub mod local;
 
+#[cfg(feature = "local-reranking")]
+pub mod process;
+
 #[derive(Debug, Error, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum RerankError {

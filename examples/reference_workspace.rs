@@ -43,6 +43,10 @@ fn profile_argument(args: &[String], offset: usize) -> Result<Option<&str>> {
 fn main() -> Result<()> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
+        #[cfg(all(feature = "pilot", feature = "local-reranking"))]
+        Some(airust::reranking::process::WORKER_ARGUMENT) if args.len() == 1 => {
+            airust::reranking::process::run_worker()?;
+        }
         Some("build") if args.len() == 4 => {
             let workspace = Workspace::import(Path::new(&args[1]), &args[3])?;
             workspace.save(Path::new(&args[2]))?;

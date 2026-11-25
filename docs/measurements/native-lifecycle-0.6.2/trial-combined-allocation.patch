@@ -1,0 +1,17 @@
+diff --git a/src/reranking/local.rs b/src/reranking/local.rs
+index 3915288..43dfbd3 100644
+--- a/src/reranking/local.rs
++++ b/src/reranking/local.rs
+@@ -112,7 +112,11 @@ impl FastEmbedReranker {
+                 .with_environment(environment)
+                 .with_max_length(512)
+                 .with_intra_threads(threads)
+-                .with_auto_device(AutoDevicePolicy::PreferCPU),
++                .with_execution_providers(vec![
++                    ort::ep::CPU::default().with_arena_allocator(false).build(),
++                ])
++                .with_auto_device(AutoDevicePolicy::PreferCPU)
++                .with_session_config("session.use_device_allocator_for_initializers", "1"),
+         )
+         .map_err(provider_error)?;
+         Ok(Self {
