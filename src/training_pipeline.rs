@@ -151,7 +151,7 @@ impl TrainingDataset {
         if json.len() > 16 * 1024 * 1024 {
             return Err(PipelineError::Budget);
         }
-        let wire: DatasetEnvelope = serde_json::from_str(json)?;
+        let wire: DatasetEnvelope = serde_json::from_str(json).map_err(crate::input::json_error)?;
         if digest(&serde_json::to_vec(&wire.data)?) != wire.checksum {
             return Err(PipelineError::Invalid("dataset checksum"));
         }
@@ -435,7 +435,7 @@ impl ModelRegistry {
         if json.len() > 32 * 1024 * 1024 {
             return Err(PipelineError::Budget);
         }
-        let d: RegistryData = serde_json::from_str(json)?;
+        let d: RegistryData = serde_json::from_str(json).map_err(crate::input::json_error)?;
         let mut registry = Self::new(d.identity, d.capacity)?;
         if d.schema_version != 1
             || d.models.len() > d.capacity

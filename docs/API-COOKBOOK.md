@@ -1,6 +1,6 @@
 # AIRust API cookbook
 
-Start with the operation your application needs and enable its smallest feature set. This guide targets AIRust 0.5.3. Generic record APIs and saved formats remain compatible. The complete reference workflow is [a local Markdown search application](REFERENCE-APPLICATION.md).
+Start with the operation your application needs and enable its smallest feature set. This guide covers published AIRust 0.6.0 and explicitly marked unpublished 0.6.1 additions. Generic record APIs and saved formats remain compatible. The complete reference workflow is [a local Markdown search application](REFERENCE-APPLICATION.md).
 
 ## Choose an entry point
 
@@ -24,7 +24,7 @@ Assign stable application IDs and supply original text, with optional JSON metad
 
 `search` returns borrowed entries with scores and matching terms. Hold the index/read guard while using these borrows. Equal scores use ascending IDs. Empty matches are an empty list. Choose BM25 or TF-IDF through `SearchOptions`; scores are not probabilities. [Executable core example](../examples/core.rs), [core behavior](CORE-PERFORMANCE.md).
 
-Historical `KnowledgeBase` stores `input`/`output` training examples. It is a compatibility adapter, not the generic Engine entry format. The historical `TfidfAgent` uses BM25. New integrations should name the actual algorithm they select.
+Historical `KnowledgeBase` stores `input`/`output` training examples. It is a compatibility adapter, not the generic Engine entry format. In the unpublished 0.6.1 source, `KnowledgeBase::load_bounded(path,max_bytes)` checks file bytes and regular-file input before loading; read-only snapshots privately share examples and copy on mutation. [Resource ownership](RESOURCE-LIMITS.md) explains first-write costs and parsed-memory limits. The historical `TfidfAgent` uses BM25. New integrations should name the actual algorithm they select.
 
 ## Apply the application's scope before retrieval
 
@@ -135,3 +135,6 @@ The [local pilot guide](PILOT.md) provides runnable initialization, capture, imm
 Use [CONFIGURATION.md](CONFIGURATION.md) to select the settings owned by each component. Existing typed constructors/builders already validate BM25, retrieval, model and work budgets; MCP has public `McpLimits::validate()`. Keep application policy separate from generic library limits. The unpublished 0.6.1 reference example adds `profile-check CONFIG` and explicit bounded reranking batch/candidate fields, reusing `RerankOptions`. Preflight validates configuration without checking asset/service availability. See [migration and compatibility](MIGRATION-0.6.1.md).
 
 Applications can implement `airust::mcp::McpSearchBackend` and attach it with `McpServer::with_search_backend`. Return an owned bounded RetrievalResponse over the supplied Engine and honor its RetrievalOptions control/scope. The server revalidates registered source integrity before publication; the application owns model/network policy. See the reference profile implementation and [MCP contract](MCP.md).
+
+
+The unpublished source also includes `bounded_mcp`, a model-free stdio example with tighter existing `McpLimits` and one admitted CPU worker. Optional native reranking may use an explicitly writable `model_snapshot_directory`; absence preserves memory-backed loading. This disk/memory tradeoff does not make a large native model suitable for a 1-GiB device. Follow [resource contracts](RESOURCE-LIMITS.md) and [actual measurements](measurements/profile-practical-0.6.0/README.md), including first requests, startup and all regressions.

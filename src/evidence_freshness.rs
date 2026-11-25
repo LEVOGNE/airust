@@ -175,7 +175,7 @@ impl EvidenceReceipt {
         if json.len() > options.max_bytes {
             return Err(FreshnessError::Budget);
         }
-        let wire: Envelope = serde_json::from_str(json)?;
+        let wire: Envelope = serde_json::from_str(json).map_err(crate::input::json_error)?;
         validate_data(&wire.data)?;
         if hash(&serde_json::to_vec(&wire.data)?) != wire.checksum {
             return Err(FreshnessError::Invalid("checksum"));

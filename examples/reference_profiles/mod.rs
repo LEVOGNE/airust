@@ -100,6 +100,8 @@ pub struct NativeReranker {
     pub batch_size: usize,
     #[serde(default)]
     pub candidates: Option<usize>,
+    #[serde(default)]
+    pub model_snapshot_directory: Option<PathBuf>,
 }
 fn default_rerank_batch_size() -> usize {
     16
@@ -139,6 +141,11 @@ impl Config {
             }
             if r.runtime.is_relative() {
                 r.runtime = parent.join(&r.runtime);
+            }
+            if let Some(directory) = r.model_snapshot_directory.as_mut() {
+                if directory.is_relative() {
+                    *directory = parent.join(&*directory);
+                }
             }
             if r.threads == 0 || r.threads > 64 {
                 return Err("reranker threads must be 1..64".into());
@@ -558,13 +565,21 @@ impl McpSearchBackend for Profile {
 fn native(paths: &NativeReranker) -> Result<Box<dyn Reranker + Send>> {
     #[cfg(feature = "local-reranking")]
     {
-        Ok(Box::new(
-            airust::reranking::local::FastEmbedReranker::multilingual_minilm_v2(
+        use airust::reranking::local::FastEmbedReranker;
+        let model = match &paths.model_snapshot_directory {
+            Some(directory) => FastEmbedReranker::multilingual_minilm_v2_from_snapshot(
+                &paths.directory,
+                &paths.runtime,
+                paths.threads,
+                directory,
+            )?,
+            None => FastEmbedReranker::multilingual_minilm_v2(
                 &paths.directory,
                 &paths.runtime,
                 paths.threads,
             )?,
-        ))
+        };
+        Ok(Box::new(model))
     }
     #[cfg(not(feature = "local-reranking"))]
     {
@@ -599,6 +614,7 @@ mod configuration_tests {
         let native = config.reranker.unwrap();
         assert_eq!(native.batch_size, 16);
         assert_eq!(native.candidates, None);
+        assert_eq!(native.model_snapshot_directory, None);
         for limit in [0, 6, 20, 25, 100] {
             let options = native.options(limit).unwrap();
             assert_eq!(options.limit(), limit);
@@ -635,6 +651,7 @@ mod configuration_tests {
             ("batch_size", json!(1.5)),
             ("candidates", json!(-1)),
             ("batch_szie", json!(1)),
+            ("model_snapshot_directory", json!(true)),
         ] {
             let mut value = profile();
             value["reranker"][name] = invalid;
@@ -651,7 +668,9 @@ mod configuration_tests {
     fn preflight_resolves_relative_paths_without_accessing_cache_model_or_service() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("profile.json");
-        std::fs::write(&path, serde_json::to_vec(&profile()).unwrap()).unwrap();
+        let mut value = profile();
+        value["reranker"]["model_snapshot_directory"] = json!("not-created-snapshots");
+        std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
         let config = Config::read(&path).unwrap();
         assert_eq!(
             config.vectors.unwrap(),
@@ -660,6 +679,11 @@ mod configuration_tests {
         let native = config.reranker.unwrap();
         assert_eq!(native.directory, dir.path().join("missing-model"));
         assert_eq!(native.runtime, dir.path().join("missing-runtime"));
+        assert_eq!(
+            native.model_snapshot_directory.unwrap(),
+            dir.path().join("not-created-snapshots")
+        );
+        assert!(!dir.path().join("not-created-snapshots").exists());
         assert!(!native.directory.exists() && !native.runtime.exists());
         assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
     }

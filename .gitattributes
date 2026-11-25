@@ -7,3 +7,10 @@ crates/airust-pdf-backend/src/pipeline/input_parsers/markdown.rs whitespace=-bla
 crates/airust-pdf-backend/src/pipeline/input_parsers/plaintext.rs whitespace=-blank-at-eol
 crates/airust-pdf-backend/src/rendering/text_rasterizer.rs whitespace=-blank-at-eol
 crates/airust-pdf-backend/upstream.patch whitespace=-blank-at-eol
+
+# Preserve exact exported CSV bytes so retained SHA-256 values survive checkout.
+docs/measurements/profile-practical-0.6.0/*.csv -text whitespace=cr-at-eol
+docs/measurements/configuration-0.6.1-final/*.csv -text whitespace=cr-at-eol
+# Keep canonical plotter output, including SVG path whitespace, byte-identical.
+docs/measurements/profile-practical-0.6.0/*.svg -text whitespace=-blank-at-eol
+docs/measurements/profile-practical-0.6.0/*.png binary

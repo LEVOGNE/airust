@@ -142,7 +142,7 @@ impl CitedAnswer {
         if input.len() > limits.input_bytes {
             return Err(CitationError::Budget("encoded input bytes"));
         }
-        let wire: WireAnswer = serde_json::from_str(input)?;
+        let wire: WireAnswer = serde_json::from_str(input).map_err(crate::input::json_error)?;
         Self::new(wire.answer, wire.citations, limits)
     }
     fn validate(&self, limits: &CitationLimits) -> Result<(), CitationError> {

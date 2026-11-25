@@ -1341,7 +1341,9 @@ impl KnowledgeIndex {
     }
 
     pub fn from_json(json: &str) -> Result<Self, IndexError> {
-        Self::from_entries(serde_json::from_str::<Vec<KnowledgeEntry>>(json)?)
+        Self::from_entries(
+            serde_json::from_str::<Vec<KnowledgeEntry>>(json).map_err(crate::input::json_error)?,
+        )
     }
 
     fn candidates_checked<'a, 't, E>(

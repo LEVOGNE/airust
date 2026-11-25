@@ -7,6 +7,13 @@ cargo fmt --package airust -- --check
 python3 -B tests/reference_dataset_test.py
 cargo test --locked --features mcp --example reference_workspace
 cargo build --locked --features mcp --example reference_workspace
+python3 -B tests/padding_prefixes_test.py
+cargo test --locked --features mcp --example bounded_mcp
+cargo build --locked --features mcp --example bounded_mcp
+python3 -B tests/bounded_mcp_test.py
+for error_kind in utf8 mcp-json training-json engine-json document-json; do
+    cargo run --locked --features mcp --example retained_errors -- "$error_kind"
+done
 python3 -B tests/reference_workflow_test.py
 cargo build --locked --features pilot --example reference_workspace
 cargo test --locked --features pilot --example reference_workspace

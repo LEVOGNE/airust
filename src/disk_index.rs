@@ -444,7 +444,8 @@ impl DiskIndex {
                     return Err(DiskError::Limit("stored result bytes"));
                 }
                 let body: String = row.get(2)?;
-                let entry: KnowledgeEntry = serde_json::from_str(&body)?;
+                let entry: KnowledgeEntry =
+                    serde_json::from_str(&body).map_err(crate::input::json_error)?;
                 if entry.id != id {
                     return Err(DiskError::Invalid("stored ID mismatch"));
                 }
@@ -517,7 +518,8 @@ impl DiskIndex {
                     break;
                 }
                 let body: String = row.get(2)?;
-                let entry: KnowledgeEntry = serde_json::from_str(&body)?;
+                let entry: KnowledgeEntry =
+                    serde_json::from_str(&body).map_err(crate::input::json_error)?;
                 encode_entry(&entry, &self.options.limits)?;
                 if entry.id != id {
                     return Err(DiskError::Invalid("export ID mismatch"));
@@ -572,7 +574,8 @@ impl DiskIndex {
                     return Err(DiskError::Limit("integrity normalized bytes"));
                 }
                 let terms: Option<String> = row.get(3)?;
-                let entry: KnowledgeEntry = serde_json::from_str(&body)?;
+                let entry: KnowledgeEntry =
+                    serde_json::from_str(&body).map_err(crate::input::json_error)?;
                 encode_entry(&entry, &self.options.limits)?;
                 if entry.id != id
                     || terms.as_deref() != Some(crate::text::normalize(&entry.text).as_str())
@@ -605,7 +608,7 @@ fn read_state(connection: &Connection) -> Result<State, DiskError> {
         |r| r.get(0),
     )?;
     let json = json.ok_or(DiskError::Invalid("state bytes"))?;
-    let state: State = serde_json::from_str(&json)?;
+    let state: State = serde_json::from_str(&json).map_err(crate::input::json_error)?;
     if state.schema_version != 1 {
         return Err(DiskError::Invalid("state schema"));
     }

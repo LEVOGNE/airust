@@ -4,7 +4,7 @@ The `local-embeddings` feature adds `FastEmbedProvider`, a CPU adapter for expli
 
 ```toml
 [dependencies]
-airust = { version = "=0.2.0", default-features = false, features = ["local-embeddings"] }
+airust = { version = "=0.6.0", default-features = false, features = ["local-embeddings"] }
 ```
 
 The selected FastEmbed dependency disables its defaults, model-hub access, and binary downloads. Neither a normal build nor `--all-features` downloads model weights or ONNX Runtime binaries. The application obtains those files separately and supplies their paths. Native dependencies are still compiled as ordinary Cargo dependencies.
@@ -51,6 +51,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+
+In the unpublished 0.6.1 source candidate, assets must be regular application-owned files: model at most 512 MiB, tokenizer at most 64 MiB, each other JSON file at most 1 MiB. Length is checked before allocation and detected growth/shrinkage is rejected. These are input caps, not a native-process RAM quota. Valid-byte recipe framing is unchanged. Actual E5 inference needs its own supplied assets; an asset rejection test is not an inference pass.
 
 The final constructor argument is a positive CPU thread count. The adapter uses mean pooling, 512-token truncation, `query: ` for queries, and `passage: ` for documents. It passes batches of at most 32 texts to FastEmbed. Model load and native inference can be relatively expensive; reuse the provider rather than constructing it for every query.
 

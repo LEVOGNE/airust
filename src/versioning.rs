@@ -526,7 +526,7 @@ impl VersionedIndex {
         if input.len() > max_bytes {
             return Err(VersionError::InputLimit);
         }
-        let wire: SnapshotWire = serde_json::from_str(input)?;
+        let wire: SnapshotWire = serde_json::from_str(input).map_err(crate::input::json_error)?;
         Self::try_from(wire)
     }
 }

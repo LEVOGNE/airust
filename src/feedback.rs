@@ -243,7 +243,7 @@ impl FeedbackLedger {
         if json.len() > limits.json_bytes {
             return Err(FeedbackError::Limit("JSON bytes"));
         }
-        let data: LedgerData = serde_json::from_str(json)?;
+        let data: LedgerData = serde_json::from_str(json).map_err(crate::input::json_error)?;
         if data.schema_version != 1
             || data.events.len() > limits.events
             || data.revision < (data.events.len() as u64)

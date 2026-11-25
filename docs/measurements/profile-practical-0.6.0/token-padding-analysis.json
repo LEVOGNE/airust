@@ -1,0 +1,101 @@
+{
+  "exported_at": "2026-11-25T01:08:24.180596+00:00",
+  "all_nonpadding_ids_and_masks_match_single_pair": true,
+  "batch_observations": 600,
+  "manifest_sha256": "9eabe59f460ed5f75658e154edf66be60ab10175743e208e64109f18691950ad",
+  "maximum_pair_tokens": 512,
+  "model_revision": "1427fd652930e4ba29e8149678df786c240d8825",
+  "pairs": 3000,
+  "prefixes_sha256": "89bbf70c11de97788cac574d8023b682d9cea6f87ca4ec1e19f6f81cf2f24161",
+  "queries": 150,
+  "scope": "Static tokenizer structure for the150authored reference prefixes. No model executed; token-cell and squared-length proxies are not measured FLOPs, latency, energy or quality gains.",
+  "tokenizer_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+  "truncated_pairs": 41,
+  "dataset_identity": "83595ee5603f3945f0aa8dbb07e0c79c024edf3fe14ef95d139ffcad73472ff7",
+  "all_queries_texts_coordinates_revisions_verified_against_frozen_reference": true,
+  "totals": [
+    {
+      "batch_size": 1,
+      "actual_token_cells": 431059,
+      "padded_token_cells": 431059,
+      "actual_attention_proxy": 82162663,
+      "padded_attention_proxy": 82162663,
+      "token_cell_ratio": 1.0,
+      "attention_proxy_ratio": 1.0
+    },
+    {
+      "batch_size": 4,
+      "actual_token_cells": 431059,
+      "padded_token_cells": 666340,
+      "actual_attention_proxy": 82162663,
+      "padded_attention_proxy": 180560948,
+      "token_cell_ratio": 1.5458208737087034,
+      "attention_proxy_ratio": 2.197603405332663
+    },
+    {
+      "batch_size": 8,
+      "actual_token_cells": 431059,
+      "padded_token_cells": 774976,
+      "actual_attention_proxy": 82162663,
+      "padded_attention_proxy": 240307520,
+      "token_cell_ratio": 1.7978420587436987,
+      "attention_proxy_ratio": 2.9247776450478487
+    },
+    {
+      "batch_size": 16,
+      "actual_token_cells": 431059,
+      "padded_token_cells": 904224,
+      "actual_attention_proxy": 82162663,
+      "padded_attention_proxy": 319026816,
+      "token_cell_ratio": 2.097680363940899,
+      "attention_proxy_ratio": 3.8828684995275773
+    }
+  ],
+  "probe_source_sha256": "3fbd4a134aa6d7a1d13eab59924da11605bb73df23b49c9d4599355e65e10219",
+  "probe_binary_sha256": "9fd9bd3bcbc609cb67be48cfc23ded04bb76c4aaa25c5664bced67767f905d65",
+  "lock_sha256": "78a1be270a23de93a7465abefc92ba9b5643104f7100bfce4491cb9b0a65cf8a",
+  "tokenizers": "0.23.2",
+  "fastembed_recipe_source": "7.7.1 common.rs load_tokenizer and reranking/impl.rs encode_batch",
+  "fastembed_source_sha256": {
+    "common.rs": "12e519db6c0f514c9d9b51a71a136352d6e32dfaacd70d62121de66a2fe191f3",
+    "reranking/impl.rs": "33856934cd5a64ffd830008df420303d7ee6554a6b0d99cc0133e3803ced1f25"
+  },
+  "files": [
+    {
+      "file": "token-padding-pairs.csv",
+      "sha256": "f1f8b2fc99a74ff0d8d842b49bcdd8fe725293ea32e11e6b674b08e2ac139fe2",
+      "rows": 3000
+    },
+    {
+      "file": "token-padding-batches.csv",
+      "sha256": "ebf95a6fda54e2d72c7928066a16e99e33bc542c04d432902eefd9819bd4095a",
+      "rows": 600
+    }
+  ],
+  "initial_exploration": {
+    "binary_sha256": "2cab80b05ed321d7bd4c648ea64cf94b61fe177e83d25ad3205b91cd71dffb4b",
+    "lock_sha256": "edac0568497cb77c1f88517ef2cb84d16f4e440dff18775aa69f42825c8e2e21",
+    "source_sha256": "497aaf1571b55a9f91c36b4fcb26f6f78aa86dbc3f80067e66b072c3266a6cb1",
+    "note": "Initial isolated resolver selected five different transitive versions. Root-matched rebuild plus reconstruction repeated every observation; pair/batch outputs are byte-identical. Original lock/binary/results retained."
+  },
+  "confirmed_at": "2026-11-25T01:16:21.504493+00:00",
+  "canonical_report": {
+    "all_nonpadding_ids_and_masks_match_single_pair": true,
+    "batch_observations": 600,
+    "manifest_sha256": "9eabe59f460ed5f75658e154edf66be60ab10175743e208e64109f18691950ad",
+    "maximum_pair_tokens": 512,
+    "model_revision": "1427fd652930e4ba29e8149678df786c240d8825",
+    "pairs": 3000,
+    "prefixes_sha256": "89bbf70c11de97788cac574d8023b682d9cea6f87ca4ec1e19f6f81cf2f24161",
+    "queries": 150,
+    "scope": "Static tokenizer structure for the150authored reference prefixes. No model executed; token-cell and squared-length proxies are not measured FLOPs, latency, energy or quality gains.",
+    "tokenizer_sha256": "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626",
+    "truncated_pairs": 41
+  },
+  "all_probe_nonapp_versions_sources_checksums_match_audited_root": true,
+  "all_original_reconstructed_and_root_matched_observations_byte_identical": true,
+  "observation_hashes": {
+    "pairs.json": "508b57fc6dac6bea7740ae32c0b448dddb6ae41b43bfa5efe9be023b9f8e1fc6",
+    "batches.json": "9e13ac9b1235d5f6276ab9c25b1e5f109d983e0ff6b86ef8a8e486f1416b8a09"
+  }
+}

@@ -163,3 +163,16 @@ For the full interface, read [the cookbook](docs/API-COOKBOOK.md). Platform and 
 Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the source build for 0.6.0 profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
 
 The unpublished 0.6.1 checkout adds `profile-check CONFIG` for configuration-only checks before workspace/cache/model loading, plus explicit native `batch_size` and `candidates` fields. Build with `--features pilot`; native execution additionally needs `local-reranking` and supplied assets. See [configuration ownership](docs/CONFIGURATION.md) and [0.6.1 migration](docs/MIGRATION-0.6.1.md) for defaults, budgets and the distinction between preflight validity and service readiness.
+
+
+## Run a small model-free host from the source candidate
+
+The unpublished 0.6.1 example selects tighter existing MCP limits for a small collection:
+
+```bash
+cargo build --locked --release --no-default-features --features mcp --example bounded_mcp
+"${CARGO_TARGET_DIR:-target}/release/examples/bounded_mcp" /absolute/path/entries.json --check
+"${CARGO_TARGET_DIR:-target}/release/examples/bounded_mcp" /absolute/path/entries.json
+```
+
+It accepts the existing `KnowledgeEntry` JSON array, at most 2048 records/2 MiB of ID, text and metadata and 4 MiB of encoded input. It admits one CPU task and uses no model/service. These are application budgets, not a whole-process or 1-GiB-device guarantee. [Resource ownership and reproducible measurements](docs/RESOURCE-LIMITS.md) explain the full transport limits, runtime capacity, snapshot first-write cost and optional native disk/memory tradeoff. For training JSON, use the new `KnowledgeBase::load_bounded(path,max_bytes)` when a caller must enforce an input byte cap; the old trusted `load()` API remains available.

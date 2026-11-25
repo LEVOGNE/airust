@@ -25,7 +25,9 @@ The arrows represent possible library calls. No external application is integrat
 | `documents` | Identified source/text revisions, immutable snapshots and checked UTF-8 passages composed with provenance. |
 | `text_search` | Optional positional wrapper over shared Engine storage/ranking, configurable Unicode/German analysis and bounded phrase evidence. |
 | `text` | Normalize Unicode, split words and numbers, and count terms. |
-| `knowledge` | Represent generic entries and relation suggestions; retain the existing training collection. |
+| `knowledge` | Generic entries/relation suggestions and training collection; the 0.6.1 candidate shares immutable training snapshots and copies on mutation. |
+| private `input` | Regular-file/length checks, fallible known-length buffers and bounded streaming; no publication or caller permission policy. |
+| private `model_assets` | Pinned raw-byte verification and private temporary model snapshots; independently testable without a native runtime. |
 | `index` | Own entries/postings, share immutable vocabulary/IDs/normalized duplicates, reuse valid TF-IDF norms and implement central `Engine` operations. |
 | `search` | Define BM25 parameters, TF-IDF retrieval, and search results. |
 | `matching` | Compare character edits and token overlap. |
@@ -219,3 +221,16 @@ Private index strings use shared immutable allocations. Public entries and forma
 ## 0.4.3 construction and query preparation
 
 The initial 1,024 borrowed tokens are sorted/grouped into term frequencies; any remaining tokens stream into the same frequency map. Vocabulary lookups use `std::collections::HashMap` with its default randomized hasher, retaining shared `Arc<str>` words. Public entries, normalized duplicate groups and per-document term maps preserve their formats/order. Queries prepare known words and IDF once, score candidates in the existing deterministic order, then materialize explanations only for winners. See [the full core contract and measured costs](CORE-PERFORMANCE.md).
+
+
+## 0.6.1 candidate ownership and resource boundaries
+
+The candidate uses Rust composition and private ownership boundaries. `EmbeddingProvider`, `Reranker`, retrieval sources and `McpSearchBackend` remain the interchangeable interfaces. The application owns configuration and deployment policy. Existing validated options bound selected work; backend results are checked against the loaded source index before publication. No global configuration facade, duplicate ranker, tensor system or new database is added.
+
+The private file reader exposes only checked reading/streaming of an opened regular file. The asset module composes that reader with expected length/SHA-256 and a private temporary-file guard. Native adapters own recipe framing, runtime selection and inference state. The scorer's native state drops before its retained snapshot guard. Pure reader/checksum/cleanup tests can execute without FFI; actual native inference and its memory costs are checked separately. [Resource contracts](RESOURCE-LIMITS.md).
+
+`KnowledgeBase` shares one immutable example vector across read-only snapshots, detaching through `Arc::make_mut` before a mutation. Public entry/response formats and independent values are preserved. First mutation may copy the full vector; retaining many independently changed readers still consumes their distinct data. Generic `Engine` sharing/index algorithms remain unchanged by this training-container refactor.
+
+The small `bounded_mcp` example composes existing `McpLimits` with an explicitly sized Tokio runtime. One library CPU admission requires additional capacity for portable blocking stdio. This corrects an observed development starvation case and documents why thread limits and work admission are different resources.
+
+Module privacy and Rust borrows protect internal invariants; operating-system privileges and user authorization belong to the host. Native dependencies/application-owned backends execute in the same process. A Context is a data filter, and every loaded record remains within the server owner's chosen trust boundary. [MCP security](MCP-SECURITY.md).

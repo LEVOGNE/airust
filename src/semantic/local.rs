@@ -8,6 +8,10 @@ use fastembed::{
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
+const MAX_MODEL_BYTES: u64 = 512 * 1024 * 1024;
+const MAX_TOKENIZER_BYTES: u64 = 64 * 1024 * 1024;
+const MAX_CONFIG_BYTES: u64 = 1024 * 1024;
+
 pub struct FastEmbedProvider {
     space: EmbeddingSpace,
     model: TextEmbedding,
@@ -27,20 +31,22 @@ impl FastEmbedProvider {
         let root = model_directory.as_ref();
         let mut fingerprint = Sha256::new();
         fingerprint.update(b"airust/e5-small/mean/max512/query: /passage: /v1");
-        let mut read = |name: &str| -> Result<Vec<u8>, EmbeddingError> {
-            let bytes = std::fs::read(root.join(name)).map_err(provider_error)?;
+        let mut read = |name: &str, maximum: u64| -> Result<Vec<u8>, EmbeddingError> {
+            let bytes = crate::input::BoundedFile::open(&root.join(name), maximum)
+                .and_then(|file| file.read())
+                .map_err(provider_error)?;
             fingerprint.update((name.len() as u64).to_le_bytes());
             fingerprint.update(name.as_bytes());
             fingerprint.update((bytes.len() as u64).to_le_bytes());
             fingerprint.update(&bytes);
             Ok(bytes)
         };
-        let model = read("onnx/model.onnx")?;
+        let model = read("onnx/model.onnx", MAX_MODEL_BYTES)?;
         let tokenizer = TokenizerFiles {
-            tokenizer_file: read("tokenizer.json")?,
-            config_file: read("config.json")?,
-            special_tokens_map_file: read("special_tokens_map.json")?,
-            tokenizer_config_file: read("tokenizer_config.json")?,
+            tokenizer_file: read("tokenizer.json", MAX_TOKENIZER_BYTES)?,
+            config_file: read("config.json", MAX_CONFIG_BYTES)?,
+            special_tokens_map_file: read("special_tokens_map.json", MAX_CONFIG_BYTES)?,
+            tokenizer_config_file: read("tokenizer_config.json", MAX_CONFIG_BYTES)?,
         };
         let space = EmbeddingSpace::new(
             format!(
@@ -92,4 +98,35 @@ impl EmbeddingProvider for FastEmbedProvider {
 
 fn provider_error(error: impl std::fmt::Display) -> EmbeddingError {
     EmbeddingError::Provider(error.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn oversized_or_nonregular_assets_fail_before_native_initialization() {
+        let dir = tempfile::tempdir().unwrap();
+        let onnx = dir.path().join("onnx");
+        std::fs::create_dir(&onnx).unwrap();
+        let model = std::fs::File::create(onnx.join("model.onnx")).unwrap();
+        model.set_len(MAX_MODEL_BYTES + 1).unwrap();
+        let result = FastEmbedProvider::multilingual_e5_small(dir.path(), "missing-runtime", 2);
+        assert!(
+            matches!(result, Err(EmbeddingError::Provider(error)) if error.contains("byte limit"))
+        );
+        model.set_len(0).unwrap();
+        let tokenizer = std::fs::File::create(dir.path().join("tokenizer.json")).unwrap();
+        tokenizer.set_len(MAX_TOKENIZER_BYTES + 1).unwrap();
+        let result = FastEmbedProvider::multilingual_e5_small(dir.path(), "missing-runtime", 2);
+        assert!(
+            matches!(result, Err(EmbeddingError::Provider(error)) if error.contains("byte limit"))
+        );
+        tokenizer.set_len(0).unwrap();
+        std::fs::create_dir(dir.path().join("config.json")).unwrap();
+        let result = FastEmbedProvider::multilingual_e5_small(dir.path(), "missing-runtime", 2);
+        assert!(
+            matches!(result, Err(EmbeddingError::Provider(error)) if error.contains("regular file"))
+        );
+    }
 }

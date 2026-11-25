@@ -205,7 +205,7 @@ class ProfileWorkflowTests(unittest.TestCase):
 
     def test_profile_check_reports_effective_bounds_without_assets_or_network(self):
         self.write_config(profile='hybrid_rerank', vectors='missing-cache.json', reranker={
-            'directory': 'missing-model', 'runtime': 'missing-runtime', 'threads': 8, 'batch_size': 1, 'candidates': 20})
+            'directory': 'missing-model', 'runtime': 'missing-runtime', 'threads': 8, 'batch_size': 1, 'candidates': 20, 'model_snapshot_directory': 'not-created-snapshots'})
         original = self.config.read_bytes()
         requests = len(self.server.paths)
         value = json.loads(self.run_cli('profile-check', self.config).stdout)
@@ -216,6 +216,8 @@ class ProfileWorkflowTests(unittest.TestCase):
         self.assertEqual(actual['vectors'], str(self.root / 'missing-cache.json'))
         self.assertEqual(actual['reranker']['batch_size'], 1)
         self.assertEqual(actual['reranker']['candidates'], 20)
+        self.assertEqual(actual['reranker']['model_snapshot_directory'], str(self.root / 'not-created-snapshots'))
+        self.assertFalse((self.root / 'not-created-snapshots').exists())
         self.assertEqual(actual['reranker']['directory'], str(self.root / 'missing-model'))
         self.assertEqual(len(self.server.paths), requests)
         self.assertEqual(self.config.read_bytes(), original)
@@ -223,10 +225,12 @@ class ProfileWorkflowTests(unittest.TestCase):
         legacy = json.loads(original)
         del legacy['reranker']['batch_size']
         del legacy['reranker']['candidates']
+        del legacy['reranker']['model_snapshot_directory']
         self.config.write_text(json.dumps(legacy))
         defaults = json.loads(self.run_cli('profile-check', self.config).stdout)['configuration']['reranker']
         self.assertEqual(defaults['batch_size'], 16)
         self.assertIsNone(defaults['candidates'])
+        self.assertIsNone(defaults['model_snapshot_directory'])
         self.assertEqual(len(self.server.paths), requests)
 
     def test_profile_check_rejects_invalid_bounds_without_output_or_service_work(self):

@@ -43,16 +43,18 @@ pub struct RelationSuggestion {
     pub shared_terms: Vec<String>,
 }
 
+/// Training examples with cheap read-only snapshots. Clones retain their own
+/// values; the first mutation of shared examples copies the complete collection.
 #[derive(Clone)]
 pub struct KnowledgeBase {
-    examples: Vec<TrainingExample>,
+    examples: Arc<Vec<TrainingExample>>,
     file_path: Option<PathBuf>,
 }
 
 pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
     let raw = include_str!(concat!(env!("OUT_DIR"), "/train.json"));
 
-    match serde_json::from_str::<Vec<TrainingExample>>(raw) {
+    match serde_json::from_str::<Vec<TrainingExample>>(raw).map_err(crate::input::json_error) {
         Ok(examples) => Arc::new(examples),
         Err(e) => {
             eprintln!("Error loading embedded training data: {}", e);
@@ -64,27 +66,52 @@ pub static EMBEDDED_DATA: Lazy<Arc<Vec<TrainingExample>>> = Lazy::new(|| {
 impl KnowledgeBase {
     pub fn new() -> Self {
         Self {
-            examples: Vec::new(),
+            examples: Arc::new(Vec::new()),
             file_path: None,
         }
     }
 
     pub fn from_embedded() -> Self {
         Self {
-            examples: EMBEDDED_DATA.to_vec(),
+            examples: Arc::clone(&EMBEDDED_DATA),
             file_path: None,
         }
     }
 
+    /// Loads a trusted JSON file without a byte cap. Prefer `load_bounded` for
+    /// caller-supplied paths. Validates all examples before returning a new base.
     pub fn load(path: PathBuf) -> Result<Self, AgentError> {
         let data = fs::read_to_string(&path)?;
 
-        let examples: Vec<TrainingExample> = serde_json::from_str(&data)?;
+        let examples: Vec<TrainingExample> =
+            serde_json::from_str(&data).map_err(crate::input::json_error)?;
         for example in &examples {
             example.validate()?;
         }
         Ok(Self {
-            examples,
+            examples: Arc::new(examples),
+            file_path: Some(path),
+        })
+    }
+
+    /// Loads a regular JSON file of at most `max_bytes` bytes, validating every weight.
+    ///
+    /// This bounds file bytes, not the total memory needed for parsed examples.
+    /// The path must be application-owned; concurrent hostile path replacement is
+    /// outside this API's contract. Use `load` only for trusted, prebounded files.
+    pub fn load_bounded(path: PathBuf, max_bytes: usize) -> Result<Self, AgentError> {
+        let data = crate::input::BoundedFile::open(&path, max_bytes as u64)
+            .and_then(|file| file.read())
+            .map_err(crate::input::InputError::into_io)?;
+        let text = std::str::from_utf8(&data)
+            .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+        let examples: Vec<TrainingExample> =
+            serde_json::from_str(text).map_err(crate::input::json_error)?;
+        for example in &examples {
+            example.validate()?;
+        }
+        Ok(Self {
+            examples: Arc::new(examples),
             file_path: Some(path),
         })
     }
@@ -94,10 +121,10 @@ impl KnowledgeBase {
             .or_else(|| self.file_path.clone())
             .ok_or_else(|| AgentError::InvalidInputError("No path provided".to_string()))?;
 
-        for example in &self.examples {
+        for example in self.examples.iter() {
             example.validate()?;
         }
-        let json = serde_json::to_string_pretty(&self.examples)?;
+        let json = serde_json::to_string_pretty(self.examples.as_ref())?;
         crate::persistence::atomic_write(&path, json.as_bytes())?;
 
         Ok(())
@@ -110,12 +137,12 @@ impl KnowledgeBase {
             weight,
             metadata: None,
         };
-        self.examples.push(example);
+        Arc::make_mut(&mut self.examples).push(example);
     }
 
     pub fn remove_example(&mut self, index: usize) -> Result<TrainingExample, AgentError> {
         if index < self.examples.len() {
-            Ok(self.examples.remove(index))
+            Ok(Arc::make_mut(&mut self.examples).remove(index))
         } else {
             Err(AgentError::IndexOutOfBounds(index))
         }
@@ -127,21 +154,25 @@ impl KnowledgeBase {
 
     pub fn from_examples(examples: Vec<TrainingExample>) -> Self {
         Self {
-            examples,
+            examples: Arc::new(examples),
             file_path: None,
         }
     }
 
     pub fn push_example(&mut self, example: TrainingExample) {
-        self.examples.push(example);
+        Arc::make_mut(&mut self.examples).push(example);
     }
 
     pub fn merge(&mut self, other: &KnowledgeBase) {
-        self.examples.extend_from_slice(&other.examples);
+        if !other.examples.is_empty() {
+            Arc::make_mut(&mut self.examples).extend_from_slice(&other.examples);
+        }
     }
 
     pub fn merge_embedded(&mut self) {
-        self.examples.extend_from_slice(&EMBEDDED_DATA);
+        if !EMBEDDED_DATA.is_empty() {
+            Arc::make_mut(&mut self.examples).extend_from_slice(&EMBEDDED_DATA);
+        }
     }
 }
 
@@ -191,6 +222,88 @@ mod tests {
     use super::*;
     use std::io::Write;
     use tempfile::NamedTempFile;
+
+    #[test]
+    fn snapshots_keep_values_across_every_mutator() {
+        let mut original = KnowledgeBase::new();
+        original.add_example("first".into(), "answer", 1.0);
+        let snapshot = original.clone();
+        assert!(std::ptr::eq(
+            original.get_examples(),
+            snapshot.get_examples()
+        ));
+        original.push_example(TrainingExample {
+            input: "second".into(),
+            output: "two".into(),
+            weight: 2.0,
+            metadata: Some(serde_json::json!({"scope": "local"})),
+        });
+        original.remove_example(0).unwrap();
+        original.merge(&snapshot);
+        assert_eq!(snapshot.get_examples().len(), 1);
+        assert_eq!(snapshot.get_examples()[0].input, "first");
+        assert_eq!(original.get_examples().len(), 2);
+        assert_eq!(original.get_examples()[0].input, "second");
+        assert_eq!(original.get_examples()[1].input, "first");
+        let mut other = snapshot.clone();
+        other.add_example("third".into(), "three", 3.0);
+        assert_eq!(snapshot.get_examples().len(), 1);
+    }
+
+    #[test]
+    fn failed_or_empty_changes_preserve_shared_snapshots() {
+        let mut original = KnowledgeBase::new();
+        original.add_example("one".into(), "answer", 1.0);
+        let snapshot = original.clone();
+        assert!(original.remove_example(1).is_err());
+        original.merge(&KnowledgeBase::new());
+        assert!(std::ptr::eq(
+            original.get_examples(),
+            snapshot.get_examples()
+        ));
+        let embedded = KnowledgeBase::from_embedded();
+        assert!(std::ptr::eq(
+            embedded.get_examples(),
+            EMBEDDED_DATA.as_slice()
+        ));
+        let mut merged = snapshot.clone();
+        merged.merge_embedded();
+        assert_eq!(merged.get_examples().len(), 1 + EMBEDDED_DATA.len());
+        assert_eq!(snapshot.get_examples().len(), 1);
+    }
+
+    #[test]
+    fn bounded_load_retains_format_errors_and_original_bytes() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("training.json");
+        let mut original = KnowledgeBase::new();
+        original.add_example("Grüße 東京".into(), "réponse", 1.5);
+        let bytes = serde_json::to_vec_pretty(original.get_examples()).unwrap();
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(KnowledgeBase::load_bounded(path.clone(), bytes.len() - 1).is_err());
+        let mut loaded = KnowledgeBase::load_bounded(path.clone(), bytes.len()).unwrap();
+        assert_eq!(loaded.get_examples()[0].input, "Grüße 東京");
+        let snapshot = loaded.clone();
+        loaded.add_example("new".into(), "answer", 1.0);
+        assert_eq!(snapshot.get_examples().len(), 1);
+        // Directory fsync is checked natively; Miri cannot emulate macOS
+        // F_FULLFSYNC on a directory descriptor. Input/snapshot checks run there.
+        #[cfg(not(miri))]
+        snapshot.save(None).unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), bytes);
+        std::fs::write(&path, br#"[{"input":"a","output":"b","weight":-1}]"#).unwrap();
+        assert!(KnowledgeBase::load_bounded(path.clone(), 1024).is_err());
+        assert!(KnowledgeBase::load(path.clone()).is_err());
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            br#"[{"input":"a","output":"b","weight":-1}]"#
+        );
+        assert!(KnowledgeBase::load_bounded(dir.path().to_path_buf(), 1024).is_err());
+        std::fs::write(&path, [0xFF]).unwrap();
+        assert!(matches!(KnowledgeBase::load_bounded(path.clone(), 1),
+            Err(AgentError::IoError(error)) if error.kind() == std::io::ErrorKind::InvalidData));
+        assert_eq!(std::fs::read(path).unwrap(), [0xFF]);
+    }
 
     #[test]
     fn test_new_creates_empty() {

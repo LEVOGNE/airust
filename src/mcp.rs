@@ -28,8 +28,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
     collections::BTreeMap,
-    fs::File,
-    io::{self, Read},
+    io,
     path::Path,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
@@ -236,17 +235,26 @@ fn validate_search_response(
 }
 
 fn bounded_file(path: &Path, maximum: usize) -> Result<String, McpError> {
-    let mut input = String::new();
-    let limit = u64::try_from(maximum)
+    u64::try_from(maximum)
         .ok()
         .and_then(|n| n.checked_add(1))
         .ok_or(McpError::Configuration("file byte limit"))?;
-    File::open(path)?.take(limit).read_to_string(&mut input)?;
-    if input.len() > maximum {
-        return Err(McpError::Data("input file bytes"));
-    }
-    Ok(input)
+    let bytes = crate::input::BoundedFile::open(path, maximum as u64)
+        .and_then(|file| file.read())
+        .map_err(|error| match error {
+            crate::input::InputError::TooLarge | crate::input::InputError::Changed => {
+                McpError::Data("input file bytes")
+            }
+            other => McpError::Io(other.into_io()),
+        })?;
+    String::from_utf8(bytes).map_err(|error| {
+        McpError::Io(io::Error::new(
+            io::ErrorKind::InvalidData,
+            error.utf8_error(),
+        ))
+    })
 }
+
 fn add_size(total: &mut usize, count: usize, maximum: usize) -> Result<(), McpError> {
     *total = total
         .checked_add(count)
@@ -389,7 +397,8 @@ impl McpServer {
     pub fn load_knowledge(path: impl AsRef<Path>, limits: McpLimits) -> Result<Self, McpError> {
         limits.validate()?;
         let input = bounded_file(path.as_ref(), limits.max_file_bytes)?;
-        let entries: Vec<KnowledgeEntry> = serde_json::from_str(&input)?;
+        let entries: Vec<KnowledgeEntry> =
+            serde_json::from_str(&input).map_err(crate::input::json_error)?;
         drop(input);
         Self::from_entries(entries, limits)
     }

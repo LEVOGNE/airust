@@ -539,7 +539,7 @@ impl ProvenanceStore {
         if json.len() > max_bytes {
             return Err(ProvenanceError::InputTooLarge);
         }
-        Self::try_from(serde_json::from_str::<StoreWire>(json)?)
+        Self::try_from(serde_json::from_str::<StoreWire>(json).map_err(crate::input::json_error)?)
     }
 }
 

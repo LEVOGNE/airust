@@ -44,14 +44,18 @@
       "id": "PRACT1",
       "priority": "P0",
       "name": "Test all three profiles with local answer LLM and actual user inputs; investigate measured reranking cost",
-      "status": "model_attempts_and_native_controls_complete_full_mcp_confirmation_pending",
+      "status": "complete_local_attempts_and_final_source_confirmation_independent_quality_unestablished",
       "source_baseline": "8c098f15a39f6085f748c56ac52e5737abdff423",
       "evidence": [
+        "docs/measurements/profile-practical-0.6.0/README.md",
+        "docs/measurements/profile-practical-0.6.0/public-numeric-evidence.json",
         "local-lab/profile-practical-0.6.0-2026-11-24/",
-        "docs/SESSION-HANDOFF.md"
+        "local-lab/overnight-0.6.1-2026-11-24/final-mcp-confirmation/",
+        "docs/measurements/configuration-0.6.1-final/README.md"
       ],
       "acceptance": "Complete real local model attempts and retain answers/failures/citations/source identities; distinguish replayed questions from independent traffic/review. Optimize only with compatible repeated paired measurements, unchanged candidate/token bounds and visible quality regressions. Then scope C1 from observed configuration issues.",
-      "independently_reviewed_cases": 0
+      "independently_reviewed_cases": 0,
+      "observed": "16 local answer attempts retain quotation and incomplete-roadmap failures; 32 native options and six 150-query controls are complete. Earlier 1920 checkpoint / 2560 primary timed MCP requests remain separate. Final paired cohort: 600 timed + 600 initial requests; p95 895.581 / 900.440 to 229.610 / 228.034 ms with unchanged model, 20 candidates and max512, using eight versus two CPU threads. No rank/source/known-quote loss. All regressions retained; zero independently reviewed real cases."
     },
     {
       "id": "DX1",
@@ -80,10 +84,19 @@
       "priority": "P1",
       "name": "Inventory existing configuration before adding a facade",
       "target": "0.6.1 conditional",
-      "status": "implemented_validation_in_progress",
+      "status": "all_local_validation_complete_post_commit_package_consumer_and_ci_pending",
       "can_progress_without_external_cases": true,
       "acceptance": "Map validated configuration/defaults/bounds/ownership and feature interactions; demonstrate an integration problem and propose the smallest compatible improvement, with affected tests and documentation.",
-      "current_evidence": "docs/CONFIGURATION.md; bounded example batch/candidate knobs and offline profile-check; 20 pilot Rust tests and 10 Python loopback tests passed; full matrix/paired MCP confirmation/Miri pending"
+      "current_evidence": "Configuration ownership, bounded reranking settings/preflight, COW training, bounded input/diagnostics, optional verified model snapshots and a model-free host are implemented. Native: 266 default, 928 all-feature including 39 doctests, 40 isolated features; finite Miri: 121 cases / 11 groups with explicit exclusions. Rust 1.89/1.92, five API views, backend and dated both-lock advisory gates pass. Selected full fuzz scopes and separate final-source performance/resource gates pass; original failures and every regression remain retained. Original data/models/runtime match; owned service stopped. Post-commit package/consumer/CI gates remain.",
+      "evidence": [
+        "docs/CONFIGURATION.md",
+        "docs/RESOURCE-LIMITS.md",
+        "docs/CHANGES-0.6.1.md",
+        "docs/validation-0.6.1/README.md",
+        "docs/validation-0.6.1/REPRODUCE.md",
+        "local-lab/overnight-0.6.1-2026-11-24/",
+        "docs/measurements/configuration-0.6.1-final/README.md"
+      ]
     },
     {
       "id": "QA1",
@@ -114,11 +127,12 @@
       "priority": "P2",
       "name": "Diagnostics, observability, resource management and security hardening",
       "target": "0.6.2-0.6.5 conditional",
-      "status": "not_started",
+      "status": "cross_cutting_resource_pieces_validated_other_milestones_not_started",
       "depends_on": [
         "C1"
       ],
-      "acceptance": "Observed failure/use case, existing control inventory, compatible bounded implementation, measured overhead and adversarial/recovery checks. Security and safety gates remain cross-cutting."
+      "acceptance": "Observed failure/use case, existing control inventory, compatible bounded implementation, measured overhead and adversarial/recovery checks. Security and safety gates remain cross-cutting.",
+      "existing_candidate_work": "Private bounded input/diagnostic helpers, training COW, explicit small-host admission and verified native snapshots address observed memory problems within0.6.1. Native repeated-load default allocator budget failed twice; optional process policy has separate measured evidence. This does not complete diagnostics/observability/security roadmap versions."
     },
     {
       "id": "P1",
@@ -150,6 +164,7 @@
       "acceptance": "G1-G5 observed, reviewed API/data compatibility guarantees, supported-platform operational experience outside the authored reference corpus."
     }
   ],
-  "next_action": "Complete full native/compiler checks, then paired complete-MCP confirmations without concurrent compilation/Miri; finish finite Miri and package consumers afterward. Keep 0.6.1 unpublished and external gates open.",
-  "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization."
+  "next_action": "All selected long fuzz, finiteMiri, native/API/compiler/backend/advisory, quiet final-source performance/resource and full original-data/model/runtime preservation controls completed. Complete final diff/privacy/numeric/package-boundary review and commit tested source; run clean package/publish-dry-run/immutable extracted consumers and exact five candidate-branch CI jobs. Then documentation closeout, verify unchanged code and final archive/CI, retain receipts and clean only owned regenerable build targets. No0.6.1publication/mastermerge/tag authorized; external human gates remain open.",
+  "policy": "Update actual observations and evidence paths after each coherent step. Never treat synthetic declarations, another automated agent, input freezing or source tooling as independent human validation. Later publications need explicit authorization.",
+  "active_work_receipt": "local-lab/overnight-0.6.1-2026-11-24/PROGRESS.json"
 }

@@ -446,7 +446,8 @@ impl DocumentSnapshot {
         if input.len() > limits.max_json_bytes {
             return Err(DocumentError::Limit("encoded JSON bytes"));
         }
-        let wire: SnapshotWire<'_> = serde_json::from_str(input)?;
+        let wire: SnapshotWire<'_> =
+            serde_json::from_str(input).map_err(crate::input::json_error)?;
         if wire.format_version != FORMAT {
             return Err(DocumentError::UnsupportedVersion(wire.format_version));
         }
@@ -499,7 +500,8 @@ impl DocumentSnapshot {
         if input.len() > limits.max_json_bytes {
             return Err(DocumentError::Limit("encoded JSON bytes"));
         }
-        let wire: PassageWire<'_> = serde_json::from_str(input)?;
+        let wire: PassageWire<'_> =
+            serde_json::from_str(input).map_err(crate::input::json_error)?;
         if wire.format_version != FORMAT {
             return Err(DocumentError::UnsupportedVersion(wire.format_version));
         }

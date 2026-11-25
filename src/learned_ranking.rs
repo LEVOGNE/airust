@@ -360,7 +360,7 @@ impl LinearModel {
         if json.len() > 1024 * 1024 {
             return Err(LearningError::Budget("model JSON"));
         }
-        let model: Self = serde_json::from_str(json)?;
+        let model: Self = serde_json::from_str(json).map_err(crate::input::json_error)?;
         model.validate()?;
         Ok(model)
     }

@@ -7,6 +7,9 @@ pub mod documents;
 #[cfg(feature = "mcp")]
 pub mod mcp;
 
+mod input;
+#[cfg(any(feature = "local-reranking", test))]
+mod model_assets;
 mod persistence;
 mod ranking;
 

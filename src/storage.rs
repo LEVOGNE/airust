@@ -359,7 +359,7 @@ fn decode_entry(
     if encoded.len() > limits.max_entry_bytes {
         return Err(StorageError::Limit("stored entry bytes"));
     }
-    let entry: KnowledgeEntry = serde_json::from_str(encoded)?;
+    let entry: KnowledgeEntry = serde_json::from_str(encoded).map_err(crate::input::json_error)?;
     if entry.id != id {
         return Err(StorageError::InvalidData(
             "stored row and record IDs differ",

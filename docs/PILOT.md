@@ -134,13 +134,15 @@ The cache is tied to actual workspace passage IDs, source revisions and the mode
 
 `hybrid` uses exact cosine plus BM25 with fixed RRF k=60 and equal weights. `hybrid_rerank` defaults to reranking the actual first 20 candidates (or the requested limit if larger). Build with `--features pilot,local-reranking` on Rust 1.92 or newer and set `reranker` to an object with `directory`, `runtime` and `threads` (1–64). Use the explicit asset setup in [LOCAL-RERANKING.md](LOCAL-RERANKING.md); the constructor verifies its pinned model files before loading the supplied native runtime. Native code is outside owned Rust's `forbid(unsafe_code)` and Miri coverage.
 
-The **unpublished 0.6.1 source candidate** additionally accepts `reranker.batch_size` (1–16, missing means 16) and `reranker.candidates` (1–100 when explicit). Missing/null candidates preserves the automatic max(20, requested result limit). An explicit candidate budget is not expanded by a larger result request: that request fails before model work and cannot become fallback. The first-stage window is at least 100 or the request's own bounded candidate count; a new explicit rerank window is capped at 100. An example tuning object is:
+The **unpublished 0.6.1 source candidate** additionally accepts `reranker.batch_size` (1–16, missing means 16) and `reranker.candidates` (1–100 when explicit). Missing/null candidates preserves the automatic max(20, requested result limit). An explicit candidate budget is not expanded by a larger result request: that request fails before model work and cannot become fallback. The first-stage window is at least 100 or the request's own bounded candidate count; a new explicit rerank window is capped at 100. The optional `model_snapshot_directory` selects a private verified native file copy, requiring explicit writable space; null/missing keeps memory-backed loading. It resolves relative to the config without creating anything during preflight. See [resource costs and cleanup](RESOURCE-LIMITS.md). An example tuning object is:
 
 ```json
 {"directory":"/models/mmarco-minilm-v2","runtime":"/runtime/libonnxruntime.dylib","threads":2,"batch_size":1,"candidates":20}
 ```
 
 Select a setting using compatible workload measurements, with the same first-stage candidates and token recipe. Smaller batches can avoid padding short documents to a longer peer on CPU; they do not shorten the 512-token maximum or recover missing candidates. More CPU threads have a resource cost. [The practical measurements](measurements/profile-practical-0.6.0/README.md) retain all tested options and regressions, including answer-quality failures.
+
+For performance reproduction, retain the exact profile, resolved `profile-check` output, command, binary/lock and host/model identities alongside a captured case. Case model recipes and scored-candidate counts do not encode every CPU/batch/allocator setting. Capture/export does not automatically save the supplied host configuration or change its existing schema. Its `query_ms` remains a bounded complete query/setup observation, not the warm complete-MCP metric used in the paired measurement scripts.
 
 Check the effective configuration before expensive loading:
 

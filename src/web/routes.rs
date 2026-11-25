@@ -900,6 +900,7 @@ pub async fn upload_json(
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("Read error: {}", e)))?;
 
     let items: Vec<TrainingImportItem> = serde_json::from_slice(&data)
+        .map_err(crate::input::json_error)
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("JSON parse error: {}", e)))?;
 
     let batch = validated_import(items)?;

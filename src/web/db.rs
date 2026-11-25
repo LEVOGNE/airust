@@ -772,13 +772,15 @@ impl Database {
                 metadata: row
                     .get::<_, Option<String>>(7)?
                     .map(|json| {
-                        serde_json::from_str(&json).map_err(|error| {
-                            rusqlite::Error::FromSqlConversionFailure(
-                                7,
-                                rusqlite::types::Type::Text,
-                                Box::new(error),
-                            )
-                        })
+                        serde_json::from_str(&json)
+                            .map_err(crate::input::json_error)
+                            .map_err(|error| {
+                                rusqlite::Error::FromSqlConversionFailure(
+                                    7,
+                                    rusqlite::types::Type::Text,
+                                    Box::new(error),
+                                )
+                            })
                     })
                     .transpose()?,
             })

@@ -76,7 +76,7 @@ provenance = []
 versioning = ["serde/rc"]
 quality = []
 reranking = []
-local-reranking = ["reranking", "dep:fastembed", "dep:ort", "dep:sha2"]
+local-reranking = ["reranking", "dep:fastembed", "dep:ort", "dep:sha2", "dep:tempfile"]
 cache = ["dep:postcard", "dep:sha2"]
 local-embeddings = ["embeddings", "dep:fastembed", "dep:ort", "dep:sha2"]
 cli = ["embedded-knowledge", "dep:tempfile"]
@@ -390,4 +390,12 @@ required-features = ["documents"]
 [[bin]]
 name = "airust-mcp"
 path = "src/bin/airust-mcp.rs"
+required-features = ["mcp"]
+
+[[example]]
+name = "bounded_mcp"
+required-features = ["mcp"]
+
+[[example]]
+name = "retained_errors"
 required-features = ["mcp"]

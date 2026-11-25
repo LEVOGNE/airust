@@ -39,6 +39,13 @@ doc = false
 bench = false
 required-features = ["pdf"]
 
+[[bin]]
+name = "knowledge"
+path = "fuzz_targets/knowledge.rs"
+test = false
+doc = false
+bench = false
+
 [profile.release]
 opt-level = 3
 debug = 1

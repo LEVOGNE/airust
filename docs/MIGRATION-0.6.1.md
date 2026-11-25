@@ -14,11 +14,18 @@ For an explicitly measured workload, optional fields make the execution policy v
   "runtime": "/runtime/libonnxruntime.dylib",
   "threads": 2,
   "batch_size": 1,
-  "candidates": 20
+  "candidates": 20,
+  "model_snapshot_directory": "/private/model-snapshots"
 }
 ```
 
 This is the `reranker` object within a `hybrid_rerank` profile, not a complete profile. Threads remain 1..64; batch size is 1..16; an explicit candidate prefix is 1..100. A request for more results than the explicit prefix is a configuration error before model work; the server does not silently enlarge that budget or invoke fallback. To retain automatic legacy behavior, omit `candidates` or use null. To compare batching alone, keep the candidate prefix, assets, text/token recipe and query workload fixed.
+
+`model_snapshot_directory` is an additional explicit opt-in: the existing directory must be application-owned and have room for a 470883696-byte private copy plus filesystem overhead. Missing/null keeps memory loading, with no writable-directory requirement. Normal drop and setup failures clean up the copy; abrupt process termination can leave it behind. The supplied model/runtime/recipe remain unchanged. Offline checks only resolve this path and do not create it or assert disk readiness.
+
+`KnowledgeBase` snapshots now share examples privately and detach on mutation. Values/order/serialization remain compatible; the first write to shared data can cost a full collection copy. `load_bounded(path, max_bytes)` is new and optional. Existing `load()` remains an unbounded trusted-file API. Special/nonregular inputs to the hardened bounded/MCP/native paths are rejected; retained original files and source bindings are unchanged. E5 now rejects model files over 512 MiB, tokenizers over 64 MiB and each config over 1 MiB before native initialization. See [resource contracts](RESOURCE-LIMITS.md).
+
+Large serde JSON data-error messages from restoration/import paths now contain a bounded beginning/ending and a truncation marker instead of retaining the entire invalid string. The cap is 2048 UTF-8 bytes for the underlying JSON diagnostic; an outer error type may add its own short prefix. JSON category, line and column remain available and unchanged. Small data diagnostics and syntax/EOF/I/O errors keep their original error objects. Treat display text as diagnostic prose, not a stable parseable interface. This caps retained diagnostics, while parsing itself can still have a transient allocation.
 
 Older 0.6.0 readers reject the new fields as unknown. They can consume a profile with those optional fields removed, using their original automatic prefix/batch. This is backward compatibility for existing profiles, not forward compatibility for new options in an old reader. Persisted workspaces/cases and original evidence do not need rewriting. Cache identities remain bound to the unchanged source/embedding recipe.
 
