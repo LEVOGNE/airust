@@ -2,17 +2,13 @@
 
 Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP.md](../ROADMAP.md), [AGENTS.md](../AGENTS.md) and [CONTRIBUTING.md](../CONTRIBUTING.md). Communicate in German; keep code/docs in English. Resume observed work rather than restarting completed campaigns or asking the user to restate it.
 
-## Current state: locally validated 0.6.1, post-commit gates next
+## Current state: C1 validated, unpublished
 
-As of **2026-11-25 07:24 UTC**, the unpublished candidate is on **codex/configuration-0.6.1**, with checkpoint **4cfbe9ade3056239c5c79331a567be8871cb0473** plus tested uncommitted hardening. All selected long fuzz scopes, finite Miri and final-source resource/request controls passed. The six-hour minimum elapsed before this closeout. The remaining steps are source commit, clean package/extracted consumers and exact-source hosted CI. No 0.6.1 publication, master merge or tag is authorized.
+The tested engineering source is **b875707dea03fa16a24eb7e0a489de9741d32f1b** on **codex/configuration-0.6.1**. Native/compiler/API/backend/advisory controls, 121 finite Miri cases, full selected fuzz scopes, quiet final-source measurements, clean package/extracted consumers and all five source-CI jobs passed. [The public closeout](validation-0.6.1/closeout.json) records observed results and honest limits. Independent human/readiness gates remain open. No 0.6.1 publication, master merge or tag is authorized.
 
-Read actual receipts in **local-lab/overnight-0.6.1-2026-11-24/**:
+This documentation closure follows the tested code commit. **First inspect local-lab/overnight-0.6.1-2026-11-24/final-closeout.json**: verify its final HEAD equals the current Git HEAD and its clean archive/CI/cleanup fields are actually complete. If it is absent/incomplete, finish only those post-documentation gates below; do not restart completed native/Miri/fuzz/benchmark campaigns. The original checkpoint 4cfbe9 remains in history.
 
-1. PROGRESS.json, fuzz-reconciled.json, miri-aggregate.json and final-source-controls/report.json. Final controls finished **07:16 UTC**; all required and optional declared gates passed, source inputs unchanged, normal snapshots clean.
-2. preservation-and-owned-service-closeout.json: original database/runtime, **eleven model files / 19387512128 bytes** fully rehashed after inference, and 242 frozen source/method/runtime inputs match. The owned server PID 86497 / port 11437 and its recorded runner are **stopped**. No fuzz/model job remains; do not restart services/campaigns automatically.
-3. clean-package-controls/report.json, ci-COMMITPREFIX/report.json and final-closeout.json when present. Missing/incomplete/failed receipts are not passes. Post-commit receipts must identify the actual source/package/CI commit.
-
-The first final-controller attempt stopped before any archive/build/timing because the historically tracked original database was included in a Git-visible selection. The corrected controller excludes it explicitly; the failed attempt remains in final-source-controls-input-selection-failed/. The initial service-listener parser also stopped before any signal; corrected PID/start-time/port validation and shutdown passed. These are retained task-orchestration failures, not discarded numerical observations or product fixes.
+Actual receipts in that laboratory: source-commit.json, clean-package-controls/report.json, ci-b875707dea03/report.json, fuzz-reconciled.json, miri-aggregate.json, final-source-controls/report.json and preservation-and-owned-service-closeout.json. Every retained initial failure remains separate. The task-owned model server/runner are stopped; original database/runtime/model bytes match after inference. Do not restart services automatically.
 
 ## Completed engineering evidence
 
@@ -28,14 +24,15 @@ The first final-controller attempt stopped before any archive/build/timing becau
 
 Production Rust/manifest/input **228 files remain frozen**. The latest freeze is source-freeze-public-padding-tests.json; only Python/method controls changed after the earlier accepted Rust freeze. Do not change measured inputs without recording the change and rerunning affected gates. The suspected cached MCP JSON copy and malformed-frame shutdown hypothesis were ruled out. Rejected experiments/failures remain retained; the proposed production runtime change was reverted.
 
-## Finish the current authorized task
+## Resume only actual remaining work
 
-1. Complete final source/docs/private-public/numeric-integrity review and package-boundary listing. Rust/manifest/input 228 files and frozen methods remain unchanged; do not repeat native/Miri/fuzz/benchmark campaigns without an affected-input change. Commit tested source, preserving the checkpoint.
-2. run_clean_package_controls.py requires that clean new commit: cargo package --locked, cargo publish --locked --dry-run, separate immutable extraction, three Rust-1.89 external consumers, packaged preflight/import/query/stdio and Rust-1.92 all-feature/all-target controls. It never uploads. Do not race Cargo's mutable verifier extraction with consumers.
-3. Push only the candidate branch and inspect all five exact-source hosted jobs. observe_candidate_ci.py is a finite read-only current-task observer, not a recurring automation. Preserve unavailable/cancelled/failed jobs. A documentation closeout commit may explicitly reuse unchanged-code evidence; verify its clean archive/code identities and actual hosted conclusions separately.
-4. Bind final HEAD/archive/CI/preservation/owned-service cleanup in final-closeout.json. Update this handoff and WORK-PROGRAM-NEXT.json from actual results. Preserve binaries/locks/methods/packages/raw failures before removing only recorded owned regenerable targets. Original data/laboratory evidence are not cleanup targets. No master merge/tag/0.6.1 publication is authorized.
+If final-closeout.json matches the current clean HEAD with all five final hosted checks and archive/preservation complete, C1 is closed. Proceed from WORK-PROGRAM-NEXT.json; do not repeat completed campaigns merely because a new session started.
 
-The user's six-hour request began **2026-11-24 21:55:59 UTC**, minimum **2026-11-25 03:55:59 UTC  / 04:55:59 Europe/Berlin**. That minimum has elapsed; it does not itself pass a gate or establish uninterrupted active-time accounting. No new six-hour block or repeat campaign is implied for a later session.
+If that final receipt is missing, finish the documentation commit, verify every frozen implementation/method/runtime input and packaged code byte against the tested engineering source, create a clean documentation-head package/dry-run and verify numerical checksums, then inspect the exact documentation-head hosted CI. Retain all observed failures/unavailable jobs. Complete the local final-closeout receipt and remove only recorded owned regenerable targets after retaining source/binaries/locks/packages/raw evidence. No master merge/tag/registry publication.
+
+Next external work is the prepared independent onboarding/source-review/reproduction protocol; actual eligible human cases remain zero. The next conditional engineering step is D1: inventory existing typed diagnostics/stats/preflight and scope an observed failure/cost problem, with bounded output and measured overhead. Do not add a new telemetry/configuration framework or publish future versions blindly. Use the recorded native allocator, startup and model-answer failures as inputs; independent evidence cannot be manufactured.
+
+The earlier six-hour request's minimum elapsed before the final engineering commit. It does not establish uninterrupted active-time accounting or start a new six-hour block for later sessions.
 
 ## Known limits and external gates
 

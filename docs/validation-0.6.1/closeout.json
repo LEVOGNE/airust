@@ -1,0 +1,178 @@
+{
+  "recorded_at": "2026-11-25T07:55:37.340687+00:00",
+  "candidate_version": "0.6.1",
+  "candidate_status": "validated_unpublished",
+  "branch": "codex/configuration-0.6.1",
+  "tested_engineering_commit": "b875707dea03fa16a24eb7e0a489de9741d32f1b",
+  "baseline_commit": "8c098f15a39f6085f748c56ac52e5737abdff423",
+  "registry_publication_attempted": false,
+  "master_or_release_tag_changed": false,
+  "documentation_closure_scope": "This record and final status documents follow the tested engineering commit. The local final-closeout receipt binds the subsequent documentation HEAD, archive and actual CI; only unchanged-code evidence may be reused. This is not a release manifest.",
+  "native": {
+    "default_passed": 266,
+    "all_feature_passed_including_doctests": 928,
+    "doctests_included": 39,
+    "isolated_features": 40,
+    "totals_overlap": true
+  },
+  "miri": {
+    "finite_tests": 121,
+    "observed_groups": 11,
+    "tree_borrows": true,
+    "initial_directory_sync_attempts_passed": false,
+    "native_durability_passed": true,
+    "exclusions": "Native ONNX/Metal/HTTP/Tokio/PDF, successful macOS directory-sync publication, four large index tests, two async MCP shutdown tests, full corpus parity and million-entry work; reduced fixtures/iterations explicit in validation."
+  },
+  "fuzz": {
+    "selected_scopes_all_passed": true,
+    "scopes": [
+      {
+        "target": "lexical",
+        "observed_seconds": 5409.653905083003,
+        "executed_units_not_unique_tests": 509913,
+        "asan": true,
+        "binary_sha256": "ab2f1b18f76ab704b22eb5587cb3acbe5a1b8914e9c537013780c5c32bb7fa2d",
+        "artifact_count": 0
+      },
+      {
+        "target": "pdf",
+        "observed_seconds": 5402.933840583995,
+        "executed_units_not_unique_tests": 224254,
+        "asan": false,
+        "binary_sha256": "ec4569db58d816ba39b5b8520b3e3e863a9f074fe18b2e755f32dd45cf2cdb38",
+        "artifact_count": 0
+      },
+      {
+        "target": "knowledge",
+        "observed_seconds": 3605.8176585419933,
+        "executed_units_not_unique_tests": 405218,
+        "asan": true,
+        "binary_sha256": "5eb50f5fed4d2381a91aed51c646def69ce47837d54443fa32ff087763b5ddc6",
+        "artifact_count": 0
+      }
+    ],
+    "original_partial_pdf_attempt_remains_failed": true,
+    "pdf_recovery_reload": 0,
+    "leak_detection": false,
+    "limits": "Finite mutation scopes; PDF coverage only, standard-library/C/native dependencies not fully memory-sanitized; no absence-of-bugs proof."
+  },
+  "compatibility": {
+    "static_api_views_passed": [
+      "default",
+      "mcp",
+      "local-embeddings",
+      "local-reranking",
+      "all"
+    ],
+    "provider_neutral_rust": "1.89.0",
+    "native_adapter_rust": "1.92.0",
+    "unchanged_default_normal_dependency_tree": true,
+    "default_features": [],
+    "backend": "0.3.5 unchanged; 14 regressions/C ABI/provenance/MSRV passed",
+    "rustsec_revision": "10db6998b5d74ec438bcf0763125bd425a068a8f",
+    "known_vulnerabilities_at_revision": 0,
+    "advisories_ignored": [],
+    "maintenance_notices": [
+      "RUSTSEC-2026-0543",
+      "RUSTSEC-2024-0436",
+      "RUSTSEC-2026-0192",
+      "RUSTSEC-2026-0319"
+    ]
+  },
+  "clean_tested_package": {
+    "source_commit": "b875707dea03fa16a24eb7e0a489de9741d32f1b",
+    "sha256": "45808882571232495e59fbc15cf33e31250c4e766888c0fcd474ec6c46093cf6",
+    "bytes": 6539476,
+    "files": 4032,
+    "dirty": false,
+    "publish_dry_run_passed_without_upload": true,
+    "numeric_and_figure_checksums_verified_after_extraction": 29,
+    "external_rust_189_consumers": [
+      "nine-line core",
+      "API/documents/MCP/cancellation/diagnostics",
+      "training ownership probe"
+    ],
+    "packaged_real_cli_preflight_import_query_stdio": true,
+    "packaged_rust_192_all_features_all_targets": true
+  },
+  "hosted_source_ci": {
+    "run": {
+      "id": 45569309470,
+      "head_sha": "b875707dea03fa16a24eb7e0a489de9741d32f1b",
+      "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "all_five_jobs_passed": true,
+    "jobs": [
+      {
+        "name": "pdf-backend",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470/job/139051731485",
+        "completed_at": "2026-11-25T07:37:06Z"
+      },
+      {
+        "name": "checks",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470/job/139051731517",
+        "completed_at": "2026-11-25T07:46:59Z"
+      },
+      {
+        "name": "local-embedding-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470/job/139051731621",
+        "completed_at": "2026-11-25T07:36:00Z"
+      },
+      {
+        "name": "macos-checks",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470/job/139051731755",
+        "completed_at": "2026-11-25T07:53:10Z"
+      },
+      {
+        "name": "minimum-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/LEVOGNE/airust/actions/runs/45569309470/job/139051731798",
+        "completed_at": "2026-11-25T07:36:14Z"
+      }
+    ],
+    "logs_sha256": "905ed458733e30d27e123ebc6f09c2a6c4507d3493d1b3b729bd015b902b7873",
+    "scope": "Actual existing Ubuntu/macOS source gates; no Windows/Intel, independent human or native-model inference certification.",
+    "observed_macos_compiler": "rustc 1.100.0 (0ef1bc386 2026-11-09), LLVM23.1.5, aarch64-apple-darwin; extracted actual GitHub log"
+  },
+  "final_source_measurements": {
+    "completed_at": "2026-11-25T07:16:36.178208+00:00",
+    "all_declared_gates_passed": true,
+    "dataset": "150 frozen assistant-authored reference cases plus deterministic generated resource probes",
+    "raw_csv_files": 12,
+    "raw_numerical_rows_not_unique_tests": 12073,
+    "record": "../measurements/configuration-0.6.1-final/README.md"
+  },
+  "preservation": {
+    "all_original_model_runtime_database_content_hashes_match": true,
+    "model_files_rehashed": 11,
+    "model_bytes_rehashed": 19387512128,
+    "original_database_sha256": "8048756bb34ea465ed4bdbc90537102e83e9690d360bba6c9d951b3b285bfbe8",
+    "unchanged_backend_and_frozen_fixtures": true,
+    "models_downloaded": 0,
+    "owned_service_and_runner_stopped": true,
+    "private_service_logs_published": false
+  },
+  "open_boundaries": {
+    "default_native_reload_growth_budget_failed_runs": 2,
+    "first_shared_write_copies_collection": true,
+    "active_native_models_fit_1GiB": false,
+    "actual_1GiB_laptop_tested": false,
+    "native_ffi_covered_by_miri": false,
+    "actual_e5_inference_available": false,
+    "independently_reviewed_real_cases": 0,
+    "minimum_independent_cases": 50,
+    "independent_onboarding_or_reproduction_passed": false,
+    "new_production_quality_recommendation": false
+  }
+}

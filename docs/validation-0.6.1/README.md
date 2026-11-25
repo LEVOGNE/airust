@@ -1,6 +1,8 @@
 # AIRust 0.6.1 candidate validation
 
-This guide records an unpublished source candidate, not a registry release. Receipts are retained under `local-lab/overnight-0.6.1-2026-11-24/`; earlier configuration/practical evidence keeps its original paths. Production source was frozen at 2026-11-24 23:40:39 UTC; the 23:51:37 revision changes two training-test fixtures/scopes only. All selected long fuzz scopes and separate final-binary controls completed by **2026-11-25 07:16 UTC**. Clean package/extracted-consumer and exact-source hosted checks follow the final source commit; do not infer their outcome from an earlier preview. Read actual receipts before treating a gate as passed.
+**The engineering candidate is validated and unpublished.** Tested source is [b875707dea03](https://github.com/LEVOGNE/airust/commit/b875707dea03fa16a24eb7e0a489de9741d32f1b); its clean package, extracted consumers and all five exact-source hosted jobs passed. [The machine-readable closeout](closeout.json) binds observed results and limitations. A subsequent documentation-only closure keeps implementation/method/runtime bytes unchanged; the retained local final-closeout receipt binds that final HEAD/archive/CI. No 0.6.1 release, master merge or tag is implied.
+
+Native/finite Miri/full selected fuzz and separate final-source performance/resource controls are complete. Original unsupported/failed attempts remain retained. Production source freeze is 2026-11-24 23:40:39 UTC; the 23:51:37 revision changes two training fixtures/scopes only. Detailed raw receipts remain under local-lab/overnight-0.6.1-2026-11-24/; original practical-study paths are unchanged.
 
 ## Observed candidate checks
 
@@ -26,6 +28,9 @@ This guide records an unpublished source candidate, not a registry release. Rece
 | Final-source model-free host | 8 workers / 8000 timed + 256 warmup requests passed | Includes 393216-term stress case; all 512-MiB peak / 32-MiB growth budgets pass |
 | Final-source complete MCP requests | Both paired campaigns passed | 600 timed + 600 initial requests; unchanged top six/non-logit data/known quotes; both p95 gain gates pass |
 | Optional allocator request cost | Both declared 10% overhead gates passed | Same binary/profile, ratios 0.983 / 0.997; all 159 slower per-query means retained; not a library default |
+| Clean tested-source package | 4032 files / 6539476 bytes; clean VCS | SHA-256 45808882571232495e59fbc15cf33e31250c4e766888c0fcd474ec6c46093cf6; source b875707dea03; all 29 numeric/figure checksums match after extraction |
+| Extracted package consumers/application | All passed | Three Rust 1.89 external consumers; real preflight/import/query/stdio; Rust 1.92 all-feature/all-target compile |
+| Hosted exact-source CI | All five jobs passed | [Run 45569309470](https://github.com/LEVOGNE/airust/actions/runs/45569309470); source b875707dea03; Ubuntu/macOS scopes only |
 
 Static API comparison uses official tool archive SHA-256 `3cec5da41eee9a3336d75ad43d1f30a5c9680818f4ba209024786f452cabab5b` and extracted binary `30493e32d77a4a9f90ea6695cf67765a4c9106c46a7db4603f2026043d469bb8`. The baseline is an immutable archive of released source `8c098f15a39f6085f748c56ac52e5737abdff423`. These are current-host public-signature checks, not behavior, data-format or all-platform proofs.
 
@@ -41,13 +46,13 @@ Check the provider-neutral/pilot public path on Rust 1.89 and all features/all t
 
 The external [consumer source](consumer.rs) additionally checks training snapshot isolation, bounded loading/retained save paths, multiline Unicode diagnostic positions, original files, document spans, typed cancellation, the application search trait and all five versioned MCP schemas. This is automated package-integration evidence, not an independently timed human onboarding attempt. [REPRODUCE.md](REPRODUCE.md) supplies the measurement procedures and the formatted training probe.
 
-The dirty package preview (4008 files / 5886388 bytes, archive SHA-256 `093614053810dd047f4f0559b02f5c9fc30b566826d5e9aa796bf1ef8bfe0452`) was copied to a separate immutable extraction. Three external Rust-1.89 programs pass: the nine-line default consumer, the public API/document/MCP/diagnostic consumer and a small functional invocation of the training probe. This preview is explicitly not the final clean package; later protocol/test additions need the final archive/consumer receipts.
+The dirty package preview (4008 files / 5886388 bytes, archive SHA-256 `093614053810dd047f4f0559b02f5c9fc30b566826d5e9aa796bf1ef8bfe0452`) was copied to a separate immutable extraction. Three external Rust-1.89 programs pass: the nine-line default consumer, the public API/document/MCP/diagnostic consumer and a small functional invocation of the training probe. This is historical preview evidence. The clean tested-source package above supplies the observed final engineering-source archive/consumer gate; the preview is not relabelled.
 
 Retained non-passing orchestration attempts include a sandbox run that could not bind the fake loopback HTTP fixture, plus an initial stream test with the wrong expectation that every discarded malformed frame must close the connection. The installed primary SDK source and existing recovery tests disproved that expectation. Original and experimental binaries both closed actual quotas correctly with the client pipe open; the proposed runtime change was reverted. Six corrected small-host tests and the repeated full matrix pass on byte-identical production Rust/manifest inputs. No failed attempt is relabelled a product fix or passed validation.
 
 The final-source controller's initial archive guard also stopped before any archive/build/timing: the original database is historically tracked, so Git visibility alone was an incorrect archive-selection rule. The corrected task controller explicitly excludes it and private laboratory evidence without modifying measured Rust/method inputs. The failed attempt/log remains retained, with zero discarded timing observations. An initial ancillary listener-output parser likewise stopped before signalling anything; its corrected ownership check accepts lsof's descriptor records while retaining exact PID/start-time/port verification.
 
-Before claiming package readiness, use a clean source commit, `cargo package --locked`, `cargo publish --locked --dry-run`, inspect the archive and retain exact VCS/archive identities and consumer locks. A dry run is not publication. No 0.6.1 tag/GitHub/crates.io release is asserted by these instructions.
+The observed clean-package controls use a clean source commit, `cargo package --locked`, `cargo publish --locked --dry-run`, inspect the archive and retain exact VCS/archive identities and consumer locks. A dry run is not publication. No 0.6.1 tag/GitHub/crates.io release is asserted by these instructions.
 
 ## Interpreter controls
 
@@ -100,3 +105,9 @@ The actual LLM attempts retain one invalid generated quotation and a confident h
 Original `knowledge/`, `airust.db`, user workspaces, frozen reference-v1, prior raw evidence and supplied models/runtime are retained. Model manifests/assets and source texts must match before/after the study. Stop only the recorded owned service at 127.0.0.1:11437 after all model work. Preserve binaries/locks/methods/raw failures before cleaning `/tmp/airust-profile-practical-0.6.0` or separate validation targets. Never clean evidence as build output.
 
 Update [SESSION-HANDOFF.md](../SESSION-HANDOFF.md), [WORK-PROGRAM-NEXT.json](../WORK-PROGRAM-NEXT.json) and this guide with observed final results. Future publication requires its own authorization; keep published 0.6.0 immutable.
+
+The hosted macOS job actually used Rust 1.100.0 / LLVM 23.1.5 on aarch64-apple-darwin, as retained in its run log. Local native/benchmark Rust 1.98.0, minimum 1.89/1.92 and dated Miri toolchain identities remain distinct.
+
+## Post-commit closeout and evidence reuse
+
+The tested archive identifies engineering commit b875707dea03; final status/receipt documentation follows it. Documentation-only closure may reuse the actual native/Miri/fuzz/benchmark/consumer results only after all frozen Rust/manifests/data/method/runtime inputs and packaged code bytes match. Its own clean archive/VCS/numeric bytes and actual hosted CI are checked separately. Do not claim that two different documentation archives have the same checksum. Read local-lab/overnight-0.6.1-2026-11-24/final-closeout.json for the exact final HEAD/package/CI and cleanup receipt.
