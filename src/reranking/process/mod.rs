@@ -171,7 +171,7 @@ impl Reranker for ProcessReranker {
             return Ok(Vec::new());
         }
         let id = self.next_id;
-        self.next_id = id
+        let next_id = id
             .checked_add(1)
             .ok_or(RerankError::Configuration("worker request ID exhausted"))?;
         // Validate bytes before cloning/serialization; JSON escaping has a
@@ -186,6 +186,7 @@ impl Reranker for ProcessReranker {
         if frame.len() >= protocol::REQUEST_BYTES {
             return Err(RerankError::Budget("worker frame"));
         }
+        self.next_id = next_id;
         let frame = self.transport.request(frame, self.timeout)?;
         let reply = serde_json::from_slice::<Reply>(&frame)
             .map_err(|_| RerankError::Output("invalid worker score reply"));

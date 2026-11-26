@@ -1,0 +1,147 @@
+{
+  "format_version": 1,
+  "host_triple": "aarch64-apple-darwin",
+  "budgets": {
+    "quick_target_seconds": 300,
+    "nightly_minutes": 90,
+    "full_deep_minutes": 120,
+    "starvation_factor": 2
+  },
+  "input_groups": {
+    "toolchain": ["Cargo.toml", "Cargo.lock", "build.rs", ".cargo/**", "rust-toolchain", "rust-toolchain.toml", "rustfmt.toml", ".rustfmt.toml", "clippy.toml", ".clippy.toml"],
+    "crate": ["src/**", "tests/**", "!tests/*.py", "examples/**", "knowledge/train.json", "data/**", "README.md", "STARTUP.md"],
+    "scripts": ["scripts/**", "test.sh"],
+    "contracts": ["docs/support-matrix.json", "docs/*.md", "README.md", "STARTUP.md"],
+    "controller": ["scripts/testctl.py", "tests/testctl_test.py", "docs/testplan.json", "docs/TESTPLAN.md"],
+    "backend": ["crates/airust-pdf-backend/**"],
+    "fuzz": ["fuzz/**"]
+  },
+  "areas": [
+    {
+      "id": "fmt",
+      "purpose": "Formatting of the main crate (never --all; the backend has its own gate).",
+      "kind": "check",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "fmt", "--package", "airust", "--", "--check"]], "timeout_seconds": 300, "estimate_seconds": 10}}
+    },
+    {
+      "id": "clippy-default",
+      "purpose": "Strict lints for the empty default feature set and all targets.",
+      "kind": "check",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--", "-D", "warnings"]], "timeout_seconds": 1800, "estimate_seconds": 60}}
+    },
+    {
+      "id": "clippy-all",
+      "purpose": "Strict lints with every feature enabled.",
+      "kind": "check",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "clippy", "--workspace", "--all-targets", "--all-features", "--locked", "--", "-D", "warnings"]], "timeout_seconds": 1800, "estimate_seconds": 90}}
+    },
+    {
+      "id": "test-default",
+      "purpose": "Unit, integration, regression, fuzz-seed replay and doctests with default features.",
+      "kind": "test",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "test", "--workspace", "--locked"]], "timeout_seconds": 1800, "estimate_seconds": 60}}
+    },
+    {
+      "id": "test-all",
+      "purpose": "Unit, integration, regression, property-style, fuzz-seed replay and doctests with every feature.",
+      "kind": "test",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "test", "--workspace", "--all-features", "--locked"]], "timeout_seconds": 2700, "estimate_seconds": 150}}
+    },
+    {
+      "id": "contracts",
+      "purpose": "Architecture and dependency rules: feature/support matrix, entry-point links, MCP dependency boundary.",
+      "kind": "check",
+      "profiles": ["quick", "full"],
+      "inputs": ["@toolchain", "@contracts", "@scripts"],
+      "configs": {"default": {"commands": [["{python}", "-B", "scripts/check_support.py"], ["{python}", "-B", "scripts/check_mcp_dependencies.py"]], "timeout_seconds": 600, "estimate_seconds": 15}}
+    },
+    {
+      "id": "controller",
+      "purpose": "Selection, status persistence and failure handling of this test controller.",
+      "kind": "check",
+      "toolchain": null,
+      "profiles": ["quick", "full"],
+      "inputs": ["@controller"],
+      "configs": {"default": {"commands": [["{python}", "-B", "tests/testctl_test.py"], ["{python}", "-B", "scripts/testctl.py", "plan", "--check"]], "timeout_seconds": 600, "estimate_seconds": 15}}
+    },
+    {
+      "id": "pdf-backend",
+      "purpose": "Maintained PDF backend 0.3.5 regressions (separate crate and lock).",
+      "kind": "test",
+      "profiles": ["quick", "full"],
+      "inputs": ["@backend"],
+      "configs": {"default": {"commands": [["cargo", "test", "--manifest-path", "crates/airust-pdf-backend/Cargo.toml", "--test", "regressions", "--locked"]], "timeout_seconds": 1800, "estimate_seconds": 120}}
+    },
+    {
+      "id": "concurrency",
+      "purpose": "Own synchronisation: snapshots, shared index, persistence, execution, MCP transport and worker process lifecycle. Deep config repeats to vary interleavings.",
+      "kind": "concurrency",
+      "profiles": ["nightly", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "triggers": ["src/persistence.rs", "src/snapshots.rs", "src/storage.rs", "src/storage/**", "src/execution.rs", "src/mcp.rs", "src/mcp/**", "src/reranking/process/**", "src/local_runtime.rs", "src/index.rs", "src/index/**", "src/cache.rs", "src/web/state.rs", "tests/stability_state.rs", "tests/shared_index.rs", "tests/snapshots.rs", "tests/persistence.rs", "tests/execution.rs", "tests/progress.rs", "tests/stress.rs"],
+      "configs": {
+        "short": {"deterministic": true, "commands": [["cargo", "test", "--all-features", "--locked", "--test", "stability_state", "--test", "shared_index", "--test", "snapshots", "--test", "persistence", "--test", "execution", "--test", "progress", "--test", "stress"], ["cargo", "test", "--all-features", "--locked", "--lib", "--", "persistence::", "mcp::", "reranking::process::", "snapshots::", "local_runtime::"]], "timeout_seconds": 1800, "estimate_seconds": 120},
+        "deep": {"deterministic": false, "repeat": 25, "max_age_days": 7, "commands": [["cargo", "test", "--release", "--all-features", "--locked", "--test", "stability_state", "--test", "shared_index", "--test", "snapshots", "--test", "persistence", "--test", "execution", "--test", "progress", "--test", "stress"], ["cargo", "test", "--release", "--all-features", "--locked", "--lib", "--", "persistence::", "mcp::", "reranking::process::", "snapshots::", "local_runtime::"]], "timeout_seconds": 3600, "estimate_seconds": 1200}
+      }
+    },
+    {
+      "id": "stress",
+      "purpose": "Load and duration: existing stress examples at ten times the CI scale.",
+      "kind": "stress",
+      "profiles": ["nightly", "full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"deep": {"deterministic": false, "max_age_days": 14, "commands": [["cargo", "run", "--release", "--locked", "--example", "stress_index", "--", "scale", "10000"], ["cargo", "run", "--release", "--locked", "--example", "stress_index", "--", "clone", "10000"], ["cargo", "run", "--release", "--locked", "--features", "snapshots,execution", "--example", "stress_snapshots", "--", "10000"]], "timeout_seconds": 3600, "estimate_seconds": 900}}
+    },
+    {"id": "miri-input", "purpose": "Miri: bounded input reader.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/input.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "input"]], "timeout_seconds": 2400, "estimate_seconds": 300}}},
+    {"id": "miri-model-assets", "purpose": "Miri: model asset size/checksum verification.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/model_assets.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "model-assets"]], "timeout_seconds": 2400, "estimate_seconds": 300}}},
+    {"id": "miri-model-worker", "purpose": "Miri: worker protocol, input and timeout validation (no OS processes, no FFI).", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/reranking/process/**", "src/reranking.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "model-worker"]], "timeout_seconds": 2400, "estimate_seconds": 600}}},
+    {"id": "miri-training-knowledge", "purpose": "Miri: knowledge base loading and copy-on-write training data.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/knowledge.rs", "src/agent.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "training-knowledge"]], "timeout_seconds": 2400, "estimate_seconds": 300}}},
+    {"id": "miri-training-properties", "purpose": "Miri: knowledge snapshot property workload (reduced under cfg(miri)).", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/knowledge.rs", "tests/knowledge_snapshots.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "training-properties"]], "timeout_seconds": 2400, "estimate_seconds": 600}}},
+    {"id": "miri-index", "purpose": "Miri: lexical index, cursors and query weights.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/index.rs", "src/index/**", "src/text.rs", "src/text_search.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "index"]], "timeout_seconds": 2400, "estimate_seconds": 1200}}},
+    {"id": "miri-core", "purpose": "Miri: core engine integration tests.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/index.rs", "src/index/**", "src/text.rs", "src/search.rs", "src/matching.rs", "src/ranking.rs", "tests/core.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "core"]], "timeout_seconds": 2400, "estimate_seconds": 900}}},
+    {"id": "miri-stability-state", "purpose": "Miri: shared-index state stability (reduced under cfg(miri)).", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/index.rs", "src/index/**", "src/execution.rs", "tests/stability_state.rs"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "stability-state"]], "timeout_seconds": 2400, "estimate_seconds": 900}}},
+    {"id": "miri-mcp-response", "purpose": "Miri: MCP response shaping and byte budgets.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/mcp.rs", "src/mcp/**"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "mcp-response"]], "timeout_seconds": 2400, "estimate_seconds": 600}}},
+    {"id": "miri-mcp-backend", "purpose": "Miri: MCP search backend hook.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["src/mcp.rs", "src/mcp/**"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "mcp-backend"]], "timeout_seconds": 2400, "estimate_seconds": 600}}},
+    {"id": "miri-pilot", "purpose": "Miri: reference workspace and pilot small-fixture tests.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["examples/reference_workspace.rs", "examples/reference_workspace/**"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "pilot"]], "timeout_seconds": 2400, "estimate_seconds": 900}}},
+    {"id": "miri-profile-config", "purpose": "Miri: reference profile configuration tests.", "kind": "miri", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "scripts/run_miri.py"], "triggers": ["examples/reference_workspace.rs", "examples/reference_workspace/**"], "configs": {"deep": {"deterministic": true, "max_age_days": 7, "commands": [["{python}", "-B", "scripts/run_miri.py", "{log_dir}/receipt", "--groups", "profile-config"]], "timeout_seconds": 2400, "estimate_seconds": 600}}},
+    {"id": "fuzz-lexical", "purpose": "Fuzz: lexical index, retrieval, documents and damaged caches.", "kind": "fuzz", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "@fuzz"], "triggers": ["src/index.rs", "src/index/**", "src/text.rs", "src/text_search.rs", "src/search.rs", "src/retrieval.rs", "src/retrieval/**", "src/documents.rs", "src/cache.rs", "src/execution.rs", "tests/support/fuzz_lexical.rs", "fuzz/**"], "fuzz": {"target": "lexical", "features": ["lexical"], "seeds": "tests/fixtures/fuzz-seeds/v0.5.2/lexical", "max_len": 65536}, "configs": {"short": {"deterministic": false, "fuzz_seconds": 60, "timeout_seconds": 1800, "estimate_seconds": 240}, "deep": {"deterministic": false, "fuzz_seconds": 1200, "max_age_days": 7, "timeout_seconds": 3600, "estimate_seconds": 1440}}},
+    {"id": "fuzz-knowledge", "purpose": "Fuzz: bounded training/knowledge JSON input.", "kind": "fuzz", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "@fuzz"], "triggers": ["src/knowledge.rs", "src/agent.rs", "src/input.rs", "tests/support/fuzz_knowledge.rs", "fuzz/**"], "fuzz": {"target": "knowledge", "features": ["lexical"], "seeds": null, "max_len": 65536}, "configs": {"short": {"deterministic": false, "fuzz_seconds": 60, "timeout_seconds": 1800, "estimate_seconds": 240}, "deep": {"deterministic": false, "fuzz_seconds": 1200, "max_age_days": 7, "timeout_seconds": 3600, "estimate_seconds": 1440}}},
+    {"id": "fuzz-model-worker", "purpose": "Fuzz: production worker framing, strict serde and diagnostic truncation.", "kind": "fuzz", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "src/reranking/process/protocol.rs", "@fuzz"], "triggers": ["src/reranking/process/protocol.rs", "fuzz/**"], "fuzz": {"target": "model_worker", "features": ["lexical"], "seeds": null, "max_len": 65536}, "configs": {"short": {"deterministic": false, "fuzz_seconds": 60, "timeout_seconds": 1800, "estimate_seconds": 180}, "deep": {"deterministic": false, "fuzz_seconds": 900, "max_age_days": 7, "timeout_seconds": 3600, "estimate_seconds": 1080}}},
+    {"id": "fuzz-pdf", "purpose": "Fuzz: bounded PDF import and page tree.", "kind": "fuzz", "toolchain": "nightly", "profiles": ["nightly", "full"], "inputs": ["@toolchain", "@crate", "@fuzz"], "triggers": ["src/pdf_loader.rs", "src/pdf_page_tree.rs", "tests/support/fuzz_pdf.rs", "tests/support/pdf_fixture.rs", "fuzz/**"], "fuzz": {"target": "pdf", "features": ["pdf"], "seeds": "tests/fixtures/fuzz-seeds/v0.5.2/pdf", "max_len": 1048576}, "configs": {"short": {"deterministic": false, "fuzz_seconds": 60, "timeout_seconds": 2400, "estimate_seconds": 300}, "deep": {"deterministic": false, "fuzz_seconds": 1500, "max_age_days": 7, "timeout_seconds": 4200, "estimate_seconds": 1800}}},
+    {
+      "id": "suite",
+      "purpose": "Complete existing CI suite (test.sh): examples, Python workflows, isolated feature checks, rustdoc and package boundary.",
+      "kind": "suite",
+      "profiles": ["full"],
+      "inputs": ["@toolchain", "@crate", "@scripts", "@contracts", "tests/*.py"],
+      "configs": {"default": {"commands": [["bash", "test.sh"]], "timeout_seconds": 10800, "estimate_seconds": 3600}}
+    },
+    {
+      "id": "msrv",
+      "purpose": "Minimum supported Rust 1.89 with the CI feature list; Rust 1.92 for native local models.",
+      "kind": "check",
+      "toolchain": "1.89.0",
+      "profiles": ["full"],
+      "inputs": ["@toolchain", "@crate"],
+      "configs": {"default": {"commands": [["cargo", "+1.89.0", "check", "--all-targets", "--features", "web,bots,async,colors,plotting,embeddings,hybrid,graph,context-assembly,provenance,cache,hnsw,versioning,quality,reranking,advanced-search,storage,sqlite-storage,retrieval,snapshots,execution,shared-index,adaptive,feedback,learned-ranking,reasoning,quality-gates,evidence-freshness,rank-explanations,training-pipeline,disk-index,documents,mcp,pilot", "--locked"], ["cargo", "+1.92.0", "check", "--all-features", "--all-targets", "--locked"]], "timeout_seconds": 3600, "estimate_seconds": 600}}
+    },
+    {
+      "id": "pdf-backend-full",
+      "purpose": "PDF backend C ABI, provenance and its own minimum Rust.",
+      "kind": "check",
+      "profiles": ["full"],
+      "inputs": ["@backend", "scripts/check_pdf_backend.py"],
+      "configs": {"default": {"commands": [["cargo", "check", "--manifest-path", "crates/airust-pdf-backend/Cargo.toml", "--features", "c-api", "--lib", "--locked"], ["{python}", "-B", "scripts/check_pdf_backend.py"], ["cargo", "+1.89.0", "check", "--manifest-path", "crates/airust-pdf-backend/Cargo.toml", "--lib", "--locked"]], "timeout_seconds": 3600, "estimate_seconds": 300}}
+    }
+  ]
+}

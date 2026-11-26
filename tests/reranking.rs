@@ -48,6 +48,7 @@ impl Reranker for Scorer {
                 7 => return Ok(vec![f64::INFINITY; documents.len()]),
                 8 => return Ok(vec![f64::NEG_INFINITY; documents.len()]),
                 9 => return Ok(vec![1.0; documents.len() + 1]),
+                10 => return Err(RerankError::NonFiniteScore(2)),
                 _ => {}
             }
         }
@@ -353,6 +354,25 @@ fn non_finite_wrong_count_and_protocol_failures_never_trigger_a_fallback() {
         };
         assert!(rerank("q", &entries(), &mut provider, &fallback()).is_err());
     }
+}
+
+#[test]
+fn provider_non_finite_batch_position_is_reported_as_the_original_input_rank() {
+    let mut provider = Scorer {
+        failure: 10,
+        fail_on: 2,
+        ..Scorer::default()
+    };
+    assert_eq!(
+        rerank(
+            "q",
+            &entries(),
+            &mut provider,
+            &RerankOptions::new(4).with_batch_size(2).unwrap()
+        )
+        .err(),
+        Some(RerankError::NonFiniteScore(4))
+    );
 }
 
 #[test]

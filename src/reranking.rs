@@ -373,6 +373,14 @@ pub fn rerank<'a, T: Rerankable>(
                 outcome.results = selected;
                 return Ok(outcome);
             }
+            Err(RerankError::NonFiniteScore(position)) => {
+                return Err(RerankError::NonFiniteScore(
+                    position
+                        .checked_sub(1)
+                        .and_then(|index| batch.get(index))
+                        .map_or(position, |hit| hit.original_rank),
+                ))
+            }
             Err(error) => return Err(error),
         };
         if batch_scores.len() != batch.len() {

@@ -486,7 +486,7 @@ pub async fn upload_pdf(
             .map_err(|error| format!("Temporary upload: {error}"))?;
         std::io::Write::write_all(&mut temporary, &data)
             .map_err(|error| format!("Temporary upload: {error}"))?;
-        let loader = PdfLoader::new();
+        let loader = PdfLoader::new().with_limits(crate::PdfImportLimits::default());
         let kb = loader
             .pdf_to_knowledge_base(temporary.path())
             .map_err(|error| format!("PDF processing: {error}"))?;
@@ -1119,17 +1119,7 @@ pub async fn write_file(
         std::fs::create_dir_all(parent)
             .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
     }
-    let mut options = std::fs::OpenOptions::new();
-    options.write(true).create(true).truncate(true);
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        options.mode(0o600);
-    }
-    let mut file = options
-        .open(&path)
-        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
-    std::io::Write::write_all(&mut file, req.content.as_bytes())
+    crate::persistence::atomic_write(&path, req.content.as_bytes())
         .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error.to_string()))?;
     Ok(Json(serde_json::json!({"success": true, "path": req.path})))
 }
@@ -1595,7 +1585,7 @@ pub async fn import_tatoeba(
     let text = String::from_utf8(data.to_vec())
         .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid UTF-8: {}", e)))?;
 
-    let mut pairs: Vec<(String, String)> = Vec::new();
+    let mut pairs: TrainingBatch = Vec::new();
     let mut skipped = 0;
 
     for line in text.lines() {
@@ -1608,7 +1598,15 @@ pub async fn import_tatoeba(
             let src = parts[0].trim();
             let tgt = parts[1].trim();
             if !src.is_empty() && !tgt.is_empty() && src.len() >= 2 && tgt.len() >= 2 {
-                pairs.push((src.to_string(), tgt.to_string()));
+                pairs.push((
+                    None,
+                    crate::TrainingExample {
+                        input: src.to_string(),
+                        output: ResponseFormat::Text(tgt.to_string()),
+                        weight: 1.0,
+                        metadata: None,
+                    },
+                ));
             } else {
                 skipped += 1;
             }
@@ -1620,10 +1618,10 @@ pub async fn import_tatoeba(
     let imported = pairs.len();
 
     let mut s = state.write().await;
-    for (input, output) in &pairs {
-        s.knowledge_base
-            .add_example(input.clone(), ResponseFormat::Text(output.clone()), 1.0);
-        let _ = s.db.add_training_data(None, input, output, "text", 1.0);
+    s.db.add_training_batch(&pairs)
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
+    for (_, example) in pairs {
+        s.knowledge_base.push_example(example);
     }
 
     let examples = s.knowledge_base.get_examples().to_vec();

@@ -1,15 +1,13 @@
 use ort::environment::Environment;
 use std::{
     path::{Path, PathBuf},
-    sync::Mutex,
+    sync::{Mutex, PoisonError},
 };
 
 pub(crate) fn environment(path: &Path) -> Result<Environment, String> {
     static SHARED: Mutex<Option<(PathBuf, Environment)>> = Mutex::new(None);
     let path = path.canonicalize().map_err(|error| error.to_string())?;
-    let mut shared = SHARED
-        .lock()
-        .map_err(|_| "local model environment lock is poisoned".to_string())?;
+    let mut shared = SHARED.lock().unwrap_or_else(PoisonError::into_inner);
     if let Some((loaded, environment)) = shared.as_ref() {
         if loaded != &path {
             return Err(

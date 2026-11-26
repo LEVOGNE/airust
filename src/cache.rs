@@ -593,6 +593,15 @@ impl IndexCache {
             return Err(CacheError::Limit("file bytes"));
         }
         let mut file = File::open(&self.path)?;
+        let disk = file.metadata()?;
+        if !disk.is_file() {
+            return Err(CacheError::InvalidData(
+                "cache must be a regular file, not a symlink",
+            ));
+        }
+        if disk.len() > self.limits.max_file_bytes as u64 {
+            return Err(CacheError::Limit("file bytes"));
+        }
         let mut prefix = [0; HEADER_BYTES];
         file.read_exact(&mut prefix)?;
         if &prefix[..8] != MAGIC {

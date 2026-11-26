@@ -9,6 +9,8 @@ The user's standing priorities are memory safety and performance, together with 
 - Preserve frozen datasets, source/model identities and historical evidence. Never present generated examples, replayed user questions or self-authored judgments as independent customer traffic or human review.
 - Do not mark a quality or adoption gate complete without its actual inputs and observed result. No unmeasured speed, safety, accuracy, token-saving or production-capacity claims.
 
+Select and record test runs with the resource-aware test control in [docs/TESTPLAN.md](docs/TESTPLAN.md) (`uv run --no-project scripts/testctl.py quick|nightly|full|status`); report reused, skipped and incomplete checks separately from executed ones.
+
 Follow CONTRIBUTING.md for release, backend provenance and compatibility requirements. Original knowledge, user databases and retained evidence are not build artifacts.
 
 ## Resume roadmap work

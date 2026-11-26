@@ -109,11 +109,7 @@ pub fn similarity_search(
         })
         .collect();
 
-    scored.sort_by(|a, b| {
-        b.score
-            .partial_cmp(&a.score)
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
+    scored.sort_by(|a, b| b.score.total_cmp(&a.score));
     scored.truncate(top_k);
 
     scored.into_iter().filter(|r| r.score > 0.0).collect()

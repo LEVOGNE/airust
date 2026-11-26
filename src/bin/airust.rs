@@ -210,7 +210,10 @@ fn stop_server() -> CliResult {
     if !status.success() {
         return Err("Failed to stop AIRust".into());
     }
-    fs::remove_file(record_path()?)?;
+    match fs::remove_file(record_path()?) {
+        Err(error) if error.kind() != std::io::ErrorKind::NotFound => return Err(error.into()),
+        _ => {}
+    }
     println!("AIRust stopped (PID: {})", record.pid);
     Ok(())
 }
@@ -278,13 +281,31 @@ fn start_detached(port: u16, landing: bool) -> CliResult {
         .stderr(log)
         .stdin(process::Stdio::null())
         .spawn()?;
+    let pid = child.id();
     for _ in 0..100 {
-        if child.try_wait()?.is_some() {
-            return Err(format!("Server failed to start; see {}", path.display()).into());
-        }
-        if read_record()?
-            .is_some_and(|record| record.pid == child.id() && record_is_running(&record))
-        {
+        let observed = child
+            .try_wait()
+            .map_err(Box::<dyn std::error::Error>::from)
+            .and_then(|exited| {
+                if exited.is_some() {
+                    return Ok(None);
+                }
+                Ok(Some(read_record()?.is_some_and(|record| {
+                    record.pid == pid && record_is_running(&record)
+                })))
+            });
+        let ready = match observed {
+            Ok(Some(ready)) => ready,
+            Ok(None) => {
+                return Err(format!("Server failed to start; see {}", path.display()).into())
+            }
+            Err(error) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return Err(error);
+            }
+        };
+        if ready {
             println!(
                 "AIRust process started (PID: {}). Logs: {}",
                 child.id(),

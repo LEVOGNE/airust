@@ -3,6 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 python3 -B scripts/check_support.py
+python3 -B tests/testctl_test.py
+python3 -B scripts/testctl.py plan --check
 cargo fmt --package airust -- --check
 python3 -B tests/reference_dataset_test.py
 cargo test --locked --features mcp --example reference_workspace

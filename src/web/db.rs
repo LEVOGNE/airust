@@ -490,19 +490,27 @@ impl Database {
         content: &str,
         confidence: Option<f64>,
     ) -> Result<i64, String> {
-        let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
-        conn.execute(
-            "INSERT INTO messages (chat_id, role, content, confidence) VALUES (?1, ?2, ?3, ?4)",
-            params![chat_id, role, content, confidence],
-        )
-        .map_err(|e| format!("Add message error: {}", e))?;
-
-        conn.execute(
-            "UPDATE chats SET updated_at = datetime('now') WHERE id = ?1",
-            params![chat_id],
-        )
-        .map_err(|e| format!("Update chat timestamp error: {}", e))?;
-        Ok(conn.last_insert_rowid())
+        let mut conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
+        let transaction = conn
+            .transaction()
+            .map_err(|e| format!("Add message transaction: {}", e))?;
+        transaction
+            .execute(
+                "INSERT INTO messages (chat_id, role, content, confidence) VALUES (?1, ?2, ?3, ?4)",
+                params![chat_id, role, content, confidence],
+            )
+            .map_err(|e| format!("Add message error: {}", e))?;
+        let id = transaction.last_insert_rowid();
+        transaction
+            .execute(
+                "UPDATE chats SET updated_at = datetime('now') WHERE id = ?1",
+                params![chat_id],
+            )
+            .map_err(|e| format!("Update chat timestamp error: {}", e))?;
+        transaction
+            .commit()
+            .map_err(|e| format!("Add message commit: {}", e))?;
+        Ok(id)
     }
 
     pub fn get_messages(&self, chat_id: i64) -> Result<Vec<MessageRow>, String> {
