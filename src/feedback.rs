@@ -213,7 +213,7 @@ impl FeedbackLedger {
         })
     }
     pub fn profile_fingerprint(&self, namespace: &str) -> Result<String, FeedbackError> {
-        if !valid_label(namespace, 128) {
+        if !crate::text::Identifier::label(namespace, 128) {
             return Err(FeedbackError::InvalidData("namespace"));
         }
         let events = self
@@ -441,7 +441,7 @@ impl Reranker for FeedbackReranker<'_> {
     }
 }
 fn key(namespace: String, query: &str, document: &str) -> Result<FeedbackKey, FeedbackError> {
-    if !valid_label(&namespace, 128) {
+    if !crate::text::Identifier::label(&namespace, 128) {
         return Err(FeedbackError::InvalidData("namespace"));
     }
     if query.trim().is_empty() || document.trim().is_empty() {
@@ -461,23 +461,14 @@ fn key(namespace: String, query: &str, document: &str) -> Result<FeedbackKey, Fe
     })
 }
 fn validate_event(event: &FeedbackEvent) -> Result<(), FeedbackError> {
-    if !valid_label(&event.id, 128)
-        || !valid_label(&event.key.namespace, 128)
-        || !hash_valid(&event.key.query)
-        || !hash_valid(&event.key.document)
+    if !crate::text::Identifier::label(&event.id, 128)
+        || !crate::text::Identifier::label(&event.key.namespace, 128)
+        || !crate::text::Identifier::sha256(&event.key.query)
+        || !crate::text::Identifier::sha256(&event.key.document)
     {
         return Err(FeedbackError::InvalidData("event identity/fingerprints"));
     }
     Ok(())
-}
-fn valid_label(value: &str, max: usize) -> bool {
-    !value.trim().is_empty() && value.len() <= max && !value.chars().any(char::is_control)
-}
-fn hash_valid(hash: &str) -> bool {
-    hash.len() == 64
-        && hash
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 fn digest_parts(parts: &[&[u8]]) -> String {
     let mut hash = Sha256::new();

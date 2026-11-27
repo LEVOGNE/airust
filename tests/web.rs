@@ -123,3 +123,36 @@ async fn scheduler_registers_tasks_before_they_can_finish() {
     }
     panic!("completed processor remained registered as running");
 }
+
+#[test]
+fn lookup_indexes_exist_only_for_newly_created_databases() {
+    let temp = tempfile::tempdir().unwrap();
+    let index_names = |path: &std::path::Path| -> Vec<String> {
+        let connection = rusqlite::Connection::open(path).unwrap();
+        let mut statement = connection
+            .prepare("SELECT name FROM sqlite_master WHERE type = 'index' AND name IN ('idx_messages_chat', 'idx_training_data_category', 'idx_vector_entries_collection') ORDER BY name")
+            .unwrap();
+        statement
+            .query_map([], |row| row.get(0))
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap()
+    };
+    let fresh = temp.path().join("fresh.db");
+    drop(Database::open(fresh.to_str().unwrap()).unwrap());
+    assert_eq!(
+        index_names(&fresh),
+        [
+            "idx_messages_chat",
+            "idx_training_data_category",
+            "idx_vector_entries_collection"
+        ]
+    );
+    let existing = temp.path().join("existing.db");
+    rusqlite::Connection::open(&existing)
+        .unwrap()
+        .execute_batch("CREATE TABLE legacy_marker (id INTEGER)")
+        .unwrap();
+    drop(Database::open(existing.to_str().unwrap()).unwrap());
+    assert!(index_names(&existing).is_empty());
+}

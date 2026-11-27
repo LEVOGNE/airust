@@ -1,0 +1,8 @@
+#!/bin/bash
+L=$(cd "$(dirname "$0")" && pwd)
+echo "utc,load1,foreign_pid,foreign_cpu,foreign_command" > "$L/monitor.csv"
+while [ ! -f "$L/stop-monitor" ]; do
+  t=$(date -u +%H:%M:%S); load=$(sysctl -n vm.loadavg | awk '{print $2}')
+  ps -Ao pid=,pcpu=,comm= | awk -v t="$t" -v l="$load" '$2>=25 && $3 !~ /native_model_lifecycle|airust-model-worker|python3|Python|WindowServer|kernel_task/ {c=$3; for(i=4;i<=NF;i++)c=c" "$i; gsub(",",";",c); print t","l","$1","$2","c; f=1} END {if(!f) print t","l",,,"}' >> "$L/monitor.csv"
+  sleep 5
+done

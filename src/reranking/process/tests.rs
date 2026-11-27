@@ -19,6 +19,9 @@ init=json.loads(sys.stdin.readline())
 if mode=='startup_timeout':time.sleep(20)
 if init.get('snapshot_directory'):
     open(os.path.join(init['snapshot_directory'],'owned-copy'),'wb').write(b'fixture')
+if mode=='observe':
+    observed={{'environment':sorted(os.environ),'runtime':init['runtime_library'],'runtime_bytes':open(init['runtime_library'],'rb').read().decode()}}
+    open(os.path.join(init['model_directory'],'observed'),'w').write(json.dumps(observed))
 def send(value):
     print(json.dumps(value),flush=True)
 send({{'kind':'Ready','version':{version:?} if mode!='version' else 'wrong','pid':os.getpid(),'recipe':'fixture:v1'}})
@@ -259,5 +262,69 @@ fn explicit_recreation_after_crashes_reuses_the_parent_without_retaining_workers
         assert_eq!(fs::read_dir(&copies).unwrap().count(), 0);
         assert_eq!(fs::read(&original).unwrap(), b"retain across failures");
         assert!(runtime.is_file());
+    }
+}
+
+#[test]
+fn worker_environment_is_reduced_and_verified_runtime_copies_are_loaded() {
+    let (root, worker, runtime) = fixture("observe");
+    let copies = root.path().join("copies");
+    fs::create_dir(&copies).unwrap();
+    let bytes = fs::metadata(&runtime).unwrap().len();
+    let digest = {
+        use sha2::{Digest, Sha256};
+        format!("{:x}", Sha256::digest(fs::read(&runtime).unwrap()))
+    };
+    let options = ProcessOptions::new(&worker)
+        .with_runtime_identity(bytes, &digest)
+        .unwrap();
+    let model = ProcessReranker::multilingual_minilm_v2_from_snapshot(
+        options,
+        root.path(),
+        &runtime,
+        2,
+        &copies,
+    )
+    .unwrap();
+    let pid = model.worker_id();
+    let observed: serde_json::Value =
+        serde_json::from_slice(&fs::read(root.path().join("observed")).unwrap()).unwrap();
+    for name in observed["environment"].as_array().unwrap() {
+        let name = name.as_str().unwrap();
+        assert!(
+            transport::WORKER_ENVIRONMENT.contains(&name) || name.starts_with("__"),
+            "worker inherited {name}"
+        );
+    }
+    let loaded = PathBuf::from(observed["runtime"].as_str().unwrap());
+    assert!(loaded.starts_with(copies.canonicalize().unwrap()));
+    assert_ne!(loaded, runtime.canonicalize().unwrap());
+    assert_eq!(observed["runtime_bytes"], "mock runtime, never loaded");
+    drop(model);
+    assert!(gone(pid));
+    assert_eq!(fs::read_dir(&copies).unwrap().count(), 0);
+    assert!(runtime.is_file());
+
+    let wrong = ProcessOptions::new(&worker)
+        .with_runtime_identity(bytes, &"0".repeat(64))
+        .unwrap();
+    let rejected = ProcessReranker::multilingual_minilm_v2_from_snapshot(
+        wrong,
+        root.path(),
+        &runtime,
+        2,
+        &copies,
+    );
+    assert!(matches!(rejected, Err(RerankError::Provider(_))));
+    assert_eq!(fs::read_dir(&copies).unwrap().count(), 0);
+    for (size, hash) in [
+        (0, digest.as_str()),
+        (bytes, "ABC"),
+        ((1 << 30) + 1, digest.as_str()),
+    ] {
+        assert!(matches!(
+            ProcessOptions::new(&worker).with_runtime_identity(size, hash),
+            Err(RerankError::Configuration(_))
+        ));
     }
 }

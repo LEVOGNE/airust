@@ -37,12 +37,13 @@ pub(crate) fn snapshot(
     path: &Path,
     expected: &Asset,
     directory: &Path,
+    suffix: &str,
     mut consume: impl FnMut(&[u8]),
 ) -> io::Result<tempfile::NamedTempFile> {
     let mut input = open(path, expected)?;
     let mut snapshot = tempfile::Builder::new()
         .prefix("airust-rerank-")
-        .suffix(".onnx")
+        .suffix(suffix)
         .tempfile_in(directory)?;
     let mut checksum = Sha256::new();
     input
@@ -97,7 +98,7 @@ mod tests {
             sha256: format!("{:x}", Sha256::digest(&bytes)),
         };
         let mut hash = Sha256::new();
-        let file = snapshot(&path, &expected, dir.path(), |chunk| {
+        let file = snapshot(&path, &expected, dir.path(), ".onnx", |chunk| {
             hash.update(chunk);
         })
         .unwrap();
@@ -108,7 +109,7 @@ mod tests {
         assert_eq!(std::fs::read(&copy).unwrap(), bytes);
         drop(file);
         assert!(!copy.exists());
-        assert!(snapshot(&path, &expected, dir.path(), |_| {}).is_err());
+        assert!(snapshot(&path, &expected, dir.path(), ".onnx", |_| {}).is_err());
         assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
         assert_eq!(std::fs::read(&path).unwrap(), vec![0; bytes.len()]);
     }

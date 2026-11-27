@@ -24,6 +24,7 @@ pub struct ProcessOptions {
     executable: PathBuf,
     startup_timeout: Duration,
     request_timeout: Duration,
+    runtime: Option<(u64, String)>,
 }
 
 impl ProcessOptions {
@@ -32,7 +33,21 @@ impl ProcessOptions {
             executable: executable.into(),
             startup_timeout: Duration::from_secs(60),
             request_timeout: Duration::from_secs(30),
+            runtime: None,
         }
+    }
+
+    /// Require the ONNX Runtime library to have exactly this size and lowercase
+    /// SHA-256. The verified bytes are copied into the private snapshot
+    /// directory and the worker loads that copy, never the caller's path.
+    pub fn with_runtime_identity(mut self, bytes: u64, sha256: &str) -> Result<Self, RerankError> {
+        if bytes == 0 || bytes > 1 << 30 || !crate::text::Identifier::sha256(sha256) {
+            return Err(RerankError::Configuration(
+                "runtime identity needs 1 byte to 1 GiB and a lowercase SHA-256",
+            ));
+        }
+        self.runtime = Some((bytes, sha256.to_owned()));
+        Ok(self)
     }
 
     pub fn with_timeouts(
@@ -59,6 +74,7 @@ impl ProcessOptions {
 /// Parent-owned snapshot directories survive until the worker has stopped.
 pub struct ProcessReranker {
     transport: transport::Transport,
+    _runtime: Option<tempfile::NamedTempFile>,
     _snapshot: tempfile::TempDir,
     recipe: String,
     next_id: u64,
@@ -110,6 +126,33 @@ impl ProcessReranker {
             .prefix("airust-model-")
             .tempdir_in(snapshot_parent)
             .map_err(provider)?;
+        let runtime_copy = match &options.runtime {
+            Some((bytes, sha256)) => {
+                let suffix = runtime_library
+                    .extension()
+                    .and_then(|extension| extension.to_str())
+                    .map(|extension| format!(".{extension}"))
+                    .unwrap_or_default();
+                let expected = crate::model_assets::Asset {
+                    bytes: *bytes,
+                    sha256: sha256.clone(),
+                };
+                Some(
+                    crate::model_assets::snapshot(
+                        &runtime_library,
+                        &expected,
+                        snapshot.path(),
+                        &suffix,
+                        |_| {},
+                    )
+                    .map_err(provider)?,
+                )
+            }
+            None => None,
+        };
+        let runtime_library = runtime_copy
+            .as_ref()
+            .map_or(runtime_library, |copy| copy.path().to_path_buf());
         let init = Init {
             version: crate::VERSION.into(),
             model_directory,
@@ -148,6 +191,7 @@ impl ProcessReranker {
         };
         Ok(Self {
             transport,
+            _runtime: runtime_copy,
             _snapshot: snapshot,
             recipe,
             next_id: 1,

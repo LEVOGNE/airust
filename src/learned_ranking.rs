@@ -55,10 +55,13 @@ impl FeatureSchema {
         &self.names
     }
     fn validate(&self) -> Result<(), LearningError> {
-        if !label(&self.recipe, 256)
+        if !crate::text::Identifier::label(&self.recipe, 256)
             || self.names.is_empty()
             || self.names.len() > 64
-            || self.names.iter().any(|s| !label(s, 64))
+            || self
+                .names
+                .iter()
+                .any(|s| !crate::text::Identifier::label(s, 64))
             || self.names.iter().collect::<BTreeSet<_>>().len() != self.names.len()
         {
             return Err(LearningError::Invalid("feature schema"));
@@ -147,7 +150,7 @@ impl TrainingExample {
     }
     pub fn with_group(mut self, group: impl Into<String>) -> Result<Self, LearningError> {
         self.group = group.into();
-        if !label(&self.group, 256) {
+        if !crate::text::Identifier::label(&self.group, 256) {
             return Err(LearningError::Invalid("example group"));
         }
         Ok(self)
@@ -305,7 +308,7 @@ impl TrainingReport {
             || self.examples > 100000
             || self.positive == 0
             || self.positive >= self.examples
-            || !hash_valid(&self.manifest)
+            || !crate::text::Identifier::sha256(&self.manifest)
             || ![self.initial_loss, self.final_loss]
                 .iter()
                 .all(|v| v.is_finite() && *v >= 0.)
@@ -622,14 +625,6 @@ fn mean_loss(rows: &[(Vec<f64>, f64)], w: &[f64]) -> f64 {
         .map(|(x, y)| logistic_loss(dot(x, w), *y))
         .sum::<f64>()
         / rows.len() as f64
-}
-fn label(s: &str, max: usize) -> bool {
-    !s.trim().is_empty() && s.len() <= max && !s.chars().any(char::is_control)
-}
-fn hash_valid(s: &str) -> bool {
-    s.len() == 64
-        && s.bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 fn hash(parts: &[&[u8]]) -> String {
     let mut h = Sha256::new();

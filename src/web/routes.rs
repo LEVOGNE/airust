@@ -9,6 +9,38 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+struct FieldLimit;
+
+impl FieldLimit {
+    const NAME: usize = 256;
+    const COLOR: usize = 64;
+    const TEXT: usize = 4096;
+    const METADATA: usize = 64 * 1024;
+    const CONTENT: usize = 1024 * 1024;
+    const SETTINGS: usize = 256;
+    const TATOEBA_ROWS: usize = 200_000;
+
+    fn check(field: &str, value: &str, max_bytes: usize) -> Result<(), (StatusCode, String)> {
+        if value.len() > max_bytes {
+            return Err((
+                StatusCode::PAYLOAD_TOO_LARGE,
+                format!("{field} exceeds {max_bytes} bytes"),
+            ));
+        }
+        Ok(())
+    }
+
+    fn count(field: &str, count: usize, max: usize) -> Result<(), (StatusCode, String)> {
+        if count > max {
+            return Err((
+                StatusCode::PAYLOAD_TOO_LARGE,
+                format!("{field} exceeds {max} entries"),
+            ));
+        }
+        Ok(())
+    }
+}
+
 pub async fn index(State(state): State<SharedState>) -> Html<String> {
     let s = state.read().await;
     let html = include_str!("static/index.html").replace("{{AIRUST_VERSION}}", crate::VERSION);
@@ -557,6 +589,11 @@ pub async fn update_settings(
     State(state): State<SharedState>,
     Json(req): Json<HashMap<String, String>>,
 ) -> Result<Json<HashMap<String, String>>, (StatusCode, String)> {
+    FieldLimit::count("settings", req.len(), FieldLimit::SETTINGS)?;
+    for (key, value) in &req {
+        FieldLimit::check("setting name", key, FieldLimit::NAME)?;
+        FieldLimit::check("setting value", value, FieldLimit::TEXT)?;
+    }
     let s = state.read().await;
     if req.get("language").is_some_and(|language| language != "en") {
         return Err((
@@ -625,6 +662,7 @@ pub async fn create_chat(
     State(state): State<SharedState>,
     Json(req): Json<CreateChatRequest>,
 ) -> Result<Json<CreateChatResponse>, (StatusCode, String)> {
+    FieldLimit::check("chat title", &req.title, FieldLimit::NAME)?;
     let s = state.read().await;
     let title = if req.title.is_empty() {
         "New Chat".to_string()
@@ -705,6 +743,9 @@ pub async fn create_category(
     State(state): State<SharedState>,
     Json(req): Json<CreateCategoryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    FieldLimit::check("category name", &req.name, FieldLimit::NAME)?;
+    FieldLimit::check("category color", &req.color, FieldLimit::COLOR)?;
+    FieldLimit::check("category description", &req.description, FieldLimit::TEXT)?;
     let s = state.read().await;
     let id =
         s.db.create_category(&req.name, &req.color, &req.description)
@@ -1246,6 +1287,8 @@ pub async fn create_vector_collection(
     State(state): State<SharedState>,
     Json(req): Json<CreateCollectionRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    FieldLimit::check("collection name", &req.name, FieldLimit::NAME)?;
+    FieldLimit::check("collection description", &req.description, FieldLimit::TEXT)?;
     let s = state.read().await;
     let id =
         s.db.create_vector_collection(&req.name, &req.description)
@@ -1295,6 +1338,8 @@ pub async fn add_vector_entry(
     State(state): State<SharedState>,
     Json(req): Json<AddVectorEntryRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    FieldLimit::check("vector content", &req.content, FieldLimit::CONTENT)?;
+    FieldLimit::check("vector metadata", &req.metadata_json, FieldLimit::METADATA)?;
     let s = state.read().await;
 
     let existing =
@@ -1593,6 +1638,11 @@ pub async fn import_tatoeba(
         if line.is_empty() || line.starts_with('#') {
             continue;
         }
+        FieldLimit::count(
+            "Tatoeba rows",
+            pairs.len() + skipped + 1,
+            FieldLimit::TATOEBA_ROWS,
+        )?;
         let parts: Vec<&str> = line.split('\t').collect();
         if parts.len() >= 2 {
             let src = parts[0].trim();
@@ -1673,6 +1723,24 @@ mod security_tests {
             vec![("theme".to_owned(), "light".to_owned())]
         );
     }
+    #[test]
+    fn field_limits_reject_oversized_values_and_counts_before_storage() {
+        assert!(FieldLimit::check("name", &"a".repeat(FieldLimit::NAME), FieldLimit::NAME).is_ok());
+        let error = FieldLimit::check("name", &"a".repeat(FieldLimit::NAME + 1), FieldLimit::NAME)
+            .unwrap_err();
+        assert_eq!(error.0, StatusCode::PAYLOAD_TOO_LARGE);
+        assert!(FieldLimit::check("name", &"ä".repeat(129), FieldLimit::NAME).is_err());
+        assert!(
+            FieldLimit::count("rows", FieldLimit::TATOEBA_ROWS, FieldLimit::TATOEBA_ROWS).is_ok()
+        );
+        assert!(FieldLimit::count(
+            "rows",
+            FieldLimit::TATOEBA_ROWS + 1,
+            FieldLimit::TATOEBA_ROWS
+        )
+        .is_err());
+    }
+
     #[test]
     fn training_requests_validate_weights_and_bounds_before_mutation() {
         let make = |weight| TrainingImportItem {

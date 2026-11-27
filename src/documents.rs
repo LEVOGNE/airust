@@ -202,12 +202,6 @@ fn frame(digest: &mut Sha256, bytes: &[u8]) {
     digest.update((bytes.len() as u64).to_le_bytes());
     digest.update(bytes);
 }
-fn valid_hash(value: &str) -> bool {
-    value.len() == 64
-        && value
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-}
 fn identity(field: &'static str, value: &str, maximum: usize) -> Result<(), DocumentError> {
     if value.len() > maximum {
         return Err(DocumentError::Limit(field));
@@ -301,7 +295,7 @@ impl DocumentSnapshot {
         if source.byte_len > limits.max_source_bytes {
             return Err(DocumentError::Limit("source bytes"));
         }
-        if !valid_hash(&source.sha256) {
+        if !crate::text::Identifier::sha256(&source.sha256) {
             return Err(DocumentError::Integrity("source SHA-256"));
         }
         if text.len() > limits.max_text_bytes {
@@ -462,7 +456,7 @@ impl DocumentSnapshot {
         if wire.source.byte_len > limits.max_source_bytes {
             return Err(DocumentError::Limit("source bytes"));
         }
-        if !valid_hash(&wire.source.sha256) {
+        if !crate::text::Identifier::sha256(&wire.source.sha256) {
             return Err(DocumentError::Integrity("source SHA-256"));
         }
         let result = Self::build(

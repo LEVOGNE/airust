@@ -89,12 +89,32 @@ pub struct VectorEntryRow {
 impl Database {
     pub fn open(path: &str) -> Result<Self, String> {
         let conn = Connection::open(path).map_err(|e| format!("DB open error: {}", e))?;
+        let fresh = conn
+            .query_row("SELECT COUNT(*) = 0 FROM sqlite_master", [], |row| {
+                row.get::<_, bool>(0)
+            })
+            .map_err(|e| format!("DB inspection error: {}", e))?;
         let db = Self {
             conn: Mutex::new(conn),
         };
         db.init_tables()?;
+        if fresh {
+            db.create_lookup_indexes()?;
+        }
         db.seed_defaults()?;
         Ok(db)
+    }
+
+    fn create_lookup_indexes(&self) -> Result<(), String> {
+        let conn = self.conn.lock().map_err(|e| format!("Lock error: {}", e))?;
+        conn.execute_batch(
+            "
+            CREATE INDEX IF NOT EXISTS idx_messages_chat ON messages(chat_id);
+            CREATE INDEX IF NOT EXISTS idx_training_data_category ON training_data(category_id);
+            CREATE INDEX IF NOT EXISTS idx_vector_entries_collection ON vector_entries(collection_id);
+            ",
+        )
+        .map_err(|e| format!("Index creation error: {}", e))
     }
 
     fn init_tables(&self) -> Result<(), String> {

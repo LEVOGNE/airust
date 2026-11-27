@@ -15,6 +15,18 @@ enum IoFailure {
     Frame,
 }
 
+pub(super) const WORKER_ENVIRONMENT: [&str; 9] = [
+    "PATH",
+    "TMPDIR",
+    "TMP",
+    "TEMP",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "SYSTEMROOT",
+    "WINDIR",
+];
+
 pub(super) struct Transport {
     child: Child,
     requests: Option<SyncSender<Vec<u8>>>,
@@ -32,6 +44,12 @@ impl Transport {
         }
         let mut child = Command::new(executable)
             .arg(WORKER_ARGUMENT)
+            .env_clear()
+            .envs(std::env::vars_os().filter(|(name, _)| {
+                WORKER_ENVIRONMENT
+                    .iter()
+                    .any(|allowed| name.as_os_str() == std::ffi::OsStr::new(allowed))
+            }))
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::null())

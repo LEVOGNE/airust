@@ -192,10 +192,29 @@ fn administrative_apis_require_explicit_opt_in() {
             Err(StatusCode::FORBIDDEN)
         );
     }
-    let enabled =
-        SecurityConfig::new("127.0.0.1".parse().unwrap(), 7070, None, vec![], true).unwrap();
+    assert!(
+        SecurityConfig::new("127.0.0.1".parse().unwrap(), 7070, None, vec![], true).is_err(),
+        "administration must not be enabled without a token"
+    );
+    let token = "an_administration_session_token_0123456789";
+    let enabled = SecurityConfig::new(
+        "127.0.0.1".parse().unwrap(),
+        7070,
+        Some(token.to_owned()),
+        vec![],
+        true,
+    )
+    .unwrap();
+    assert_eq!(
+        enabled.authorize(&headers("localhost:7070", None, None), "/api/files", false),
+        Err(StatusCode::UNAUTHORIZED)
+    );
     assert!(enabled
-        .authorize(&headers("localhost:7070", None, None), "/api/files", false)
+        .authorize(
+            &headers("localhost:7070", None, Some(token)),
+            "/api/files",
+            false
+        )
         .is_ok());
 }
 
@@ -233,4 +252,17 @@ fn crawler_rejects_private_addresses_and_unsafe_url_schemes() {
         assert!(public_url(url).is_err(), "{url}");
     }
     assert!(public_url("https://example.com/path").is_ok());
+}
+
+#[test]
+fn report_only_policy_allows_only_same_origin_and_the_console_socket() {
+    let config =
+        SecurityConfig::new("127.0.0.1".parse().unwrap(), 7070, None, vec![], false).unwrap();
+    let policy = config
+        .content_security_policy(&headers("localhost:7070", None, None))
+        .unwrap();
+    assert!(policy.contains("script-src 'self';"));
+    assert!(policy.contains("connect-src 'self' ws://localhost:7071 wss://localhost:7071;"));
+    assert!(policy.contains("frame-ancestors 'none'"));
+    assert!(!policy.contains("unsafe"));
 }

@@ -139,3 +139,37 @@ All of this is recorded in [disturbances.txt](quiet-night-2026-11-26/disturbance
 None of this removes a failure. Across the original confirmation, the evening repeat and this run, the 1.10 recovery gate has now failed in 4 of 11 serial pair comparisons. The worker's recovery tail on this host is therefore not established as within 10 %. Per-cycle data are in [cycles.csv](quiet-night-2026-11-26/cycles.csv), together with path-normalized reports, the run script, the analysis, the export and the [checksums](quiet-night-2026-11-26/SHA256SUMS).
 
 **Foreign load during all 2026-11-26 runs.** A later process check found an unrelated project's Miri test process. It belonged to another Claude Code session, ran at about 96 % of one core, and had been started at 2026-11-26 00:17:49 UTC ([observation](quiet-night-2026-11-26/foreign-load-observed.txt)). It was therefore active during both the evening repeat and this eight-pair run. The run was "unattended", but the host was loaded. The effect of this load was not quantified, and no pass or failure above is re-labelled because of it. The original 1.213 run on 2026-11-25 predates this process.
+
+## Eight-pair monitored repeat on a user-freed host (2026-11-27, 12:36-12:59 UTC)
+
+The user explicitly kept the host free of other work. The [policy](quiet-monitored-2026-11-27/policy.json) was frozen before the run, with the same binary (`4d4e4aaf…`) and controller. The worker, transport, example and controller sources are unchanged in the published v0.6.2.
+
+A monitor sampled every 5 s for any foreign process at or above 25 % CPU. The frozen rule required at least 6 of 8 "clean" pairs before "within 1.10 on a monitored quiet host" could be stated. The run-script path was corrected before the first run ([setup notes](quiet-monitored-2026-11-27/setup-notes.txt)).
+
+| Pair (order) | Baseline / worker recovery p95 ms | Recovery ratio | 1.10 gate | Foreign samples during the pair |
+| --- | --- | --- | --- | --- |
+| P1 (baseline first) | 467.4 / 459.5 | 0.983 | Passed | yes |
+| P2 (worker first) | 464.0 / 464.4 | 1.001 | Passed | yes |
+| P3 (baseline first) | 465.4 / 467.9 | 1.005 | Passed | yes |
+| P4 (worker first) | 465.0 / 459.9 | 0.989 | Passed | yes |
+| P5 (baseline first) | 464.6 / 456.0 | 0.981 | Passed | yes |
+| P6 (worker first) | 463.4 / 465.1 | 1.004 | Passed | yes |
+| P7 (baseline first) | 474.2 / 476.0 | 1.025 | Passed | yes |
+| P8 (worker first) | 466.9 / 471.8 | 1.010 | Passed | yes |
+
+**Result:**
+
+- **All eight pairs pass the 1.10 recovery gate**, with ratios from 0.981 to 1.025. This is the first set without a failing pair.
+- All worker runs pass the memory-growth gate, with post-warm parent ranges of 0.281 to 0.406 MiB. All direct baselines fail theirs again, with ranges of 204 to 616 MiB.
+- Worker load p95 is again higher than direct load in every pair, by about 5 to 9 %.
+
+**Under the frozen rule, the quiet-host claim is not made.** The monitor sampled brief foreign activity in every pair, mostly a browser renderer and system daemons ([decision](quiet-monitored-2026-11-27/decision.json)). That leaves 0 clean pairs, short of the required 6.
+
+The monitor itself had two defects, which are retained rather than corrected after the fact:
+
+- It did not exclude its own measurement process when macOS showed the name in truncated form.
+- The German decimal comma splits the load column of `monitor.csv`.
+
+Command paths were reduced to executable names before publication.
+
+**Interpretation:** Across all serial pair comparisons recorded so far, the 1.10 gate failed in 4 of 19. All failures occurred on 2026-11-25/26, under documented or likely host load, and none occurred in this set. That supports, but does not prove, a host-load explanation for the earlier tails. The earlier failures stay recorded and are not removed.

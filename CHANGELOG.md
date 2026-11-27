@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+Security and robustness decisions from the 0.6.2 source review:
+
+- `AIRUST_ENABLE_ADMIN=1` now requires `AIRUST_API_TOKEN`. Without a token the server refuses to start; previously any local process could use file administration and SQL.
+- The model worker starts with a reduced environment: only `PATH`, temporary-directory, locale and Windows system variables are passed, so secrets such as `AIRUST_API_TOKEN` are not inherited.
+- `ProcessOptions::with_runtime_identity(bytes, sha256)` optionally pins the ONNX Runtime library. The library is verified while it is copied into the private snapshot directory, and the worker loads that copy.
+- The web API rejects oversized values with HTTP 413 before storage: settings, chat titles, category and collection names and descriptions, vector content and metadata, and Tatoeba rows.
+- Newly created web databases get lookup indexes on `messages(chat_id)`, `training_data(category_id)` and `vector_entries(collection_id)`. Existing database files are not changed by this step.
+- One shared byte-bounded label check and one SHA-256 hex check replace the duplicated copies in eight modules. Behavior is unchanged; `versioning` keeps its documented character count.
+- The web server sends a `Content-Security-Policy-Report-Only` header with a same-origin policy as the first CSP step. Enforcement needs a frontend rewrite, because the existing interface uses an inline script and inline handlers.
+
 Test control: `status` reports never-run trigger-only checks (risk-triggered `short` configurations) as waiting for a matching risk trigger in `quick` instead of `now`, which no profile would have run. A regression test covers it. No library or binary change.
 
 ## 0.6.2 — 2026-11-27: explicit native model process ownership

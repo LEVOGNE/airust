@@ -28,13 +28,17 @@ A reverse proxy must deliberately preserve or rewrite headers to the expected se
 
 ## Administrative operations
 
-`AIRUST_ENABLE_ADMIN=1` opts into file-administration endpoints, knowledge load/save operations, and console reset. They are disabled by default. Enabling the flag does not remove authentication or origin checks.
+`AIRUST_ENABLE_ADMIN=1` opts into file-administration endpoints, knowledge load/save operations, and console reset. They are disabled by default. The flag also requires `AIRUST_API_TOKEN` (unreleased, after 0.6.2); the server refuses to start with administration but without a token. Enabling the flag does not remove authentication or origin checks.
 
 Enabled filesystem administration is confined to the server's working directory. It rejects absolute paths, parent traversal, hidden path components, and symlink components. Administrative reads are bounded to 1 MiB.
 
 These path checks address HTTP-supplied paths. A separate local process that can change the same directories can race a path check. The interface is not an operating-system sandbox or a substitute for filesystem ownership controls.
 
 The SQL administration interface is a trusted administrative capability. Enable it only for an operator who is intended to control the application's database.
+
+## Content Security Policy
+
+After 0.6.2 (unreleased), every web response carries `Content-Security-Policy-Report-Only` with a same-origin policy: scripts and styles from the server only, no objects or framing, and WebSocket connections only to the console port. Browsers report violations without blocking them. The current interface still uses an inline script and inline event handlers, so the policy is not enforced yet; enforcement requires rewriting the interface without them.
 
 ## Request and message limits
 
@@ -52,8 +56,14 @@ The SQL administration interface is a trusted administrative capability. Enable 
 | Crawler response body | 2 MiB |
 | Crawler traversal depth | 5 |
 | Crawler pages per run | 100 |
+| Settings update | 256 entries; names 256 bytes, values 4,096 bytes |
+| Chat title, category or collection name | 256 bytes |
+| Category color | 64 bytes |
+| Category or collection description | 4,096 bytes |
+| Vector entry content / metadata JSON | 1 MiB / 64 KiB |
+| Tatoeba import | 200,000 non-comment rows |
 
-Training imports validate the complete batch before writing it in one SQL transaction. Invalid input does not partially add a batch.
+The settings, chat, category, collection, vector and Tatoeba limits apply after 0.6.2 (unreleased) and reject oversized requests with HTTP 413 before storage. Training imports validate the complete batch before writing it in one SQL transaction. Invalid input does not partially add a batch.
 
 Multipart uploads share the total request limit with their framing overhead. These boundaries limit individual requests and runs; they are not an aggregate service-throughput guarantee.
 

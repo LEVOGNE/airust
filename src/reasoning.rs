@@ -57,7 +57,7 @@ impl Statement {
     fn validate(&self) -> Result<(), ReasoningError> {
         if [&self.subject, &self.predicate, &self.object]
             .iter()
-            .any(|v| !label(v, 256))
+            .any(|v| !crate::text::Identifier::label(v, 256))
         {
             return Err(ReasoningError::Invalid("statement label"));
         }
@@ -99,9 +99,12 @@ impl Fact {
     }
     fn validate(&self) -> Result<(), ReasoningError> {
         self.statement.validate()?;
-        if !label(&self.id, 128)
+        if !crate::text::Identifier::label(&self.id, 128)
             || self.sources.len() > 64
-            || self.sources.iter().any(|s| !label(s, 128))
+            || self
+                .sources
+                .iter()
+                .any(|s| !crate::text::Identifier::label(s, 128))
         {
             return Err(ReasoningError::Invalid("fact identity/sources"));
         }
@@ -123,8 +126,8 @@ impl Term {
     }
     fn validate(&self) -> bool {
         match self {
-            Self::Constant(s) => label(s, 256),
-            Self::Variable(s) => label(s, 64),
+            Self::Constant(s) => crate::text::Identifier::label(s, 256),
+            Self::Variable(s) => crate::text::Identifier::label(s, 64),
         }
     }
 }
@@ -167,7 +170,10 @@ impl Pattern {
         self.negative
     }
     fn validate(&self) -> Result<(), ReasoningError> {
-        if !self.subject.validate() || !self.object.validate() || !label(&self.predicate, 256) {
+        if !self.subject.validate()
+            || !self.object.validate()
+            || !crate::text::Identifier::label(&self.predicate, 256)
+        {
             return Err(ReasoningError::Invalid("rule pattern"));
         }
         Ok(())
@@ -220,7 +226,10 @@ impl Rule {
         Ok(format!("{:x}", hash.finalize()))
     }
     fn validate(&self) -> Result<(), ReasoningError> {
-        if !label(&self.id, 128) || self.body.is_empty() || self.body.len() > 8 {
+        if !crate::text::Identifier::label(&self.id, 128)
+            || self.body.is_empty()
+            || self.body.len() > 8
+        {
             return Err(ReasoningError::Invalid("rule identity/premise count"));
         }
         self.head.validate()?;
@@ -306,13 +315,15 @@ impl ReasoningOptions {
         self
     }
     fn validate(&self) -> Result<(), ReasoningError> {
-        if !label(&self.revision, 256)
+        if !crate::text::Identifier::label(&self.revision, 256)
             || self.known_sources.len() > 100000
-            || self.known_sources.iter().any(|s| !label(s, 128))
             || self
-                .allowed
-                .as_ref()
-                .is_some_and(|v| v.len() > 100000 || v.iter().any(|s| !label(s, 128)))
+                .known_sources
+                .iter()
+                .any(|s| !crate::text::Identifier::label(s, 128))
+            || self.allowed.as_ref().is_some_and(|v| {
+                v.len() > 100000 || v.iter().any(|s| !crate::text::Identifier::label(s, 128))
+            })
             || !(1..=100).contains(&self.max_rounds)
             || !(1..=10000000).contains(&self.max_joins)
             || !(1..=10000).contains(&self.max_proposals)
@@ -722,9 +733,6 @@ fn term_len(term: &Term) -> usize {
     match term {
         Term::Constant(s) | Term::Variable(s) => s.len(),
     }
-}
-fn label(s: &str, max: usize) -> bool {
-    !s.trim().is_empty() && s.len() <= max && !s.chars().any(char::is_control)
 }
 
 fn fits_json(value: &ReasoningResult, limit: usize) -> Result<bool, ReasoningError> {

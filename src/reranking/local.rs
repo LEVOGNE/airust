@@ -185,7 +185,7 @@ fn read_model(
             Ok((OnnxSource::Memory(bytes), None))
         }
         Some(directory) => {
-            let snapshot = model_assets::snapshot(path, expected, directory, |chunk| {
+            let snapshot = model_assets::snapshot(path, expected, directory, ".onnx", |chunk| {
                 fingerprint.update(chunk);
             })
             .map_err(provider_error)?;

@@ -38,7 +38,7 @@ impl CaseMeasurement {
         latency: Option<Duration>,
     ) -> Result<Self, GateError> {
         let id = id.into();
-        if !label(&id)
+        if !crate::text::Identifier::label(&id, 256)
             || query.trim().is_empty()
             || query.len() > 16384
             || !(1..=1000).contains(&cutoff)
@@ -118,9 +118,9 @@ impl EvaluationRun {
     ) -> Result<Self, GateError> {
         let (dataset, corpus_fingerprint, recipe) =
             (dataset.into(), corpus_fingerprint.into(), recipe.into());
-        if !label(&dataset)
-            || !hash_valid(&corpus_fingerprint)
-            || !label(&recipe)
+        if !crate::text::Identifier::label(&dataset, 256)
+            || !crate::text::Identifier::sha256(&corpus_fingerprint)
+            || !crate::text::Identifier::label(&recipe, 256)
             || cases.is_empty()
             || cases.len() > 10000
         {
@@ -484,14 +484,6 @@ fn latency(run: &EvaluationRun) -> Option<f64> {
         sum += c.latency_ms?;
     }
     Some(sum / run.cases.len() as f64)
-}
-fn label(s: &str) -> bool {
-    !s.trim().is_empty() && s.len() <= 256 && !s.chars().any(char::is_control)
-}
-fn hash_valid(s: &str) -> bool {
-    s.len() == 64
-        && s.bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 fn digest(parts: &[&[u8]]) -> String {
     let mut h = Sha256::new();

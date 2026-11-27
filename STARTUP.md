@@ -141,7 +141,7 @@ export AIRUST_API_TOKEN="$(openssl rand -hex 32)"
 cargo run --locked --features web --bin airust
 ```
 
-The browser asks for the token and holds it in page memory. HTTP clients send it as a Bearer authorization header. `AIRUST_ALLOWED_HOSTS` configures explicit expected hosts. Administration is disabled by default; `AIRUST_ENABLE_ADMIN=1` enables filesystem administration, knowledge load/save and destructive console reset within the documented working-directory restrictions. [Security and operating limits](docs/SECURITY.md).
+The browser asks for the token and holds it in page memory. HTTP clients send it as a Bearer authorization header. `AIRUST_ALLOWED_HOSTS` configures explicit expected hosts. Administration is disabled by default; `AIRUST_ENABLE_ADMIN=1` enables filesystem administration, knowledge load/save and destructive console reset within the documented working-directory restrictions; it requires `AIRUST_API_TOKEN`. [Security and operating limits](docs/SECURITY.md).
 
 Background startup uses `-d`; `airust stop` verifies recorded process identity before signaling. `AIRUST_RUNTIME_DIR` selects an absolute private state directory, defaulting to `$HOME/.local/state/airust`. Its Unix mode is `0700`, and insecure or symlink directories are rejected. Use the console's `reset` only when intending to delete its dashboard database.
 

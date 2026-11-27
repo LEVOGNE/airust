@@ -1,0 +1,75 @@
+import csv
+import hashlib
+import json
+import shutil
+import sys
+from pathlib import Path
+
+
+class PublicExport:
+    KEYS = ("exit_code", "functional_controls_passed", "rss_growth_budget_passed", "post_warm_range_bytes", "sampled_sum_peak_rss_bytes",
+            "wait4_reported_maxrss_bytes", "binary_sha256", "probe_sha256", "prefixes_sha256", "started_at", "completed_at", "seconds", "command")
+
+    def __init__(self, source, target):
+        self.source = source
+        self.target = target
+        self.home = str(Path.home())
+
+    def clean(self, value):
+        if isinstance(value, str):
+            return value.replace(self.home, "~")
+        if isinstance(value, list):
+            return [self.clean(item) for item in value]
+        return value
+
+    def runs(self):
+        return sorted(path for path in self.source.iterdir() if path.is_dir() and path.name.startswith("P"))
+
+    def cycles(self):
+        with (self.target / "cycles.csv").open("w", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["run", "backend", "mode", "cycle", "load_ms", "first_ms", "recovery_ms", "parent_rss_after_drop_bytes", "last_sampled_child_rss_bytes"])
+            for run in self.runs():
+                backend = "in_process" if run.name.endswith("baseline") else "process"
+                mode = "memory" if backend == "in_process" else "snapshot"
+                rows = {}
+                for event in json.loads((run / "events.json").read_text()):
+                    row = rows.setdefault(event["cycle"], {})
+                    extra = event.get("extra", {})
+                    for key in ("load_ms", "first_ms", "recovery_ms"):
+                        if key in extra:
+                            row[key] = extra[key]
+                    if event.get("stage") == "dropped":
+                        row["drop"] = event["rss_bytes"]
+                        row["child"] = event["last_sampled_child_rss_bytes"]
+                for cycle in sorted(rows):
+                    row = rows[cycle]
+                    if "recovery_ms" in row:
+                        writer.writerow([run.name, backend, mode, cycle, row.get("load_ms"), row.get("first_ms"), row["recovery_ms"], row.get("drop"), row.get("child")])
+
+    def reports(self):
+        for run in self.runs():
+            raw = json.loads((run / "report.json").read_text())
+            public = {key: self.clean(raw[key]) for key in self.KEYS if key in raw}
+            (self.target / f"report-{run.name}.json").write_text(json.dumps(public, indent=2) + "\n")
+
+    def copies(self):
+        for name, published in (("policy.json", "policy.json"), ("summary.json", "summary.json"), ("runs.txt", "runs.txt"),
+                                ("disturbances.txt", "disturbances.txt"), ("run.sh", "run.sh.txt"), ("analyze.py", "analyze.py.txt"),
+                                ("export.py", "export.py.txt")):
+            shutil.copyfile(self.source / name, self.target / published)
+
+    def checksums(self):
+        lines = [f"{hashlib.sha256(path.read_bytes()).hexdigest()}  ./{path.name}" for path in sorted(self.target.iterdir()) if path.name != "SHA256SUMS"]
+        (self.target / "SHA256SUMS").write_text("\n".join(lines) + "\n")
+
+    def run(self):
+        self.target.mkdir(parents=True, exist_ok=True)
+        self.cycles()
+        self.reports()
+        self.copies()
+        self.checksums()
+
+
+if __name__ == "__main__":
+    PublicExport(Path(sys.argv[1]), Path(sys.argv[2])).run()

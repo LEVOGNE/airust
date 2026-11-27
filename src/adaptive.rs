@@ -38,7 +38,9 @@ impl RouteChoice {
             name: name.into(),
             reason: reason.into(),
         };
-        if !valid_label(&choice.name, 64) || !valid_label(&choice.reason, 256) {
+        if !crate::text::Identifier::label(&choice.name, 64)
+            || !crate::text::Identifier::label(&choice.reason, 256)
+        {
             return Err(RetrievalError::Configuration("invalid route name/reason"));
         }
         Ok(choice)
@@ -179,7 +181,7 @@ impl<'a> AdaptiveSource<'a> {
         source: impl RetrievalSource + 'a,
     ) -> Result<Self, RetrievalError> {
         let name = name.into();
-        if !valid_label(&name, 64) {
+        if !crate::text::Identifier::label(&name, 64) {
             return Err(RetrievalError::Configuration("invalid backend name"));
         }
         if self.backends.len() >= 16 {
@@ -338,7 +340,4 @@ impl RetrievalSource for AdaptiveSource<'_> {
             }
         }
     }
-}
-fn valid_label(value: &str, max: usize) -> bool {
-    !value.trim().is_empty() && value.len() <= max && !value.chars().any(char::is_control)
 }

@@ -20,6 +20,13 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 Miri, fuzz and concurrency become due again from 2026-12-04 (`testctl status`).
 
+**Session 2026-11-27 afternoon (uncommitted, awaiting user commit):**
+
+- The user decided all six open review items, see CHANGELOG `Unreleased`. These are implemented with tests: admin mode requires a token, the worker environment is reduced, `ProcessOptions::with_runtime_identity` is added, web field limits with HTTP 413, indexes are created only for new databases, and the duplicated byte-label and SHA-256 checks are shared in `text::Identifier`.
+- I recommended counting labels in characters, but implemented the byte count instead. Characters would loosen the memory bounds and break the compatibility of saved receipts. Tell the user if this needs revisiting.
+- CSP is only partly done: a `Content-Security-Policy-Report-Only` header is sent. Enforcement needs a rewrite of `src/web/static/index.html`, which has an inline script with 110 free functions, alert/confirm/prompt and 79 inline handlers. The user's design guard rightly blocks moving that script unchanged. This is a separate user decision.
+- Latency: an eight-pair monitored repeat on a user-freed host passed 1.10 in all 8 pairs (0.981 to 1.025). The frozen quiet-host claim is still not made, because the monitor saw brief foreign activity in every pair. The total is now 4 failures in 19 serial comparisons. See `docs/measurements/native-lifecycle-0.6.2/README.md`.
+
 **Unattended block on 2026-11-27, 10:02 to 11:47 UTC (uncommitted, awaiting user review):**
 
 - `testctl status` now reports never-run trigger-only `short` checks as "on matching risk trigger in quick" instead of "now". A regression test was added, 24/24 controller tests pass, and the CHANGELOG has an `Unreleased` entry.

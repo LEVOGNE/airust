@@ -838,10 +838,7 @@ impl Command {
             }
             Self::Read(a) => {
                 valid_text(&a.document_id, limits.max_id_bytes)
-                    && a.revision.len() == 64
-                    && a.revision
-                        .bytes()
-                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+                    && crate::text::Identifier::sha256(&a.revision)
                     && a.end_byte
                         .checked_sub(a.start_byte)
                         .is_some_and(|n| n <= limits.max_excerpt_bytes)

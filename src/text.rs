@@ -1,6 +1,57 @@
 use std::collections::{BTreeMap, BTreeSet};
 use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 
+#[cfg(any(
+    feature = "feedback",
+    feature = "learned-ranking",
+    feature = "quality-gates",
+    feature = "reasoning",
+    feature = "adaptive",
+    feature = "documents",
+    feature = "mcp",
+    feature = "local-reranking"
+))]
+pub(crate) struct Identifier;
+
+#[cfg(any(
+    feature = "feedback",
+    feature = "learned-ranking",
+    feature = "quality-gates",
+    feature = "reasoning",
+    feature = "adaptive",
+    feature = "documents",
+    feature = "mcp",
+    feature = "local-reranking"
+))]
+impl Identifier {
+    #[cfg(any(
+        feature = "feedback",
+        feature = "learned-ranking",
+        feature = "quality-gates",
+        feature = "reasoning",
+        feature = "adaptive"
+    ))]
+    pub(crate) fn label(value: &str, max_bytes: usize) -> bool {
+        !value.trim().is_empty() && value.len() <= max_bytes && !value.chars().any(char::is_control)
+    }
+
+    #[cfg(any(
+        feature = "feedback",
+        feature = "learned-ranking",
+        feature = "quality-gates",
+        feature = "evidence-freshness",
+        feature = "documents",
+        feature = "mcp",
+        feature = "local-reranking"
+    ))]
+    pub(crate) fn sha256(value: &str) -> bool {
+        value.len() == 64
+            && value
+                .bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    }
+}
+
 pub fn normalize(text: &str) -> String {
     if text.is_ascii() {
         let mut normalized = String::with_capacity(text.len());
@@ -110,4 +161,27 @@ pub fn is_stopword(term: &str) -> bool {
             | "this"
             | "that"
     )
+}
+
+#[cfg(all(test, feature = "feedback"))]
+mod identifier_tests {
+    use super::Identifier;
+
+    #[test]
+    fn labels_are_bounded_in_bytes_and_reject_blank_or_control_text() {
+        assert!(Identifier::label("ok", 2));
+        assert!(!Identifier::label("ä", 1));
+        assert!(Identifier::label("ä", 2));
+        assert!(!Identifier::label("  ", 8));
+        assert!(!Identifier::label("a\u{7}", 8));
+        assert!(!Identifier::label("abc", 2));
+    }
+
+    #[test]
+    fn sha256_accepts_only_sixty_four_lowercase_hex_digits() {
+        assert!(Identifier::sha256(&"a".repeat(64)));
+        assert!(!Identifier::sha256(&"A".repeat(64)));
+        assert!(!Identifier::sha256(&"a".repeat(63)));
+        assert!(!Identifier::sha256(&"g".repeat(64)));
+    }
 }

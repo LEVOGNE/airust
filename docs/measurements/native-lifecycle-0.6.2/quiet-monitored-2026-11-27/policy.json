@@ -1,0 +1,14 @@
+{
+  "frozen_at": "2026-11-27T12:36:24Z",
+  "purpose": "Warm-recovery latency repeat on a host the user explicitly kept free of other work, with continuous foreign-load monitoring. Adds evidence; never replaces the 1.213 original or the 2026-11-26 failures (4 of 11).",
+  "source": "Same binary as the 2026-11-26 repeats (sha256 4d4e4aaf8ba01688ba6024f29a2297b4a15ac538992593cbc08f473e75d3bf78, built from 9e792bc). The measured worker, transport, example and controller sources are unchanged in the published v0.6.2 (5b69258).",
+  "controller": "scripts/benchmark_model_lifecycle.py sha256 a060ccf575773618ce11ac07cc9139fa5cd823b77e842a17fe3fc9b32ad31363",
+  "baseline": "--backend in_process --mode memory --cycles 30",
+  "candidate": "--backend process --mode snapshot --cycles 30",
+  "pairs": 8,
+  "order": "odd pairs baseline first, even pairs candidate first; strictly serial",
+  "monitor": "monitor.sh samples every 5 s: 1-minute load average and every process at >= 25 % CPU except the measurement's own processes and WindowServer/kernel_task.",
+  "decision_rule": "Report every pair. A pair is 'clean' only if no foreign process >= 25 % CPU was sampled during either of its runs. State 'within 1.10 on a monitored quiet host' only if all clean pairs pass 1.10 and at least 6 of 8 pairs are clean. Any clean failing pair is reported as a reproduced cost failure. No pair is removed from the results.",
+  "estimator": "nearest rank sorted[ceil(n*p)-1], p95 over all 30 cycles, no warmup removal",
+  "honesty": "Synthetic resource fixture, single macOS host; monitor sampling can miss short bursts."
+}

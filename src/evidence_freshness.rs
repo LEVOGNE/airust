@@ -28,7 +28,9 @@ impl SourceVersion {
             id: id.into(),
             version: version.into(),
         };
-        if !label(&s.id, 128) || !label(&s.version, 256) {
+        if !crate::text::Identifier::label(&s.id, 128)
+            || !crate::text::Identifier::label(&s.version, 256)
+        {
             return Err(FreshnessError::Invalid("source version"));
         }
         Ok(s)
@@ -54,7 +56,7 @@ impl<'a> EvidenceView<'a> {
         rules: &'a [Rule],
         sources: &'a [SourceVersion],
     ) -> Result<Self, FreshnessError> {
-        if !label(revision, 256)
+        if !crate::text::Identifier::label(revision, 256)
             || facts.len() > 100000
             || rules.len() > 256
             || sources.len() > 100000
@@ -70,7 +72,7 @@ impl<'a> EvidenceView<'a> {
         })
     }
     pub fn with_allowed_facts(mut self, ids: &'a BTreeSet<String>) -> Result<Self, FreshnessError> {
-        if ids.len() > 100000 || ids.iter().any(|s| !label(s, 128)) {
+        if ids.len() > 100000 || ids.iter().any(|s| !crate::text::Identifier::label(s, 128)) {
             return Err(FreshnessError::Invalid("allowed IDs"));
         }
         self.allowed = Some(ids);
@@ -496,23 +498,18 @@ fn hash(bytes: &[u8]) -> String {
     h.update(bytes);
     format!("{:x}", h.finalize())
 }
-fn label(s: &str, n: usize) -> bool {
-    !s.trim().is_empty() && s.len() <= n && !s.chars().any(char::is_control)
-}
-fn hash_valid(s: &str) -> bool {
-    s.len() == 64
-        && s.bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-}
 fn validate_data(data: &ReceiptData) -> Result<(), FreshnessError> {
-    if data.schema_version != 1 || !label(&data.revision, 256) || data.proofs.len() > 10000 {
+    if data.schema_version != 1
+        || !crate::text::Identifier::label(&data.revision, 256)
+        || data.proofs.len() > 10000
+    {
         return Err(FreshnessError::Invalid("receipt schema/count"));
     }
     let mut ids = BTreeSet::new();
     for p in &data.proofs {
         if p.id == 0
             || !ids.insert(p.id)
-            || !hash_valid(&p.conclusion)
+            || !crate::text::Identifier::sha256(&p.conclusion)
             || p.facts.is_empty()
             || p.rules.is_empty()
             || p.sources.is_empty()
@@ -529,12 +526,12 @@ fn validate_data(data: &ReceiptData) -> Result<(), FreshnessError> {
             }
             let mut seen = BTreeSet::new();
             for b in bindings {
-                if !label(&b.id, 128)
+                if !crate::text::Identifier::label(&b.id, 128)
                     || !seen.insert(&b.id)
                     || if hashed {
-                        !hash_valid(&b.value)
+                        !crate::text::Identifier::sha256(&b.value)
                     } else {
-                        !label(&b.value, 256)
+                        !crate::text::Identifier::label(&b.value, 256)
                     }
                 {
                     return Err(FreshnessError::Invalid("dependency binding"));

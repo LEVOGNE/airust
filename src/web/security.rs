@@ -38,6 +38,9 @@ impl SecurityConfig {
         if !bind.is_loopback() && token.is_none() {
             return Err("Non-loopback binding requires AIRUST_API_TOKEN".to_owned());
         }
+        if admin_enabled && token.is_none() {
+            return Err("AIRUST_ENABLE_ADMIN=1 requires AIRUST_API_TOKEN".to_owned());
+        }
         let mut allowed = BTreeSet::from([
             "localhost".to_owned(),
             "127.0.0.1".to_owned(),
@@ -160,6 +163,22 @@ impl SecurityConfig {
     }
 }
 
+impl SecurityConfig {
+    pub fn content_security_policy(&self, headers: &HeaderMap) -> Option<String> {
+        let authority: axum::http::uri::Authority =
+            headers.get(header::HOST)?.to_str().ok()?.parse().ok()?;
+        Some(format!(
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; \
+             connect-src 'self' ws://{}:{} wss://{}:{}; object-src 'none'; base-uri 'none'; \
+             form-action 'self'; frame-ancestors 'none'",
+            authority.host(),
+            self.console_port,
+            authority.host(),
+            self.console_port
+        ))
+    }
+}
+
 fn constant_time_equal(left: &[u8], right: &[u8]) -> bool {
     if left.len() != right.len() {
         return false;
@@ -178,7 +197,13 @@ pub async fn protect(
     if let Err(status) = config.authorize(request.headers(), request.uri().path(), console) {
         return (status, "Request rejected by server access policy").into_response();
     }
+    let policy = config.content_security_policy(request.headers());
     let mut response = next.run(request).await;
+    if let Some(value) = policy.and_then(|policy| policy.parse().ok()) {
+        response
+            .headers_mut()
+            .insert("content-security-policy-report-only", value);
+    }
     response
         .headers_mut()
         .insert("x-content-type-options", "nosniff".parse().unwrap());

@@ -44,7 +44,7 @@ impl TrainingItem {
         document: impl Into<String>,
     ) -> Result<Self, PipelineError> {
         let id = id.into();
-        if !label(&id, 128) {
+        if !crate::text::Identifier::label(&id, 128) {
             return Err(PipelineError::Invalid("item ID"));
         }
         Ok(Self {
@@ -70,7 +70,11 @@ impl CurationPolicy {
             min_votes: 2,
             min_margin: 1,
         };
-        if p.trusted.len() > 100000 || p.trusted.iter().any(|s| !label(s, 128)) {
+        if p.trusted.len() > 100000
+            || p.trusted
+                .iter()
+                .any(|s| !crate::text::Identifier::label(s, 128))
+        {
             return Err(PipelineError::Invalid("trusted event IDs"));
         }
         Ok(p)
@@ -168,7 +172,7 @@ pub fn curate_feedback(
     items: &[TrainingItem],
     policy: &CurationPolicy,
 ) -> Result<TrainingDataset, PipelineError> {
-    if !label(namespace, 128) || items.len() > 10000 {
+    if !crate::text::Identifier::label(namespace, 128) || items.len() > 10000 {
         return Err(PipelineError::Invalid("namespace/items"));
     }
     let mut bytes = 0usize;
@@ -260,8 +264,8 @@ pub fn curate_feedback(
 }
 fn validate_dataset(d: &DatasetData) -> Result<Vec<TrainingExample>, PipelineError> {
     if d.schema_version != 1
-        || !label(&d.namespace, 128)
-        || !hash_valid(&d.feedback_profile)
+        || !crate::text::Identifier::label(&d.namespace, 128)
+        || !crate::text::Identifier::sha256(&d.feedback_profile)
         || d.rows.len() > 10000
         || d.considered > 10000
         || d.rows.len() > d.considered
@@ -275,7 +279,7 @@ fn validate_dataset(d: &DatasetData) -> Result<Vec<TrainingExample>, PipelineErr
     let mut events = BTreeSet::new();
     let mut examples = Vec::new();
     for r in &d.rows {
-        if !label(&r.id, 128)
+        if !crate::text::Identifier::label(&r.id, 128)
             || !ids.insert(&r.id)
             || r.events.len() > 100000
             || r.helpful.checked_add(r.unhelpful) != Some(r.events.len())
@@ -286,7 +290,7 @@ fn validate_dataset(d: &DatasetData) -> Result<Vec<TrainingExample>, PipelineErr
             return Err(PipelineError::Invalid("training label provenance"));
         }
         for id in &r.events {
-            if !label(id, 128) || !events.insert(id) {
+            if !crate::text::Identifier::label(id, 128) || !events.insert(id) {
                 return Err(PipelineError::Invalid("duplicate/invalid event provenance"));
             }
         }
@@ -341,7 +345,7 @@ struct RegistryData {
 impl ModelRegistry {
     pub fn new(identity: impl Into<String>, capacity: usize) -> Result<Self, PipelineError> {
         let identity = identity.into();
-        if !label(&identity, 128) || !(2..=32).contains(&capacity) {
+        if !crate::text::Identifier::label(&identity, 128) || !(2..=32).contains(&capacity) {
             return Err(PipelineError::Invalid("registry identity/capacity"));
         }
         Ok(Self {
@@ -457,14 +461,6 @@ fn digest(data: &[u8]) -> String {
     hash.update(b"airust-training-pipeline-v1");
     hash.update(data);
     format!("{:x}", hash.finalize())
-}
-fn label(s: &str, n: usize) -> bool {
-    !s.trim().is_empty() && s.len() <= n && !s.chars().any(char::is_control)
-}
-fn hash_valid(s: &str) -> bool {
-    s.len() == 64
-        && s.bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 
 #[derive(Debug, Clone)]
