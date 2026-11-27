@@ -4,15 +4,27 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 ## Alternating agents (Claude Code and ChatGPT/Codex)
 
-**Release 0.6.2 (2026-11-27):** The user explicitly authorized merging into master, the tag `v0.6.2`, the GitHub Release and crates.io. Progress and receipts are in `local-lab/release-0.6.2-2026-11-27/PROGRESS.json`, and the gates and limits are in [validation-0.6.2/RELEASE.md](validation-0.6.2/RELEASE.md). If `final-closeout.json` is missing, resume only the recorded pending stage. Never republish or move a tag.
+**Release 0.6.2 is published and verified (2026-11-27).**
+
+- Tag `v0.6.2` points to `5b69258`.
+- The crates.io checksum is `549117704f977a45b7b34ecda49f075295cfd414ecd6e67c26e52124aab8bf0c`, and the anonymous download is byte-identical.
+- Branch, master and tag CI each passed 5 of 5 jobs.
+- The GitHub Release assets and docs.rs were verified.
+- The complete receipt is `local-lab/release-0.6.2-2026-11-27/final-closeout.json`, and the public manifest is on the [release page](https://github.com/LEVOGNE/airust/releases/tag/v0.6.2).
+- Do not republish or move the tag.
+
+**Next work, if the user asks for it:**
+
+1. Investigate the process-mode warm-recovery latency failure, which failed 4 of 11 comparisons. Freeze a policy first and measure only on a host checked for foreign load.
+2. Take the open review decisions listed below.
+
+Miri, fuzz and concurrency become due again from 2026-12-04 (`testctl status`).
 
 The user alternates between Claude Code and ChatGPT/Codex on this repository. Whoever finishes a block updates this section. Last update: Claude Code, unattended maintenance 2026-11-26 20:13 to 2026-11-27 05:00 UTC.
 
 - **Git state:**
-  - Remote `codex/stabilize-native-model-lifecycle` is at `1cbd70e`, and CI `45669021076` is green.
-  - Local commit `9e792bc` (review fixes and test control) is not pushed.
-  - Everything after it is uncommitted and awaits user review: the `ServerReset` change in `src/web/mod.rs`, the `testctl` `--focus` option and its manifest-GC fix with regression test, the measurement records, the validation maintenance section, CHANGELOG, this handoff and WORK-PROGRAM.
-  - Nothing was committed, pushed or published.
+  - `master` and `codex/stabilize-native-model-lifecycle` contain everything up to the release commit `5b69258` (tag `v0.6.2`). This handoff update follows on `master` only.
+  - There are no uncommitted changes.
 - **Test control:**
   - Use `uv run --no-project scripts/testctl.py status|quick|nightly|full` rather than ad hoc command lists.
   - Only one heavy run at a time; `.testctl/lock` enforces this.
