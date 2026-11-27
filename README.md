@@ -2,13 +2,13 @@
 
 A Rust library for finding records and returning inspectable source evidence. Start with lexical search. Add document revisions, bounded excerpts, embeddings or an agent transport when your application needs them.
 
-**AIRust 0.6.1** adds bounded reranking batch/candidate settings, offline `profile-check`, shared training snapshots, bounded file/diagnostic costs and optional verified native file loading. Read [scope](docs/CHANGES-0.6.1.md), [migration](docs/MIGRATION-0.6.1.md), [configuration ownership](docs/CONFIGURATION.md) and [release validation](docs/validation-0.6.1/RELEASE.md).
+**AIRust 0.6.2** adds an opt-in [native-model process owner](docs/LOCAL-MODEL-PROCESSES.md) for predictable repeated MiniLM unload/reload, plus review fixes and resource-aware test control. Read [scope](docs/CHANGES-0.6.2.md), [migration](docs/MIGRATION-0.6.2.md) and [release validation and open limits](docs/validation-0.6.2/RELEASE.md). AIRust 0.6.1 added bounded reranking batch/candidate settings, offline `profile-check`, shared training snapshots, bounded file/diagnostic costs and optional verified native file loading ([scope](docs/CHANGES-0.6.1.md), [migration](docs/MIGRATION-0.6.1.md), [configuration ownership](docs/CONFIGURATION.md)).
 
 The bounded local pilot and explicit live search profiles introduced in 0.6.0 remain compatible. [Actual local answer attempts and retained measurements](docs/measurements/profile-practical-0.6.0/README.md) precede these changes; the [final-source confirmation](docs/measurements/configuration-0.6.1-final/README.md) records costs and regressions. Native models still exceed 1 GiB here, and independently reviewed retrieval quality remains unestablished. Engineering validation is separate from those product-readiness gates.
 
 The published **0.5.3 baseline** provides the reference workflow, frozen evaluation and measured maintenance improvements used for comparison. Its [release verification](docs/validation-0.5.3/README.md) remains reproducible. The published [0.5.2 baseline](docs/validation-0.5.2/closeout.json) remains reproducible.
 
-Development toward **0.6.2** adds an opt-in [native-model process owner](docs/LOCAL-MODEL-PROCESSES.md) for predictable repeated MiniLM unload/reload. It requires a matching trusted worker and a verified private file snapshot. See the [before/after evidence and latency regressions](docs/measurements/native-lifecycle-0.6.2/README.md); this API is not in the published 0.6.1 crate.
+The 0.6.2 process owner requires a matching trusted worker and a verified private file snapshot. It keeps unloaded-parent memory stable across repeated load/drop, but its warm-recovery latency tail is **not** established within 10 % of direct loading: that gate failed in 4 of 11 serial comparisons. See the [before/after evidence and latency regressions](docs/measurements/native-lifecycle-0.6.2/README.md).
 
 ## Search application records
 
@@ -16,7 +16,7 @@ Use Rust 1.89 or newer. Add the published library:
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.1", default-features = false }
+airust = { version = "=0.6.2", default-features = false }
 ```
 
 ```rust
@@ -58,7 +58,7 @@ Keep the snapshot together with its passages. Resolve citations against that rev
 Install the published read-only MCP executable:
 
 ```bash
-cargo install airust --version 0.6.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 

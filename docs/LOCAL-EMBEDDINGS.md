@@ -4,7 +4,7 @@ The `local-embeddings` feature adds `FastEmbedProvider`, a CPU adapter for expli
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.1", default-features = false, features = ["local-embeddings"] }
+airust = { version = "=0.6.2", default-features = false, features = ["local-embeddings"] }
 ```
 
 The selected FastEmbed dependency disables its defaults, model-hub access, and binary downloads. Neither a normal build nor `--all-features` downloads model weights or ONNX Runtime binaries. The application obtains those files separately and supplies their paths. Native dependencies are still compiled as ordinary Cargo dependencies.

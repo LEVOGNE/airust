@@ -4,6 +4,8 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 ## Alternating agents (Claude Code and ChatGPT/Codex)
 
+**Release 0.6.2 (2026-11-27):** The user explicitly authorized merging into master, the tag `v0.6.2`, the GitHub Release and crates.io. Progress and receipts are in `local-lab/release-0.6.2-2026-11-27/PROGRESS.json`, and the gates and limits are in [validation-0.6.2/RELEASE.md](validation-0.6.2/RELEASE.md). If `final-closeout.json` is missing, resume only the recorded pending stage. Never republish or move a tag.
+
 The user alternates between Claude Code and ChatGPT/Codex on this repository. Whoever finishes a block updates this section. Last update: Claude Code, unattended maintenance 2026-11-26 20:13 to 2026-11-27 05:00 UTC.
 
 - **Git state:**

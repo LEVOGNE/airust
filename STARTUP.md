@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. AIRust 0.6.1 retains the bounded local pilot/live profiles and adds explicit reranking settings, offline preflight and measured resource controls. Registry examples select 0.6.1. See [release validation and open limits](docs/validation-0.6.1/RELEASE.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. AIRust 0.6.2 retains the bounded local pilot/live profiles, reranking settings, offline preflight and resource controls of 0.6.1 and adds an opt-in native-model process owner. Registry examples select 0.6.2. See [release validation and open limits](docs/validation-0.6.2/RELEASE.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -37,7 +37,7 @@ An MCP client launches the compiled example executable with `serve` and the abso
 For the published executable:
 
 ```bash
-cargo install airust --version 0.6.1 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.2 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -160,7 +160,7 @@ For the full interface, read [the cookbook](docs/API-COOKBOOK.md). Platform and 
 
 ## Collect pilot questions and run live profiles
 
-Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the 0.6.1 source build for profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
+Follow [PILOT.md](docs/PILOT.md) for the complete new-directory setup, MCP client config, explicit capture/review/export and independent Python verification. Use the 0.6.2 source or registry build for profile commands; no model/runtime/service is downloaded or started automatically. The [migration guide](docs/MIGRATION-0.6.0.md) lists the new passage bound, optional features, preserved formats and explicit quality-data gate.
 
 AIRust 0.6.1 adds `profile-check CONFIG` for configuration-only checks before workspace/cache/model loading, plus explicit native `batch_size` and `candidates` fields. Build with `--features pilot`; native execution additionally needs `local-reranking` and supplied assets. See [configuration ownership](docs/CONFIGURATION.md) and [0.6.1 migration](docs/MIGRATION-0.6.1.md) for defaults, budgets and the distinction between preflight validity and service readiness.
 
@@ -179,6 +179,6 @@ It accepts the existing `KnowledgeEntry` JSON array, at most 2048 records/2 MiB 
 
 ## Development checkout: repeated local model ownership
 
-The unreleased 0.6.2 checkout includes `airust-model-worker` behind `local-reranking`. Build the matching binary and configure `ProcessReranker::multilingual_minilm_v2_from_snapshot` as described in [local model processes](docs/LOCAL-MODEL-PROCESSES.md). Build the native reference pilot with `--features pilot,local-reranking`. It can dispatch its own worker role; set `reranker.isolated` to `true` and supply an explicit existing application-owned `model_snapshot_directory`. `profile-check` validates the configuration without starting a worker or reading assets. Existing published examples above continue to select 0.6.1.
+AIRust 0.6.2 includes `airust-model-worker` behind `local-reranking`. Build the matching binary and configure `ProcessReranker::multilingual_minilm_v2_from_snapshot` as described in [local model processes](docs/LOCAL-MODEL-PROCESSES.md). Build the native reference pilot with `--features pilot,local-reranking`. It can dispatch its own worker role; set `reranker.isolated` to `true` and supply an explicit existing application-owned `model_snapshot_directory`. `profile-check` validates the configuration without starting a worker or reading assets. Its warm-recovery latency tail is not established within 10 % of direct loading; see the release limits.
 
 Allow disk space for a 470883696-byte verified model copy per active worker. Unloaded-parent RSS, active worker RSS and startup/first/warm request costs have different scopes; read the [measurement record](docs/measurements/native-lifecycle-0.6.2/README.md), including failed latency controls. This does not certify an actual 1-GiB machine. No model/runtime download is part of normal tests.

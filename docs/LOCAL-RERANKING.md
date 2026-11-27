@@ -20,7 +20,7 @@ Supply the platform-specific ONNX Runtime shared library separately. Native eval
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.1", default-features = false, features = ["local-reranking"] }
+airust = { version = "=0.6.2", default-features = false, features = ["local-reranking"] }
 ```
 
 ```rust,no_run
@@ -80,7 +80,7 @@ The existing constructor remains memory-backed. `multilingual_minilm_v2_from_sna
 
 The reference profile enables this with optional `reranker.model_snapshot_directory`. Missing/null preserves legacy behavior. The recipe, tokenizer, candidate prefix and raw-logit contract do not change. Measured memory/startup costs and native/Miri exclusions are in [resource ownership](RESOURCE-LIMITS.md) and [the retained study](measurements/profile-practical-0.6.0/README.md). The native profile still exceeds a 1-GiB device budget on this host; the model-free core is a separate option.
 
-## Explicit process ownership in the 0.6.2 development checkout
+## Explicit process ownership in 0.6.2
 
 For repeated MiniLM unload/reload, use the opt-in [process adapter](LOCAL-MODEL-PROCESSES.md) with a matching trusted worker and a verified private file snapshot. The parent retains bounded transport state and reaps its child before removing private copies. The reference pilot requires `reranker.isolated: true` and an explicit `model_snapshot_directory`; omitted/false keeps the old direct behavior. A malformed output, crash or timeout stops that scorer; recovery requires explicit recreation. There is no automatic retry/reload, global allocator setting or hard RAM quota.
 

@@ -1,6 +1,6 @@
-# Upgrade to the 0.6.2 development candidate
+# Upgrade to AIRust 0.6.2
 
-This checkout is unreleased. Published `airust = "=0.6.1"` consumers retain their current behavior; no registry 0.6.2 package is asserted to exist.
+Select `airust = "=0.6.2"`. Consumers that keep `airust = "=0.6.1"` retain their current behavior.
 
 No existing public method, default feature, model recipe, knowledge/database/document/workspace format or search default changes. Version-qualified MCP schema identifiers advance with the crate version; schema shapes and tool names remain compatible. Backend 0.3.5 remains unchanged. Core/provider-neutral builds retain Rust 1.89; local ONNX adapters require Rust 1.92.
 

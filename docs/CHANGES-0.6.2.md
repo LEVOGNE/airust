@@ -1,6 +1,6 @@
-# AIRust 0.6.2 development: predictable native process lifetime
+# AIRust 0.6.2: predictable native process lifetime
 
-This is an unreleased engineering candidate for the user's first post-0.6.1 priority: repeated local-model loading and unloading. It does not publish a new version or close independent retrieval-quality/onboarding gates.
+AIRust 0.6.2 addresses the user's first post-0.6.1 priority: repeated local-model loading and unloading. It also contains source-review fixes and resource-aware test control. It does not close the independent retrieval-quality and onboarding gates, and the process mode's warm-recovery latency gate remains failed (see [release limits](validation-0.6.2/RELEASE.md)).
 
 Repeated direct MiniLM construction/drop reproduced large resident-memory retention. Three native allocation-policy experiments did not resolve it. The adopted explicit process adapter ends and reaps the native process, using the existing pinned scorer and verified file-snapshot API. It adds no search algorithm, tensor framework, database, production dependency or default feature. Small protocol, transport and owner modules keep framing, OS lifetime and scorer policy separate. Owned library code continues to forbid unsafe code.
 

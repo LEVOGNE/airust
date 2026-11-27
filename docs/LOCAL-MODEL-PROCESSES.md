@@ -1,6 +1,6 @@
 # Local model process ownership
 
-This is the **unreleased 0.6.2 development API**. Build from this checkout; the immutable published 0.6.1 package does not contain it.
+This API was added in **AIRust 0.6.2**. The published 0.6.1 package does not contain it.
 
 `ProcessReranker` implements the existing `Reranker` interface using one application-owned worker process. The worker reuses the validated `FastEmbedReranker`, pinned MiniLM weights, CPU execution, tokenization, 512-token recipe and score checks. This moves native allocation lifetimes outside the application process. It does not add a search algorithm, model framework, database or mandatory default dependency.
 

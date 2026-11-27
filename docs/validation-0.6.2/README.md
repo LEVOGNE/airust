@@ -1,5 +1,7 @@
 # AIRust 0.6.2 development validation
 
+**Release note (2026-11-27):** 0.6.2 was authorized for publication. [RELEASE.md](RELEASE.md) governs the release gates and limits. The historical candidate text below is unchanged.
+
 The native process-owner implementation and the local engineering checks are complete. **This is an unreleased candidate.** Memory ownership passed its finite controls; a repeated maximum-10% warm latency claim did not. The clean implementation commit/package and its separate applications passed. The remote push was rejected by automatic approval review before execution; candidate hosted CI has not started and is not a pass. Final source/package receipts are recorded separately in `local-lab/native-lifecycle-2026-11-25/final-closeout.json`; do not infer publication or a green hosted job from this document.
 
 Read [scope](../CHANGES-0.6.2.md), [API/ownership](../LOCAL-MODEL-PROCESSES.md), [migration](../MIGRATION-0.6.2.md), [measurements and every regression](../measurements/native-lifecycle-0.6.2/README.md), [machine-readable local results](closeout.json) and [reproduction](REPRODUCE.md).
