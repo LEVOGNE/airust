@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+Test control: `status` reports never-run trigger-only checks (risk-triggered `short` configurations) as waiting for a matching risk trigger in `quick` instead of `now`, which no profile would have run. A regression test covers it. No library or binary change.
+
 ## 0.6.2 — 2026-11-27: explicit native model process ownership
 
 Add opt-in `ProcessReranker` using the existing local reranking feature, pinned scorer and verified file snapshots. Bound input/frames/diagnostics, keep one worker and one I/O thread, stop/reap crashed or timed-out workers, and retain the snapshot guard until the process exits. Preserve the direct in-process constructors, empty default features and original model/database files. The pilot accepts explicit `reranker.isolated` together with a snapshot directory. Native repeated-load measurements reproduce allocator retention; process teardown stabilizes the unloaded parent. Preserve rejected allocator changes, the slower memory-worker prototype and the failed serial latency confirmation. Active model RAM and startup/request costs remain material. See [scope](docs/CHANGES-0.6.2.md), [migration](docs/MIGRATION-0.6.2.md), [process contract](docs/LOCAL-MODEL-PROCESSES.md) and [measurements](docs/measurements/native-lifecycle-0.6.2/README.md). This is a development candidate, not a new publication.

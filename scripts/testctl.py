@@ -148,6 +148,10 @@ class AreaConfig:
     def deep(self):
         return self.max_age_days is not None
 
+    @property
+    def trigger_only(self):
+        return self.name == "short" and not self.deep
+
     def max_age(self):
         return timedelta(days=self.max_age_days) if self.deep else None
 
@@ -224,7 +228,7 @@ class Plan:
                 commands = "<br>".join(rendered) + (f" (x{config.repeat})" if config.repeat > 1 else "")
             age = f"{config.max_age_days} d" if config.deep else "input change"
             triggers = ", ".join(f"`{t}`" for t in area.raw.get("triggers", [])) or "-"
-            profiles = ", ".join(sorted(area.profiles | ({"quick (trigger)"} if config.name == "short" else set())))
+            profiles = ", ".join(sorted(area.profiles | ({"quick (trigger)"} if config.trigger_only else set())))
             rows.append(f"| {area.id} | {config.name} | {area.kind} | {profiles} | {age} | {triggers} | {commands} | {area.purpose} |")
         return "\n".join(rows)
 
@@ -957,7 +961,8 @@ class Controller:
             entry = store.peek(config.key)
             attempt, success = entry.get("last_attempt") or {}, entry.get("last_success") or {}
             rows.append({"key": config.key, "last_result": attempt.get("result", "never"), "last_attempt": attempt.get("finished_at"),
-                         "last_success": success.get("finished_at"), "next_due": entry.get("next_due", "now"),
+                         "last_success": success.get("finished_at"),
+                         "next_due": entry.get("next_due", "on matching risk trigger in quick" if config.trigger_only else "now"),
                          "fuzz_seconds_total": entry.get("fuzz_seconds", {}).get("all")})
         if as_json:
             print(json.dumps({"notes": store.notes, "areas": rows}, indent=2))

@@ -227,6 +227,19 @@ class TestControllerSelection(unittest.TestCase):
         self.assertIn("parser/short", self.keys(report["executed"]))
         self.assertEqual(self.box.count("deep"), 0)
 
+    def test_status_reports_never_run_trigger_checks_as_waiting_for_a_trigger(self):
+        self.box.area("parser", ["**"], {"short": Sandbox.config([self.box.counter("short")], deterministic=False),
+                                         "deep": Sandbox.config([self.box.counter("deep")], deterministic=False, max_age_days=7)},
+                      kind="stress", profiles=("nightly",), triggers=["src/parser.rs"])
+        self.box.commit()
+        self.box.run("nightly")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            self.box.controller().status(True)
+        rows = {row["key"]: row["next_due"] for row in json.loads(output.getvalue())["areas"]}
+        self.assertEqual(rows["parser/short"], "on matching risk trigger in quick")
+        self.assertNotEqual(rows["parser/deep"], "now")
+
     def test_without_baseline_triggers_compare_against_head(self):
         self.box.area("parser", ["**"], {"short": Sandbox.config([self.box.counter("short")], deterministic=False)},
                       kind="stress", profiles=("nightly",), triggers=["src/parser.rs"])

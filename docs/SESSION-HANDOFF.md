@@ -20,6 +20,13 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 Miri, fuzz and concurrency become due again from 2026-12-04 (`testctl status`).
 
+**Unattended block on 2026-11-27, 10:02 to 11:47 UTC (uncommitted, awaiting user review):**
+
+- `testctl status` now reports never-run trigger-only `short` checks as "on matching risk trigger in quick" instead of "now". A regression test was added, 24/24 controller tests pass, and the CHANGELOG has an `Unreleased` entry.
+- A fourth extended ASAN fuzz round ran outside testctl, 1200 s per target on the retained corpora: knowledge 151161 executions, lexical 117571, model_worker 117183122, pdf 29371. There was no artifact. Raw runs are in `local-lab/bin-weg-2026-11-27/fuzz-extended-4/`.
+- Cumulative search since 2026-11-26 is about 140 to 186 minutes per target. Nothing was found within these budgets, which is not a correctness proof.
+- No latency measurement was taken, because another project's compilation was running on the host. The latency item stays open.
+
 The user alternates between Claude Code and ChatGPT/Codex on this repository. Whoever finishes a block updates this section. Last update: Claude Code, unattended maintenance 2026-11-26 20:13 to 2026-11-27 05:00 UTC.
 
 - **Git state:**
