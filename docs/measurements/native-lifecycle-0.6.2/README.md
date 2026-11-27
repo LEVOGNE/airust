@@ -81,3 +81,61 @@ For the supported API, build/run the commands in [process ownership](../../LOCAL
 The direct constructors retain the measured allocator behavior. The process adapter implements the available pinned MiniLM reranker only; actual E5 inference assets were unavailable. Windows/Intel native execution, actual low-RAM devices, hard CPU/RAM quotas, unique system/GPU accounting and immediate cancellation inside native calls remain unestablished. Trusted workers must obey the no-descendant-pipe contract; this is not a security sandbox. Private copies cost at least 470883696 bytes per worker and can remain after abrupt application termination. No automatic retry/reload or global allocator policy is added.
 
 Native ONNX and OS subprocess execution stay outside Miri; pure protocol/input bounds and actual native subprocess controls are separate. The finite shared-protocol fuzzer does not load random native models. The fifty independently reviewed question gate remains **0/50**, and independent onboarding/reproduction is open. Stable model ownership and passing engineering checks do not close those gates or the failed repeated latency-cost criterion.
+
+## Additional repeat on commit 9e792bc (2026-11-26)
+
+After the review fixes, the serial confirmation was repeated with the unchanged public controller on commit `9e792bc` (process transport identical to the measured implementation except that a rejected request no longer consumes the worker sequence ID). Two pairs ran in opposite order: A = direct memory baseline then verified-file worker, B = worker then baseline, thirty cycles each, same synthetic fixture, weights, runtime and two threads. The policy was frozen before execution. Data: [repeat-2026-11-26](repeat-2026-11-26/) (per-cycle CSV, sanitized reports, policy, analysis, checksums).
+
+| Pair | Baseline / worker load p95 ms | Baseline / worker first p95 ms | Baseline / worker recovery p95 ms | Recovery ratio | Maximum 1.10 gate |
+| --- | --- | --- | --- | --- | --- |
+| A (baseline first) | 4218.834 / 2444.046 | 475.007 / 479.361 | 484.641 / 477.872 | 0.986 | Passed |
+| B (worker first) | 2289.847 / 2431.282 | 481.653 / 482.282 | 485.187 / 485.336 | 1.000 | Passed |
+
+| Run | Post-warm parent range MiB | Final parent after drop MiB | Sampled peak MiB | Growth gate |
+| --- | --- | --- | --- | --- |
+| A baseline (direct memory) | 208.500 | 2131.891 | 2275.438 | Failed |
+| A worker | 0.328 | 4.188 | 1212.375 | Passed |
+| B worker | 0.281 | 4.203 | 1211.922 | Passed |
+| B baseline (direct memory) | 219.094 | 2128.203 | 2223.359 | Failed |
+
+Both repeats pass the recovery-cost gate and both worker runs pass the memory gate; both direct baselines fail their growth budget again, as before. Baseline load p95 in pair A contains a slow-cycle cluster (median 2108.761 ms), so the load ratio of pair A (0.579) is not a load-time advantage of the worker; pair B shows the worker loading 6 % slower at p95. These two passes are additional evidence, not a replacement: the original serial confirmation remains **failed at 1.213**, and the declared criterion "established repeatedly" is now met by three of four serial-style comparisons, not by all. A separate steady-state measurement ([ipc-overhead-0.6.2](../ipc-overhead-0.6.2/README.md)) shows a median process-boundary cost of about 2 ms per twenty-call rerank and that host disturbances alone can push the unchanged baseline binary past the 1.10 p95 gate.
+
+## Eight-pair unattended repeat on commit 9e792bc (2026-11-26, 21:29-21:55 UTC)
+
+The rules were frozen before the run in the [policy](quiet-night-2026-11-26/policy.json). The run used the same binary (`4d4e4aaf…`) and the same controller as the evening repeat. There were eight serial pairs of 30 cycles each. Odd pairs ran baseline first, even pairs ran the worker first. The decision rule stated that "not reproduced on a quiet host" may only be written if all eight pairs pass 1.10.
+
+The user was away, but the host was **not** quiet:
+
+- The maintenance session ran about 5 s of Python unit tests during P1.
+- The Claude Code session restarted at 21:32:47 UTC, between P1 and P2.
+- Background OS activity was not instrumented.
+
+All of this is recorded in [disturbances.txt](quiet-night-2026-11-26/disturbances.txt).
+
+| Pair (order) | Baseline / worker recovery p95 ms | Recovery ratio | 1.10 gate | Baseline / worker load p95 ms | Worker post-warm range MiB |
+| --- | --- | --- | --- | --- | --- |
+| P1 (baseline first) | 482.2 / 563.6 | 1.169 | **Failed** | 2189.1 / 3290.1 | 0.266 |
+| P2 (worker first) | 826.8 / 1341.1 | 1.622 | **Failed** | 4268.3 / 5304.9 | 0.266 |
+| P3 (baseline first) | 484.0 / 467.0 | 0.965 | Passed | 2178.7 / 2280.3 | 0.297 |
+| P4 (worker first) | 1039.9 / 1042.3 | 1.002 | Passed | 3684.0 / 3992.3 | 0.266 |
+| P5 (baseline first) | 470.5 / 478.5 | 1.017 | Passed | 2160.6 / 2332.0 | 0.281 |
+| P6 (worker first) | 471.9 / 464.2 | 0.984 | Passed | 2142.4 / 2254.3 | 0.219 |
+| P7 (baseline first) | 474.2 / 474.3 | 1.000 | Passed | 2118.8 / 2415.7 | 0.250 |
+| P8 (worker first) | 476.4 / 1198.7 | 2.516 | **Failed** | 2212.1 / 5547.1 | 0.281 |
+
+**Result under the frozen rule:**
+
+- The warm-recovery cost failure is **reproduced in 3 of 8 pairs**. It is not refuted, and "not reproduced" is not stated.
+- All eight worker runs pass the memory-growth gate, with post-warm parent ranges of 0.219 to 0.297 MiB.
+- All eight direct baselines fail their growth budget again, with ranges of 198 to 603 MiB.
+- Worker load p95 is higher than the baseline in every pair (ratio 1.047 to 2.508). No load-time advantage follows from this.
+
+**Observations, not measured causes:**
+
+- In P2 and P4 the baseline runs are also slow (recovery p95 827 and 1040 ms, against about 475 ms in the other baselines). This points to host-wide slowdowns that affected both modes.
+- In P8 only the worker run is slow. Its baseline is normal, so P8 is not explained by a shared slowdown.
+- The pairs in which both runs look undisturbed (P3, P5, P6, P7) range from 0.965 to 1.017.
+
+None of this removes a failure. Across the original confirmation, the evening repeat and this run, the 1.10 recovery gate has now failed in 4 of 11 serial pair comparisons. The worker's recovery tail on this host is therefore not established as within 10 %. Per-cycle data are in [cycles.csv](quiet-night-2026-11-26/cycles.csv), together with path-normalized reports, the run script, the analysis, the export and the [checksums](quiet-night-2026-11-26/SHA256SUMS).
+
+**Foreign load during all 2026-11-26 runs.** A later process check found an unrelated project's Miri test process. It belonged to another Claude Code session, ran at about 96 % of one core, and had been started at 2026-11-26 00:17:49 UTC ([observation](quiet-night-2026-11-26/foreign-load-observed.txt)). It was therefore active during both the evening repeat and this eight-pair run. The run was "unattended", but the host was loaded. The effect of this load was not quantified, and no pass or failure above is re-labelled because of it. The original 1.213 run on 2026-11-25 predates this process.

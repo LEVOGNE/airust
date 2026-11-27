@@ -1,0 +1,62 @@
+import json
+import math
+import sys
+from pathlib import Path
+
+
+class LifecycleAnalysis:
+    def __init__(self, directory):
+        self.directory = directory
+
+    @staticmethod
+    def rank(values, p):
+        ordered = sorted(values)
+        return ordered[math.ceil(len(ordered) * p) - 1]
+
+    def run_summary(self, name):
+        folder = self.directory / name
+        events = json.loads((folder / "events.json").read_text()) if (folder / "events.json").exists() else []
+        metrics = {"load_ms": [], "first_ms": [], "recovery_ms": []}
+        for row in events:
+            for key in metrics:
+                value = row.get("extra", {}).get(key)
+                if value is not None:
+                    metrics[key].append(value)
+        report = folder / "report.json"
+        partial = folder / "partial-result.json"
+        record = json.loads(report.read_text()) if report.exists() else json.loads(partial.read_text()) if partial.exists() else {}
+        dropped = [row["rss_bytes"] for row in events if row.get("stage") == "dropped"]
+        steady = dropped[2:]
+        return {"cycles_observed": len(metrics["recovery_ms"]),
+                "p95": {k: self.rank(v, 0.95) for k, v in metrics.items() if v},
+                "median": {k: self.rank(v, 0.5) for k, v in metrics.items() if v},
+                "post_warm_range_mib": (max(steady) - min(steady)) / 1048576 if steady else None,
+                "final_parent_after_drop_mib": dropped[-1] / 1048576 if dropped else None,
+                "sampled_peak_mib": record.get("sampled_sum_peak_rss_bytes", 0) / 1048576,
+                "growth_budget_passed": record.get("rss_growth_budget_passed"),
+                "controller_exit_code": record.get("exit_code"),
+                "harness_failure": record.get("harness_failure")}
+
+    def run(self):
+        runs = {name: self.run_summary(name) for name in sorted(p.name for p in self.directory.iterdir() if p.is_dir() and p.name.startswith("P"))}
+        pairs = {}
+        for number in range(1, 9):
+            pair = f"P{number}"
+            names = [name for name in runs if name.startswith(pair + "-")]
+            base = next((name for name in names if name.endswith("baseline")), None)
+            cand = next((name for name in names if name.endswith("candidate")), None)
+            if base is None or cand is None:
+                continue
+            b, c = runs[base]["p95"], runs[cand]["p95"]
+            pairs[pair] = {metric: c[metric] / b[metric] for metric in ("load_ms", "first_ms", "recovery_ms") if metric in b and metric in c}
+            pairs[pair]["recovery_gate_1_10_passed"] = pairs[pair].get("recovery_ms", 99) <= 1.10
+        ratios = [value["recovery_ms"] for value in pairs.values() if "recovery_ms" in value]
+        summary = {"runs": runs, "pairs": pairs, "pairs_complete": len(ratios), "pairs_passing_1_10": sum(r <= 1.10 for r in ratios),
+                   "recovery_ratio_min": min(ratios) if ratios else None, "recovery_ratio_max": max(ratios) if ratios else None,
+                   "not_reproduced_on_quiet_host": len(ratios) == 8 and all(r <= 1.10 for r in ratios)}
+        (self.directory / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+        print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    LifecycleAnalysis(Path(sys.argv[1])).run()

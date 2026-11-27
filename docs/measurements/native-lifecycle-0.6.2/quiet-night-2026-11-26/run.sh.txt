@@ -1,0 +1,10 @@
+#!/bin/bash
+set -uo pipefail
+L=$(cd "$(dirname "$0")" && pwd); R=$(cd "$L/../../.." && pwd)
+M=$R/local-lab/reference-workflow/models/mmarco-minilm-v2; RT=$R/local-lab/pdf-stability/python-deps-0315/onnxruntime/capi/libonnxruntime.1.32.0.dylib
+run() { python3 -B $R/scripts/benchmark_model_lifecycle.py $L/bin/native_model_lifecycle $L/$1 --model-directory $M --runtime $RT --cycles 30 $2 > $L/$1.stdout 2>&1; echo "$1 exit=$? $(date -u +%H:%M:%S)" >> $L/runs.txt; }
+B="--backend in_process --mode memory"; C="--backend process --mode snapshot"
+for p in 1 2 3 4 5 6 7 8; do
+  if [ $((p % 2)) -eq 1 ]; then run P$p-1-baseline "$B"; run P$p-2-candidate "$C"; else run P$p-1-candidate "$C"; run P$p-2-baseline "$B"; fi
+done
+echo done >> $L/runs.txt

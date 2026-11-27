@@ -1,0 +1,13 @@
+{
+  "frozen_at": "2026-11-26T18:09:03Z",
+  "purpose": "Repeat the failed serial warm-recovery p95 cost confirmation (1.213) on the current committed source with the public controller; adds evidence, never replaces the original failure.",
+  "source": "9e792bc46697dc839872fe38d3fc325bfb1a644d (process transport identical to the measured 0.6.2 implementation apart from the request-ID ordering fix)",
+  "binary_sha256": "4d4e4aaf8ba01688ba6024f29a2297b4a15ac538992593cbc08f473e75d3bf78",
+  "controller": "scripts/benchmark_model_lifecycle.py sha256 a060ccf575773618ce11ac07cc9139fa5cd823b77e842a17fe3fc9b32ad31363",
+  "baseline": "--backend in_process --mode memory --cycles 30",
+  "candidate": "--backend process --mode snapshot --cycles 30",
+  "order": ["A1 baseline", "A2 candidate", "B1 candidate", "B2 baseline"],
+  "metrics": "load_ms, first_ms, recovery_ms p95 over all 30 cycles (nearest rank, no removal); recovery p95 ratio candidate/baseline per pair with the declared maximum 1.10; post-warm parent RSS range per run with the declared 64 MiB budget.",
+  "assets": "local-lab/reference-workflow/models/mmarco-minilm-v2, ONNX Runtime 1.32.0 dylib (read only; verified snapshots in a private temporary directory)",
+  "honesty": "Synthetic resource fixture; host may have interactive activity; every run and failure is reported."
+}

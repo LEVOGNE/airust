@@ -1,0 +1,9 @@
+{
+  "frozen_at": "2026-11-26T20:14:21Z",
+  "set": 3,
+  "question": "Does the unchanged baseline binary keep the per-case p95 worker/direct ratio at or below 1.10 in every block on an unattended host? Steady-state boundary cost on a quiet host.",
+  "binary": "probe-base only (sha256 784bbc105253ed6c5dfb2c0febef3c93675354d6d4b8bcf2000f610b08b063ed); the buffered-stdin candidate stays rejected and is not re-tested, to avoid re-running until a preferred outcome appears.",
+  "design": "Four consecutive blocks of 240 rounds, same workload, ABBA within rounds, same estimator and analysis as sets 1 and 2. All rounds kept.",
+  "decision_rule": "Report every block. State 'gate holds on an unattended host' only if all four blocks pass 1.10; otherwise report the failing blocks. Sets 1 and 2 remain unchanged.",
+  "conditions": "User away; no other heavy task scheduled by this session during the set; background OS activity not instrumented."
+}

@@ -1,0 +1,97 @@
+#![forbid(unsafe_code)]
+use airust::{
+    reranking::{
+        local::FastEmbedReranker,
+        process::{ProcessOptions, ProcessReranker},
+        rerank, RerankError, RerankOptions, Reranker,
+    },
+    KnowledgeEntry,
+};
+use serde::Deserialize;
+use std::{error::Error, io::Write, time::Instant};
+
+#[derive(Deserialize)]
+struct Prefix {
+    query: String,
+    candidates: Vec<KnowledgeEntry>,
+}
+
+struct Timed<'a> {
+    inner: &'a mut dyn Reranker,
+    calls: Vec<f64>,
+}
+
+impl Reranker for Timed<'_> {
+    fn recipe(&self) -> &str {
+        self.inner.recipe()
+    }
+    fn score(&mut self, q: &str, d: &[&str]) -> Result<Vec<f64>, RerankError> {
+        let start = Instant::now();
+        let result = self.inner.score(q, d);
+        self.calls.push(start.elapsed().as_secs_f64() * 1000.0);
+        result
+    }
+}
+
+struct Probe {
+    prefixes: Vec<Prefix>,
+    options: RerankOptions,
+}
+
+impl Probe {
+    fn measure(&self, model: &mut dyn Reranker, case: usize) -> Result<(f64, Vec<f64>, Vec<u64>), Box<dyn Error>> {
+        let prefix = &self.prefixes[case];
+        let mut timed = Timed { inner: model, calls: Vec::with_capacity(20) };
+        let start = Instant::now();
+        let outcome = rerank(&prefix.query, &prefix.candidates, &mut timed, &self.options)?;
+        let total = start.elapsed().as_secs_f64() * 1000.0;
+        let bits = outcome.results().iter().map(|r| r.score.unwrap_or(f64::NAN).to_bits()).collect();
+        Ok((total, timed.calls, bits))
+    }
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) == Some(airust::reranking::process::WORKER_ARGUMENT) {
+        airust::reranking::process::run_worker()?;
+        return Ok(());
+    }
+    if args.len() != 6 {
+        return Err("expected PREFIXES MODEL_DIR RUNTIME SNAPSHOT_PARENT ROUNDS OUTPUT_CSV".into());
+    }
+    let prefixes: Vec<Prefix> = serde_json::from_slice(&std::fs::read(&args[0])?)?;
+    let rounds: usize = args[4].parse()?;
+    let probe = Probe {
+        prefixes,
+        options: RerankOptions::new(20).with_candidates(20)?.with_batch_size(1)?,
+    };
+    let snapshots = tempfile::tempdir_in(&args[3])?;
+    let mut direct = FastEmbedReranker::multilingual_minilm_v2_from_snapshot(&args[1], &args[2], 2, snapshots.path())?;
+    let mut worker = ProcessReranker::multilingual_minilm_v2_from_snapshot(
+        ProcessOptions::new(std::env::current_exe()?),
+        &args[1],
+        &args[2],
+        2,
+        snapshots.path(),
+    )?;
+    let mut output = std::fs::File::create(&args[5])?;
+    writeln!(output, "round,case,position,backend,total_ms,call_sum_ms,call_max_ms,calls")?;
+    for round in 0..rounds {
+        let case = round % probe.prefixes.len();
+        let order = if round % 2 == 0 { ["direct", "worker"] } else { ["worker", "direct"] };
+        let mut signatures = Vec::new();
+        for (position, backend) in order.iter().enumerate() {
+            let model: &mut dyn Reranker = if *backend == "direct" { &mut direct } else { &mut worker };
+            let (total, calls, bits) = probe.measure(model, case)?;
+            let sum: f64 = calls.iter().sum();
+            let max = calls.iter().cloned().fold(0.0, f64::max);
+            writeln!(output, "{round},{case},{position},{backend},{total:.4},{sum:.4},{max:.4},{}", calls.len())?;
+            signatures.push(bits);
+        }
+        if signatures[0] != signatures[1] {
+            return Err(format!("score bits differ between backends in round {round}").into());
+        }
+    }
+    output.flush()?;
+    Ok(())
+}

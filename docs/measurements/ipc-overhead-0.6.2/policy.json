@@ -1,0 +1,14 @@
+{
+  "frozen_at": "2026-11-26T17:46:04Z",
+  "question": "Steady-state per-request cost of the ProcessReranker boundary versus the direct in-process scorer, and whether buffering the worker stdin changes it.",
+  "baseline_source": "9e792bc46697dc839872fe38d3fc325bfb1a644d",
+  "candidate_source": "9e792bc + BufWriter(64 KiB) around worker ChildStdin in src/reranking/process/transport.rs",
+  "binaries_sha256": {"probe-base": "784bbc105253ed6c5dfb2c0febef3c93675354d6d4b8bcf2000f610b08b063ed", "probe-cand": "3d950611ab38cebf5c7063bcb9fecd9c9a4ba33363025194cc0196dcb33a832b"},
+  "probe_source_sha256": "f57ef7d1aaa037c3e51f55e11afe4086798f20f5a73ce849a53cfd0548a1b517",
+  "workload": "tests/fixtures/native-lifecycle-v1.json (4 synthetic cases x 20 candidates), batch_size 1, 20 candidates, threads 2, MiniLMv2 verified snapshot, ONNX Runtime 1.32.0",
+  "design": "Both scorers loaded once in one parent; per round the same case is scored by both in ABBA order (even rounds direct first). Score bits must match each round. Blocks alternate base, cand, base, cand; 240 rounds per block. All rounds are kept; no warmup removal except the separately labelled smoke run, which is not counted.",
+  "estimator": "nearest-rank percentile: sorted[ceil(n*p)-1]",
+  "primary_metrics": ["per-case p95 worker/direct total ratio per block (declared gate <= 1.10)", "median and p95 of paired per-round difference worker - direct (ms)", "candidate versus baseline difference of the paired median overhead"],
+  "claims_policy": "No improvement is claimed unless the candidate paired-overhead median is lower than the baseline in both block pairs; any regression is retained.",
+  "conditions": "Same host (M5 Max, 64 GiB), no other compute-intensive task running; not a cold-load or lifecycle measurement."
+}

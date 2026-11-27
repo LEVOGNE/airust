@@ -1,0 +1,94 @@
+{
+  "runs": {
+    "A1-baseline": {
+      "cycles_observed": 30,
+      "p95": {
+        "load_ms": 4218.834459,
+        "first_ms": 475.007042,
+        "recovery_ms": 484.64125
+      },
+      "median": {
+        "load_ms": 2108.761375,
+        "first_ms": 243.790292,
+        "recovery_ms": 244.431542
+      },
+      "post_warm_range_mib": 208.5,
+      "final_parent_after_drop_mib": 2131.890625,
+      "sampled_peak_mib": 2275.4375,
+      "growth_budget_passed": false,
+      "controller_exit_code": 0,
+      "harness_failure": null
+    },
+    "A2-candidate": {
+      "cycles_observed": 30,
+      "p95": {
+        "load_ms": 2444.045542,
+        "first_ms": 479.361417,
+        "recovery_ms": 477.872084
+      },
+      "median": {
+        "load_ms": 2325.617167,
+        "first_ms": 246.203417,
+        "recovery_ms": 246.315166
+      },
+      "post_warm_range_mib": 0.328125,
+      "final_parent_after_drop_mib": 4.1875,
+      "sampled_peak_mib": 1212.375,
+      "growth_budget_passed": true,
+      "controller_exit_code": 0,
+      "harness_failure": null
+    },
+    "B1-candidate": {
+      "cycles_observed": 30,
+      "p95": {
+        "load_ms": 2431.2818749999997,
+        "first_ms": 482.282,
+        "recovery_ms": 485.33554200000003
+      },
+      "median": {
+        "load_ms": 2340.775334,
+        "first_ms": 246.095292,
+        "recovery_ms": 307.48449999999997
+      },
+      "post_warm_range_mib": 0.28125,
+      "final_parent_after_drop_mib": 4.203125,
+      "sampled_peak_mib": 1211.921875,
+      "growth_budget_passed": true,
+      "controller_exit_code": 0,
+      "harness_failure": null
+    },
+    "B2-baseline": {
+      "cycles_observed": 30,
+      "p95": {
+        "load_ms": 2289.847375,
+        "first_ms": 481.653125,
+        "recovery_ms": 485.186791
+      },
+      "median": {
+        "load_ms": 2131.659833,
+        "first_ms": 243.364958,
+        "recovery_ms": 247.086583
+      },
+      "post_warm_range_mib": 219.09375,
+      "final_parent_after_drop_mib": 2128.203125,
+      "sampled_peak_mib": 2223.359375,
+      "growth_budget_passed": false,
+      "controller_exit_code": 0,
+      "harness_failure": null
+    }
+  },
+  "pairs": {
+    "A": {
+      "load_ms": 0.5793177157700845,
+      "first_ms": 1.0091669693604248,
+      "recovery_ms": 0.9860326251634585,
+      "recovery_gate_1_10_passed": true
+    },
+    "B": {
+      "load_ms": 1.0617659069963123,
+      "first_ms": 1.0013056595449266,
+      "recovery_ms": 1.0003065850158315,
+      "recovery_gate_1_10_passed": true
+    }
+  }
+}

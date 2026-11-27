@@ -1,0 +1,15 @@
+{
+  "frozen_at": "2026-11-26T20:13:56Z",
+  "purpose": "Quiet-host repeat of the failed serial warm-recovery p95 cost confirmation (1.213) while the user is away and no other heavy work runs; adds evidence, never replaces the original failure or the 2026-11-26 evening repeat.",
+  "source": "9e792bc46697dc839872fe38d3fc325bfb1a644d; same binary as the evening repeat",
+  "binary_sha256": "4d4e4aaf8ba01688ba6024f29a2297b4a15ac538992593cbc08f473e75d3bf78",
+  "controller": "scripts/benchmark_model_lifecycle.py sha256 a060ccf575773618ce11ac07cc9139fa5cd823b77e842a17fe3fc9b32ad31363",
+  "baseline": "--backend in_process --mode memory --cycles 30",
+  "candidate": "--backend process --mode snapshot --cycles 30",
+  "pairs": 8,
+  "order": "pair 1,3,5,7 baseline then candidate; pair 2,4,6,8 candidate then baseline; strictly serial, nothing else heavy scheduled",
+  "metrics": "load_ms, first_ms, recovery_ms p95 over all 30 cycles (nearest rank, no removal); recovery p95 ratio candidate/baseline per pair against the declared maximum 1.10; post-warm parent RSS range per run against the declared 64 MiB budget.",
+  "decision_rule": "Report every pair. State 'not reproduced on a quiet host' only if all 8 pairs pass 1.10; any failing pair is reported as a reproduced cost failure. Neither outcome removes the original 1.213 failure.",
+  "assets": "local-lab/reference-workflow/models/mmarco-minilm-v2, ONNX Runtime 1.32.0 dylib (read only)",
+  "honesty": "Synthetic resource fixture, single macOS host; unattended but not instrumented for background OS activity."
+}

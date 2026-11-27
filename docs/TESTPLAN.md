@@ -36,7 +36,7 @@ uv run --no-project scripts/testctl.py plan --check       # validate plan and th
 - **nightly** works on a detached git worktree of a fixed commit (default `HEAD`); local uncommitted changes are neither used nor modified. It ranks due deep checks: failed/incomplete first, then starved coverage (older than twice the maximum age), then new risk (inputs, configuration or toolchain changed) and never-run checks, then expired coverage. It picks one compute-intensive focus (Miri, fuzzing, concurrency or stress) and runs that kind's due items while their measured (or estimated) duration fits the remaining budget of 90 minutes including compilation. Everything else stays visibly **DUE** and gains priority with age. With nothing due it exits without an expensive run.
 - **full** is the independent control: every quick and full check executes fresh (no reuse), including the complete `test.sh`, MSRV 1.89/1.92 and backend ABI/provenance checks, followed by due deep checks across kinds within 120 minutes. Benchmarks are not part of any profile; measure them separately under quiet, comparable conditions per [AGENTS.md](../AGENTS.md).
 
-For `BIN WEG <duration>` sessions run `full`, then `nightly --budget-minutes <remaining>` repeatedly; the 90-minute limit does not apply there.
+For `BIN WEG <duration>` sessions run `full`, then `nightly --budget-minutes <remaining>` repeatedly; the 90-minute limit does not apply there. `nightly --focus miri|fuzz|concurrency|stress` selects the compute focus explicitly (memory-safety work first); everything outside the focus stays visibly due.
 
 ## Reuse and invalidation rules
 

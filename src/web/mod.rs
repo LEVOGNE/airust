@@ -200,6 +200,71 @@ fn build_main_router(state: SharedState) -> axum::Router {
         .with_state(state)
 }
 
+struct ServerReset;
+
+impl ServerReset {
+    fn agents(kb: &KnowledgeBase) -> Vec<AgentWrapper> {
+        let mut tfidf = TfidfAgent::new();
+        tfidf.train(kb.get_examples());
+        let mut exact = MatchAgent::new_exact();
+        exact.train(kb.get_examples());
+        let mut fuzzy = MatchAgent::new_fuzzy();
+        fuzzy.train(kb.get_examples());
+        let mut context = ContextAgent::new(TfidfAgent::new(), 5);
+        context.train(kb.get_examples());
+        vec![
+            AgentWrapper::Tfidf(tfidf),
+            AgentWrapper::Exact(exact),
+            AgentWrapper::Fuzzy(fuzzy),
+            AgentWrapper::Context(context),
+        ]
+    }
+
+    fn active_agents() -> Vec<String> {
+        ["tfidf", "exact", "fuzzy", "context"]
+            .into_iter()
+            .map(str::to_owned)
+            .collect()
+    }
+
+    async fn run(console: &ConsoleState, state: &SharedState) -> bool {
+        console.push_log("warn", "Deleting airust.db...").await;
+        let _ = std::fs::remove_file("airust.db");
+        console.push_log("info", "Reinitializing...").await;
+        let database = match Database::open("airust.db") {
+            Ok(database) => Arc::new(database),
+            Err(error) => {
+                console
+                    .push_log(
+                        "error",
+                        &format!("Reset failed; airust.db could not be opened: {error}"),
+                    )
+                    .await;
+                return false;
+            }
+        };
+        let knowledge_base = KnowledgeBase::from_embedded();
+        let agents = Self::agents(&knowledge_base);
+        let scheduler = BotScheduler::new(database.clone());
+        let mut s = state.write().await;
+        s.agents = agents;
+        s.active_agents = Self::active_agents();
+        s.knowledge_base = knowledge_base;
+        s.db = database;
+        s.scheduler = scheduler;
+        true
+    }
+
+    async fn announce(console: &ConsoleState, message: &str) {
+        console.push_log("info", message).await;
+        let _ = console.tx.send(console::LogEntry {
+            timestamp: chrono::Utc::now().format("%H:%M:%S").to_string(),
+            level: "info".to_string(),
+            message: "__reset__".to_string(),
+        });
+    }
+}
+
 pub async fn start_server(port: u16, show_landing: bool) {
     let Some(console_port) = port.checked_add(1).filter(|_| port > 0) else {
         eprintln!("AIRust requires a port between 1 and 65534; the console uses port+1.");
@@ -238,30 +303,11 @@ pub async fn start_server(port: u16, show_landing: bool) {
     let kb = KnowledgeBase::from_embedded();
     let kb_size = kb.get_examples().len();
 
-    let mut tfidf = TfidfAgent::new();
-    tfidf.train(kb.get_examples());
-    let mut exact = MatchAgent::new_exact();
-    exact.train(kb.get_examples());
-    let mut fuzzy = MatchAgent::new_fuzzy();
-    fuzzy.train(kb.get_examples());
-    let mut ctx_agent = ContextAgent::new(TfidfAgent::new(), 5);
-    ctx_agent.train(kb.get_examples());
-
     let scheduler = BotScheduler::new(db.clone());
 
     let state: SharedState = Arc::new(RwLock::new(AppState {
-        agents: vec![
-            AgentWrapper::Tfidf(tfidf),
-            AgentWrapper::Exact(exact),
-            AgentWrapper::Fuzzy(fuzzy),
-            AgentWrapper::Context(ctx_agent),
-        ],
-        active_agents: vec![
-            "tfidf".to_string(),
-            "exact".to_string(),
-            "fuzzy".to_string(),
-            "context".to_string(),
-        ],
+        agents: ServerReset::agents(&kb),
+        active_agents: ServerReset::active_agents(),
         knowledge_base: kb,
         db: db.clone(),
         scheduler,
@@ -371,49 +417,12 @@ pub async fn start_server(port: u16, show_landing: bool) {
                                 if let Some(tx) = shutdown_tx.take() { let _ = tx.send(()); }
                                 let _ = server_handle.await;
                                 server_running.store(false, Ordering::SeqCst);
-
-                                console.push_log("warn", "Deleting airust.db...").await;
-                                let _ = std::fs::remove_file("airust.db");
-
-                                console.push_log("info", "Reinitializing...").await;
-                                let new_database = Database::open("airust.db").expect("Failed to open database");
-                                let new_db = Arc::new(new_database);
-
-                                let kb = KnowledgeBase::from_embedded();
-                                let mut tfidf = TfidfAgent::new();
-                                tfidf.train(kb.get_examples());
-                                let mut exact = MatchAgent::new_exact();
-                                exact.train(kb.get_examples());
-                                let mut fuzzy = MatchAgent::new_fuzzy();
-                                fuzzy.train(kb.get_examples());
-                                let mut ctx_agent = ContextAgent::new(TfidfAgent::new(), 5);
-                                ctx_agent.train(kb.get_examples());
-
-                                let new_scheduler = BotScheduler::new(new_db.clone());
-
-                                {
-                                    let mut s = state.write().await;
-                                    s.agents = vec![
-                                        AgentWrapper::Tfidf(tfidf),
-                                        AgentWrapper::Exact(exact),
-                                        AgentWrapper::Fuzzy(fuzzy),
-                                        AgentWrapper::Context(ctx_agent),
-                                    ];
-                                    s.active_agents = vec!["tfidf".into(), "exact".into(), "fuzzy".into(), "context".into()];
-                                    s.knowledge_base = kb;
-                                    s.db = new_db;
-                                    s.scheduler = new_scheduler;
+                                if !ServerReset::run(&console, &state).await {
+                                    should_start = false;
+                                    break;
                                 }
-
                                 console.push_log("info", &format!("Knowledge base: {} examples", state.read().await.knowledge_base.get_examples().len())).await;
-                                console.push_log("info", "Reset complete, restarting server...").await;
-
-                                let _ = console.tx.send(console::LogEntry {
-                                    timestamp: chrono::Utc::now().format("%H:%M:%S").to_string(),
-                                    level: "info".to_string(),
-                                    message: "__reset__".to_string(),
-                                });
-
+                                ServerReset::announce(&console, "Reset complete, restarting server...").await;
                                 should_start = true;
                                 break;
                             }
@@ -438,49 +447,10 @@ pub async fn start_server(port: u16, show_landing: bool) {
                     should_start = true;
                 }
                 Some(console::ServerCommand::Reset) => {
-                    console.push_log("warn", "Deleting airust.db...").await;
-                    let _ = std::fs::remove_file("airust.db");
-                    console.push_log("info", "Reinitializing...").await;
-                    let new_database =
-                        Database::open("airust.db").expect("Failed to open database");
-                    let new_db = Arc::new(new_database);
-                    let kb = KnowledgeBase::from_embedded();
-                    let mut tfidf = TfidfAgent::new();
-                    tfidf.train(kb.get_examples());
-                    let mut exact = MatchAgent::new_exact();
-                    exact.train(kb.get_examples());
-                    let mut fuzzy = MatchAgent::new_fuzzy();
-                    fuzzy.train(kb.get_examples());
-                    let mut ctx_agent = ContextAgent::new(TfidfAgent::new(), 5);
-                    ctx_agent.train(kb.get_examples());
-                    let new_scheduler = BotScheduler::new(new_db.clone());
-                    {
-                        let mut s = state.write().await;
-                        s.agents = vec![
-                            AgentWrapper::Tfidf(tfidf),
-                            AgentWrapper::Exact(exact),
-                            AgentWrapper::Fuzzy(fuzzy),
-                            AgentWrapper::Context(ctx_agent),
-                        ];
-                        s.active_agents = vec![
-                            "tfidf".into(),
-                            "exact".into(),
-                            "fuzzy".into(),
-                            "context".into(),
-                        ];
-                        s.knowledge_base = kb;
-                        s.db = new_db;
-                        s.scheduler = new_scheduler;
+                    should_start = ServerReset::run(&console, &state).await;
+                    if should_start {
+                        ServerReset::announce(&console, "Reset complete, starting server...").await;
                     }
-                    console
-                        .push_log("info", "Reset complete, starting server...")
-                        .await;
-                    let _ = console.tx.send(console::LogEntry {
-                        timestamp: chrono::Utc::now().format("%H:%M:%S").to_string(),
-                        level: "info".to_string(),
-                        message: "__reset__".to_string(),
-                    });
-                    should_start = true;
                 }
                 _ => {}
             }

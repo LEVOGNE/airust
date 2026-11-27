@@ -41,3 +41,76 @@ Actual E5 inference, Windows/Intel native execution, unique physical/system/GPU 
 Implementation commit: `a5725fcc0614982b016216679b7891546d0384c2`. Its clean archive has 4075 files, 6866544 bytes and SHA-256 `0c516d93e03cdc13ed3a6881727bcaa9385a449067bdec7f8a3121cd8da9952c`; packaged Rust/numeric artifact bytes match. Separate core/native applications also pass against this exact clean archive, including a second eight-cycle/160-result standalone-worker cohort. These are two separate functional cohorts, not additional thirty-cycle growth gates.
 
 Automatic approval review rejected pushing `codex/stabilize-native-model-lifecycle` to `https://github.com/LEVOGNE/airust.git` because explicit authorization for that concrete external source transfer was not established. No candidate source was uploaded and hosted CI was not started. A new explicit branch-push approval is required before retrying; no alternate upload or bypass is authorized. Local closeout documentation does not change runtime or measurement inputs. The release remains 0.6.1; a new release needs its own instruction.
+
+## Post-closeout review and maintenance (2026-11-26)
+
+This section adds later evidence. It does not change the observations above, and none of it is a release.
+
+**Remote state.** After the rejected attempt described above, the branch was pushed at `1cbd70e` (documentation-only follow-up to `a5725fc`), and hosted CI run `45669021076` ("Rust") passed. The source review fixes and the test control are in a later local commit, `9e792bc`, which has not been pushed. The maintenance changes below are uncommitted working-tree changes on top of `9e792bc`.
+
+**Review fixes (`9e792bc`).** A six-reviewer source review, with every finding checked against the code, led to these fixes:
+
+- A worker request rejected before transmission no longer consumes the sequence ID.
+- A provider `NonFiniteScore` position is reported as the original input rank across batches. A regression test covers this.
+- Web file writes are atomic.
+- A Tatoeba import is one database transaction and reports its errors.
+- Web PDF uploads apply the default import limits.
+- `add_message` is transactional.
+- Vector search sorts with `total_cmp`.
+- The cache checks the file type and length on the opened handle.
+- The shared local runtime tolerates a poisoned lock.
+- CLI `stop` ignores an already removed record.
+- A failed detached start kills and reaps its child.
+
+Findings that would change the schema, the public behaviour or the security policy were not implemented. They remain open user decisions: CSP and inline handlers in the web frontend, admin mode without a token, web size limits, database indexes, duplicate hashes and labels, and the worker environment and runtime hash.
+
+**Resource-aware test control.** [TESTPLAN.md](../TESTPLAN.md) defines 34 area configurations. Every run below was selected and recorded by `scripts/testctl.py`. The exported status and run reports, including the failed run, are in [maintenance-2026-11-26/testctl-receipt.json](maintenance-2026-11-26/testctl-receipt.json), with absolute paths normalized. Raw logs and fuzz corpora stay in the ignored local `.testctl/` directory and are not published.
+
+| Check | Source | Result |
+| --- | --- | --- |
+| Miri, 12 groups, TreeBorrows, nightly `5f4effd579`, isolated worktree | `9e792bc` | **128 passed tests**, 0 failed (core 25, index 41, training-knowledge 18, pilot 12, profile-config 8, input 6, model-worker 6, mcp-response 4, mcp-backend 3, model-assets 2, training-properties 2, stability-state 1); 1471 s total |
+| libFuzzer + ASAN, `knowledge`, isolated worktree | `9e792bc` | 1200 s, **149717** executions, 1152 new units, peak RSS 479 MiB, no crash/timeout/artifact |
+| libFuzzer + ASAN, `lexical` | `9e792bc` | 1200 s, **102971** executions, 1088 new units, peak RSS 587 MiB, no artifact |
+| libFuzzer + ASAN, `model_worker` (production protocol source) | `9e792bc` | 900 s, **69380168** executions, 14202 new units, peak RSS 740 MiB, no artifact |
+| libFuzzer + ASAN, `pdf` | `9e792bc` | 1500 s, **69684** executions, 2898 new units, peak RSS 1659 MiB, no artifact |
+| libFuzzer + ASAN, `lexical` short | `1cbd70e` working tree | 60 s, 5563 executions, no artifact |
+| Concurrency short (triggered) | `1cbd70e` working tree | 93 passed, 1 ignored |
+| Concurrency deep, release, 25 repetitions | `9e792bc` + working tree | **2325 passed**, 0 failed, 25 ignored, 337 s |
+| libFuzzer + ASAN, extended round 1 outside testctl, 2700 s per target on the retained corpora ([runs](maintenance-2026-11-26/fuzz-extended/round-1-runs.txt), [script](maintenance-2026-11-26/fuzz-extended/run.sh.txt)) | binaries from the testctl builds above (`9e792bc` + working tree; model_worker from the isolated `9e792bc` build) | knowledge **326716** executions (corpus 1004 to 1808), lexical **255499** (1715 to 2720), model_worker **257206100** (1461 to 4664), pdf **88292** (4107 to 6139); exit 0, no artifact |
+| libFuzzer + ASAN, extended round 2, 1800 s per target, same binaries and corpora ([runs](maintenance-2026-11-26/fuzz-extended/round-2-runs.txt)) | as round 1 | knowledge **218200** (corpus 1808 to 2331), lexical **173808** (2720 to 3343), model_worker **187719459** (4664 to 5750), pdf **54403** (6139 to 7262); exit 0, no artifact |
+| libFuzzer + ASAN, extended round 3, 900 s per target, after the foreign load had ended ([runs](maintenance-2026-11-26/fuzz-extended/round-3-runs.txt)) | as round 1 | knowledge 103870 (corpus to 2590), lexical 93068 (to 3667), model_worker 99497112 (to 6357), pdf 23395 (to 7656); exit 0, no artifact |
+| **Cumulative fuzz search, 2026-11-26/27** | | knowledge 7803 s / 946468 executions; lexical 7866 s / 740285; model_worker 6302 s / 613802839; pdf 8406 s / 288985. No crash, timeout or ASAN report within these budgets. This is not a correctness proof. Corpora are retained locally in `.testctl/fuzz/corpus` and are not published. |
+| Concurrency, 100 additional release repetitions of the same two deep commands, outside testctl ([results](maintenance-2026-11-26/concurrency-100/results.txt), [script](maintenance-2026-11-26/concurrency-100/run.sh.txt)) | `9e792bc` + working tree | 200 invocations, **9300 passed**, 0 failed, 22:08-22:12 UTC; varied interleavings, not a proof of absence of races |
+| Concurrency, 500 further release repetitions, same script ([results](maintenance-2026-11-26/concurrency-500/results.txt)) | `9e792bc` + working tree | 1000 invocations, **46500 passed**, 0 failed, 03:14-03:32 UTC |
+| Stress deep: index scale/clone and concurrent snapshots, 10000 synthetic entries each, release | `9e792bc` + working tree | Passed, 37.5 s; functional bounds only, not a timed benchmark |
+| full (run `20261126T194753Z-e9adae35`): `test.sh`, Rust 1.89 CI features and 1.92 all features, backend full, quick suite | `9e792bc` + working tree | `test.sh` **1504 passed**, 1 ignored (416 s); MSRV, backend and quick suite passed |
+| Miri again within the same full run (inputs changed after `9e792bc`) | `9e792bc` + working tree | **128 passed tests** / 12 groups again, 0 failed, 1547 s |
+| libFuzzer + ASAN, second round on the retained corpora (same full run) | `9e792bc` + working tree | knowledge 1200 s / 147965 executions (corpus 599 to 1004), lexical 1200 s / 109376 (1062 to 1715), pdf 1500 s / 53211 (2579 to 4107); no artifact. Cumulative recorded search: knowledge 2403 s, lexical 2406 s (+60 s short), pdf 3006 s, model_worker 902 s |
+| quick: fmt, Clippy default/all features, tests default/all features, contracts, controller, backend | `9e792bc` + working tree | Default 266, all-feature **942** passed / 1 ignored, backend 14; all passed |
+
+Each fuzz campaign started from an empty local corpus plus the versioned seeds in `tests/fixtures/fuzz-seeds/v0.5.2`. The deep campaigns ran one after another in one focus run with fixed libFuzzer seeds, all recorded in the receipt. LeakSanitizer was off. The standard library and C/system code are not fully instrumented. The PDF target runs the Rust parser under ASAN, unlike the earlier coverage-only PDF campaigns. These campaigns found nothing within their budgets. That is not a correctness proof.
+
+**Failures retained.** The first `quick` run on the working tree failed `clippy-all` with `collapsible_match` in the new web reset code (run `20261126T193722Z-d7237845`). The code was corrected, and the next run passed (`20261126T193919Z-2c0832cf`). Both runs are in the receipt. While the test control was being built, its own unit tests found three controller defects: a counted echo line, invisible `.rs` changes outside the planned inputs, and a 0.0-second duration read as "unknown". They were fixed before the commit.
+
+**Test-control defect found after these runs (working tree).** Inspecting the status after the full run showed that the three deep fuzz records of run `20261126T194753Z-e9adae35` (knowledge, lexical, pdf) list `uncommitted_inputs: []` and reference input manifests that no longer exist.
+
+The cause: the deep stage stores every planned manifest up front, and `StatusStore.save()` garbage-collected the manifests of areas that had not executed yet. The Miri records survived only because all twelve groups share one manifest.
+
+Those three fuzz campaigns actually ran in place on `9e792bc` plus the uncommitted `src/web/mod.rs` change. They are not clean-commit results, and their status rows are left unedited.
+
+The fix keeps manifests stored by the running process out of garbage collection. Regression test `test_in_place_records_uncommitted_inputs_for_every_area_of_one_run` failed before the fix and passes after it, and all 23 controller tests pass.
+
+**Measurements.**
+
+- [IPC overhead](../measurements/ipc-overhead-0.6.2/README.md): the steady-state process-boundary cost is 1.3 to 3.2 ms per 20-call rerank. A buffered-stdin candidate was rejected by its frozen rule and reverted.
+- [Lifecycle repeat on `9e792bc`](../measurements/native-lifecycle-0.6.2/README.md#additional-repeat-on-commit-9e792bc-2026-11-26): the recovery ratios are 0.986 and 1.000, and the worker growth gates passed.
+
+- [Eight-pair unattended lifecycle repeat](../measurements/native-lifecycle-0.6.2/README.md#eight-pair-unattended-repeat-on-commit-9e792bc-2026-11-26-2129-2155-utc): under its frozen rule, the recovery gate **failed in 3 of 8 pairs** (1.169, 1.622, 2.516). The cost failure is therefore reproduced, not refuted. Across all serial pair comparisons, 4 of 11 have now failed.
+- IPC set 3, with the unchanged baseline only: the per-case p95 gate failed in all four blocks. The median boundary cost stayed at 1.2 to 1.5 ms.
+- A foreign Miri process from another session ran at about 96 % of one core on the host during **all** 2026-11-26 measurements. It was not quantified and was not stopped.
+
+The original serial confirmation failure at **1.213** remains recorded and is not replaced. On this host, the worker's warm-recovery tail is not established as within 10 %.
+
+**Working-tree maintenance.** The `src/web/mod.rs` server reset was consolidated into one `ServerReset` type, because the agent construction and the reset logic were repeated. A database that cannot be opened during a console reset is now logged, and the server stays stopped. Before this change, that case panicked. There is no automated test for the console reset path; it is covered by compilation, Clippy and the full-suite runs only. `scripts/testctl.py nightly --focus` selects one heavy area explicitly.
+
+Because `src/` changed after `9e792bc`, the controller now marks the Miri and fuzz deep checks as due again, under its conservative crate-level rule. Their `9e792bc` results are not transferred to the working tree.

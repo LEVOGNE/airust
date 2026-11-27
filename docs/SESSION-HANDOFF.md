@@ -2,7 +2,45 @@
 
 Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP.md](../ROADMAP.md), [AGENTS.md](../AGENTS.md) and [CONTRIBUTING.md](../CONTRIBUTING.md). Communicate in German; keep repository code/docs in English.
 
+## Alternating agents (Claude Code and ChatGPT/Codex)
+
+The user alternates between Claude Code and ChatGPT/Codex on this repository. Whoever finishes a block updates this section. Last update: Claude Code, unattended maintenance 2026-11-26 20:13 to 2026-11-27 05:00 UTC.
+
+- **Git state:**
+  - Remote `codex/stabilize-native-model-lifecycle` is at `1cbd70e`, and CI `45669021076` is green.
+  - Local commit `9e792bc` (review fixes and test control) is not pushed.
+  - Everything after it is uncommitted and awaits user review: the `ServerReset` change in `src/web/mod.rs`, the `testctl` `--focus` option and its manifest-GC fix with regression test, the measurement records, the validation maintenance section, CHANGELOG, this handoff and WORK-PROGRAM.
+  - Nothing was committed, pushed or published.
+- **Test control:**
+  - Use `uv run --no-project scripts/testctl.py status|quick|nightly|full` rather than ad hoc command lists.
+  - Only one heavy run at a time; `.testctl/lock` enforces this.
+  - The status in `.testctl/` is local and gitignored.
+  - The exported receipt is in `docs/validation-0.6.2/maintenance-2026-11-26/testctl-receipt.json`.
+- **Do not repeat:** the 2026-11-26/27 Miri (2 x 128 tests), fuzz, full, concurrency and stress runs, unless inputs change. Check `testctl status` first.
+  - Fuzz: cumulative ASAN search of 105 to 140 min per target, 0.29 to 614 million executions, no artifact.
+  - Concurrency: 25 + 100 + 500 release repetitions, 0 failures.
+  - Further fuzzing should continue on the retained corpora in `.testctl/fuzz/corpus` rather than starting fresh.
+- **Measurement caution:**
+  - Another Claude Code session runs a long Miri job for an unrelated project. It has been at about 96 % of one core since 2026-11-26 00:17 UTC.
+  - Check `ps` for foreign load before any timing measurement, and record it.
+  - Do not stop other sessions' processes.
+- **Honesty state:**
+  - The warm-recovery 1.10 gate failed in 4 of 11 serial pair comparisons, including the original 1.213. It remains an open cost failure, not a pass.
+  - IPC set 3 failed its p95 gate in all blocks under load.
+  - Never re-run until a preferred result appears. Freeze a policy before any new measurement.
+- **Open user decisions:** commit and push of the uncommitted work; CSP and inline handlers; admin mode without a token; web size limits; DB indexes (these change the `airust.db` checksum); duplicate hashes and labels; worker environment and runtime hash; a test scheduler (launchd or GitHub Action; none is installed).
+- **Language:** talk to the user in German; repository text and code stay in English.
+
 ## Current engineering candidate: ML1, unreleased 0.6.2
+
+**Update 2026-11-26 (supersedes the push status in the next paragraph):**
+
+- The branch was pushed at `1cbd70e`, and hosted CI run `45669021076` passed.
+- Local commit `9e792bc` holds the source review fixes and the resource-aware test control ([TESTPLAN.md](TESTPLAN.md)). It is **not pushed**.
+- An unattended maintenance session then left uncommitted working-tree changes: the `ServerReset` consolidation in `src/web/mod.rs`, `testctl --focus`, the [IPC overhead record](measurements/ipc-overhead-0.6.2/README.md), a lifecycle repeat and the [maintenance validation section](validation-0.6.2/README.md#post-closeout-review-and-maintenance-2026-11-26) with its testctl receipt.
+- Review and commit these first. Run `uv run --no-project scripts/testctl.py status` to see what is due.
+- The 1.213 serial failure remains recorded.
+- Open user decisions from the review: CSP and inline handlers, admin mode without a token, web size limits, database indexes, duplicate hashes and labels, worker environment and runtime hash, and a test scheduler (none is installed).
 
 **Local implementation and clean-package/application closeout are complete at `a5725fcc0614982b016216679b7891546d0384c2`. The one remaining external step is blocked:** automatic approval review rejected the push of `codex/stabilize-native-model-lifecycle` to `https://github.com/LEVOGNE/airust.git` before execution. The candidate has not been uploaded or checked by hosted CI. Do not retry or use another transfer path without new explicit user approval for this concrete branch push. Read the final local receipt for the latest documentation-only commit/archive binding.
 

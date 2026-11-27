@@ -1,0 +1,22 @@
+#!/bin/bash
+set -uo pipefail
+L=$(cd "$(dirname "$0")" && pwd); R=$(cd "$L/../../.." && pwd)
+S=$(rustc +nightly --print sysroot)
+export ASAN_OPTIONS=detect_leaks=0:abort_on_error=1:symbolize=1 DYLD_LIBRARY_PATH=$S/lib/rustlib/aarch64-apple-darwin/lib
+SECONDS_PER_TARGET=${SECONDS_PER_TARGET:-2700}
+for spec in knowledge:fuzz:65536: lexical:fuzz:65536:tests/fixtures/fuzz-seeds/v0.5.2/lexical model_worker:worktree-fuzz:65536: pdf:fuzz:1048576:tests/fixtures/fuzz-seeds/v0.5.2/pdf; do
+  IFS=: read -r target dir maxlen seeds <<< "$spec"
+  bin=$R/.testctl/target/$dir/aarch64-apple-darwin/release/$target
+  corpus=$R/.testctl/fuzz/corpus/$target
+  art=$L/artifacts/$target; mkdir -p "$art"
+  seed=$(( (RANDOM << 15 | RANDOM) + 1 ))
+  before=$(ls "$corpus" | wc -l | tr -d ' ')
+  echo "$target start $(date -u +%H:%M:%S) seed=$seed binary_sha256=$(shasum -a 256 "$bin" | cut -d' ' -f1) corpus_before=$before" >> "$L/runs.txt"
+  args=("-max_total_time=$SECONDS_PER_TARGET" "-seed=$seed" -timeout=10 -rss_limit_mb=2048 "-max_len=$maxlen" -detect_leaks=0 -print_final_stats=1 "-artifact_prefix=$art/" "$corpus")
+  [ -n "$seeds" ] && args+=("$R/$seeds")
+  (cd "$R" && "$bin" "${args[@]}") > "$L/$target.log" 2>&1
+  code=$?
+  stats=$(grep -E 'stat::(number_of_executed_units|new_units_added|peak_rss_mb)' "$L/$target.log" | awk '{printf "%s=%s ", $1, $2}')
+  echo "$target end $(date -u +%H:%M:%S) exit=$code corpus_after=$(ls "$corpus" | wc -l | tr -d ' ') artifacts=$(ls "$art" | wc -l | tr -d ' ') $stats" >> "$L/runs.txt"
+done
+echo done >> "$L/runs.txt"

@@ -1,0 +1,19 @@
+#!/bin/bash
+set -uo pipefail
+L=$(cd "$(dirname "$0")" && pwd); R=$(cd "$L/../../.." && pwd)
+cd "$R"
+export CARGO_TARGET_DIR=$R/.testctl/target/default CARGO_INCREMENTAL=0 CARGO_TERM_COLOR=never
+A=(cargo test --release --all-features --locked --test stability_state --test shared_index --test snapshots --test persistence --test execution --test progress --test stress)
+B=(cargo test --release --all-features --locked --lib -- persistence:: mcp:: reranking::process:: snapshots:: local_runtime::)
+"${A[@]}" --no-run > "$L/build.log" 2>&1
+for i in $(seq 1 500); do
+  for part in A B; do
+    if [ $part = A ]; then "${A[@]}" > "$L/iter-$i-$part.log" 2>&1; else "${B[@]}" > "$L/iter-$i-$part.log" 2>&1; fi
+    code=$?
+    passed=$(grep -E '^test result:' "$L/iter-$i-$part.log" | awk '{s+=$4} END {print s+0}')
+    failed=$(grep -E '^test result:' "$L/iter-$i-$part.log" | awk '{s+=$6} END {print s+0}')
+    echo "$i $part exit=$code passed=$passed failed=$failed $(date -u +%H:%M:%S)" >> "$L/results.txt"
+    if [ $code -eq 0 ]; then rm "$L/iter-$i-$part.log"; fi
+  done
+done
+echo done >> "$L/results.txt"

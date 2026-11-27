@@ -288,6 +288,15 @@ class TestControllerSelection(unittest.TestCase):
         self.assertEqual(report["executed"], [])
         self.assertIn("exceeds remaining budget", report["deferred_due"][0]["reason"])
 
+    def test_requested_focus_selects_that_kind_and_defers_the_rest(self):
+        self.box.area("alpha", ["a/**"], {"deep": Sandbox.config([self.box.counter("a")], deterministic=False, max_age_days=7)},
+                      kind="alpha", profiles=("nightly",))
+        self.box.area("omega", ["b/**"], {"deep": Sandbox.config([self.box.counter("o")], deterministic=False, max_age_days=7)},
+                      kind="omega", profiles=("nightly",))
+        _, report, _ = self.box.run("nightly", in_place=True, focus="omega")
+        self.assertEqual(self.keys(report["executed"]), ["omega/deep"])
+        self.assertEqual(self.keys(report["deferred_due"]), ["alpha/deep"])
+
     def test_known_deep_failure_is_reported_without_rerun_until_inputs_change(self):
         failing = ["{python}", "-c", "import sys;sys.exit(int(open('a/input.txt').read()))"]
         self.box.write("a/input.txt", "1")
@@ -324,6 +333,20 @@ class TestControllerSelection(unittest.TestCase):
         record = self.box.status()["entries"]["deep/deep"]["last_success"]
         self.assertTrue(record["git"]["isolated_worktree"])
         self.assertFalse((self.box.state / "worktrees" / "isolated").exists())
+
+    def test_in_place_records_uncommitted_inputs_for_every_area_of_one_run(self):
+        for name in ("a", "b"):
+            self.box.area(name, [f"{name}/**"], {"deep": Sandbox.config([self.box.counter(name)], max_age_days=7)},
+                          kind="stress", profiles=("nightly",))
+        self.box.commit()
+        self.box.write("a/input.txt", "a2")
+        self.box.write("b/input.txt", "b2")
+        self.box.run("nightly", in_place=True, focus="stress")
+        entries = self.box.status()["entries"]
+        for name in ("a", "b"):
+            record = entries[f"{name}/deep"]["last_success"]
+            self.assertEqual(record["git"]["uncommitted_inputs"], [f"{name}/input.txt"])
+            self.assertTrue((self.box.state / "manifests" / f"{record['manifest']}.json").is_file())
 
     def test_status_is_written_atomically_and_records_required_fields(self):
         self.box.area("a", ["a/**"], {"default": Sandbox.config([self.box.counter("a")])})

@@ -385,6 +385,7 @@ class StatusStore:
         self.path = directory / "status.json"
         self.manifests = directory / "manifests"
         self.notes = []
+        self.planned = set()
         self.data = self.load()
 
     def empty(self):
@@ -420,6 +421,7 @@ class StatusStore:
         path = self.manifests / f"{identifier}.json"
         if not path.exists():
             AtomicFile.write_json(path, manifest)
+        self.planned.add(identifier)
         return identifier
 
     def read_manifest(self, identifier):
@@ -430,7 +432,7 @@ class StatusStore:
 
     def save(self):
         AtomicFile.write_json(self.path, self.data)
-        referenced = {(self.data["baselines"].get("quick") or {}).get("manifest")}
+        referenced = {(self.data["baselines"].get("quick") or {}).get("manifest")} | self.planned
         for entry in self.data["entries"].values():
             for record in (entry.get("last_attempt"), entry.get("last_success")):
                 if record:
@@ -865,14 +867,17 @@ class Controller:
         queue.sort(key=lambda item: (item[0], item[1], item[2]))
         return queue
 
-    def deep(self, store, report, workspace, profile, budget_seconds, single_focus):
+    def deep(self, store, report, workspace, profile, budget_seconds, single_focus, requested_focus=None):
         queue = self.deep_queue(store, report, workspace, profile)
         if not queue:
             report.notes.append("nothing due; no expensive run started")
             return
         started = time.monotonic()
         focus = None
-        if single_focus:
+        if requested_focus:
+            focus = requested_focus
+            report.notes.append(f"focus {focus} requested explicitly")
+        elif single_focus:
             fitting = [item for item in queue if item[4] <= budget_seconds]
             focus = (fitting or queue)[0][3].config.area.kind
             report.notes.append(f"focus tonight: {focus} (one compute-intensive focus at a time)")
@@ -911,7 +916,7 @@ class Controller:
         if workspace.isolated:
             subprocess.run(["git", "worktree", "remove", "--force", str(workspace.root)], cwd=self.root, capture_output=True)
 
-    def run_profile(self, profile, candidate=False, revision="HEAD", in_place=False, budget_minutes=None):
+    def run_profile(self, profile, candidate=False, revision="HEAD", in_place=False, budget_minutes=None, focus=None):
         lock = Lock(self.state / "lock")
         lock.acquire()
         report = Report(profile, self.run_id, self.clock)
@@ -930,7 +935,7 @@ class Controller:
             elif profile == "nightly":
                 minutes = budget_minutes if budget_minutes is not None else self.plan.budgets["nightly_minutes"]
                 report.notes.append(f"budget {minutes} min including compilation")
-                self.deep(store, report, workspace, "nightly", minutes * 60, single_focus=True)
+                self.deep(store, report, workspace, "nightly", minutes * 60, single_focus=True, requested_focus=focus)
             else:
                 minutes = budget_minutes if budget_minutes is not None else self.plan.budgets["full_deep_minutes"]
                 report.notes.append(f"deep budget {minutes} min after the fresh suite")
@@ -995,6 +1000,8 @@ class Cli:
             deep.add_argument("--rev", default="HEAD")
             deep.add_argument("--in-place", action="store_true")
             deep.add_argument("--budget-minutes", type=float)
+            if name == "nightly":
+                deep.add_argument("--focus", choices=["miri", "fuzz", "concurrency", "stress"])
         status = commands.add_parser("status")
         status.add_argument("--json", action="store_true")
         plan = commands.add_parser("plan")
@@ -1009,7 +1016,8 @@ class Cli:
             if args.command == "quick":
                 return controller.run_profile("quick", candidate=args.candidate)
             if args.command in ("nightly", "full"):
-                return controller.run_profile(args.command, revision=args.rev, in_place=args.in_place, budget_minutes=args.budget_minutes)
+                return controller.run_profile(args.command, revision=args.rev, in_place=args.in_place,
+                                              budget_minutes=args.budget_minutes, focus=getattr(args, "focus", None))
             if args.command == "status":
                 return controller.status(args.json)
             return controller.plan_command(args.check, args.write_doc)

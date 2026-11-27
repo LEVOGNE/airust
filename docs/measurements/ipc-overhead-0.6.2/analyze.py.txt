@@ -1,0 +1,46 @@
+import csv
+import json
+import math
+import sys
+from pathlib import Path
+
+
+class Analysis:
+    def __init__(self, directory):
+        self.directory = directory
+
+    @staticmethod
+    def rank(values, p):
+        ordered = sorted(values)
+        return ordered[math.ceil(len(ordered) * p) - 1]
+
+    def block(self, path):
+        rows = list(csv.DictReader(path.open()))
+        rounds = {}
+        for row in rows:
+            rounds.setdefault(int(row["round"]), {})[row["backend"]] = row
+        diffs, cases = [], {}
+        for pair in rounds.values():
+            direct, worker = float(pair["direct"]["total_ms"]), float(pair["worker"]["total_ms"])
+            diffs.append(worker - direct)
+            case = cases.setdefault(pair["direct"]["case"], {"direct": [], "worker": []})
+            case["direct"].append(direct)
+            case["worker"].append(worker)
+        ratios = {c: self.rank(v["worker"], 0.95) / self.rank(v["direct"], 0.95) for c, v in cases.items()}
+        medians = {c: self.rank(v["worker"], 0.5) / self.rank(v["direct"], 0.5) for c, v in cases.items()}
+        return {"rounds": len(rounds), "paired_diff_ms_median": self.rank(diffs, 0.5), "paired_diff_ms_p95": self.rank(diffs, 0.95),
+                "paired_diff_ms_p5": self.rank(diffs, 0.05), "worker_slower_rounds": sum(d > 0 for d in diffs),
+                "p95_ratio_worker_over_direct_by_case": ratios, "median_ratio_by_case": medians,
+                "max_p95_ratio": max(ratios.values()), "gate_1_10_passed": max(ratios.values()) <= 1.10}
+
+    def run(self):
+        blocks = {p.stem.removeprefix("block-"): self.block(p) for p in sorted(self.directory.glob("block-*.csv"))}
+        base = [v["paired_diff_ms_median"] for k, v in blocks.items() if k.endswith("base")]
+        cand = [v["paired_diff_ms_median"] for k, v in blocks.items() if k.endswith("cand")]
+        summary = {"blocks": blocks, "candidate_lower_in_both_pairs": len(base) == len(cand) == 2 and all(c < b for b, c in zip(base, cand))}
+        (self.directory / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+        print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    Analysis(Path(sys.argv[1])).run()

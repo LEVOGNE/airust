@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+L=$(cd "$(dirname "$0")" && pwd); R=$(cd "$L/../../.." && pwd)
+M=$R/local-lab/reference-workflow/models/mmarco-minilm-v2; RT=$R/local-lab/pdf-stability/python-deps-0315/onnxruntime/capi/libonnxruntime.1.32.0.dylib
+mkdir -p $L/snap
+for block in 1-base 2-base 3-base 4-base; do
+  start=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  $L/bin/probe-base $R/tests/fixtures/native-lifecycle-v1.json $M $RT $L/snap 240 $L/set-3/block-$block.csv
+  echo "$block $start $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $L/set-3/blocks.txt
+done
