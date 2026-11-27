@@ -20,7 +20,15 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 Miri, fuzz and concurrency become due again from 2026-12-04 (`testctl status`).
 
-**Session 2026-11-27 afternoon (uncommitted, awaiting user commit):**
+**0.6.3 operational robustness (2026-11-27 evening, uncommitted on top of local commit `0eceabc`, which is not pushed):**
+
+- The criteria are frozen in `docs/validation-0.6.3/CRITERIA.md`, with amendment 1 recorded before any counted run. Results are in `docs/validation-0.6.3/RESULTS.md`.
+- **R1, the 3-hour soak, failed on R1.6 only.** The p95 drift was 1.32, against a limit of 1.10, under heavy foreign load. R1.1 to R1.5 passed: 3897 cycles, 1169 injected faults, 0 leftovers, RSS range 0.81 MiB. Do not relabel it. A quiet-host repeat would be additional evidence only.
+- **R2.** `ProcessPool` with `RerankError::Busy` passes its mock test. Real-model throughput was 154 requests/min with 1 worker and 242 with 2.
+- **R3.** The `native-worker-linux` CI job is prepared but has never run. It needs a push, which requires user approval.
+- The user's next separate package is a local-LLM answer comparison via Ollama: Qwen3.8:27b on the 150 authored questions with deterministic checks, labelled as authored rather than independent.
+
+**Session 2026-11-27 afternoon (committed locally as `0eceabc`, not pushed):**
 
 - The user decided all six open review items, see CHANGELOG `Unreleased`. These are implemented with tests: admin mode requires a token, the worker environment is reduced, `ProcessOptions::with_runtime_identity` is added, web field limits with HTTP 413, indexes are created only for new databases, and the duplicated byte-label and SHA-256 checks are shared in `text::Identifier`.
 - I recommended counting labels in characters, but implemented the byte count instead. Characters would loosen the memory bounds and break the compatibility of saved receipts. Tell the user if this needs revisiting.

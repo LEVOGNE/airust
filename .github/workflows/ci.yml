@@ -137,3 +137,50 @@ jobs:
       - run: cargo package --manifest-path crates/airust-pdf-backend/Cargo.toml --locked
       - uses: dtolnay/rust-toolchain@1.89.0
       - run: cargo +1.89.0 check --manifest-path crates/airust-pdf-backend/Cargo.toml --lib --locked
+
+  native-worker-linux:
+    runs-on: ubuntu-latest
+    env:
+      ORT_WHEEL: onnxruntime-1.32.0-cp312-cp312-manylinux_2_28_x86_64.whl
+      ORT_WHEEL_URL: https://files.pythonhosted.org/packages/a3/81/55845186c20cba59f614991f4065dea148e48eeb9749893768c85ce64327/onnxruntime-1.32.0-cp312-cp312-manylinux_2_28_x86_64.whl
+      ORT_WHEEL_SHA256: 99e1074c4b2197accd5073052a465361be17b89c093b8ffb6e6bd8f986c52df8
+      ORT_WHEEL_BYTES: "27780211"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@1.92.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git/db
+            target
+          key: native-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            native-${{ runner.os }}-${{ steps.toolchain.outputs.cachekey }}-${{ hashFiles('Cargo.lock') }}-
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ runner.temp }}/native-assets
+          key: native-assets-${{ hashFiles('docs/models/mmarco-minilm-v2.json') }}-${{ env.ORT_WHEEL_SHA256 }}
+      - name: Verify pinned model and runtime artifacts
+        run: |
+          set -euo pipefail
+          assets="$RUNNER_TEMP/native-assets"
+          mkdir -p "$assets/model" "$assets/runtime"
+          python3 scripts/download_reranker.py "$assets/model"
+          wheel="$assets/$ORT_WHEEL"
+          if [ ! -f "$wheel" ]; then curl --fail --location --silent --show-error --output "$wheel" "$ORT_WHEEL_URL"; fi
+          test "$(stat -c %s "$wheel")" = "$ORT_WHEEL_BYTES"
+          echo "$ORT_WHEEL_SHA256  $wheel" | sha256sum --check --strict
+          python3 -I -c "import sys,zipfile,pathlib; z=zipfile.ZipFile(sys.argv[1]); names=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.startswith('libonnxruntime.so')]; assert len(names)==1, names; pathlib.Path(sys.argv[2]).write_bytes(z.read(names[0]))" "$wheel" "$assets/runtime/libonnxruntime.so"
+          sha256sum "$assets/runtime/libonnxruntime.so" "$assets/model/onnx/model.onnx"
+      - run: cargo build --release --locked --features local-reranking --example native_worker_soak
+      - name: Shortened worker soak with fault injection
+        run: |
+          set -euo pipefail
+          assets="$RUNNER_TEMP/native-assets"
+          mkdir -p "$RUNNER_TEMP/snapshots"
+          target/release/examples/native_worker_soak tests/fixtures/native-lifecycle-v1.json "$assets/model" "$assets/runtime/libonnxruntime.so" 900 "$RUNNER_TEMP/snapshots" | tee "$RUNNER_TEMP/soak.jsonl"
+          python3 -B scripts/analyze_worker_soak.py "$RUNNER_TEMP/soak.jsonl" --short

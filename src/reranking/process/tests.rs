@@ -328,3 +328,81 @@ fn worker_environment_is_reduced_and_verified_runtime_copies_are_loaded() {
         ));
     }
 }
+
+#[test]
+fn pool_bounds_live_workers_rejects_overflow_and_replaces_failed_workers() {
+    let (root, worker, runtime) = fixture("good");
+    let copies = root.path().join("copies");
+    fs::create_dir(&copies).unwrap();
+    let pool = std::sync::Arc::new(
+        ProcessPool::multilingual_minilm_v2_from_snapshot(
+            ProcessOptions::new(&worker),
+            root.path(),
+            &runtime,
+            2,
+            &copies,
+            2,
+            4,
+        )
+        .unwrap(),
+    );
+    let peak = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let handles: Vec<_> = (0..16)
+        .map(|_| {
+            let pool = std::sync::Arc::clone(&pool);
+            let peak = std::sync::Arc::clone(&peak);
+            std::thread::spawn(move || {
+                let started = Instant::now();
+                match pool.acquire(Duration::from_secs(20)) {
+                    Ok(mut lease) => {
+                        peak.fetch_max(pool.live_workers(), std::sync::atomic::Ordering::SeqCst);
+                        let scores = lease.score("q", &["a", "b"]).unwrap();
+                        assert!(scores.iter().all(|s| s.to_bits() == (-0.0f64).to_bits()));
+                        std::thread::sleep(Duration::from_millis(150));
+                        (true, started.elapsed())
+                    }
+                    Err(RerankError::Busy(_)) => (false, started.elapsed()),
+                    Err(other) => panic!("unexpected {other:?}"),
+                }
+            })
+        })
+        .collect();
+    let outcomes: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
+    assert!(peak.load(std::sync::atomic::Ordering::SeqCst) <= 2);
+    let served = outcomes.iter().filter(|(ok, _)| *ok).count();
+    let busy: Vec<_> = outcomes.iter().filter(|(ok, _)| !*ok).collect();
+    assert!(served >= 6, "served {served}");
+    assert!(!busy.is_empty());
+    assert!(busy
+        .iter()
+        .all(|(_, waited)| *waited < Duration::from_millis(50)));
+    assert!(pool.live_workers() <= 2);
+
+    let mut lease = pool.acquire(Duration::from_secs(5)).unwrap();
+    let pid = lease.worker_id().unwrap();
+    assert!(Command::new("/bin/kill")
+        .args(["-9", &pid.to_string()])
+        .status()
+        .unwrap()
+        .success());
+    assert!(lease.score("q", &["a"]).is_err());
+    drop(lease);
+    assert!(gone(pid));
+    let mut replacement = pool.acquire(Duration::from_secs(5)).unwrap();
+    assert_eq!(replacement.score("q", &["a"]).unwrap().len(), 1);
+    drop(replacement);
+    assert!(pool.live_workers() <= 2);
+    drop(std::sync::Arc::try_unwrap(pool).ok().unwrap());
+    assert_eq!(fs::read_dir(&copies).unwrap().count(), 0);
+
+    assert!(ProcessPool::multilingual_minilm_v2_from_snapshot(
+        ProcessOptions::new(&worker),
+        root.path(),
+        &runtime,
+        2,
+        &copies,
+        0,
+        4
+    )
+    .is_err());
+}

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+0.6.3 operational robustness (in progress; criteria in [docs/validation-0.6.3/CRITERIA.md](docs/validation-0.6.3/CRITERIA.md)): optional `ProcessPool` with an explicit worker limit, bounded wait queue and the new `RerankError::Busy`; `native_worker_soak` and `native_pool_throughput` examples with fault injection and `scripts/analyze_worker_soak.py`; a Linux CI job that verifies pinned model and runtime artifacts and runs a shortened soak.
+
 Security and robustness decisions from the 0.6.2 source review:
 
 - `AIRUST_ENABLE_ADMIN=1` now requires `AIRUST_API_TOKEN`. Without a token the server refuses to start; previously any local process could use file administration and SQL.

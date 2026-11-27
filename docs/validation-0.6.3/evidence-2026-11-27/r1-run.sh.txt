@@ -1,0 +1,7 @@
+#!/bin/bash
+set -uo pipefail
+L=$(cd "$(dirname "$0")" && pwd); R=$(cd "$L/../../.." && pwd)
+M=$R/local-lab/reference-workflow/models/mmarco-minilm-v2; RT=$R/local-lab/pdf-stability/python-deps-0315/onnxruntime/capi/libonnxruntime.1.32.0.dylib
+date -u +%Y-%m-%dT%H:%M:%SZ > "$L/started.txt"
+"$L/bin/native_worker_soak" "$R/tests/fixtures/native-lifecycle-v1.json" "$M" "$RT" 10800 "$L/snapshots" > "$L/soak.jsonl" 2> "$L/soak.stderr"
+echo "exit=$? $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$L/finished.txt"

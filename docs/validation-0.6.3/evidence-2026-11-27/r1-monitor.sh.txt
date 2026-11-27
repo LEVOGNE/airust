@@ -1,0 +1,9 @@
+#!/bin/bash
+L=$(cd "$(dirname "$0")" && pwd)
+export LC_ALL=C
+echo "utc;load1;pid;cpu;command" > "$L/monitor.csv"
+while [ ! -f "$L/stop-monitor" ]; do
+  t=$(date -u +%H:%M:%S); load=$(sysctl -n vm.loadavg | awk '{print $2}')
+  ps -Ao pid=,pcpu=,comm= | awk -v t="$t" -v l="$load" '$2>=25 {c=$3; for(i=4;i<=NF;i++)c=c" "$i; n=split(c,parts,"/"); print t";"l";"$1";"$2";"parts[n]; f=1} END {if(!f) print t";"l";;;"}' >> "$L/monitor.csv"
+  sleep 5
+done

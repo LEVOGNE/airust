@@ -39,6 +39,8 @@ pub enum RerankError {
     Provider(String),
     #[error("invalid reranker output: {0}")]
     Output(&'static str),
+    #[error("reranking workers are busy: {0}")]
+    Busy(&'static str),
 }
 
 pub trait Reranker {

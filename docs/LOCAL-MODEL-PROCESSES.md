@@ -42,6 +42,27 @@ The reference pilot can use its own executable as the worker. With `--features p
 
 The rejected memory-backed worker prototype passed its RSS-growth control but exceeded the declared warm p95 cost budget by about 23% in the primary cohort. It is retained as a negative result and was removed from the new public API. The supported worker constructor always loads the verified private file snapshot. Disk space of at least 470883696 bytes plus filesystem overhead is required per active worker.
 
+## Bounded parallel workers (unreleased, after 0.6.2)
+
+`ProcessPool` admits several `ProcessReranker` workers under one explicit limit. At most `max_workers` processes exist at once; at most `queue_limit` callers wait. A caller beyond the queue limit, or one whose wait expires, receives `RerankError::Busy` immediately instead of starting another process. With the `execution` feature, `acquire_controlled` also honors a `WorkControl` deadline and cancellation token. A lease whose scoring fails retires its worker; the next caller gets a new one, and the limit is never exceeded. Healthy leases return their worker for reuse. Dropping the pool and all leases reaps every worker.
+
+```rust,no_run
+use airust::reranking::{Reranker, process::{ProcessOptions, ProcessPool}};
+use std::time::Duration;
+# fn main() -> Result<(), Box<dyn std::error::Error>> {
+let pool = ProcessPool::multilingual_minilm_v2_from_snapshot(
+    ProcessOptions::new("/absolute/path/to/airust-model-worker"),
+    "/owned/model-directory", "/owned/runtime-library", 2, "/owned/private-snapshot-parent",
+    2, 8,
+)?;
+let mut lease = pool.acquire(Duration::from_secs(5))?;
+let scores = lease.score("Rust ownership", &["Rust owns its values."])?;
+assert_eq!(scores.len(), 1);
+# Ok(()) }
+```
+
+Each worker holds its own model copy in memory and on disk, so the limit is also the memory and disk bound. The pool is optional, lives behind `local-reranking` and adds no dependency.
+
 ## Bounds and failure behavior
 
 | Resource | Bound |

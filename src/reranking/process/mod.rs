@@ -1,11 +1,13 @@
 #![doc = include_str!("../../../docs/LOCAL-MODEL-PROCESSES.md")]
 
+mod pool;
 mod protocol;
 #[cfg(all(test, unix, not(miri)))]
 mod tests;
 mod transport;
 
 use super::{local::FastEmbedReranker, RerankError, Reranker};
+pub use pool::{PooledReranker, ProcessPool};
 use protocol::{Init, Reply, Request};
 use std::{
     io::BufReader,
