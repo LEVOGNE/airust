@@ -40,12 +40,17 @@ A 60-second smoke run before the counted run is retained as [r1-smoke-not-counte
 
 The throughput binary was built before a `cargo fmt` pass that changed only formatting in its source.
 
-## R3 — Linux native job: **prepared, not run**
+## R3 — Linux native job: **passed**
 
-The `native-worker-linux` job is in `.github/workflows/ci.yml`. It pins and verifies the model manifest and the ONNX Runtime 1.32.0 manylinux wheel (SHA-256 `99e1074c…`), and runs a 15-minute shortened soak evaluated with `--short`. It has not run, because nothing was pushed during the unattended session. Until it runs, it counts as **unavailable**.
+Hosted CI run `46057398768` on commit `3586682` passed all six jobs, including `native-worker-linux` (ubuntu-latest, x86_64). The pinned ONNX Runtime 1.32.0 manylinux wheel verified against its SHA-256 (`99e1074c…`), and the model files verified against the packaged manifest. The shortened 15-minute soak ran **278 cycles** with the same fault schedule:
+
+- all normal cycles were bit-identical, and all faults were typed and within their bounds;
+- there were no surviving workers, zombies or copies;
+- the RSS range was 0.027 MiB and the descriptor range 0.
+
+`--short` mode evaluates R1.1 to R1.5 and at least 50 cycles. Duration and hourly drift are not meaningful for a 15-minute run.
 
 ## Not yet done
 
 - A repeat of R1 on a quiet host. The 1.32 drift remains failed regardless.
-- Running R3 on GitHub.
 - Windows and Intel remain uncovered.
