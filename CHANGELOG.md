@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.6.3 — 2026-11-28: operational robustness of the process worker
 
-0.6.3 operational robustness (in progress; criteria in [docs/validation-0.6.3/CRITERIA.md](docs/validation-0.6.3/CRITERIA.md)): optional `ProcessPool` with an explicit worker limit, bounded wait queue and the new `RerankError::Busy`; `native_worker_soak` and `native_pool_throughput` examples with fault injection and `scripts/analyze_worker_soak.py`; a Linux CI job that verifies pinned model and runtime artifacts and runs a shortened soak.
+0.6.3 operational robustness (criteria in [docs/validation-0.6.3/CRITERIA.md](docs/validation-0.6.3/CRITERIA.md)): optional `ProcessPool` with an explicit worker limit, bounded wait queue and the new `RerankError::Busy`; `native_worker_soak` and `native_pool_throughput` examples with fault injection and `scripts/analyze_worker_soak.py`; a Linux CI job that verifies pinned model and runtime artifacts and runs a shortened soak. Results: the three-hour fault-injection soak passed every criterion in a third run on a host without foreign load (4529 cycles, 1359 faults, 0 leftovers, p95 drift 0.9995); two earlier runs under foreign load failed the drift criterion (1.32, 1.50) and remain recorded; the Linux job passed. See [results](docs/validation-0.6.3/RESULTS.md).
 
 Security and robustness decisions from the 0.6.2 source review:
 

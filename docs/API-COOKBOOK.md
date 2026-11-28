@@ -1,6 +1,6 @@
 # AIRust API cookbook
 
-Start with the operation your application needs and enable its smallest feature set. This guide covers AIRust 0.6.2. Generic record APIs and saved formats remain compatible. The complete reference workflow is [a local Markdown search application](REFERENCE-APPLICATION.md).
+Start with the operation your application needs and enable its smallest feature set. This guide covers AIRust 0.6.3. Generic record APIs and saved formats remain compatible. The complete reference workflow is [a local Markdown search application](REFERENCE-APPLICATION.md).
 
 ## Choose an entry point
 

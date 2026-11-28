@@ -1,0 +1,19 @@
+#!/bin/bash
+L=$(cd "$(dirname "$0")" && pwd)
+export LC_ALL=C
+quiet=0
+deadline=$(( $(date +%s) + 8*3600 ))
+while [ "$(date +%s)" -lt "$deadline" ]; do
+  load=$(sysctl -n vm.loadavg | awk '{print $2}')
+  busy=$(pgrep -x rustc; pgrep -x cargo; pgrep -x clang; ps -Ao pcpu=,comm= | awk '$2 ~ /rust-analyzer$/ && $1 >= 5 {print $2}')
+  if [ -z "$busy" ] && awk -v l="$load" 'BEGIN{exit !(l<3)}'; then quiet=$((quiet+1)); else quiet=0; fi
+  echo "$(date -u +%H:%M:%S) load=$load quiet_minutes=$quiet" >> "$L/wait.log"
+  if [ "$quiet" -ge 10 ]; then
+    (cd "$L" && ./monitor.sh &)
+    "$L/run.sh"
+    touch "$L/stop-monitor"
+    exit 0
+  fi
+  sleep 60
+done
+echo "no quiet window within 8 hours; not started" > "$L/not-started.txt"

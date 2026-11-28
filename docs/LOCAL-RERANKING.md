@@ -20,7 +20,7 @@ Supply the platform-specific ONNX Runtime shared library separately. Native eval
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.2", default-features = false, features = ["local-reranking"] }
+airust = { version = "=0.6.3", default-features = false, features = ["local-reranking"] }
 ```
 
 ```rust,no_run

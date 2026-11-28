@@ -1,0 +1,10 @@
+{
+  "frozen_at": "2026-11-28T03:15:59Z",
+  "purpose": "Third R1 run under CRITERIA.md (amendment 1), unchanged thresholds, same binary sha256 884f9068cd66d7b7188ef6d50573543db3ffec5240a48670867f58833e800021, source 3a2660e, started only after 10 consecutive minutes without rustc/cargo/clang/rust-analyzer and load below 3 (wait-for-quiet.sh).",
+  "rule": "Reported on its own. If every R1 criterion passes it is stated as 'R1 passed in a third run on a host that was quiet at start'; the failures 1.32 and 1.50 remain recorded. Foreign load appearing during the run is reported and does not change the verdict in either direction. The start gate does not guarantee quiet during the run.",
+  "start_gate_amendment": {
+    "at": "2026-11-28T04:23:57Z",
+    "before_start": true,
+    "change": "rust-analyzer language servers may exist if each is below 5 % CPU; rustc/cargo/clang must be absent; load below 3 for 10 consecutive minutes. Reason: five idle language servers (0 % CPU) of editor/agent sessions blocked the original existence-based gate."
+  }
+}

@@ -1,6 +1,6 @@
 # Start AIRust
 
-Choose the task you need below. AIRust 0.6.2 retains the bounded local pilot/live profiles, reranking settings, offline preflight and resource controls of 0.6.1 and adds an opt-in native-model process owner. Registry examples select 0.6.2. See [release validation and open limits](docs/validation-0.6.2/RELEASE.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
+Choose the task you need below. AIRust 0.6.3 keeps the bounded local pilot/live profiles, reranking settings, offline preflight and resource controls, the opt-in native-model process owner of 0.6.2, and adds a bounded worker pool and security fixes. Registry examples select 0.6.3. See [release validation and open limits](docs/validation-0.6.3/RELEASE.md). Use Rust 1.89 for provider-neutral code, Rust 1.92 for local ONNX adapters, and Python 3.11 or newer for the repository checks.
 
 ## Search records
 
@@ -37,7 +37,7 @@ An MCP client launches the compiled example executable with `serve` and the abso
 For the published executable:
 
 ```bash
-cargo install airust --version 0.6.2 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.3 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
@@ -179,6 +179,6 @@ It accepts the existing `KnowledgeEntry` JSON array, at most 2048 records/2 MiB 
 
 ## Development checkout: repeated local model ownership
 
-AIRust 0.6.2 includes `airust-model-worker` behind `local-reranking`. Build the matching binary and configure `ProcessReranker::multilingual_minilm_v2_from_snapshot` as described in [local model processes](docs/LOCAL-MODEL-PROCESSES.md). Build the native reference pilot with `--features pilot,local-reranking`. It can dispatch its own worker role; set `reranker.isolated` to `true` and supply an explicit existing application-owned `model_snapshot_directory`. `profile-check` validates the configuration without starting a worker or reading assets. Its warm-recovery latency tail is not established within 10 % of direct loading; see the release limits.
+AIRust 0.6.2 and later include `airust-model-worker` behind `local-reranking`; 0.6.3 adds `ProcessPool` for a bounded number of workers. Build the matching binary and configure `ProcessReranker::multilingual_minilm_v2_from_snapshot` as described in [local model processes](docs/LOCAL-MODEL-PROCESSES.md). Build the native reference pilot with `--features pilot,local-reranking`. It can dispatch its own worker role; set `reranker.isolated` to `true` and supply an explicit existing application-owned `model_snapshot_directory`. `profile-check` validates the configuration without starting a worker or reading assets. Its warm-recovery latency tail is not established within 10 % of direct loading; see the release limits.
 
 Allow disk space for a 470883696-byte verified model copy per active worker. Unloaded-parent RSS, active worker RSS and startup/first/warm request costs have different scopes; read the [measurement record](docs/measurements/native-lifecycle-0.6.2/README.md), including failed latency controls. This does not certify an actual 1-GiB machine. No model/runtime download is part of normal tests.

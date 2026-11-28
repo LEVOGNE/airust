@@ -4,6 +4,8 @@ Read this first, then [WORK-PROGRAM-NEXT.json](WORK-PROGRAM-NEXT.json), [ROADMAP
 
 ## Alternating agents (Claude Code and ChatGPT/Codex)
 
+**Release 0.6.3 (2026-11-28):** conditional user authorization satisfied (R1 passed in the third run). Progress and receipts: `local-lab/release-0.6.3-2026-11-28/`; gates/limits: [validation-0.6.3/RELEASE.md](validation-0.6.3/RELEASE.md). If `final-closeout.json` is missing, resume only the recorded pending stage; never republish or move a tag. Next separate package (user request): local-LLM answer comparison via Ollama on the authored questions.
+
 **Release 0.6.2 is published and verified (2026-11-27).**
 
 - Tag `v0.6.2` points to `5b69258`.
@@ -24,6 +26,7 @@ Miri, fuzz and concurrency become due again from 2026-12-04 (`testctl status`).
 
 - The criteria are frozen in `docs/validation-0.6.3/CRITERIA.md`, with amendment 1 recorded before any counted run. Results are in `docs/validation-0.6.3/RESULTS.md`.
 - **R1, the 3-hour soak, failed on R1.6 only.** The p95 drift was 1.32, against a limit of 1.10, under heavy foreign load. R1.1 to R1.5 passed: 3897 cycles, 1169 injected faults, 0 leftovers, RSS range 0.81 MiB. Do not relabel it. A quiet-host repeat would be additional evidence only.
+- **R1 repeat (2026-11-27 20:22 to 23:22 UTC, same binary): failed on R1.6 again**, at 1.50. The p95 was flat at 460 to 490 ms while the host was quiet, and jumped only when foreign compilers started in hour 3. 0.6.3 is **not released**. The user's conditional release approval required a full R1 pass and lapsed with this failure. Next step: a 3-hour run on a host without foreign load, or a user-revised, load-aware criterion applied only to future runs. The repeat documentation in `docs/validation-0.6.3/` is uncommitted.
 - **R2.** `ProcessPool` with `RerankError::Busy` passes its mock test. Real-model throughput was 154 requests/min with 1 worker and 242 with 2.
 - **R3.** The `native-worker-linux` CI job is prepared but has never run. It needs a push, which requires user approval.
 - The user's next separate package is a local-LLM answer comparison via Ollama: Qwen3.8:27b on the 150 authored questions with deterministic checks, labelled as authored rather than independent.

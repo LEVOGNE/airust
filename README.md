@@ -2,7 +2,9 @@
 
 A Rust library for finding records and returning inspectable source evidence. Start with lexical search. Add document revisions, bounded excerpts, embeddings or an agent transport when your application needs them.
 
-**AIRust 0.6.2** adds an opt-in [native-model process owner](docs/LOCAL-MODEL-PROCESSES.md) for predictable repeated MiniLM unload/reload, plus review fixes and resource-aware test control. Read [scope](docs/CHANGES-0.6.2.md), [migration](docs/MIGRATION-0.6.2.md) and [release validation and open limits](docs/validation-0.6.2/RELEASE.md). AIRust 0.6.1 added bounded reranking batch/candidate settings, offline `profile-check`, shared training snapshots, bounded file/diagnostic costs and optional verified native file loading ([scope](docs/CHANGES-0.6.1.md), [migration](docs/MIGRATION-0.6.1.md), [configuration ownership](docs/CONFIGURATION.md)).
+**AIRust 0.6.3** adds operational robustness for the process worker: an optional bounded `ProcessPool`, fault-injection soak validation (passed on a host without foreign load; two earlier loaded runs failed the latency-drift criterion and remain recorded), a Linux native CI job, and security fixes (admin mode requires a token, reduced worker environment, optional runtime identity, web size limits). Read [scope](docs/CHANGES-0.6.3.md) and [release validation](docs/validation-0.6.3/RELEASE.md).
+
+AIRust 0.6.2 added an opt-in [native-model process owner](docs/LOCAL-MODEL-PROCESSES.md) for predictable repeated MiniLM unload/reload, plus review fixes and resource-aware test control. Read [scope](docs/CHANGES-0.6.2.md), [migration](docs/MIGRATION-0.6.2.md) and [release validation and open limits](docs/validation-0.6.2/RELEASE.md). AIRust 0.6.1 added bounded reranking batch/candidate settings, offline `profile-check`, shared training snapshots, bounded file/diagnostic costs and optional verified native file loading ([scope](docs/CHANGES-0.6.1.md), [migration](docs/MIGRATION-0.6.1.md), [configuration ownership](docs/CONFIGURATION.md)).
 
 The bounded local pilot and explicit live search profiles introduced in 0.6.0 remain compatible. [Actual local answer attempts and retained measurements](docs/measurements/profile-practical-0.6.0/README.md) precede these changes; the [final-source confirmation](docs/measurements/configuration-0.6.1-final/README.md) records costs and regressions. Native models still exceed 1 GiB here, and independently reviewed retrieval quality remains unestablished. Engineering validation is separate from those product-readiness gates.
 
@@ -16,7 +18,7 @@ Use Rust 1.89 or newer. Add the published library:
 
 ```toml
 [dependencies]
-airust = { version = "=0.6.2", default-features = false }
+airust = { version = "=0.6.3", default-features = false }
 ```
 
 ```rust
@@ -58,7 +60,7 @@ Keep the snapshot together with its passages. Resolve citations against that rev
 Install the published read-only MCP executable:
 
 ```bash
-cargo install airust --version 0.6.2 --locked --no-default-features --features mcp --bin airust-mcp
+cargo install airust --version 0.6.3 --locked --no-default-features --features mcp --bin airust-mcp
 airust-mcp --knowledge /absolute/path/knowledge.json
 ```
 
