@@ -47,7 +47,7 @@ Across both runs the tail grows only when foreign load rises, and memory, descri
 
 ## R1 third run — host quiet at start: **passed**
 
-The run lasted 2026-11-28 04:50:00 to 07:50:02 UTC with the same binary (`884f9068…`) and source `3a2660e`. The [addendum](evidence-2026-11-27/r1-third-policy-addendum.json) was frozen before the run. The run started only after 10 consecutive minutes without `rustc`, `cargo` or `clang` and with load below 3 ([start script](evidence-2026-11-27/r1-third-wait-for-quiet.sh.txt), [wait log](evidence-2026-11-27/r1-third-wait.log)).
+The run lasted 2026-11-28 04:50:00 to 07:50:02 UTC with the same binary (`884f9068…`) and source `3a2660e`. The [addendum](evidence-2026-11-27/r1-third-policy-addendum.json) was frozen before the run. The run started only after 10 consecutive minutes without `rustc`, `cargo` or `clang` and with load below 3 ([start script](evidence-2026-11-27/r1-third-wait-for-quiet.sh.txt), [wait log](evidence-2026-11-27/r1-third-wait.txt)).
 
 The start gate's rule on `rust-analyzer` was relaxed before the start, from "absent" to "each below 5 % CPU", because five idle language servers (0 % CPU) blocked the original gate. This is recorded in the addendum. While a second, duplicate starter with the original gate ran by mistake, its log lines interleave in the wait log. It never started a run and was stopped at 04:34 UTC.
 
